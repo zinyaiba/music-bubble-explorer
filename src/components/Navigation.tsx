@@ -3,12 +3,14 @@ import styled from 'styled-components'
 import { announceToScreenReader } from '@/utils/accessibility'
 
 interface NavigationProps {
-  currentView: 'main' | 'registration' | 'management'
-  onViewChange: (view: 'main' | 'registration' | 'management') => void
+  currentView: 'main' | 'registration' | 'management' | 'firebase-test'
+  onViewChange: (view: 'main' | 'registration' | 'management' | 'firebase-test') => void
   showRegistrationForm: boolean
   showSongManagement: boolean
+  showFirebaseTest?: boolean
   onToggleRegistrationForm: () => void
   onToggleSongManagement: () => void
+  onToggleFirebaseTest?: () => void
 }
 
 /**
@@ -20,8 +22,10 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
   onViewChange,
   showRegistrationForm,
   showSongManagement,
+  showFirebaseTest = false,
   onToggleRegistrationForm,
-  onToggleSongManagement
+  onToggleSongManagement,
+  onToggleFirebaseTest
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -67,6 +71,24 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
     setIsMenuOpen(false)
     announceToScreenReader('楽曲管理画面を開きました')
   }, [showRegistrationForm, showSongManagement, onToggleRegistrationForm, onToggleSongManagement, onViewChange])
+
+  /**
+   * Firebase接続テストを開く
+   */
+  const handleOpenFirebaseTest = useCallback(() => {
+    if (showRegistrationForm) {
+      onToggleRegistrationForm()
+    }
+    if (showSongManagement) {
+      onToggleSongManagement()
+    }
+    if (onToggleFirebaseTest && !showFirebaseTest) {
+      onToggleFirebaseTest()
+    }
+    onViewChange('firebase-test')
+    setIsMenuOpen(false)
+    announceToScreenReader('Firebase接続テストを開きました')
+  }, [showRegistrationForm, showSongManagement, showFirebaseTest, onToggleRegistrationForm, onToggleSongManagement, onToggleFirebaseTest, onViewChange])
 
   return (
     <NavigationContainer role="navigation" aria-label="メインナビゲーション">
@@ -119,6 +141,22 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
             <ButtonText>楽曲管理</ButtonText>
           </NavigationButton>
         </NavigationItem>
+
+        {/* 開発環境でのみFirebase接続テストを表示 */}
+        {process.env.NODE_ENV === 'development' && (
+          <NavigationItem role="none">
+            <NavigationButton
+              onClick={handleOpenFirebaseTest}
+              $isActive={currentView === 'firebase-test'}
+              role="menuitem"
+              aria-current={currentView === 'firebase-test' ? 'page' : undefined}
+              title="Firebase接続をテスト"
+            >
+              <ButtonIcon aria-hidden="true">🔥</ButtonIcon>
+              <ButtonText>Firebase</ButtonText>
+            </NavigationButton>
+          </NavigationItem>
+        )}
       </NavigationMenu>
 
       {/* モバイル用オーバーレイ */}

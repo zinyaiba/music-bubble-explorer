@@ -81,6 +81,46 @@ export class MusicDataService {
   }
 
   /**
+   * Firebaseから最新データを取得して更新
+   */
+  public async loadFromFirebase(): Promise<boolean> {
+    try {
+      console.log('🔥 Loading from Firebase...')
+      
+      const { FirebaseService } = await import('@/services/firebaseService')
+      const firebaseService = FirebaseService.getInstance()
+      
+      // Firebase接続チェック
+      const isConnected = await firebaseService.checkConnection()
+      if (!isConnected) {
+        console.warn('🔥 Firebase not connected, skipping Firebase load')
+        return false
+      }
+      
+      // Firebaseからデータを取得
+      const firebaseDatabase = await firebaseService.getMusicDatabase()
+      
+      // Firebaseデータでデータベースを更新
+      this.musicDatabase = {
+        songs: firebaseDatabase.songs || [],
+        people: firebaseDatabase.people || [],
+        tags: firebaseDatabase.tags || []
+      }
+
+      console.log('🔥 Firebase database loaded successfully:', {
+        songs: this.musicDatabase.songs.length,
+        people: this.musicDatabase.people.length,
+        tags: this.musicDatabase.tags.length
+      })
+
+      return true
+    } catch (error) {
+      console.error('🔥 Failed to load from Firebase:', error)
+      return false
+    }
+  }
+
+  /**
    * シングルトンインスタンスを取得
    */
   public static getInstance(): MusicDataService {

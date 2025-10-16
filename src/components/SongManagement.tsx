@@ -42,21 +42,41 @@ export const SongManagement: React.FC<SongManagementProps> = React.memo(({
     const [isDeleting, setIsDeleting] = useState(false)
 
     /**
-     * 楽曲データを読み込み
+     * 楽曲データを読み込み（Firebase対応）
      */
     const loadSongs = useCallback(async () => {
         setIsLoading(true)
         setError(null)
 
         try {
-            const loadedSongs = DataManager.loadSongs()
+            console.log('🔄 Loading songs for management...')
+            
+            // まずFirebaseから読み込みを試行
+            let loadedSongs: Song[] = []
+            
+            try {
+                const { FirebaseService } = await import('@/services/firebaseService')
+                const firebaseService = FirebaseService.getInstance()
+                
+                const isConnected = await firebaseService.checkConnection()
+                if (isConnected) {
+                    loadedSongs = await firebaseService.getAllSongs()
+                    console.log(`🔥 Loaded ${loadedSongs.length} songs from Firebase`)
+                } else {
+                    console.log('🔥 Firebase not connected, falling back to local storage')
+                    loadedSongs = DataManager.loadSongs()
+                }
+            } catch (firebaseError) {
+                console.warn('🔥 Firebase load failed, using local storage:', firebaseError)
+                loadedSongs = DataManager.loadSongs()
+            }
 
             setSongs(loadedSongs)
-            console.log(`Loaded ${loadedSongs.length} songs for management`)
+            console.log(`✅ Loaded ${loadedSongs.length} songs for management`)
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : '楽曲データの読み込みに失敗しました'
             setError(errorMessage)
-            console.error('Failed to load songs:', err)
+            console.error('❌ Failed to load songs:', err)
         } finally {
             setIsLoading(false)
         }
@@ -106,13 +126,32 @@ export const SongManagement: React.FC<SongManagementProps> = React.memo(({
     }, [])
 
     /**
-     * 楽曲更新処理
+     * 楽曲更新処理（Firebase対応）
      */
-    const handleSongUpdated = useCallback((updatedSong: Song) => {
+    const handleSongUpdated = useCallback(async (updatedSong: Song) => {
         try {
-            const updateSuccess = DataManager.updateSong(updatedSong)
+            console.log('🔄 Updating song:', updatedSong.title)
             
-            if (!updateSuccess) {
+            // Firebaseで更新を試行
+            let updateSuccess = false
+            
+            try {
+                const { FirebaseService } = await import('@/services/firebaseService')
+                const firebaseService = FirebaseService.getInstance()
+                
+                const isConnected = await firebaseService.checkConnection()
+                if (isConnected) {
+                    updateSuccess = await firebaseService.updateSong(updatedSong.id, updatedSong)
+                    console.log('🔥 Firebase update result:', updateSuccess)
+                }
+            } catch (firebaseError) {
+                console.warn('🔥 Firebase update failed:', firebaseError)
+            }
+            
+            // ローカルストレージも更新（バックアップとして）
+            const localUpdateSuccess = DataManager.updateSong(updatedSong)
+            
+            if (!updateSuccess && !localUpdateSuccess) {
                 throw new Error('楽曲の更新に失敗しました')
             }
 
@@ -133,11 +172,11 @@ export const SongManagement: React.FC<SongManagementProps> = React.memo(({
             // 編集フォームを閉じる
             handleCloseEditForm()
 
-            console.log('Song updated successfully:', updatedSong.title)
+            console.log('✅ Song updated successfully:', updatedSong.title)
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : '楽曲の更新に失敗しました'
             setError(errorMessage)
-            console.error('Failed to update song:', err)
+            console.error('❌ Failed to update song:', err)
         }
     }, [onSongUpdated, handleCloseEditForm])
 
@@ -162,7 +201,7 @@ export const SongManagement: React.FC<SongManagementProps> = React.memo(({
     }, [])
 
     /**
-     * 楽曲削除を実行
+     * 楽曲削除を実行（Firebase対応）
      */
     const handleConfirmDelete = useCallback(async () => {
         if (!deleteConfirmation.song) return
@@ -171,9 +210,28 @@ export const SongManagement: React.FC<SongManagementProps> = React.memo(({
         const songToDelete = deleteConfirmation.song
 
         try {
-            const deleteSuccess = DataManager.deleteSong(songToDelete.id)
+            console.log('🗑️ Deleting song:', songToDelete.title)
             
-            if (!deleteSuccess) {
+            // Firebaseで削除を試行
+            let deleteSuccess = false
+            
+            try {
+                const { FirebaseService } = await import('@/services/firebaseService')
+                const firebaseService = FirebaseService.getInstance()
+                
+                const isConnected = await firebaseService.checkConnection()
+                if (isConnected) {
+                    deleteSuccess = await firebaseService.deleteSong(songToDelete.id)
+                    console.log('🔥 Firebase delete result:', deleteSuccess)
+                }
+            } catch (firebaseError) {
+                console.warn('🔥 Firebase delete failed:', firebaseError)
+            }
+            
+            // ローカルストレージからも削除（バックアップとして）
+            const localDeleteSuccess = DataManager.deleteSong(songToDelete.id)
+            
+            if (!deleteSuccess && !localDeleteSuccess) {
                 throw new Error('楽曲の削除に失敗しました')
             }
 
@@ -192,11 +250,11 @@ export const SongManagement: React.FC<SongManagementProps> = React.memo(({
             // 削除確認ダイアログを閉じる
             handleCloseDeleteConfirmation()
 
-            console.log('Song deleted successfully:', songToDelete.title)
+            console.log('✅ Song deleted successfully:', songToDelete.title)
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : '楽曲の削除に失敗しました'
             setError(errorMessage)
-            console.error('Failed to delete song:', err)
+            console.error('❌ Failed to delete song:', err)
         } finally {
             setIsDeleting(false)
         }
@@ -291,16 +349,27 @@ export const SongManagement: React.FC<SongManagementProps> = React.memo(({
                                 <SearchIcon>🔍</SearchIcon>
                             </SearchContainer>
 
-                            {/* 楽曲統計 */}
+                            {/* 楽曲統計とアクション */}
                             <StatsContainer>
-                                <StatItem>
-                                    <StatLabel>総楽曲数:</StatLabel>
-                                    <StatValue>{songs.length}曲</StatValue>
-                                </StatItem>
-                                <StatItem>
-                                    <StatLabel>検索結果:</StatLabel>
-                                    <StatValue>{filteredSongs.length}曲</StatValue>
-                                </StatItem>
+                                <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flex: 1 }}>
+                                    <StatItem>
+                                        <StatLabel>総楽曲数:</StatLabel>
+                                        <StatValue>{songs.length}曲</StatValue>
+                                    </StatItem>
+                                    <StatItem>
+                                        <StatLabel>検索結果:</StatLabel>
+                                        <StatValue>{filteredSongs.length}曲</StatValue>
+                                    </StatItem>
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <RefreshButton
+                                        onClick={loadSongs}
+                                        disabled={isLoading}
+                                        title="楽曲一覧を再読み込み"
+                                    >
+                                        {isLoading ? '🔄' : '🔄'}
+                                    </RefreshButton>
+                                </div>
                             </StatsContainer>
 
 
@@ -662,6 +731,36 @@ const StatValue = styled.span`
   font-size: 14px;
   color: #ff69b4;
   font-weight: 600;
+`
+
+const RefreshButton = styled.button`
+  background: linear-gradient(135deg, #ff69b4, #ff1493);
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 32px;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ff1493, #dc143c);
+    transform: scale(1.05);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &:disabled:hover {
+    transform: none;
+  }
 `
 
 const SongList = styled.div`

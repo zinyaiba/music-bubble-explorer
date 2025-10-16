@@ -937,4 +937,71 @@ button:focus,
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}/* Fir
+ebase Test Modal Styles */
+.firebase-test-modal {
+  max-width: 800px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: var(--modal-background);
+  border: 2px solid var(--border-cute);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px var(--shadow-strong);
+  backdrop-filter: blur(15px);
+}
+
+.firebase-test-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-cute);
+  background: linear-gradient(135deg, var(--bubble-pink), var(--bubble-rose));
+  color: white;
+  border-radius: 18px 18px 0 0;
+}
+
+.firebase-test-modal .modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.firebase-test-modal .modal-close-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2px solid white;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.firebase-test-modal .modal-close-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Firebase Test Component Overrides */
+.firebase-test-modal .p-6 {
+  padding: 24px;
+}
+
+.firebase-test-modal .bg-white {
+  background: transparent;
+}
+
+.firebase-test-modal .shadow-md {
+  box-shadow: none;
+}
+
+.firebase-test-modal .rounded-lg {
+  border-radius: 0;
 }

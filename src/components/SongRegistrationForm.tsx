@@ -201,10 +201,29 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = React.m
           tags: formData.tags
         }
 
-        // データを更新
-        const updateSuccess = DataManager.updateSong(songToSave)
+        // Firebaseで更新を試行
+        console.log('🔄 Updating song in Firebase:', songToSave.title)
+        try {
+          const { FirebaseService } = await import('@/services/firebaseService')
+          const firebaseService = FirebaseService.getInstance()
+          
+          const isConnected = await firebaseService.checkConnection()
+          if (isConnected) {
+            const updateSuccess = await firebaseService.updateSong(songToSave.id, songToSave)
+            if (!updateSuccess) {
+              console.warn('⚠️ Firebase update failed, falling back to local storage')
+            } else {
+              console.log('🔥 Song updated in Firebase successfully')
+            }
+          }
+        } catch (firebaseError) {
+          console.warn('⚠️ Firebase update error:', firebaseError)
+        }
+
+        // ローカルストレージも更新（バックアップとして）
+        const localUpdateSuccess = DataManager.updateSong(songToSave)
         
-        if (!updateSuccess) {
+        if (!localUpdateSuccess) {
           throw new Error('楽曲の更新に失敗しました')
         }
       } else {
@@ -219,7 +238,35 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = React.m
           tags: formData.tags
         }
 
-        // ローカルデータを保存
+        // Firebaseに保存
+        console.log('🔥 Attempting to save song to Firebase:', songToSave)
+        try {
+          const { FirebaseService } = await import('@/services/firebaseService')
+          const firebaseService = FirebaseService.getInstance()
+          
+          // 接続チェック
+          const isConnected = await firebaseService.checkConnection()
+          console.log('🔥 Firebase connection status:', isConnected)
+          
+          if (!isConnected) {
+            throw new Error('Firebase connection failed')
+          }
+          
+          const firebaseId = await firebaseService.addSong(songToSave)
+          
+          if (firebaseId) {
+            console.log('🔥 Song saved to Firebase with ID:', firebaseId)
+            // Firebase IDで楽曲を更新
+            songToSave.id = firebaseId
+          } else {
+            console.warn('⚠️ Firebase save returned null, falling back to local storage')
+            throw new Error('Firebase save returned null')
+          }
+        } catch (firebaseError) {
+          console.error('⚠️ Firebase save error, falling back to local storage:', firebaseError)
+        }
+
+        // ローカルデータにも保存（バックアップとして）
         const saveSuccess = DataManager.saveSong(songToSave)
         
         if (!saveSuccess) {

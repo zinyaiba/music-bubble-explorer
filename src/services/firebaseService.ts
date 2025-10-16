@@ -38,6 +38,47 @@ export class FirebaseService {
 
   private constructor() {}
 
+  /**
+   * Firebaseのタイムスタンプを安全にISO文字列に変換
+   */
+  private convertTimestampToString(timestamp: any): string {
+    try {
+      if (timestamp && typeof timestamp.toDate === 'function') {
+        // Timestampオブジェクトの場合
+        return timestamp.toDate().toISOString()
+      } else if (timestamp && typeof timestamp === 'string') {
+        // 既に文字列の場合
+        return timestamp
+      } else if (timestamp && timestamp.seconds) {
+        // Timestamp形式のオブジェクトの場合
+        return new Date(timestamp.seconds * 1000).toISOString()
+      } else {
+        // その他の場合は現在時刻を使用
+        return new Date().toISOString()
+      }
+    } catch (error) {
+      console.warn('🔥 Firebase: Timestamp変換エラー:', error)
+      return new Date().toISOString()
+    }
+  }
+
+  /**
+   * FirebaseSongをSongに変換
+   */
+  private convertFirebaseSongToSong(doc: any): Song {
+    const data = doc.data() as FirebaseSong
+    return {
+      id: doc.id,
+      title: data.title || '',
+      lyricists: data.lyricists || [],
+      composers: data.composers || [],
+      arrangers: data.arrangers || [],
+      tags: data.tags || [],
+      notes: data.notes || '',
+      createdAt: this.convertTimestampToString(data.createdAt)
+    }
+  }
+
   public static getInstance(): FirebaseService {
     if (!FirebaseService.instance) {
       FirebaseService.instance = new FirebaseService()
@@ -60,6 +101,19 @@ export class FirebaseService {
       if (!this.isFirebaseAvailable() || !db) {
         console.log('🔥 Firebase: 設定が無効です')
         return null
+      }
+
+      // 重複チェック: 同じタイトルの楽曲が既に存在するかチェック
+      const existingQuery = query(
+        collection(db!, this.COLLECTION_NAME),
+        where('title', '==', song.title.trim())
+      )
+      
+      const existingSnapshot = await getDocs(existingQuery)
+      if (!existingSnapshot.empty) {
+        console.warn('🔥 Firebase: 同じタイトルの楽曲が既に存在します:', song.title)
+        // 既存の楽曲のIDを返す
+        return existingSnapshot.docs[0].id
       }
       
       const firebaseSong: FirebaseSong = {
@@ -92,9 +146,9 @@ export class FirebaseService {
         return []
       }
       
+      // シンプルなクエリに変更（インデックス不要）
       const q = query(
         collection(db!, this.COLLECTION_NAME),
-        where('isPublic', '==', true),
         orderBy('createdAt', 'desc')
       )
       
@@ -103,16 +157,10 @@ export class FirebaseService {
 
       querySnapshot.forEach((doc) => {
         const data = doc.data() as FirebaseSong
-        songs.push({
-          id: doc.id,
-          title: data.title,
-          lyricists: data.lyricists,
-          composers: data.composers,
-          arrangers: data.arrangers,
-          tags: data.tags || [],
-          notes: data.notes || '',
-          createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString()
-        })
+        // isPublicがtrueまたは未設定の楽曲のみを含める
+        if (data.isPublic !== false) {
+          songs.push(this.convertFirebaseSongToSong(doc))
+        }
       })
 
       console.log(`🔥 Firebase: ${songs.length}曲を取得しました`)
@@ -152,16 +200,31 @@ export class FirebaseService {
    */
   public async deleteSong(songId: string): Promise<boolean> {
     try {
+      console.log('🔥 Firebase: 削除開始', songId)
+      
       if (!this.isFirebaseAvailable() || !db) {
         console.log('🔥 Firebase: 設定が無効です')
         return false
       }
       
-      await deleteDoc(doc(db!, this.COLLECTION_NAME, songId))
+      if (!songId || songId.trim() === '') {
+        console.error('🔥 Firebase: 無効なsongId', songId)
+        return false
+      }
+      
+      const docRef = doc(db!, this.COLLECTION_NAME, songId)
+      console.log('🔥 Firebase: ドキュメント参照作成', docRef.path)
+      
+      await deleteDoc(docRef)
       console.log('🔥 Firebase: 楽曲を削除しました', songId)
       return true
     } catch (error) {
       console.error('🔥 Firebase: 楽曲削除エラー', error)
+      console.error('🔥 Firebase: エラー詳細', {
+        songId,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      })
       return false
     }
   }
@@ -171,11 +234,10 @@ export class FirebaseService {
    */
   public async getSongsByTag(tag: string): Promise<Song[]> {
     try {
+      // シンプルなクエリに変更（インデックス不要）
       const q = query(
         collection(db!, this.COLLECTION_NAME),
-        where('tags', 'array-contains', tag),
-        where('isPublic', '==', true),
-        orderBy('createdAt', 'desc')
+        where('tags', 'array-contains', tag)
       )
       
       const querySnapshot = await getDocs(q)
@@ -183,16 +245,10 @@ export class FirebaseService {
 
       querySnapshot.forEach((doc) => {
         const data = doc.data() as FirebaseSong
-        songs.push({
-          id: doc.id,
-          title: data.title,
-          lyricists: data.lyricists,
-          composers: data.composers,
-          arrangers: data.arrangers,
-          tags: data.tags || [],
-          notes: data.notes || '',
-          createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString()
-        })
+        // isPublicがtrueまたは未設定の楽曲のみを含める
+        if (data.isPublic !== false) {
+          songs.push(this.convertFirebaseSongToSong(doc))
+        }
       })
 
       return songs
@@ -212,9 +268,9 @@ export class FirebaseService {
         return []
       }
       
+      // シンプルなクエリに変更（インデックス不要）
       const q = query(
         collection(db!, this.COLLECTION_NAME),
-        where('isPublic', '==', true),
         orderBy('createdAt', 'desc'),
         limit(limitCount)
       )
@@ -224,16 +280,10 @@ export class FirebaseService {
 
       querySnapshot.forEach((doc) => {
         const data = doc.data() as FirebaseSong
-        songs.push({
-          id: doc.id,
-          title: data.title,
-          lyricists: data.lyricists,
-          composers: data.composers,
-          arrangers: data.arrangers,
-          tags: data.tags || [],
-          notes: data.notes || '',
-          createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString()
-        })
+        // isPublicがtrueまたは未設定の楽曲のみを含める
+        if (data.isPublic !== false) {
+          songs.push(this.convertFirebaseSongToSong(doc))
+        }
       })
 
       return songs
@@ -247,9 +297,9 @@ export class FirebaseService {
    * リアルタイムで楽曲データを監視
    */
   public subscribeToSongs(callback: (songs: Song[]) => void): () => void {
+    // シンプルなクエリに変更（インデックス不要）
     const q = query(
       collection(db!, this.COLLECTION_NAME),
-      where('isPublic', '==', true),
       orderBy('createdAt', 'desc')
     )
 
@@ -258,16 +308,10 @@ export class FirebaseService {
       
       querySnapshot.forEach((doc) => {
         const data = doc.data() as FirebaseSong
-        songs.push({
-          id: doc.id,
-          title: data.title,
-          lyricists: data.lyricists,
-          composers: data.composers,
-          arrangers: data.arrangers,
-          tags: data.tags || [],
-          notes: data.notes || '',
-          createdAt: data.createdAt?.toDate().toISOString() || new Date().toISOString()
-        })
+        // isPublicがtrueまたは未設定の楽曲のみを含める
+        if (data.isPublic !== false) {
+          songs.push(this.convertFirebaseSongToSong(doc))
+        }
       })
 
       callback(songs)

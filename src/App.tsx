@@ -17,6 +17,7 @@ import { ErrorBoundary, DataLoadingErrorBoundary } from './components/ErrorBound
 import { DataLoadingFallback, NetworkErrorFallback, GenericErrorFallback, InlineErrorDisplay } from './components/FallbackComponents'
 import { SongRegistrationForm } from './components/SongRegistrationForm'
 import { SongManagement } from './components/SongManagement'
+import { FirebaseConnectionTest } from './components/FirebaseConnectionTest'
 // ErrorHandler import removed - using simple error handling
 import { announceToScreenReader, initializeAccessibility } from './utils/accessibility'
 import { initializeResponsiveSystem } from './utils/responsiveUtils'
@@ -92,7 +93,8 @@ function App() {
   const [isRecovering, setIsRecovering] = useState(false)
   const [showRegistrationForm, setShowRegistrationForm] = useState(false)
   const [showSongManagement, setShowSongManagement] = useState(false)
-  const [currentView, setCurrentView] = useState<'main' | 'registration' | 'management'>('main')
+  const [currentView, setCurrentView] = useState<'main' | 'registration' | 'management' | 'firebase-test'>('main')
+  const [showFirebaseTest, setShowFirebaseTest] = useState(false)
 
   const [debugLogger] = useState(() => DebugLogger.getInstance())
 
@@ -163,6 +165,18 @@ function App() {
 
         // Initialize MusicDataService
         const musicService = MusicDataService.getInstance()
+
+        // Firebaseからデータを読み込み
+        try {
+          const firebaseLoaded = await musicService.loadFromFirebase()
+          if (firebaseLoaded) {
+            debugLogger.info('🔥 Data loaded from Firebase successfully')
+          } else {
+            debugLogger.info('📁 Firebase not available, using local data')
+          }
+        } catch (error) {
+          debugLogger.warn('🔥 Firebase load failed, using local data:', error)
+        }
 
         musicServiceRef.current = musicService
 
@@ -373,7 +387,7 @@ function App() {
   /**
    * Handle view changes
    */
-  const handleViewChange = useCallback((view: 'main' | 'registration' | 'management') => {
+  const handleViewChange = useCallback((view: 'main' | 'registration' | 'management' | 'firebase-test') => {
     setCurrentView(view)
   }, [])
 
@@ -438,16 +452,49 @@ function App() {
     announceToScreenReader('楽曲管理画面を閉じました')
   }, [])
 
+  /**
+   * Handle Firebase test toggle with accessibility announcements
+   */
+  const handleToggleFirebaseTest = useCallback(() => {
+    setShowFirebaseTest(prev => {
+      const newState = !prev
+      
+      // Update current view
+      setCurrentView(newState ? 'firebase-test' : 'main')
+      
+      // Announce state change for screen readers
+      const announcement = newState ? 'Firebase接続テストを開きました' : 'Firebase接続テストを閉じました'
+      announceToScreenReader(announcement)
+      return newState
+    })
+  }, [])
+
+  /**
+   * Handle Firebase test close with accessibility announcements
+   */
+  const handleFirebaseTestClose = useCallback(() => {
+    setShowFirebaseTest(false)
+    setCurrentView('main')
+    announceToScreenReader('Firebase接続テストを閉じました')
+  }, [])
+
 
 
   /**
    * Handle new song added
    */
-  const handleSongAdded = useCallback((song: Song) => {
+  const handleSongAdded = useCallback(async (song: Song) => {
     // Refresh the enhanced bubble manager with new data
     if (enhancedBubbleManagerRef.current && musicServiceRef.current) {
-      // Clear cache and reload data
-      musicServiceRef.current.clearCache()
+      // Firebaseから最新データを再読み込み
+      try {
+        await musicServiceRef.current.loadFromFirebase()
+        debugLogger.info('🔥 Reloaded data from Firebase after song addition')
+      } catch (error) {
+        debugLogger.warn('🔥 Firebase reload failed, using local cache:', error)
+        // Clear cache and reload local data
+        musicServiceRef.current.clearCache()
+      }
       
       // Get updated music database
       const musicDatabase = {
@@ -649,8 +696,10 @@ function App() {
               onViewChange={handleViewChange}
               showRegistrationForm={showRegistrationForm}
               showSongManagement={showSongManagement}
+              showFirebaseTest={showFirebaseTest}
               onToggleRegistrationForm={handleToggleRegistrationForm}
               onToggleSongManagement={handleToggleSongManagement}
+              onToggleFirebaseTest={handleToggleFirebaseTest}
             />
           }
         >
@@ -702,6 +751,25 @@ function App() {
             onSongUpdated={handleSongUpdated}
             onSongDeleted={handleSongDeleted}
           />
+
+          {/* Firebase接続テスト（開発環境のみ） */}
+          {process.env.NODE_ENV === 'development' && showFirebaseTest && (
+            <div className="modal-overlay" onClick={handleFirebaseTestClose}>
+              <div className="modal-content firebase-test-modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h2>Firebase接続テスト</h2>
+                  <button 
+                    className="modal-close-button"
+                    onClick={handleFirebaseTestClose}
+                    aria-label="Firebase接続テストを閉じる"
+                  >
+                    ×
+                  </button>
+                </div>
+                <FirebaseConnectionTest />
+              </div>
+            </div>
+          )}
 
           {/* PWA Components */}
           <PWAInstallButton />
