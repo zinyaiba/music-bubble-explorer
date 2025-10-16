@@ -7,10 +7,10 @@ interface NavigationProps {
   onViewChange: (view: 'main' | 'registration' | 'management' | 'firebase-test') => void
   showRegistrationForm: boolean
   showSongManagement: boolean
-  showFirebaseTest: boolean
+  showFirebaseTest?: boolean
   onToggleRegistrationForm: () => void
   onToggleSongManagement: () => void
-  onToggleFirebaseTest: () => void
+  onToggleFirebaseTest?: () => void
 }
 
 /**
@@ -22,7 +22,7 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
   onViewChange,
   showRegistrationForm,
   showSongManagement,
-  showFirebaseTest,
+  showFirebaseTest = false,
   onToggleRegistrationForm,
   onToggleSongManagement,
   onToggleFirebaseTest
@@ -76,6 +76,8 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
    * Firebase接続テストを開く
    */
   const handleOpenFirebaseTest = useCallback(() => {
+    if (!onToggleFirebaseTest) return
+    
     if (showRegistrationForm) {
       onToggleRegistrationForm()
     }
@@ -143,19 +145,21 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
           </NavigationButton>
         </NavigationItem>
 
-        {/* Firebase接続テスト */}
-        <NavigationItem role="none">
-          <NavigationButton
-            onClick={handleOpenFirebaseTest}
-            $isActive={currentView === 'firebase-test'}
-            role="menuitem"
-            aria-current={currentView === 'firebase-test' ? 'page' : undefined}
-            title="Firebase接続をテスト"
-          >
-            <ButtonIcon aria-hidden="true">🔥</ButtonIcon>
-            <ButtonText>Firebase</ButtonText>
-          </NavigationButton>
-        </NavigationItem>
+        {/* Firebase接続テスト（開発環境のみ） */}
+        {import.meta.env.DEV && (
+          <NavigationItem role="none">
+            <NavigationButton
+              onClick={handleOpenFirebaseTest}
+              $isActive={currentView === 'firebase-test'}
+              role="menuitem"
+              aria-current={currentView === 'firebase-test' ? 'page' : undefined}
+              title="Firebase接続をテスト"
+            >
+              <ButtonIcon aria-hidden="true">🔥</ButtonIcon>
+              <ButtonText>Firebase</ButtonText>
+            </NavigationButton>
+          </NavigationItem>
+        )}
       </NavigationMenu>
 
       {/* モバイル用オーバーレイ */}

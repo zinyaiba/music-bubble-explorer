@@ -752,8 +752,8 @@ function App() {
             onSongDeleted={handleSongDeleted}
           />
 
-          {/* Firebase接続テスト */}
-          {showFirebaseTest && (
+          {/* Firebase接続テスト（開発環境のみ） */}
+          {import.meta.env.DEV && showFirebaseTest && (
             <div className="modal-overlay" onClick={handleFirebaseTestClose}>
               <div className="modal-content firebase-test-modal" onClick={(e) => e.stopPropagation()}>
                 <div className="modal-header">
