@@ -40,16 +40,16 @@ export const getFirebaseConfig = () => {
     console.log('🔥 環境変数設定:', { ...config, apiKey: config.apiKey ? '設定済み' : '未設定' })
     return config
   }
-  
+
   // 環境変数がない場合は本番用設定を使用（GitHub Pagesなど）
   console.log('🔥 本番用設定からFirebase設定を取得（環境変数なし）')
   console.log('🔥 本番用設定:', { ...prodFirebaseConfig, apiKey: '設定済み' })
-  
+
   // 本番環境で環境変数がない場合は強制的に本番用設定を使用
   if (import.meta.env.PROD && !import.meta.env.VITE_FIREBASE_API_KEY) {
     console.log('🔥 本番環境で環境変数なし - 本番用設定を強制使用')
     return prodFirebaseConfig
   }
-  
+
   return prodFirebaseConfig
 }

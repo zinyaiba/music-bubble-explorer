@@ -21,13 +21,23 @@ export interface FirebaseTestResult {
  * Firebase接続をテストする
  */
 export async function testFirebaseConnection(): Promise<FirebaseTestResult> {
+  // 直接設定を使用
+  const config = {
+    apiKey: "AIzaSyDkJCEmdaqTmaBYVH3xLtg0HaKwRzSuefA",
+    authDomain: "music-bubble-explorer.firebaseapp.com",
+    projectId: "music-bubble-explorer",
+    storageBucket: "music-bubble-explorer.firebasestorage.app",
+    messagingSenderId: "1000893317937",
+    appId: "1:1000893317937:web:82904e4282466acee0a610"
+  }
+
   const result: FirebaseTestResult = {
     isConfigured: false,
     isConnected: false,
     details: {
-      hasApiKey: !!import.meta.env.VITE_FIREBASE_API_KEY,
-      hasProjectId: !!import.meta.env.VITE_FIREBASE_PROJECT_ID,
-      hasAuthDomain: !!import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+      hasApiKey: !!config.apiKey,
+      hasProjectId: !!config.projectId,
+      hasAuthDomain: !!config.authDomain,
       canQueryFirestore: false
     }
   }
@@ -37,6 +47,8 @@ export async function testFirebaseConnection(): Promise<FirebaseTestResult> {
     result.isConfigured = result.details.hasApiKey && 
                          result.details.hasProjectId && 
                          result.details.hasAuthDomain
+    
+    console.log('🔥 Firebase設定チェック結果:', result.details)
 
     if (!result.isConfigured) {
       result.error = '環境変数が設定されていません'
@@ -71,12 +83,24 @@ export async function testFirebaseConnection(): Promise<FirebaseTestResult> {
  * Firebase設定情報を表示用に取得
  */
 export function getFirebaseConfigInfo() {
+  // 直接Firebase設定を確認
+  let actualConfig = {
+    apiKey: "AIzaSyDkJCEmdaqTmaBYVH3xLtg0HaKwRzSuefA",
+    authDomain: "music-bubble-explorer.firebaseapp.com",
+    projectId: "music-bubble-explorer",
+    storageBucket: "music-bubble-explorer.firebasestorage.app",
+    messagingSenderId: "1000893317937",
+    appId: "1:1000893317937:web:82904e4282466acee0a610"
+  }
+
+  console.log('🔥 Firebase設定確認:', actualConfig)
+
   return {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY ? '設定済み' : '未設定',
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '未設定',
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '未設定',
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '未設定',
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '未設定',
-    appId: import.meta.env.VITE_FIREBASE_APP_ID ? '設定済み' : '未設定'
+    apiKey: actualConfig.apiKey ? '設定済み' : '未設定',
+    authDomain: actualConfig.authDomain || '未設定',
+    projectId: actualConfig.projectId || '未設定',
+    storageBucket: actualConfig.storageBucket || '未設定',
+    messagingSenderId: actualConfig.messagingSenderId || '未設定',
+    appId: actualConfig.appId ? '設定済み' : '未設定'
   }
 }

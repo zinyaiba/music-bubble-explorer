@@ -9,7 +9,30 @@ import { getAuth, Auth } from 'firebase/auth'
 // Firebase設定（環境変数または本番用設定から取得）
 import { getFirebaseConfig } from './firebase.prod'
 
-const firebaseConfig = getFirebaseConfig()
+// GitHub Pages用の直接設定
+const githubPagesConfig = {
+  apiKey: "AIzaSyDkJCEmdaqTmaBYVH3xLtg0HaKwRzSuefA",
+  authDomain: "music-bubble-explorer.firebaseapp.com",
+  projectId: "music-bubble-explorer",
+  storageBucket: "music-bubble-explorer.firebasestorage.app",
+  messagingSenderId: "1000893317937",
+  appId: "1:1000893317937:web:82904e4282466acee0a610"
+}
+
+// 設定の取得
+let firebaseConfig
+try {
+  firebaseConfig = getFirebaseConfig()
+  
+  // 設定が空の場合はGitHub Pages用設定を使用
+  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+    console.log('🔥 Firebase: 設定が空のため、GitHub Pages用設定を使用')
+    firebaseConfig = githubPagesConfig
+  }
+} catch (error) {
+  console.warn('🔥 Firebase: 設定取得エラー、GitHub Pages用設定を使用:', error)
+  firebaseConfig = githubPagesConfig
+}
 
 console.log('🔥 Firebase設定確認:', firebaseConfig)
 
