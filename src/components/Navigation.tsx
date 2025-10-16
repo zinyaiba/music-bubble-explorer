@@ -115,6 +115,25 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
         aria-orientation="horizontal"
       >
 
+        {/* Firebase接続テストを最初に表示（デバッグ用） */}
+        <NavigationItem role="none">
+          <NavigationButton
+            onClick={() => {
+              console.log('🔥 Firebase button clicked!')
+              console.log('🔥 Environment:', import.meta.env.MODE)
+              console.log('🔥 handleOpenFirebaseTest:', typeof handleOpenFirebaseTest)
+              handleOpenFirebaseTest()
+            }}
+            $isActive={currentView === 'firebase-test'}
+            role="menuitem"
+            aria-current={currentView === 'firebase-test' ? 'page' : undefined}
+            title="Firebase接続をテスト"
+            style={{ backgroundColor: 'red', color: 'white' }} // 目立つように
+          >
+            <ButtonIcon aria-hidden="true">🔥</ButtonIcon>
+            <ButtonText>Firebase</ButtonText>
+          </NavigationButton>
+        </NavigationItem>
 
         <NavigationItem role="none">
           <NavigationButton
@@ -142,19 +161,7 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
           </NavigationButton>
         </NavigationItem>
 
-        {/* Firebase接続テストを表示（本番環境でも利用可能） */}
-        <NavigationItem role="none">
-          <NavigationButton
-            onClick={handleOpenFirebaseTest}
-            $isActive={currentView === 'firebase-test'}
-            role="menuitem"
-            aria-current={currentView === 'firebase-test' ? 'page' : undefined}
-            title="Firebase接続をテスト"
-          >
-            <ButtonIcon aria-hidden="true">🔥</ButtonIcon>
-            <ButtonText>Firebase</ButtonText>
-          </NavigationButton>
-        </NavigationItem>
+
       </NavigationMenu>
 
       {/* モバイル用オーバーレイ */}
