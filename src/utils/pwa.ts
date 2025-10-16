@@ -56,7 +56,9 @@ export class PWAManager {
         return;
       }
       
-      const swPath = process.env.NODE_ENV === 'production' ? '/music-bubble-explorer/sw.js' : '/sw.js';
+      // 動的にベースパスを取得
+      const basePath = import.meta.env.BASE_URL || '/'
+      const swPath = `${basePath}sw.js`.replace(/\/+/g, '/') // 重複スラッシュを除去
       
       // サービスワーカーファイルの存在確認
       const response = await fetch(swPath, { method: 'HEAD' });

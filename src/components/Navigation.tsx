@@ -7,10 +7,10 @@ interface NavigationProps {
   onViewChange: (view: 'main' | 'registration' | 'management' | 'firebase-test') => void
   showRegistrationForm: boolean
   showSongManagement: boolean
-  showFirebaseTest?: boolean
+  showFirebaseTest: boolean
   onToggleRegistrationForm: () => void
   onToggleSongManagement: () => void
-  onToggleFirebaseTest?: () => void
+  onToggleFirebaseTest: () => void
 }
 
 /**
@@ -22,7 +22,7 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
   onViewChange,
   showRegistrationForm,
   showSongManagement,
-  showFirebaseTest = false,
+  showFirebaseTest,
   onToggleRegistrationForm,
   onToggleSongManagement,
   onToggleFirebaseTest
@@ -82,7 +82,7 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
     if (showSongManagement) {
       onToggleSongManagement()
     }
-    if (onToggleFirebaseTest && !showFirebaseTest) {
+    if (!showFirebaseTest) {
       onToggleFirebaseTest()
     }
     onViewChange('firebase-test')
