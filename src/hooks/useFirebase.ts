@@ -107,20 +107,36 @@ export const useFirebase = () => {
 
         console.log('🔥 Firebase初期化完了')
       } else {
+        // Firebase接続に失敗した場合はローカルモードで動作
+        sharedDataService.configure({
+          method: DataSharingMethod.LOCAL_ONLY
+        })
+        
         setState(prev => ({
           ...prev,
+          isConnected: false,
+          isAuthenticated: false,
           isLoading: false,
-          error: 'Firebase接続に失敗しました'
+          error: null // エラーを表示しない
         }))
+        
+        console.log('🔥 Firebase未設定 - ローカルモードで動作')
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      // エラーが発生してもローカルモードで動作を継続
+      sharedDataService.configure({
+        method: DataSharingMethod.LOCAL_ONLY
+      })
+      
       setState(prev => ({
         ...prev,
+        isConnected: false,
+        isAuthenticated: false,
         isLoading: false,
-        error: errorMessage
+        error: null // エラーを表示しない
       }))
-      console.error('🔥 Firebase初期化エラー:', error)
+      
+      console.log('🔥 Firebase初期化エラー - ローカルモードで動作:', error)
     }
   }, [checkConnection, updateStats, authService, sharedDataService])
 

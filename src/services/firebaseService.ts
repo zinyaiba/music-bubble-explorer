@@ -46,10 +46,22 @@ export class FirebaseService {
   }
 
   /**
+   * Firebase設定が有効かチェック
+   */
+  private isFirebaseAvailable(): boolean {
+    return db !== null
+  }
+
+  /**
    * 楽曲をFirestoreに保存
    */
   public async addSong(song: Song, userId?: string): Promise<string | null> {
     try {
+      if (!this.isFirebaseAvailable() || !db) {
+        console.log('🔥 Firebase: 設定が無効です')
+        return null
+      }
+      
       const firebaseSong: FirebaseSong = {
         ...song,
         createdAt: serverTimestamp() as Timestamp,
@@ -61,7 +73,7 @@ export class FirebaseService {
       // idフィールドを除外
       const { id, ...songData } = firebaseSong
 
-      const docRef = await addDoc(collection(db, this.COLLECTION_NAME), songData)
+      const docRef = await addDoc(collection(db!, this.COLLECTION_NAME), songData)
       console.log('🔥 Firebase: 楽曲を保存しました', docRef.id)
       return docRef.id
     } catch (error) {
@@ -75,8 +87,13 @@ export class FirebaseService {
    */
   public async getAllSongs(): Promise<Song[]> {
     try {
+      if (!this.isFirebaseAvailable() || !db) {
+        console.log('🔥 Firebase: 設定が無効です')
+        return []
+      }
+      
       const q = query(
-        collection(db, this.COLLECTION_NAME),
+        collection(db!, this.COLLECTION_NAME),
         where('isPublic', '==', true),
         orderBy('createdAt', 'desc')
       )
@@ -111,7 +128,12 @@ export class FirebaseService {
    */
   public async updateSong(songId: string, updates: Partial<Song>): Promise<boolean> {
     try {
-      const songRef = doc(db, this.COLLECTION_NAME, songId)
+      if (!this.isFirebaseAvailable() || !db) {
+        console.log('🔥 Firebase: 設定が無効です')
+        return false
+      }
+      
+      const songRef = doc(db!, this.COLLECTION_NAME, songId)
       await updateDoc(songRef, {
         ...updates,
         updatedAt: serverTimestamp()
@@ -130,7 +152,12 @@ export class FirebaseService {
    */
   public async deleteSong(songId: string): Promise<boolean> {
     try {
-      await deleteDoc(doc(db, this.COLLECTION_NAME, songId))
+      if (!this.isFirebaseAvailable() || !db) {
+        console.log('🔥 Firebase: 設定が無効です')
+        return false
+      }
+      
+      await deleteDoc(doc(db!, this.COLLECTION_NAME, songId))
       console.log('🔥 Firebase: 楽曲を削除しました', songId)
       return true
     } catch (error) {
@@ -145,7 +172,7 @@ export class FirebaseService {
   public async getSongsByTag(tag: string): Promise<Song[]> {
     try {
       const q = query(
-        collection(db, this.COLLECTION_NAME),
+        collection(db!, this.COLLECTION_NAME),
         where('tags', 'array-contains', tag),
         where('isPublic', '==', true),
         orderBy('createdAt', 'desc')
@@ -180,8 +207,13 @@ export class FirebaseService {
    */
   public async getRecentSongs(limitCount: number = 10): Promise<Song[]> {
     try {
+      if (!this.isFirebaseAvailable() || !db) {
+        console.log('🔥 Firebase: 設定が無効です')
+        return []
+      }
+      
       const q = query(
-        collection(db, this.COLLECTION_NAME),
+        collection(db!, this.COLLECTION_NAME),
         where('isPublic', '==', true),
         orderBy('createdAt', 'desc'),
         limit(limitCount)
@@ -216,7 +248,7 @@ export class FirebaseService {
    */
   public subscribeToSongs(callback: (songs: Song[]) => void): () => void {
     const q = query(
-      collection(db, this.COLLECTION_NAME),
+      collection(db!, this.COLLECTION_NAME),
       where('isPublic', '==', true),
       orderBy('createdAt', 'desc')
     )
@@ -266,8 +298,14 @@ export class FirebaseService {
    */
   public async checkConnection(): Promise<boolean> {
     try {
+      // Firebase設定が無効な場合は接続失敗
+      if (!db) {
+        console.log('🔥 Firebase: 設定が無効です')
+        return false
+      }
+      
       // 空のクエリを実行して接続をテスト
-      const q = query(collection(db, this.COLLECTION_NAME), limit(1))
+      const q = query(collection(db!, this.COLLECTION_NAME), limit(1))
       await getDocs(q)
       return true
     } catch (error) {

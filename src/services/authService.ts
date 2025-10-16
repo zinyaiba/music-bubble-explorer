@@ -41,6 +41,11 @@ export class AuthService {
    * 認証状態の初期化
    */
   private initializeAuth(): void {
+    if (!auth) {
+      console.log('🔥 Auth: Firebase設定が無効です')
+      return
+    }
+    
     onAuthStateChanged(auth, (user: User | null) => {
       if (user) {
         this.currentUser = {
@@ -67,6 +72,11 @@ export class AuthService {
    */
   public async signInAnonymously(): Promise<AuthUser | null> {
     try {
+      if (!auth) {
+        console.log('🔐 Auth: Firebase設定が無効です')
+        return null
+      }
+      
       const result = await signInAnonymously(auth)
       const user = result.user
       
@@ -90,6 +100,11 @@ export class AuthService {
    */
   public async signOut(): Promise<boolean> {
     try {
+      if (!auth) {
+        console.log('🔐 Auth: Firebase設定が無効です')
+        return true
+      }
+      
       await firebaseSignOut(auth)
       this.currentUser = null
       console.log('🔐 ログアウト成功')

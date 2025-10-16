@@ -2,9 +2,9 @@
  * Firebase設定
  */
 
-import { initializeApp } from 'firebase/app'
-import { getFirestore } from 'firebase/firestore'
-import { getAuth } from 'firebase/auth'
+import { initializeApp, FirebaseApp } from 'firebase/app'
+import { getFirestore, Firestore } from 'firebase/firestore'
+import { getAuth, Auth } from 'firebase/auth'
 
 // Firebase設定（環境変数から取得）
 const firebaseConfig = {
@@ -16,13 +16,33 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 }
 
-// Firebase初期化
-const app = initializeApp(firebaseConfig)
+// Firebase設定が有効かチェック
+const isFirebaseConfigured = firebaseConfig.apiKey && 
+                             firebaseConfig.authDomain && 
+                             firebaseConfig.projectId
 
-// Firestore初期化
-export const db = getFirestore(app)
+let app: FirebaseApp | null = null
+let db: Firestore | null = null
+let auth: Auth | null = null
 
-// Auth初期化
-export const auth = getAuth(app)
+if (isFirebaseConfigured) {
+  try {
+    // Firebase初期化
+    app = initializeApp(firebaseConfig)
+    
+    // Firestore初期化
+    db = getFirestore(app)
+    
+    // Auth初期化
+    auth = getAuth(app)
+    
+    console.log('🔥 Firebase初期化完了')
+  } catch (error) {
+    console.warn('🔥 Firebase初期化エラー:', error)
+  }
+} else {
+  console.log('🔥 Firebase設定が見つかりません - ローカルモードで動作')
+}
 
+export { db, auth }
 export default app
