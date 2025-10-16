@@ -1,0 +1,49 @@
+/* パステルカラーパレット定義 */
+:root {
+  /* シャボン玉のパステルカラー */
+  --bubble-pink: #FFB6C1;
+  --bubble-blue: #B6E5D8;
+  --bubble-purple: #DDA0DD;
+  --bubble-yellow: #F0E68C;
+  --bubble-green: #98FB98;
+  --bubble-orange: #FFDAB9;
+  --bubble-lavender: #E6E6FA;
+  --bubble-peach: #FFDAB9;
+  --bubble-mint: #F0FFF0;
+  --bubble-coral: #F08080;
+
+  /* 背景グラデーション */
+  --background-gradient: linear-gradient(135deg, #E8F4FD 0%, #FFF0F5 100%);
+  --background-light: #FAFCFF;
+  --background-soft: #F8F9FA;
+
+  /* テキストカラー */
+  --text-primary: #5A5A5A;
+  --text-secondary: #8A8A8A;
+  --text-light: #B0B0B0;
+  --text-white: #FFFFFF;
+
+  /* UI要素カラー */
+  --modal-background: rgba(255, 255, 255, 0.95);
+  --modal-overlay: rgba(0, 0, 0, 0.3);
+  --border-light: rgba(255, 255, 255, 0.3);
+  --shadow-soft: rgba(0, 0, 0, 0.1);
+
+  /* アニメーション用カラー */
+  --hover-overlay: rgba(255, 255, 255, 0.2);
+  --active-overlay: rgba(255, 255, 255, 0.4);
+}
+
+/* ダークモード対応（将来的な拡張用） */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-gradient: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    --background-light: #0f0f23;
+    --background-soft: #1a1a2e;
+    --text-primary: #E0E0E0;
+    --text-secondary: #B0B0B0;
+    --text-light: #808080;
+    --modal-background: rgba(26, 26, 46, 0.95);
+    --modal-overlay: rgba(0, 0, 0, 0.6);
+  }
+}

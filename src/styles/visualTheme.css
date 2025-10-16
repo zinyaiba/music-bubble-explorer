@@ -1,0 +1,151 @@
+/**
+ * Visual Theme CSS Variables
+ * 
+ * CSS custom properties for the enhanced bubble visual system.
+ * These variables ensure consistent styling across the application.
+ */
+
+:root {
+  /* 楽曲 - 音符のイメージ */
+  --bubble-song-primary: #FF6B9D;
+  --bubble-song-secondary: #FFB3D1;
+  --bubble-song-stroke: #E55A8A;
+  --bubble-song-shadow: rgba(255, 107, 157, 0.3);
+  --bubble-song-gradient: linear-gradient(135deg, #FF6B9D 0%, #FFB3D1 100%);
+  
+  /* 作詞家 - ペンのイメージ */
+  --bubble-lyricist-primary: #4ECDC4;
+  --bubble-lyricist-secondary: #A7E6E1;
+  --bubble-lyricist-stroke: #45B7B8;
+  --bubble-lyricist-shadow: rgba(78, 205, 196, 0.3);
+  --bubble-lyricist-gradient: linear-gradient(135deg, #4ECDC4 0%, #A7E6E1 100%);
+  
+  /* 作曲家 - 楽譜のイメージ */
+  --bubble-composer-primary: #A8E6CF;
+  --bubble-composer-secondary: #D4F1E4;
+  --bubble-composer-stroke: #95D5B2;
+  --bubble-composer-shadow: rgba(168, 230, 207, 0.3);
+  --bubble-composer-gradient: linear-gradient(135deg, #A8E6CF 0%, #D4F1E4 100%);
+  
+  /* 編曲家 - ミキサーのイメージ */
+  --bubble-arranger-primary: #FFD93D;
+  --bubble-arranger-secondary: #FFEB99;
+  --bubble-arranger-stroke: #E6C235;
+  --bubble-arranger-shadow: rgba(255, 217, 61, 0.3);
+  --bubble-arranger-gradient: linear-gradient(135deg, #FFD93D 0%, #FFEB99 100%);
+  
+  /* タグ - ハッシュタグのイメージ */
+  --bubble-tag-primary: #B8A9FF;
+  --bubble-tag-secondary: #D6CCFF;
+  --bubble-tag-stroke: #A594E6;
+  --bubble-tag-shadow: rgba(184, 169, 255, 0.3);
+  --bubble-tag-gradient: linear-gradient(135deg, #B8A9FF 0%, #D6CCFF 100%);
+  
+  /* 複数役割 - 虹色のイメージ */
+  --bubble-multi-role-primary: #FF6B9D;
+  --bubble-multi-role-secondary: #B8A9FF;
+  --bubble-multi-role-stroke: #8B7ED8;
+  --bubble-multi-role-shadow: rgba(139, 126, 216, 0.4);
+  --bubble-multi-role-gradient: linear-gradient(135deg, #FF6B9D 0%, #4ECDC4 25%, #A8E6CF 50%, #FFD93D 75%, #B8A9FF 100%);
+  
+  /* Common bubble properties */
+  --bubble-stroke-width: 2px;
+  --bubble-shadow-blur: 8px;
+  --bubble-shadow-offset: 2px;
+  --bubble-multi-role-stroke-width: 3px;
+  --bubble-multi-role-shadow-blur: 10px;
+}
+
+/* Utility classes for bubble styling */
+.bubble-song {
+  background: var(--bubble-song-gradient);
+  border: var(--bubble-stroke-width) solid var(--bubble-song-stroke);
+  box-shadow: var(--bubble-shadow-offset) var(--bubble-shadow-offset) var(--bubble-shadow-blur) var(--bubble-song-shadow);
+}
+
+.bubble-lyricist {
+  background: var(--bubble-lyricist-gradient);
+  border: var(--bubble-stroke-width) solid var(--bubble-lyricist-stroke);
+  box-shadow: var(--bubble-shadow-offset) var(--bubble-shadow-offset) var(--bubble-shadow-blur) var(--bubble-lyricist-shadow);
+}
+
+.bubble-composer {
+  background: var(--bubble-composer-gradient);
+  border: var(--bubble-stroke-width) solid var(--bubble-composer-stroke);
+  box-shadow: var(--bubble-shadow-offset) var(--bubble-shadow-offset) var(--bubble-shadow-blur) var(--bubble-composer-shadow);
+}
+
+.bubble-arranger {
+  background: var(--bubble-arranger-gradient);
+  border: var(--bubble-stroke-width) solid var(--bubble-arranger-stroke);
+  box-shadow: var(--bubble-shadow-offset) var(--bubble-shadow-offset) var(--bubble-shadow-blur) var(--bubble-arranger-shadow);
+}
+
+.bubble-tag {
+  background: var(--bubble-tag-gradient);
+  border: var(--bubble-stroke-width) solid var(--bubble-tag-stroke);
+  box-shadow: var(--bubble-shadow-offset) var(--bubble-shadow-offset) var(--bubble-shadow-blur) var(--bubble-tag-shadow);
+}
+
+.bubble-multi-role {
+  background: var(--bubble-multi-role-gradient);
+  border: var(--bubble-multi-role-stroke-width) solid var(--bubble-multi-role-stroke);
+  box-shadow: var(--bubble-shadow-offset) var(--bubble-shadow-offset) var(--bubble-multi-role-shadow-blur) var(--bubble-multi-role-shadow);
+}
+
+/* Shape variations */
+.bubble-shape-circle {
+  border-radius: 50%;
+}
+
+.bubble-shape-rounded-square {
+  border-radius: 15%;
+}
+
+.bubble-shape-hexagon {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.bubble-shape-diamond {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.bubble-shape-star {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+/* Icon container styling */
+.bubble-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.2em;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Animation for enhanced bubbles */
+.enhanced-bubble {
+  transition: all 0.3s ease;
+}
+
+.enhanced-bubble:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+/* Multi-role specific animations */
+.bubble-multi-role {
+  animation: rainbow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes rainbow-pulse {
+  0%, 100% {
+    filter: brightness(1) saturate(1);
+  }
+  50% {
+    filter: brightness(1.1) saturate(1.2);
+  }
+}

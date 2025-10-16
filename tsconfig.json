@@ -1,0 +1,51 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Path mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@/components/*": ["src/components/*"],
+      "@/services/*": ["src/services/*"],
+      "@/types/*": ["src/types/*"],
+      "@/data/*": ["src/data/*"],
+      "@/utils/*": ["src/utils/*"]
+    }
+  },
+  "include": ["src", "vite-env.d.ts"],
+  "exclude": [
+    "src/**/*.test.ts", 
+    "src/**/*.test.tsx", 
+    "src/test", 
+    "src/examples",
+    "src/utils/dataManagerDemo.ts",
+    "src/utils/dataManagerTest.ts",
+    "src/utils/tagSystemTest.ts",
+    "src/utils/testDataModels.ts",
+    "src/utils/relationshipCalculator.ts",
+    "src/utils/errorHandlingIntegration.ts",
+    "src/utils/finalIntegrationFix.ts",
+    "src/utils/safe*.ts",
+    "src/utils/selectiveRenderer.ts"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}

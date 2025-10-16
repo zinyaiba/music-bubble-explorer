@@ -1,0 +1,249 @@
+/* Responsive Design Utilities */
+
+/* Container queries for modern browsers */
+@supports (container-type: inline-size) {
+  .bubble-container {
+    container-type: inline-size;
+  }
+  
+  @container (max-width: 480px) {
+    .main-canvas {
+      border-radius: 8px;
+    }
+  }
+  
+  @container (min-width: 1200px) {
+    .main-canvas {
+      border-radius: 20px;
+    }
+  }
+}
+
+/* Responsive typography utilities */
+.text-responsive-xs {
+  font-size: clamp(0.75rem, 2vw, 0.875rem);
+}
+
+.text-responsive-sm {
+  font-size: clamp(0.875rem, 2.5vw, 1rem);
+}
+
+.text-responsive-base {
+  font-size: clamp(1rem, 3vw, 1.125rem);
+}
+
+.text-responsive-lg {
+  font-size: clamp(1.125rem, 3.5vw, 1.25rem);
+}
+
+.text-responsive-xl {
+  font-size: clamp(1.25rem, 4vw, 1.5rem);
+}
+
+.text-responsive-2xl {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+}
+
+.text-responsive-3xl {
+  font-size: clamp(2rem, 6vw, 3rem);
+}
+
+/* Spacing utilities for responsive design */
+.spacing-responsive-xs {
+  padding: clamp(0.25rem, 1vw, 0.5rem);
+}
+
+.spacing-responsive-sm {
+  padding: clamp(0.5rem, 2vw, 1rem);
+}
+
+.spacing-responsive-md {
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.spacing-responsive-lg {
+  padding: clamp(1.5rem, 4vw, 2rem);
+}
+
+.spacing-responsive-xl {
+  padding: clamp(2rem, 5vw, 3rem);
+}
+
+/* Touch-friendly utilities */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.touch-target-large {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Responsive visibility utilities */
+.hidden-mobile {
+  display: block;
+}
+
+.hidden-tablet {
+  display: block;
+}
+
+.hidden-desktop {
+  display: block;
+}
+
+.show-mobile {
+  display: none;
+}
+
+.show-tablet {
+  display: none;
+}
+
+.show-desktop {
+  display: none;
+}
+
+/* Mobile visibility */
+@media (max-width: 767px) {
+  .hidden-mobile {
+    display: none !important;
+  }
+  
+  .show-mobile {
+    display: block !important;
+  }
+}
+
+/* Tablet visibility */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hidden-tablet {
+    display: none !important;
+  }
+  
+  .show-tablet {
+    display: block !important;
+  }
+}
+
+/* Desktop visibility */
+@media (min-width: 1024px) {
+  .hidden-desktop {
+    display: none !important;
+  }
+  
+  .show-desktop {
+    display: block !important;
+  }
+}
+
+/* Responsive flexbox utilities */
+.flex-responsive {
+  display: flex;
+}
+
+@media (max-width: 767px) {
+  .flex-responsive {
+    flex-direction: column;
+  }
+}
+
+.flex-responsive-reverse {
+  display: flex;
+}
+
+@media (max-width: 767px) {
+  .flex-responsive-reverse {
+    flex-direction: column-reverse;
+  }
+}
+
+/* Responsive grid utilities */
+.grid-responsive {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+  .grid-responsive {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .grid-responsive {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Performance optimizations for mobile */
+@media (max-width: 767px) {
+  * {
+    /* Reduce animations on mobile for better performance */
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+  
+  /* Optimize scrolling */
+  body {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .main-canvas {
+    border: 2px solid currentColor;
+  }
+  
+  .stats, .instructions {
+    border: 1px solid currentColor;
+  }
+}
+
+/* Dark mode responsive adjustments */
+@media (prefers-color-scheme: dark) {
+  .main-canvas {
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
+  }
+  
+  .stats, .instructions {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Print styles */
+@media print {
+  .App {
+    background: white !important;
+  }
+  
+  .main-canvas {
+    border: 1px solid black;
+    box-shadow: none;
+  }
+  
+  .stats, .instructions {
+    background: white;
+    border: 1px solid black;
+  }
+}

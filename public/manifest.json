@@ -1,0 +1,47 @@
+{
+  "name": "Music Bubble Explorer",
+  "short_name": "Bubble Music",
+  "description": "楽曲の作詞家・作曲家・編曲家情報をシャボン玉で探索するアプリ",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#E8F4FD",
+  "theme_color": "#FFB6C1",
+  "orientation": "portrait-primary",
+  "categories": ["music", "entertainment", "education"],
+  "lang": "ja",
+  "icons": [
+    {
+      "src": "/bubble-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "375x667",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ]
+}
