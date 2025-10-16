@@ -240,18 +240,27 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = React.m
 
         // Firebaseに保存
         console.log('🔥 Attempting to save song to Firebase:', songToSave)
+        console.log('🔥 Current environment:', {
+          MODE: import.meta.env.MODE,
+          PROD: import.meta.env.PROD,
+          hasApiKey: !!import.meta.env.VITE_FIREBASE_API_KEY
+        })
+        
         try {
           const { FirebaseService } = await import('@/services/firebaseService')
           const firebaseService = FirebaseService.getInstance()
           
           // 接続チェック
+          console.log('🔥 Checking Firebase connection...')
           const isConnected = await firebaseService.checkConnection()
           console.log('🔥 Firebase connection status:', isConnected)
           
           if (!isConnected) {
+            console.error('🔥 Firebase connection failed - using local storage')
             throw new Error('Firebase connection failed')
           }
           
+          console.log('🔥 Saving song to Firebase...')
           const firebaseId = await firebaseService.addSong(songToSave)
           
           if (firebaseId) {
@@ -264,6 +273,10 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = React.m
           }
         } catch (firebaseError) {
           console.error('⚠️ Firebase save error, falling back to local storage:', firebaseError)
+          console.error('⚠️ Error details:', {
+            message: firebaseError instanceof Error ? firebaseError.message : String(firebaseError),
+            stack: firebaseError instanceof Error ? firebaseError.stack : undefined
+          })
         }
 
         // ローカルデータにも保存（バックアップとして）

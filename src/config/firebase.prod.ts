@@ -18,9 +18,18 @@ export const isProduction = import.meta.env.PROD
 
 // 環境に応じた設定を取得
 export const getFirebaseConfig = () => {
+  console.log('🔥 Firebase設定取得開始')
+  console.log('🔥 環境情報:', {
+    MODE: import.meta.env.MODE,
+    PROD: import.meta.env.PROD,
+    DEV: import.meta.env.DEV,
+    hasApiKey: !!import.meta.env.VITE_FIREBASE_API_KEY
+  })
+
   // 環境変数が設定されている場合は環境変数を優先
   if (import.meta.env.VITE_FIREBASE_API_KEY) {
-    return {
+    console.log('🔥 環境変数からFirebase設定を取得')
+    const config = {
       apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
       authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
       projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
@@ -28,8 +37,12 @@ export const getFirebaseConfig = () => {
       messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
       appId: import.meta.env.VITE_FIREBASE_APP_ID
     }
+    console.log('🔥 環境変数設定:', { ...config, apiKey: config.apiKey ? '設定済み' : '未設定' })
+    return config
   }
   
   // 環境変数がない場合は本番用設定を使用
+  console.log('🔥 本番用設定からFirebase設定を取得')
+  console.log('🔥 本番用設定:', { ...prodFirebaseConfig, apiKey: '設定済み' })
   return prodFirebaseConfig
 }

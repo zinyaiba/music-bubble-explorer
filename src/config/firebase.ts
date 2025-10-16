@@ -11,10 +11,19 @@ import { getFirebaseConfig } from './firebase.prod'
 
 const firebaseConfig = getFirebaseConfig()
 
+console.log('🔥 Firebase設定確認:', firebaseConfig)
+
 // Firebase設定が有効かチェック
 const isFirebaseConfigured = firebaseConfig.apiKey && 
                              firebaseConfig.authDomain && 
                              firebaseConfig.projectId
+
+console.log('🔥 Firebase設定状況:', {
+  isConfigured: isFirebaseConfigured,
+  apiKey: firebaseConfig.apiKey ? '設定済み' : '未設定',
+  authDomain: firebaseConfig.authDomain ? '設定済み' : '未設定',
+  projectId: firebaseConfig.projectId ? '設定済み' : '未設定'
+})
 
 let app: FirebaseApp | null = null
 let db: Firestore | null = null

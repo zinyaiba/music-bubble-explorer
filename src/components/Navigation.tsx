@@ -142,21 +142,19 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
           </NavigationButton>
         </NavigationItem>
 
-        {/* 開発環境でのみFirebase接続テストを表示 */}
-        {process.env.NODE_ENV === 'development' && (
-          <NavigationItem role="none">
-            <NavigationButton
-              onClick={handleOpenFirebaseTest}
-              $isActive={currentView === 'firebase-test'}
-              role="menuitem"
-              aria-current={currentView === 'firebase-test' ? 'page' : undefined}
-              title="Firebase接続をテスト"
-            >
-              <ButtonIcon aria-hidden="true">🔥</ButtonIcon>
-              <ButtonText>Firebase</ButtonText>
-            </NavigationButton>
-          </NavigationItem>
-        )}
+        {/* Firebase接続テストを表示（本番環境でも利用可能） */}
+        <NavigationItem role="none">
+          <NavigationButton
+            onClick={handleOpenFirebaseTest}
+            $isActive={currentView === 'firebase-test'}
+            role="menuitem"
+            aria-current={currentView === 'firebase-test' ? 'page' : undefined}
+            title="Firebase接続をテスト"
+          >
+            <ButtonIcon aria-hidden="true">🔥</ButtonIcon>
+            <ButtonText>Firebase</ButtonText>
+          </NavigationButton>
+        </NavigationItem>
       </NavigationMenu>
 
       {/* モバイル用オーバーレイ */}

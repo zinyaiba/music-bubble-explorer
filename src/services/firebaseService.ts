@@ -342,18 +342,33 @@ export class FirebaseService {
    */
   public async checkConnection(): Promise<boolean> {
     try {
+      console.log('🔥 Firebase: 接続チェック開始')
+      console.log('🔥 Firebase: db instance:', !!db)
+      
       // Firebase設定が無効な場合は接続失敗
       if (!db) {
+        console.log('🔥 Firebase: データベースインスタンスが無効です')
+        return false
+      }
+      
+      if (!this.isFirebaseAvailable()) {
         console.log('🔥 Firebase: 設定が無効です')
         return false
       }
       
+      console.log('🔥 Firebase: 接続テスト実行中...')
       // 空のクエリを実行して接続をテスト
       const q = query(collection(db!, this.COLLECTION_NAME), limit(1))
-      await getDocs(q)
+      const result = await getDocs(q)
+      console.log('🔥 Firebase: 接続テスト成功', result.size, 'documents found')
       return true
     } catch (error) {
       console.error('🔥 Firebase: 接続エラー', error)
+      console.error('🔥 Firebase: エラー詳細:', {
+        message: error instanceof Error ? error.message : String(error),
+        code: (error as any)?.code,
+        stack: error instanceof Error ? error.stack : undefined
+      })
       return false
     }
   }
