@@ -40,7 +40,7 @@ export class EnhancedBubbleManager extends BubbleManager {
   private multiRoleHandler: MultiRoleHandler;
 
   private consolidatedPersons: ConsolidatedPerson[] = [];
-  private musicDatabase: MusicDatabase;
+  protected musicDatabase: MusicDatabase;
 
   constructor(musicDatabase: MusicDatabase, config: BubbleConfig) {
     super(musicDatabase, config);

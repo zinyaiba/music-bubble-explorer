@@ -177,7 +177,8 @@ export function runDataValidationTests(): void {
           type: 'lyricist',
           songs: ['song_001']
         }
-      ]
+      ],
+      tags: []
     }
     const result = DataValidator.validateMusicDatabase(validDatabase)
     test.expect(result.isValid).toBeTruthy()
@@ -202,7 +203,8 @@ export function runDataValidationTests(): void {
           type: 'lyricist',
           songs: ['song_001', 'song_999'] // 存在しない楽曲
         }
-      ]
+      ],
+      tags: []
     }
     const result = DataValidator.validateMusicDatabase(invalidDatabase)
     test.expect(result.isValid).toBeFalsy()
@@ -254,7 +256,8 @@ export function runDataValidationTests(): void {
           type: 'arranger',
           songs: ['song_001', 'song_002']
         }
-      ]
+      ],
+      tags: []
     }
 
     const stats = DataValidator.getDatabaseStats(database)

@@ -68,7 +68,7 @@ interface BubbleConfig {
  */
 export class BubbleManager {
   private bubbles: BubbleEntity[] = []
-  private musicDatabase: MusicDatabase
+  protected musicDatabase: MusicDatabase
   private config: BubbleConfig
   private lastUpdateTime: number = 0
   private animationManager: BubbleAnimationManager

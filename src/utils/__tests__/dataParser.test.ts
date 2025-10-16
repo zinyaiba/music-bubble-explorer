@@ -212,7 +212,8 @@ song_001,テスト楽曲,作詞家A`
           type: 'lyricist',
           songs: ['song_001']
         }
-      ]
+      ],
+      tags: []
     }
 
     const normalized = DataParser.normalizeMusicDatabase(database)
@@ -238,7 +239,8 @@ song_001,テスト楽曲,作詞家A`
           type: 'lyricist',
           songs: ['song_001', 'song_999'] // song_999は存在しない
         }
-      ]
+      ],
+      tags: []
     }
 
     const normalized = DataParser.normalizeMusicDatabase(database)

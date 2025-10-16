@@ -193,7 +193,8 @@ export async function runPerformanceTest300Songs(): Promise<Performance300SongsR
     const initStartTime = performance.now()
     const musicDatabase = {
       songs: musicService.getAllSongs(),
-      people: musicService.getAllPeople()
+      people: musicService.getAllPeople(),
+      tags: []
     }
     
     const bubbleManager = new BubbleManager(musicDatabase, {

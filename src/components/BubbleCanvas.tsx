@@ -54,7 +54,7 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(({
   enhancedBubbleManager
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [isAnimating, setIsAnimating] = useState(true)
+  const [, setIsAnimating] = useState(true)
   const [hasCanvasError, setHasCanvasError] = useState(false)
   const [canvasErrorMessage, setCanvasErrorMessage] = useState<string>('')
   const [selectedBubbleIndex, setSelectedBubbleIndex] = useState<number>(-1)
@@ -544,6 +544,9 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(({
   const toggleAnimation = useCallback(() => {
     setIsAnimating(prev => !prev)
   }, [])
+  
+  // Suppress unused variable warning - keeping for future use
+  void toggleAnimation
 
   /**
    * Canvas エラーからの復旧を試行

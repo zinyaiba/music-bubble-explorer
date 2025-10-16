@@ -225,6 +225,8 @@ ${JSON.stringify(song, null, 2)}
 
       return {
         songs: allSongs,
+        people: [], // TODO: Implement people merging
+        tags: [], // TODO: Implement tags merging
         lastUpdated: new Date().toISOString(),
         version: '1.0.0'
       }

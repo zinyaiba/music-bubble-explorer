@@ -97,7 +97,7 @@ function App() {
   const [debugLogger] = useState(() => DebugLogger.getInstance())
 
   // Firebase integration
-  const firebase = useFirebase()
+  const { } = useFirebase() // Firebase hook for initialization
 
   // Service instances
   const musicServiceRef = useRef<MusicDataService | null>(null)
@@ -200,7 +200,7 @@ function App() {
         const enhancedBubbleManager = new EnhancedBubbleManager(musicDatabase, config)
 
         enhancedBubbleManagerRef.current = enhancedBubbleManager
-        bubbleManagerRef.current = enhancedBubbleManager // Use enhanced manager as base manager
+        bubbleManagerRef.current = enhancedBubbleManager as BubbleManager // Use enhanced manager as base manager
 
         // Generate initial enhanced bubbles
         const initialBubbles: BubbleEntity[] = []

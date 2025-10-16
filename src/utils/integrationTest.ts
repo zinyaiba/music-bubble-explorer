@@ -94,7 +94,8 @@ async function testBubbleManagerIntegration(): Promise<void> {
   const musicService = MusicDataService.getInstance()
   const musicDatabase = {
     songs: musicService.getAllSongs(),
-    people: musicService.getAllPeople()
+    people: musicService.getAllPeople(),
+    tags: []
   }
   
   const config = {
@@ -146,7 +147,7 @@ async function testPerformanceWithLargeDataset(): Promise<void> {
     console.warn(`Warning: Dataset has only ${songs.length} songs, expected at least 100 for performance test`)
   }
   
-  const musicDatabase = { songs, people }
+  const musicDatabase = { songs, people, tags: [] }
   
   const config = {
     ...DEFAULT_BUBBLE_CONFIG,
@@ -195,7 +196,8 @@ async function testResponsiveFeatures(): Promise<void> {
   const musicService = MusicDataService.getInstance()
   const musicDatabase = {
     songs: musicService.getAllSongs(),
-    people: musicService.getAllPeople()
+    people: musicService.getAllPeople(),
+    tags: []
   }
   
   for (const size of screenSizes) {
@@ -229,7 +231,7 @@ async function testResponsiveFeatures(): Promise<void> {
 async function testErrorHandling(): Promise<void> {
   // 無効なデータでのテスト
   try {
-    const invalidDatabase = { songs: [], people: [] }
+    const invalidDatabase = { songs: [], people: [], tags: [] }
     const config = { ...DEFAULT_BUBBLE_CONFIG }
     const bubbleManager = new BubbleManager(invalidDatabase, config)
     

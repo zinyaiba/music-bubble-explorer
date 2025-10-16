@@ -27,7 +27,7 @@ export function runAppIntegrationTest(): boolean {
     
     // Test 2: BubbleManager initialization
     console.log('  ✓ Testing BubbleManager initialization...')
-    const musicDatabase = { songs, people }
+    const musicDatabase = { songs, people, tags: [] }
     const config = {
       ...DEFAULT_BUBBLE_CONFIG,
       canvasWidth: 800,
