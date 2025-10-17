@@ -7,15 +7,25 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100",
+    "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100 --fix",
+    "type-check": "tsc --noEmit",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,md}\"",
     "deploy": "npm run build && gh-pages -d dist",
     "predeploy": "npm run build",
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "deployment-check": "node scripts/deployment-check.cjs",
-    "pre-deploy-check": "npm run build && npm run deployment-check"
+    "pre-deploy-check": "npm run build && npm run deployment-check",
+    "pre-push": "node scripts/pre-push-validation.cjs",
+    "pre-push:fast": "node scripts/pre-push-validation.cjs --skip-tests",
+    "validate": "node scripts/pre-push-validation.cjs",
+    "check": "node scripts/quick-build-check.cjs",
+    "pre-commit-check": "node scripts/pre-commit-validation.cjs",
+    "setup-hooks": "node scripts/setup-git-hooks.cjs",
+    "prepare": "husky"
   },
   "dependencies": {
     "firebase": "^12.4.0",
@@ -23,6 +33,15 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "styled-components": "^6.1.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{css,md}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
@@ -39,7 +58,9 @@
     "eslint": "^8.53.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
+    "husky": "^9.1.7",
     "jsdom": "^27.0.0",
+    "lint-staged": "^16.2.4",
     "prettier": "^3.0.3",
     "terser": "^5.44.0",
     "typescript": "^5.2.2",

@@ -43,7 +43,9 @@ class SimpleTest {
       },
       toEqual: (expected: any) => {
         if (JSON.stringify(actual) !== JSON.stringify(expected)) {
-          throw new Error(`Expected ${JSON.stringify(actual)} to equal ${JSON.stringify(expected)}`)
+          throw new Error(
+            `Expected ${JSON.stringify(actual)} to equal ${JSON.stringify(expected)}`
+          )
         }
       },
       toBeTruthy: () => {
@@ -91,14 +93,18 @@ class SimpleTest {
       },
       toBeGreaterThanOrEqual: (expected: number) => {
         if (actual < expected) {
-          throw new Error(`Expected ${actual} to be greater than or equal to ${expected}`)
+          throw new Error(
+            `Expected ${actual} to be greater than or equal to ${expected}`
+          )
         }
       },
       toBeLessThanOrEqual: (expected: number) => {
         if (actual > expected) {
-          throw new Error(`Expected ${actual} to be less than or equal to ${expected}`)
+          throw new Error(
+            `Expected ${actual} to be less than or equal to ${expected}`
+          )
         }
-      }
+      },
     }
   }
 
@@ -123,7 +129,7 @@ const createTestDatabase = (): MusicDatabase => ({
       lyricists: ['作詞家A', '作詞家B'],
       composers: ['作曲家A'],
       arrangers: ['編曲家A', '編曲家B', '編曲家C'],
-      tags: ['テスト', 'バラード']
+      tags: ['テスト', 'バラード'],
     },
     {
       id: 'song_002',
@@ -131,7 +137,7 @@ const createTestDatabase = (): MusicDatabase => ({
       lyricists: ['作詞家A'],
       composers: ['作曲家B', '作曲家C'],
       arrangers: [],
-      tags: ['テスト', 'ロック']
+      tags: ['テスト', 'ロック'],
     },
     {
       id: 'song_003',
@@ -139,82 +145,82 @@ const createTestDatabase = (): MusicDatabase => ({
       lyricists: ['作詞家C'],
       composers: ['作曲家A'],
       arrangers: ['編曲家A'],
-      tags: ['バラード']
-    }
+      tags: ['バラード'],
+    },
   ],
   people: [
     {
       id: 'person_001',
       name: '作詞家A',
       type: 'lyricist',
-      songs: ['song_001', 'song_002']
+      songs: ['song_001', 'song_002'],
     },
     {
       id: 'person_002',
       name: '作詞家B',
       type: 'lyricist',
-      songs: ['song_001']
+      songs: ['song_001'],
     },
     {
       id: 'person_003',
       name: '作詞家C',
       type: 'lyricist',
-      songs: ['song_003']
+      songs: ['song_003'],
     },
     {
       id: 'person_004',
       name: '作曲家A',
       type: 'composer',
-      songs: ['song_001', 'song_003']
+      songs: ['song_001', 'song_003'],
     },
     {
       id: 'person_005',
       name: '作曲家B',
       type: 'composer',
-      songs: ['song_002']
+      songs: ['song_002'],
     },
     {
       id: 'person_006',
       name: '作曲家C',
       type: 'composer',
-      songs: ['song_002']
+      songs: ['song_002'],
     },
     {
       id: 'person_007',
       name: '編曲家A',
       type: 'arranger',
-      songs: ['song_001', 'song_003']
+      songs: ['song_001', 'song_003'],
     },
     {
       id: 'person_008',
       name: '編曲家B',
       type: 'arranger',
-      songs: ['song_001']
+      songs: ['song_001'],
     },
     {
       id: 'person_009',
       name: '編曲家C',
       type: 'arranger',
-      songs: ['song_001']
-    }
+      songs: ['song_001'],
+    },
   ],
   tags: [
     {
       id: 'tag-テスト',
       name: 'テスト',
-      songs: ['song_001', 'song_002']
+      songs: ['song_001', 'song_002'],
     },
     {
       id: 'tag-バラード',
       name: 'バラード',
-      songs: ['song_001', 'song_003']
+      songs: ['song_001', 'song_003'],
     },
     {
       id: 'tag-ロック',
       name: 'ロック',
-      songs: ['song_002']
-    }
-  ]
+      songs: ['song_002'],
+    },
+  ],
 })
 
 /**
@@ -233,7 +239,15 @@ export function runBubbleManagerTests(): void {
     minLifespan: 5000,
     maxLifespan: 15000,
     minVelocity: 10,
-    maxVelocity: 50
+    maxVelocity: 50,
+    minSize: 40,
+    maxSize: 120,
+    buoyancyStrength: 15,
+    airResistance: 0.999,
+    windStrength: 8,
+    breathingFrequency: 0.8,
+    breathingAmplitude: 0.06,
+    noiseIntensity: 12,
   }
 
   // BubbleManagerの初期化テスト
@@ -274,10 +288,12 @@ export function runBubbleManagerTests(): void {
   test.test('シャボン玉生成 - 基本的な生成', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
     const bubble = manager.generateBubble()
-    
+
     test.expect(bubble).toBeTruthy()
     test.expect(bubble.id).toBeTruthy()
-    test.expect(['song', 'lyricist', 'composer', 'arranger']).toContain(bubble.type)
+    test
+      .expect(['song', 'lyricist', 'composer', 'arranger'])
+      .toContain(bubble.type)
     test.expect(bubble.name).toBeTruthy()
     test.expect(bubble.size).toBeGreaterThanOrEqual(40)
     test.expect(bubble.size).toBeLessThanOrEqual(120)
@@ -289,17 +305,21 @@ export function runBubbleManagerTests(): void {
   test.test('シャボン玉生成 - 位置の範囲チェック', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
     const bubble = manager.generateBubble()
-    
+
     test.expect(bubble.x).toBeGreaterThanOrEqual(bubble.size / 2)
-    test.expect(bubble.x).toBeLessThanOrEqual(testConfig.canvasWidth - bubble.size / 2)
+    test
+      .expect(bubble.x)
+      .toBeLessThanOrEqual(testConfig.canvasWidth - bubble.size / 2)
     test.expect(bubble.y).toBeGreaterThanOrEqual(bubble.size / 2)
-    test.expect(bubble.y).toBeLessThanOrEqual(testConfig.canvasHeight - bubble.size / 2)
+    test
+      .expect(bubble.y)
+      .toBeLessThanOrEqual(testConfig.canvasHeight - bubble.size / 2)
   })
 
   test.test('シャボン玉生成 - 速度の範囲チェック', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
     const bubble = manager.generateBubble()
-    
+
     test.expect(Math.abs(bubble.vx)).toBeLessThanOrEqual(testConfig.maxVelocity)
     test.expect(Math.abs(bubble.vy)).toBeLessThanOrEqual(testConfig.maxVelocity)
   })
@@ -308,7 +328,7 @@ export function runBubbleManagerTests(): void {
   test.test('シャボン玉の追加', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
     const bubble = manager.generateBubble()
-    
+
     manager.addBubble(bubble)
     test.expect(manager.getBubbles()).toHaveLength(1)
     test.expect(manager.getBubbles()[0].id).toBe(bubble.id)
@@ -317,10 +337,10 @@ export function runBubbleManagerTests(): void {
   test.test('シャボン玉の削除', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
     const bubble = manager.generateBubble()
-    
+
     manager.addBubble(bubble)
     test.expect(manager.getBubbles()).toHaveLength(1)
-    
+
     manager.removeBubble(bubble.id)
     test.expect(manager.getBubbles()).toHaveLength(0)
   })
@@ -328,10 +348,10 @@ export function runBubbleManagerTests(): void {
   test.test('存在しないシャボン玉の削除', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
     const bubble = manager.generateBubble()
-    
+
     manager.addBubble(bubble)
     test.expect(manager.getBubbles()).toHaveLength(1)
-    
+
     manager.removeBubble('non-existent-id')
     test.expect(manager.getBubbles()).toHaveLength(1) // 変化なし
   })
@@ -339,13 +359,13 @@ export function runBubbleManagerTests(): void {
   // 最大シャボン玉数の制限テスト
   test.test('最大シャボン玉数の制限', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
-    
+
     // 最大数を超えて追加を試行
     for (let i = 0; i < testConfig.maxBubbles + 5; i++) {
       const bubble = manager.generateBubble()
       manager.addBubble(bubble)
     }
-    
+
     test.expect(manager.getBubbles()).toHaveLength(testConfig.maxBubbles)
   })
 
@@ -363,12 +383,12 @@ export function runBubbleManagerTests(): void {
       color: '#FFB6C1',
       opacity: 1,
       lifespan: 10000,
-      relatedCount: 5
+      relatedCount: 5,
     })
-    
+
     const updatedBubbles = manager.updateBubblePhysics([bubble])
     test.expect(updatedBubbles).toHaveLength(1)
-    
+
     const updatedBubble = updatedBubbles[0]
     // 位置が更新されていることを確認（deltaTimeが0でない場合）
     test.expect(updatedBubble.x).toBeGreaterThanOrEqual(bubble.x)
@@ -388,9 +408,9 @@ export function runBubbleManagerTests(): void {
       color: '#FFB6C1',
       opacity: 0, // 死んだ状態
       lifespan: 0, // 寿命切れ
-      relatedCount: 5
+      relatedCount: 5,
     })
-    
+
     const updatedBubbles = manager.updateBubblePhysics([deadBubble])
     test.expect(updatedBubbles).toHaveLength(0) // 死んだシャボン玉は除去される
   })
@@ -409,9 +429,9 @@ export function runBubbleManagerTests(): void {
       color: '#FFB6C1',
       opacity: 1,
       lifespan: 10000,
-      relatedCount: 5
+      relatedCount: 5,
     })
-    
+
     manager.addBubble(bubble)
     const found = manager.findBubbleAtPosition(100, 100) // 中心をクリック
     test.expect(found).toBeTruthy()
@@ -431,9 +451,9 @@ export function runBubbleManagerTests(): void {
       color: '#FFB6C1',
       opacity: 1,
       lifespan: 10000,
-      relatedCount: 5
+      relatedCount: 5,
     })
-    
+
     manager.addBubble(bubble)
     const found = manager.findBubbleAtPosition(200, 200) // 遠い位置をクリック
     test.expect(found).toBeFalsy()
@@ -442,13 +462,13 @@ export function runBubbleManagerTests(): void {
   // シャボン玉数の維持テスト
   test.test('シャボン玉数の維持', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
-    
+
     // 初期状態では0個
     test.expect(manager.getBubbles()).toHaveLength(0)
-    
+
     // 維持機能を実行
     manager.maintainBubbleCount()
-    
+
     // 最大数まで生成される
     test.expect(manager.getBubbles()).toHaveLength(testConfig.maxBubbles)
   })
@@ -456,11 +476,11 @@ export function runBubbleManagerTests(): void {
   // 全シャボン玉のクリアテスト
   test.test('全シャボン玉のクリア', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
-    
+
     // いくつかシャボン玉を追加
     manager.maintainBubbleCount()
     test.expect(manager.getBubbles().length).toBeGreaterThan(0)
-    
+
     // 全クリア
     manager.clearAllBubbles()
     test.expect(manager.getBubbles()).toHaveLength(0)
@@ -469,10 +489,10 @@ export function runBubbleManagerTests(): void {
   // 設定更新テスト
   test.test('設定の更新', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
-    
+
     const newConfig = { maxBubbles: 5 }
     manager.updateConfig(newConfig)
-    
+
     // 新しい設定で動作することを確認
     manager.maintainBubbleCount()
     test.expect(manager.getBubbles()).toHaveLength(5)
@@ -481,10 +501,10 @@ export function runBubbleManagerTests(): void {
   // 統計情報テスト
   test.test('統計情報の取得', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
-    
+
     // いくつかシャボン玉を追加
     manager.maintainBubbleCount()
-    
+
     const stats = manager.getStats()
     test.expect(stats.totalBubbles).toBe(testConfig.maxBubbles)
     test.expect(stats.songBubbles).toBeGreaterThanOrEqual(0)
@@ -497,7 +517,7 @@ export function runBubbleManagerTests(): void {
 
   test.test('空のシャボン玉リストの統計情報', () => {
     const manager = new BubbleManager(testDatabase, testConfig)
-    
+
     const stats = manager.getStats()
     test.expect(stats.totalBubbles).toBe(0)
     test.expect(stats.songBubbles).toBe(0)
