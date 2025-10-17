@@ -28,10 +28,22 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* ちらつき防止のためのスタイル */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   background: var(--background-gradient);
   font-family: 'Comic Sans MS', 'Arial', cursive, sans-serif;
   position: relative;
   overflow-x: hidden;
+}
+
+/* モバイルでのヘッダーとフッターメニュー対応 */
+@media (max-width: 768px) {
+  .App {
+    padding-bottom: 100px;
+  }
 }
 
 /* Cute sparkle animation background */
@@ -196,6 +208,12 @@
   align-items: center;
   width: 100%;
   max-width: 1200px;
+  /* ちらつき防止のためのスタイル */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
 }
 
 .main-canvas {
@@ -205,6 +223,12 @@
   backdrop-filter: blur(10px);
   border: 3px solid var(--border-cute);
   position: relative;
+  /* ちらつき防止のためのスタイル */
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
 }
 
 .main-canvas::before {
@@ -337,22 +361,15 @@
 
 /* Responsive design with CSS Grid/Flexbox */
 
-/* Base layout using CSS Grid */
+/* Base layout using Flexbox */
 .App {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  grid-template-areas: 
-    "header"
-    "main";
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 
-.App-header {
-  grid-area: header;
-}
-
 .App-main {
-  grid-area: main;
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;

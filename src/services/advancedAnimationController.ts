@@ -430,7 +430,8 @@ export class AdvancedAnimationController {
     state.disappearanceScheduledTime = currentTime + state.disappearanceDelay
     this.bubbleStates.set(bubble.id, state)
     
-    console.log(`Scheduled disappearance for bubble ${bubble.id} in ${state.disappearanceDelay}ms`)
+    // デバッグログを削除（大量出力を防ぐため）
+    // console.log(`Scheduled disappearance for bubble ${bubble.id} in ${state.disappearanceDelay}ms`)
   }
 
   /**

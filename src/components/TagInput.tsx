@@ -335,12 +335,12 @@ const RemoveButton = styled.button`
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid #90ee90;
   border-radius: 50%;
-  width: 16px;
-  height: 16px;
+  width: 12px;
+  height: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
+  font-size: 8px;
   font-weight: bold;
   color: #2d5016;
   cursor: pointer;

@@ -144,11 +144,11 @@ const LegendContainer = styled.div<{ position: string }>`
         case 'top-right':
           return 'top: 60px; right: 10px;' /* ヘッダーの下に配置 */
         case 'bottom-left':
-          return 'bottom: 80px; left: 10px;' /* ナビゲーションの上に配置 */
+          return 'bottom: 100px; left: 10px;' /* フッターメニューの上に配置 */
         case 'bottom-right':
-          return 'bottom: 80px; right: 10px;' /* ナビゲーションの上に配置 */
+          return 'bottom: 100px; right: 10px;' /* フッターメニューの上に配置 */
         default:
-          return 'top: 60px; right: 10px;'
+          return 'bottom: 100px; right: 10px;' /* デフォルトを右下に変更 */
       }
     }}
   }

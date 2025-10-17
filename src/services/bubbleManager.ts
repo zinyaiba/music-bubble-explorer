@@ -295,7 +295,10 @@ export class BubbleManager {
     // 最大サイズ制限を厳密に適用
     const finalSize = Math.min(calculatedSize, this.config.maxSize)
     
-    console.log(`🫧 Size calculation: relatedCount=${relatedCount}, normalized=${normalizedCount.toFixed(2)}, calculated=${calculatedSize.toFixed(1)}, final=${finalSize.toFixed(1)} (min=${this.config.minSize}, max=${this.config.maxSize})`)
+    // サイズ計算ログを制限（開発環境でのみ表示）
+    if (import.meta.env.DEV && Math.random() < 0.1) { // 10%の確率でのみログ出力
+      console.log(`🫧 Size calculation: relatedCount=${relatedCount}, normalized=${normalizedCount.toFixed(2)}, calculated=${calculatedSize.toFixed(1)}, final=${finalSize.toFixed(1)} (min=${this.config.minSize}, max=${this.config.maxSize})`)
+    }
     
     return finalSize
   }
@@ -755,27 +758,53 @@ export class BubbleManager {
    * Requirements: 7.4, 7.5 - 60FPS最適化とパフォーマンス監視
    */
   updateFrame(): BubbleEntity[] {
-    // パフォーマンス監視開始
-    this.animationOptimizer.startFrame()
-    
-    // フレームスキップチェック（低FPS時の最適化）
-    if (this.animationOptimizer.shouldSkipFrame()) {
-      return [...this.bubbles] // 現在の状態を返してフレームをスキップ
+    try {
+      // パフォーマンス監視開始
+      this.animationOptimizer.startFrame()
+      
+      // フレームスキップチェック（低FPS時の最適化）
+      if (this.animationOptimizer.shouldSkipFrame()) {
+        return [...this.bubbles] // 現在の状態を返してフレームをスキップ
+      }
+      
+      // 設定ファイルのmaxBubblesを厳格に適用（動的調整を無効化）
+      // const optimizerConfig = this.animationOptimizer.getConfig()
+      // if (optimizerConfig.maxBubbleCount !== this.config.maxBubbles) {
+      //   this.config.maxBubbles = optimizerConfig.maxBubbleCount
+      // }
+      
+      // 物理状態を更新
+      this.bubbles = this.updateBubblePhysics(this.bubbles)
+      
+      // maxBubbles制限を厳格に適用
+      if (this.bubbles.length > this.config.maxBubbles) {
+        // ログを制限（重要な情報だが頻繁すぎるため）
+        if (import.meta.env.DEV && Math.random() < 0.2) {
+          console.log(`🫧 Bubble count exceeded limit: ${this.bubbles.length} > ${this.config.maxBubbles}, removing excess bubbles`)
+        }
+        // 古いシャボン玉から削除
+        const excessBubbles = this.bubbles.splice(this.config.maxBubbles)
+        excessBubbles.forEach(bubble => {
+          this.bubblePool.release(bubble)
+        })
+      }
+      
+      // 必要に応じて新しいシャボン玉を生成（制限付き）
+      if (this.bubbles.length < this.config.maxBubbles) {
+        try {
+          this.maintainBubbleCount()
+        } catch (error) {
+          // シャボン玉生成エラーは警告のみ（アニメーションを継続）
+          console.warn('Bubble generation error (continuing):', error)
+        }
+      }
+      
+      return [...this.bubbles]
+    } catch (error) {
+      // 重大なエラーが発生した場合でも現在の状態を返す
+      console.error('Critical error in updateFrame (returning current state):', error)
+      return [...this.bubbles]
     }
-    
-    // 動的な最大シャボン玉数の調整
-    const optimizerConfig = this.animationOptimizer.getConfig()
-    if (optimizerConfig.maxBubbleCount !== this.config.maxBubbles) {
-      this.config.maxBubbles = optimizerConfig.maxBubbleCount
-    }
-    
-    // 物理状態を更新
-    this.bubbles = this.updateBubblePhysics(this.bubbles)
-    
-    // 必要に応じて新しいシャボン玉を生成
-    this.maintainBubbleCount()
-    
-    return [...this.bubbles]
   }
 
   /**

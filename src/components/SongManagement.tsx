@@ -251,14 +251,6 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                         <span className="stat-value">{filteredSongs.length}曲</span>
                     </span>
                 </div>
-                <button
-                    onClick={loadSongs}
-                    disabled={isLoading}
-                    className="refresh-button"
-                    title="楽曲一覧を再読み込み"
-                >
-                    🔄
-                </button>
             </div>
 
             <div className="song-list">

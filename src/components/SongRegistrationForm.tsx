@@ -334,14 +334,6 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
 
       <div className="button-group">
         <button 
-          type="button" 
-          onClick={onClose}
-          disabled={isSubmitting}
-          className="secondary-button"
-        >
-          キャンセル
-        </button>
-        <button 
           type="submit" 
           disabled={isSubmitting}
           className="primary-button"

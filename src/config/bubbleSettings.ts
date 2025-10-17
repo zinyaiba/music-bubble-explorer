@@ -34,9 +34,9 @@ export interface BubbleSettings {
  */
 export const DEFAULT_BUBBLE_SETTINGS: BubbleSettings = {
   // 基本設定
-  maxBubbles: 10,             // シャボン玉の最大数（パフォーマンスに影響）
-  minLifespan: 5,          // 5秒 - シャボン玉が消えるまでの最短時間
-  maxLifespan: 10,         // 10秒 - シャボン玉が消えるまでの最長時間
+  maxBubbles: 5,             // シャボン玉の最大数（パフォーマンスに影響）
+  minLifespan: 10,          // 5秒 - シャボン玉が消えるまでの最短時間
+  maxLifespan: 15,         // 10秒 - シャボン玉が消えるまでの最長時間
 
   // 速度設定（値を大きくすると速く動く）
   minVelocity: 10,             // 最小速度
@@ -44,7 +44,7 @@ export const DEFAULT_BUBBLE_SETTINGS: BubbleSettings = {
 
   // サイズ設定
   minSize: 80,                // 最小サイズ（ピクセル）
-  maxSize: 110,               // 最大サイズ（ピクセル）
+  maxSize: 150,               // 最大サイズ（ピクセル）
 
   // 物理設定（値を大きくすると効果が強くなる）
   buoyancyStrength: 5,       // 浮力の強さ（上向きの力）

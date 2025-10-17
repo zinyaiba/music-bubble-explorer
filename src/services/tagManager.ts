@@ -1,4 +1,5 @@
 import { Tag, Song, MusicDatabase } from '@/types/music'
+import { getCurrentBubbleSettings } from '@/config/bubbleSettings'
 
 /**
  * タグシステムを管理するクラス
@@ -80,8 +81,7 @@ export class TagManager {
   calculateTagBubbleSize(tagName: string): number {
     const popularity = this.calculateTagPopularity(tagName)
     
-    // BubbleManagerの設定を取得（getCurrentBubbleSettings）
-    const { getCurrentBubbleSettings } = require('@/config/bubbleSettings')
+    // BubbleManagerの設定を取得
     const settings = getCurrentBubbleSettings()
     
     console.log(`🏷️ Tag bubble size calculation for "${tagName}":`, {

@@ -42,29 +42,40 @@ export class AuthService {
    */
   private initializeAuth(): void {
     if (!auth) {
-      console.log('🔥 Auth: Firebase設定が無効です')
+      // Firebase設定が無効な場合は静かに終了
       return
     }
     
-    onAuthStateChanged(auth, (user: User | null) => {
-      if (user) {
-        this.currentUser = {
-          uid: user.uid,
-          isAnonymous: user.isAnonymous,
-          displayName: user.displayName || undefined,
-          email: user.email || undefined
+    try {
+      onAuthStateChanged(auth, (user: User | null) => {
+        if (user) {
+          this.currentUser = {
+            uid: user.uid,
+            isAnonymous: user.isAnonymous,
+            displayName: user.displayName || undefined,
+            email: user.email || undefined
+          }
+          if (import.meta.env.DEV) {
+            console.log('🔐 認証状態: ログイン済み', this.currentUser.uid)
+          }
+        } else {
+          this.currentUser = null
+          if (import.meta.env.DEV) {
+            console.log('🔐 認証状態: 未ログイン')
+          }
         }
-        console.log('🔐 認証状態: ログイン済み', this.currentUser.uid)
-      } else {
-        this.currentUser = null
-        console.log('🔐 認証状態: 未ログイン')
-      }
 
-      // リスナーに通知
-      this.authStateListeners.forEach(listener => {
-        listener(this.currentUser)
+        // リスナーに通知
+        this.authStateListeners.forEach(listener => {
+          listener(this.currentUser)
+        })
       })
-    })
+    } catch (error) {
+      // 認証状態監視のエラーを警告レベルに変更
+      if (import.meta.env.DEV) {
+        console.warn('🔐 認証状態監視エラー:', error)
+      }
+    }
   }
 
   /**
@@ -73,11 +84,18 @@ export class AuthService {
   public async signInAnonymously(): Promise<AuthUser | null> {
     try {
       if (!auth) {
-        console.log('🔐 Auth: Firebase設定が無効です')
+        // Firebase設定が無効な場合は静かに失敗
         return null
       }
       
-      const result = await signInAnonymously(auth)
+      // タイムアウト付きで匿名ログインを試行
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(new Error('Authentication timeout')), 10000)
+      })
+      
+      const authPromise = signInAnonymously(auth)
+      
+      const result = await Promise.race([authPromise, timeoutPromise])
       const user = result.user
       
       this.currentUser = {
@@ -87,10 +105,15 @@ export class AuthService {
         email: user.email || undefined
       }
 
-      console.log('🔐 匿名ログイン成功:', this.currentUser.uid)
+      if (import.meta.env.DEV) {
+        console.log('🔐 匿名ログイン成功:', this.currentUser.uid)
+      }
       return this.currentUser
     } catch (error) {
-      console.error('🔐 匿名ログインエラー:', error)
+      // エラーを警告レベルに変更（コンソールを汚さない）
+      if (import.meta.env.DEV) {
+        console.warn('🔐 匿名ログインエラー（ローカルモードで継続）:', error)
+      }
       return null
     }
   }
@@ -151,6 +174,11 @@ export class AuthService {
    * 自動ログインを試行
    */
   public async ensureAuthenticated(): Promise<AuthUser | null> {
+    if (!auth) {
+      // Firebase設定が無効な場合はnullを返す
+      return null
+    }
+    
     if (this.currentUser) {
       return this.currentUser
     }

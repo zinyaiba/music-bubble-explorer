@@ -46,11 +46,14 @@ export const useFirebase = () => {
       setState(prev => ({ ...prev, isConnected, error: null }))
       return isConnected
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      // エラーログは開発環境でのみ出力
+      if (import.meta.env.DEV) {
+        console.warn('Firebase connection check failed:', error)
+      }
       setState(prev => ({ 
         ...prev, 
         isConnected: false, 
-        error: errorMessage 
+        error: null // エラーを表示しない
       }))
       return false
     }

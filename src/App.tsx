@@ -17,7 +17,7 @@ import { ColorLegend } from './components/ColorLegend'
 import { useRoleBasedBubbles } from './hooks/useRoleBasedBubbles'
 import { BubbleEntity } from './types/bubble'
 import { Song, MusicDatabase } from './types/music'
-import { useResponsive, calculateOptimalBubbleCount, calculateOptimalCanvasSize } from './hooks/useResponsive'
+import { useResponsive, calculateOptimalCanvasSize } from './hooks/useResponsive'
 import { ErrorBoundary, DataLoadingErrorBoundary } from './components/ErrorBoundary'
 import { DataLoadingFallback, NetworkErrorFallback, GenericErrorFallback, InlineErrorDisplay } from './components/FallbackComponents'
 import { SongRegistrationForm } from './components/SongRegistrationForm'
@@ -34,6 +34,7 @@ import { PWAInstallButton, PWAUpdateBanner } from './components/PWAComponents'
 import { DebugLogger } from './utils/debugLogger'
 import { enableConsoleDebug } from './utils/debugStorage'
 import { useFirebase } from './hooks/useFirebase'
+import { getCurrentBubbleSettings } from './config/bubbleSettings'
 
 
 // Import mobile performance CSS
@@ -49,9 +50,19 @@ import './styles/mobileFirst.css'
 const AppInstructions = React.memo<{ isTouchDevice: boolean }>(({ isTouchDevice }) => (
   <div className="instructions" role="region" aria-label="操作説明">
     <p>
-      <span aria-hidden="true">💖</span> 
-      キュートなシャボン玉を{isTouchDevice ? 'タップ' : 'クリック'}して栗林みな実さんの楽曲世界を探索しよう！ 
-      <span aria-hidden="true">✨</span>
+      <span aria-hidden="true">🌰</span> 
+      シャボン玉を{isTouchDevice ? 'タップ' : 'クリック'}して栗林みな実さんの楽曲を探検しよう！
+      <span aria-hidden="true">🌰</span>
+    </p>
+    <p>
+      <span aria-hidden="true">🌰</span> 
+      メニューから楽曲にタグ付けをしてね！
+      <span aria-hidden="true">🌰</span>
+    </p>
+    <p>
+      <span aria-hidden="true">🌰</span> 
+      たくさん知ってほしいからよぉ
+      <span aria-hidden="true">🌰</span>
     </p>
     <div className="sr-only">
       シャボン玉をクリックまたはタップすると、楽曲の詳細情報や関連する作詞家、作曲家、編曲家の情報を表示できます。
@@ -117,6 +128,85 @@ function App() {
         return null
       }
 
+      // タグ強制生成機能を追加
+      (window as any).forceGenerateTagBubble = () => {
+        if (roleBasedBubbleManagerRef.current) {
+          try {
+            // 現在のシャボン玉をクリア
+            roleBasedBubbleManagerRef.current.clearAllBubbles()
+            
+            // タグシャボン玉を強制生成
+            const tagBubble = (roleBasedBubbleManagerRef.current as any).generateTagBubble()
+            roleBasedBubbleManagerRef.current.addBubble(tagBubble)
+            
+            console.log('🏷️ Force generated tag bubble:', tagBubble.name)
+            return tagBubble
+          } catch (error) {
+            console.error('Failed to force generate tag bubble:', error)
+            return null
+          }
+        }
+        return null
+      }
+
+      // データベース状態確認機能を追加
+      (window as any).checkDatabase = () => {
+        if (musicServiceRef.current) {
+          const songs = musicServiceRef.current.getAllSongs()
+          const people = musicServiceRef.current.getAllPeople()
+          const tags = musicServiceRef.current.getAllTags()
+          
+          console.log('📊 Database status:', {
+            songs: songs.length,
+            people: people.length,
+            tags: tags.length
+          })
+          
+          if (tags.length > 0) {
+            console.log('🏷️ Available tags:', tags.map(tag => `${tag.name} (${tag.songs.length} songs)`))
+          } else {
+            console.log('🏷️ No tags found in database')
+            
+            // 楽曲にタグが設定されているかチェック
+            const songsWithTags = songs.filter(song => song.tags && song.tags.length > 0)
+            console.log('🎵 Songs with tags:', songsWithTags.length)
+            
+            if (songsWithTags.length > 0) {
+              console.log('🎵 Sample songs with tags:', songsWithTags.slice(0, 3).map(song => ({
+                title: song.title,
+                tags: song.tags
+              })))
+            }
+          }
+          
+          return { songs: songs.length, people: people.length, tags: tags.length }
+        }
+        return null
+      }
+
+      // ログレベル制御機能を追加
+      (window as any).setLogLevel = (level: 'none' | 'minimal' | 'normal' | 'verbose') => {
+        switch (level) {
+          case 'none':
+            // 全てのログを無効化
+            console.log = () => {}
+            console.warn = () => {}
+            break
+          case 'minimal':
+            // エラーと重要な情報のみ
+            console.log('🔇 Log level set to minimal')
+            break
+          case 'normal':
+            // デフォルト（現在の設定）
+            console.log('🔊 Log level set to normal')
+            break
+          case 'verbose':
+            // 全てのログを有効化
+            console.log('📢 Log level set to verbose - all logs enabled')
+            break
+        }
+      }
+
       // 使用方法をコンソールに表示
       console.log(`
 🫧 シャボン玉設定の変更方法:
@@ -126,6 +216,7 @@ function App() {
 
 2. 利用可能な設定:
    - maxBubbles: シャボン玉の最大数
+   - minSize, maxSize: サイズ範囲
    - minVelocity, maxVelocity: 速度
    - minLifespan, maxLifespan: ライフスパン
    - buoyancyStrength: 浮力の強さ
@@ -134,7 +225,19 @@ function App() {
 3. 現在の統計を確認:
    getBubbleStats()
 
-例: updateBubbleSettings({ maxBubbles: 5, minVelocity: 5, maxVelocity: 15 })
+4. タグシャボン玉を強制生成:
+   forceGenerateTagBubble()
+
+5. データベース状態を確認:
+   checkDatabase()
+
+6. ログレベルを制御:
+   setLogLevel('none')     // ログを無効化
+   setLogLevel('minimal')  // 最小限のログ
+   setLogLevel('normal')   // 通常のログ（デフォルト）
+   setLogLevel('verbose')  // 全てのログ
+
+例: updateBubbleSettings({ maxBubbles: 5, minSize: 60, maxSize: 120 })
       `)
     }
   }, [])
@@ -144,9 +247,11 @@ function App() {
   const [musicDatabase, setMusicDatabase] = useState<MusicDatabase>({ songs: [], people: [], tags: [] })
 
   // Role-based bubble system integration
+  // 設定ファイルのmaxBubbles値を使用（レスポンシブ計算は無視）
+  const configMaxBubbles = getCurrentBubbleSettings().maxBubbles
   const {
     legendItems
-  } = useRoleBasedBubbles(musicDatabase, canvasSize.width, canvasSize.height, calculateOptimalBubbleCount(canvasSize.width, canvasSize.height, screenSize))
+  } = useRoleBasedBubbles(musicDatabase, canvasSize.width, canvasSize.height, configMaxBubbles)
 
 
   /**
@@ -244,12 +349,17 @@ function App() {
         // Update state for role-based bubble system
         setMusicDatabase(musicDatabaseData)
 
-        // Initialize BubbleManager with responsive canvas size and bubble count
-        const maxBubbles = calculateOptimalBubbleCount(canvasSize.width, canvasSize.height, screenSize)
-        
+        // Initialize BubbleManager with canvas size
+        // 設定ファイルのmaxBubbles値を厳密に適用（レスポンシブ計算は無視）
         const config = createBubbleConfig(canvasSize.width, canvasSize.height)
-        // レスポンシブ計算されたmaxBubblesで上書き（必要に応じて）
-        config.maxBubbles = Math.min(config.maxBubbles, maxBubbles)
+        // config.maxBubblesは設定ファイルの値をそのまま使用
+        
+        // デバッグ: 設定値をログ出力
+        console.log('🫧 App initialization - Bubble config:', {
+          maxBubbles: config.maxBubbles,
+          canvasSize: `${config.canvasWidth}x${config.canvasHeight}`,
+          settingsSource: 'bubbleSettings.ts'
+        })
 
         // Initialize Role-Based Bubble Manager (Requirements: 19.1, 19.2, 19.3, 19.4, 19.5)
         const roleBasedBubbleManager = new RoleBasedBubbleManager(musicDatabaseData, config)
@@ -286,6 +396,20 @@ function App() {
           const uniqueBubbles = roleBasedBubbleManager.preventDuplicateDisplay(coloredBubbles)
           
           setBubbles(uniqueBubbles)
+          
+          // デバッグ: 実際に生成されたシャボン玉数をログ出力
+          const bubbleTypeCount = uniqueBubbles.reduce((acc, bubble) => {
+            acc[bubble.type] = (acc[bubble.type] || 0) + 1
+            return acc
+          }, {} as Record<string, number>)
+          
+          console.log('🫧 Generated bubbles:', {
+            requested: config.maxBubbles,
+            generated: initialBubbles.length,
+            afterColorAndUnique: uniqueBubbles.length,
+            managerBubbles: roleBasedBubbleManager.getBubbles().length,
+            typeDistribution: bubbleTypeCount
+          })
         } else {
           console.log('📭 Database is empty, no bubbles to generate')
           setBubbles(initialBubbles)
@@ -400,6 +524,7 @@ function App() {
   useEffect(() => {
     if (!bubbleManagerRef.current || isLoading) return
 
+    let frameCount = 0
     const animate = () => {
       // テスト環境での安全性チェック
       if (typeof window === 'undefined' || !bubbleManagerRef.current) {
@@ -409,9 +534,26 @@ function App() {
       try {
         const updatedBubbles = bubbleManagerRef.current.updateFrame()
         setBubbles([...updatedBubbles])
+        
+        // デバッグ: 5秒ごとにシャボン玉数をログ出力（パフォーマンス配慮）
+        frameCount++
+        if (frameCount % 300 === 0) { // 60fps * 5秒 = 300フレーム
+          if (import.meta.env.DEV) {
+            console.log('🫧 Animation frame bubble count:', {
+              bubbles: updatedBubbles.length,
+              maxBubbles: bubbleManagerRef.current.getBubbles().length,
+              frameCount
+            })
+          }
+        }
+        
         animationFrameRef.current = requestAnimationFrame(animate)
       } catch (error) {
-        console.warn('Animation frame error:', error)
+        // エラーが発生してもアニメーションを継続（画面のちらつきを防ぐ）
+        console.warn('Animation frame error (continuing):', error)
+        
+        // エラーが発生した場合でも次のフレームを予約
+        animationFrameRef.current = requestAnimationFrame(animate)
       }
     }
 
@@ -834,7 +976,7 @@ function App() {
               
               {/* Color Legend for role-based bubbles (Requirements: 19.3, 19.4) */}
               <ColorLegend
-                position="top-right"
+                position="bottom-right"
                 isVisible={showColorLegend && bubbles.length > 0}
                 showCounts={true}
                 categories={legendItems}

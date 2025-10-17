@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react'
 import { BubbleEntity } from '@/types/bubble'
-import type { EnhancedBubble } from '@/types/enhancedBubble'
 import { Song, Person, Tag } from '@/types/music'
 import { MusicDataService } from '@/services/musicDataService'
 import { SimpleDialog } from './SimpleDialog'
@@ -30,10 +29,6 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(({
   const [relatedData, setRelatedData] = useState<RelatedData[]>([])
   
   const musicService = useMemo(() => MusicDataService.getInstance(), [])
-
-  const isEnhancedBubble = useCallback((bubble: BubbleEntity): boolean => {
-    return 'isMultiRole' in bubble || 'roles' in bubble || 'enhancedType' in bubble
-  }, [])
 
   const loadRelatedData = useCallback(() => {
     if (!selectedBubble) return
@@ -90,7 +85,8 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(({
               data.push({
                 id: `tag-${tag}`,
                 name: tag,
-                type: 'tag'
+                type: 'tag',
+                role: 'tag' as any
               })
             })
           }
@@ -178,11 +174,12 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(({
     }
   }, [selectedBubble, loadRelatedData])
 
-  const getRoleLabel = useCallback((role: 'lyricist' | 'composer' | 'arranger') => {
+  const getRoleLabel = useCallback((role: 'lyricist' | 'composer' | 'arranger' | 'tag') => {
     switch (role) {
       case 'lyricist': return '作詞'
       case 'composer': return '作曲'
       case 'arranger': return '編曲'
+      case 'tag': return 'タグ'
       default: return role
     }
   }, [])
@@ -212,16 +209,7 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(({
       className="detail-modal"
     >
       <div className="detail-modal-content">
-        <div className="main-info">
-          <h2 className="main-title">
-            {selectedBubble.type === 'tag' ? `#${selectedBubble.name}` : selectedBubble.name}
-            {isEnhancedBubble(selectedBubble) && (selectedBubble as EnhancedBubble).isMultiRole && (
-              <span className="multi-role-indicator">
-                <span aria-label="複数の役割を持つ人物">🌟 複数役割</span>
-              </span>
-            )}
-          </h2>
-        </div>
+        {/* 楽曲名の重複表示を削除 - ヘッダーと重複のため */}
 
         {selectedBubble.type === 'song' ? (
           <div className="song-details">

@@ -46,11 +46,10 @@ export const SimpleDialog: React.FC<SimpleDialogProps> = ({
   useEffect(() => {
     if (isVisible) {
       document.addEventListener('keydown', handleKeyDown)
-      document.body.style.overflow = 'hidden'
+      // モバイルでのスクロール問題を防ぐため、bodyのスクロールは制御しない
       
       return () => {
         document.removeEventListener('keydown', handleKeyDown)
-        document.body.style.overflow = ''
       }
     }
   }, [isVisible, handleKeyDown])

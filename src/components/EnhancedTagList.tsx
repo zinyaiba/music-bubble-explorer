@@ -193,12 +193,7 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
         {/* Main Content */}
         {!isLoading && !error && (
           <>
-            {/* Header (Requirements: 21.1) - シンプルなタイトルのみ */}
-            <div className="tag-list-header">
-              <div className="header-title">
-                <h2>タグ一覧</h2>
-              </div>
-            </div>
+            {/* Header削除 - ダイアログタイトルと重複のため */}
 
         {/* Search Bar (Requirements: 21.3) - 検索とタグ数を横並び */}
         <div className="tag-search-bar">

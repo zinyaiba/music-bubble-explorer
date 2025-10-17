@@ -41,12 +41,15 @@ const isFirebaseConfigured = firebaseConfig.apiKey &&
                              firebaseConfig.authDomain && 
                              firebaseConfig.projectId
 
-console.log('🔥 Firebase設定状況:', {
-  isConfigured: isFirebaseConfigured,
-  apiKey: firebaseConfig.apiKey ? '設定済み' : '未設定',
-  authDomain: firebaseConfig.authDomain ? '設定済み' : '未設定',
-  projectId: firebaseConfig.projectId ? '設定済み' : '未設定'
-})
+// ログ出力を制限（エラーを防ぐため）
+if (import.meta.env.DEV) {
+  console.log('🔥 Firebase設定状況:', {
+    isConfigured: isFirebaseConfigured,
+    apiKey: firebaseConfig.apiKey ? '設定済み' : '未設定',
+    authDomain: firebaseConfig.authDomain ? '設定済み' : '未設定',
+    projectId: firebaseConfig.projectId ? '設定済み' : '未設定'
+  })
+}
 
 let app: FirebaseApp | null = null
 let db: Firestore | null = null
@@ -63,24 +66,23 @@ if (isFirebaseConfigured) {
     // Auth初期化
     auth = getAuth(app)
     
-    console.log('🔥 Firebase初期化完了')
-    console.log('🔥 Firebase設定:', {
-      projectId: firebaseConfig.projectId,
-      authDomain: firebaseConfig.authDomain,
-      environment: import.meta.env.MODE,
-      hasEnvVars: !!import.meta.env.VITE_FIREBASE_API_KEY
-    })
+    if (import.meta.env.DEV) {
+      console.log('🔥 Firebase初期化完了')
+    }
   } catch (error) {
-    console.warn('🔥 Firebase初期化エラー:', error)
+    // エラーを警告レベルに変更（コンソールを汚さない）
+    if (import.meta.env.DEV) {
+      console.warn('🔥 Firebase初期化エラー（ローカルモードで継続）:', error)
+    }
+    // エラーが発生してもnullのままにして、後続の処理でローカルモードになるようにする
+    app = null
+    db = null
+    auth = null
   }
 } else {
-  console.log('🔥 Firebase設定が見つかりません - ローカルモードで動作')
-  console.log('🔥 設定状況:', {
-    apiKey: firebaseConfig.apiKey ? '設定済み' : '未設定',
-    authDomain: firebaseConfig.authDomain ? '設定済み' : '未設定',
-    projectId: firebaseConfig.projectId ? '設定済み' : '未設定',
-    environment: import.meta.env.MODE
-  })
+  if (import.meta.env.DEV) {
+    console.log('🔥 Firebase設定が見つかりません - ローカルモードで動作')
+  }
 }
 
 export { db, auth }

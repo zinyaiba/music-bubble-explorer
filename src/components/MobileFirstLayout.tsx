@@ -10,8 +10,8 @@ interface MobileFirstLayoutProps {
 }
 
 /**
- * モバイルファーストレイアウトコンポーネント
- * Requirements: 17.1, 17.2, 17.3 - シャボン玉領域の最大化とモバイルファーストUI
+ * 統一レイアウトコンポーネント（スマホベース）
+ * PC・スマホ共通のシンプルなレイアウト
  */
 export const MobileFirstLayout: React.FC<MobileFirstLayoutProps> = React.memo(({
   children,
@@ -22,43 +22,22 @@ export const MobileFirstLayout: React.FC<MobileFirstLayoutProps> = React.memo(({
   const screenSize = useResponsive()
 
   return (
-    <LayoutContainer 
-      className={className}
-      $isMobile={screenSize.isMobile}
-      $isTablet={screenSize.isTablet}
-      $isLandscape={screenSize.isLandscape}
-    >
-      {/* ヘッダー（簡素化） */}
+    <LayoutContainer className={className}>
+      {/* ヘッダー（PC・スマホ共通） */}
       {header && (
-        <HeaderSection 
-          role="banner"
-          $isMobile={screenSize.isMobile}
-          $isLandscape={screenSize.isLandscape}
-        >
+        <HeaderSection>
           {header}
         </HeaderSection>
       )}
       
-      {/* メインコンテンツエリア（シャボン玉領域を最大化） */}
-      <MainSection 
-        id="main-content" 
-        role="main"
-        $isMobile={screenSize.isMobile}
-        $isTablet={screenSize.isTablet}
-        $isLandscape={screenSize.isLandscape}
-        $hasHeader={!!header}
-        $hasNavigation={!!navigation}
-      >
+      {/* メインコンテンツエリア */}
+      <MainSection>
         {children}
       </MainSection>
       
-      {/* ナビゲーション（モバイルでのみボトムに表示、デスクトップではヘッダー内） */}
+      {/* ボトムナビゲーション（スマホのみ） */}
       {navigation && screenSize.isMobile && (
-        <NavigationSection 
-          role="navigation" 
-          aria-label="メインナビゲーション"
-          $isMobile={screenSize.isMobile}
-        >
+        <NavigationSection>
           {navigation}
         </NavigationSection>
       )}
@@ -66,130 +45,68 @@ export const MobileFirstLayout: React.FC<MobileFirstLayoutProps> = React.memo(({
   )
 })
 
-// スタイル定義
-const LayoutContainer = styled.div<{
-  $isMobile: boolean
-  $isTablet: boolean
-  $isLandscape: boolean
-}>`
-  min-height: 100vh;
-  display: grid;
+// シンプルな統一レイアウト
+const LayoutContainer = styled.div`
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--background-gradient);
   font-family: 'Comic Sans MS', 'Arial', cursive, sans-serif;
-  position: relative;
-  overflow-x: hidden;
-
-  /* モバイルファーストのグリッドレイアウト */
-  ${props => props.$isMobile ? `
-    /* モバイル: ヘッダー + メインエリア（ナビゲーションは固定ボトム） */
-    grid-template-rows: auto 1fr;
-    grid-template-areas: 
-      "header"
-      "main";
-    
-    ${props.$isLandscape ? `
-      /* ランドスケープ: ヘッダーをさらに縮小 */
-      grid-template-rows: auto 1fr;
-    ` : ''}
-  ` : `
-    /* デスクトップ/タブレット: 従来のレイアウト */
-    grid-template-rows: auto 1fr;
-    grid-template-areas: 
-      "header"
-      "main";
-  `}
+  overflow: hidden;
 `
 
-const HeaderSection = styled.header<{
-  $isMobile: boolean
-  $isLandscape: boolean
-}>`
-  grid-area: header;
-  z-index: 100;
-
-  /* モバイルファーストの高さ設定 */
-  ${props => props.$isMobile ? `
-    /* モバイル: 最小限の高さ */
+const HeaderSection = styled.header`
+  flex-shrink: 0;
+  height: 60px;
+  width: 100%;
+  z-index: 1000;
+  
+  @media (max-width: 768px) {
     height: 50px;
-    
-    ${props.$isLandscape ? `
-      /* ランドスケープ: さらに縮小 */
-      height: 45px;
-    ` : ''}
-  ` : `
-    /* デスクトップ/タブレット */
-    height: auto;
-    min-height: 60px;
-  `}
+  }
 `
 
-const MainSection = styled.main<{
-  $isMobile: boolean
-  $isTablet: boolean
-  $isLandscape: boolean
-  $hasHeader: boolean
-  $hasNavigation: boolean
-}>`
-  grid-area: main;
+const MainSection = styled.main`
+  flex: 1;
+  width: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px;
+  
+  /* PC: 中央寄せ */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  position: relative;
+  
+  /* スマホでボトムナビゲーション分の余白 */
+  @media (max-width: 768px) {
+    padding: 8px;
+    padding-bottom: 100px;
+  }
 
-  /* モバイルファーストのパディングとサイズ設定 */
-  ${props => props.$isMobile ? `
-    /* モバイル: シャボン玉領域を最大化 */
-    padding: 8px 4px;
-    gap: 8px;
-    
-    /* ボトムナビゲーション分の余白を確保 */
-    ${props.$hasNavigation ? `
-      padding-bottom: calc(60px + 8px);
-      min-height: calc(100vh - 50px - 60px);
-    ` : `
-      min-height: calc(100vh - 50px);
-    `}
-    
-    ${props.$isLandscape ? `
-      /* ランドスケープ: さらにパディングを削減 */
-      padding: 4px 8px;
-      gap: 4px;
-      ${props.$hasNavigation ? `
-        padding-bottom: calc(60px + 4px);
-        min-height: calc(100vh - 45px - 60px);
-      ` : `
-        min-height: calc(100vh - 45px);
-      `}
-    ` : ''}
-  ` : props.$isTablet ? `
-    /* タブレット */
-    padding: 12px 8px;
-    gap: 12px;
-    min-height: calc(100vh - 60px);
-  ` : `
-    /* デスクトップ */
-    padding: 16px 12px;
-    gap: 16px;
-    min-height: calc(100vh - 80px);
-  `}
-
-  /* iPhone X以降の安全領域対応 */
-  @supports (padding-bottom: env(safe-area-inset-bottom)) {
-    ${props => props.$isMobile && props.$hasNavigation && `
-      padding-bottom: calc(60px + 8px + env(safe-area-inset-bottom));
-    `}
+  /* スクロールバー */
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 105, 180, 0.3);
+    border-radius: 2px;
   }
 `
 
-const NavigationSection = styled.div<{ $isMobile: boolean }>`
-  ${props => props.$isMobile ? `
-    /* モバイル: ナビゲーションは固定ボトム（MobileFirstNavigationコンポーネント内で制御） */
-    position: relative;
-  ` : `
-    /* デスクトップ: ナビゲーションはヘッダー内（MobileFirstNavigationコンポーネント内で制御） */
-    position: relative;
-  `}
+const NavigationSection = styled.div`
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
 `
 
 export default MobileFirstLayout

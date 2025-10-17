@@ -16,97 +16,59 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(({
   const screenSize = useResponsive()
 
   return (
-    <HeaderContainer 
-      role="banner"
-      $isMobile={screenSize.isMobile}
-      $isTablet={screenSize.isTablet}
-      $isLandscape={screenSize.isLandscape}
-    >
-      <HeaderContent $isMobile={screenSize.isMobile}>
+    <HeaderContainer>
+      <HeaderContent>
         <LogoSection>
-          <LogoIcon aria-hidden="true">🫧</LogoIcon>
-          <LogoText $isMobile={screenSize.isMobile}>
-            <MainTitle $isMobile={screenSize.isMobile}>
-              栗林みな実 Bubble World
+          <LogoIcon>🫧</LogoIcon>
+          <LogoText>
+            <MainTitle>
+              栗林みな実 Malon Bubbles
             </MainTitle>
             {!screenSize.isMobile && (
               <SubTitle>
-                栗林みな実さんの楽曲世界をキュートなシャボン玉で探索しよう💕
+                栗林みな実さんの楽曲にタグをつけて魅力を伝えよう🌰
               </SubTitle>
             )}
           </LogoText>
         </LogoSection>
         
-        {/* デスクトップでのみ追加コンテンツを表示 */}
-        {!screenSize.isMobile && children && (
-          <HeaderExtra>
+        {/* ナビゲーションボタン（PCのみヘッダーに表示） */}
+        {children && !screenSize.isMobile && (
+          <HeaderActions>
             {children}
-          </HeaderExtra>
-        )}
-        
-        {/* モバイルでの装飾要素 */}
-        {screenSize.isMobile && (
-          <MobileDecoration aria-hidden="true">
-            ✨💖
-          </MobileDecoration>
+          </HeaderActions>
         )}
       </HeaderContent>
     </HeaderContainer>
   )
 })
 
-// スタイル定義
-const HeaderContainer = styled.header<{
-  $isMobile: boolean
-  $isTablet: boolean
-  $isLandscape: boolean
-}>`
-  background: rgba(255, 255, 255, 0.2);
+// シンプルな統一ヘッダー
+const HeaderContainer = styled.header`
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(15px);
   border-bottom: 2px solid var(--border-cute, #ffb6c1);
   box-shadow: 0 4px 20px var(--shadow-light, rgba(255, 105, 180, 0.15));
-  position: relative;
-  z-index: 100;
-
-  /* モバイルファーストの高さ設定 */
-  ${props => props.$isMobile ? `
-    /* モバイル: 50px */
-    min-height: 50px;
-    border-radius: 0;
-    border-bottom: 1px solid rgba(255, 182, 193, 0.3);
-    
-    ${props.$isLandscape ? `
-      /* ランドスケープ: さらに縮小 */
-      min-height: 45px;
-    ` : ''}
-  ` : props.$isTablet ? `
-    /* タブレット: 60px */
-    min-height: 60px;
-    border-radius: 0 0 20px 20px;
-  ` : `
-    /* デスクトップ: 80px */
-    min-height: 80px;
-    border-radius: 0 0 30px 30px;
-  `}
 `
 
-const HeaderContent = styled.div<{ $isMobile: boolean }>`
+const HeaderContent = styled.div`
+  width: 100%;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 12px 24px;
   gap: 1rem;
 
-  ${props => props.$isMobile ? `
-    /* モバイル: 最小限のパディング */
+  @media (max-width: 768px) {
     padding: 8px 16px;
-    min-height: 50px;
-  ` : `
-    /* デスクトップ/タブレット */
-    padding: 12px 24px;
-    min-height: 60px;
-  `}
+    /* スマホではロゴを中央寄せ */
+    justify-content: center;
+  }
 `
 
 const LogoSection = styled.div`
@@ -114,7 +76,7 @@ const LogoSection = styled.div`
   align-items: center;
   gap: 8px;
   flex: 1;
-  min-width: 0; /* flexboxでのオーバーフロー防止 */
+  min-width: 0;
 `
 
 const LogoIcon = styled.span`
@@ -132,82 +94,49 @@ const LogoIcon = styled.span`
   }
 `
 
-const LogoText = styled.div<{ $isMobile: boolean }>`
+const LogoText = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
-
-  ${props => props.$isMobile && `
-    gap: 0;
-  `}
 `
 
-const MainTitle = styled.h1<{ $isMobile: boolean }>`
+const MainTitle = styled.h1`
   margin: 0;
   font-weight: 700;
-  color: var(--text-primary, #8b4a8c);
-  text-shadow: 1px 1px 2px var(--shadow-light, rgba(255, 105, 180, 0.15));
+  line-height: 1.1;
   background: linear-gradient(45deg, var(--bubble-pink, #ff69b4), var(--bubble-rose, #ff1493), var(--bubble-lavender, #dda0dd));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  line-height: 1.1;
-  
-  /* レスポンシブフォントサイズ */
-  ${props => props.$isMobile ? `
-    font-size: clamp(14px, 4vw, 18px);
-  ` : `
-    font-size: clamp(20px, 4vw, 28px);
-  `}
-
-  /* テキストオーバーフロー対応 */
+  font-size: clamp(16px, 4vw, 24px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 
-  @media (max-width: 480px) {
-    font-size: clamp(12px, 3.5vw, 16px);
+  @supports not (-webkit-background-clip: text) {
+    color: var(--bubble-pink, #ff69b4);
+    background: none;
   }
 `
 
 const SubTitle = styled.p`
   margin: 0;
-  font-size: clamp(12px, 2.5vw, 16px);
+  font-size: clamp(11px, 2vw, 14px);
   color: var(--text-secondary, #b565a7);
   font-weight: 500;
   line-height: 1.2;
-
-  @media (max-width: 1024px) {
-    font-size: clamp(11px, 2vw, 14px);
-  }
 `
 
-const HeaderExtra = styled.div`
+const HeaderActions = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-shrink: 0;
   
-  /* デスクトップでのナビゲーション表示を最適化 */
+  /* PC: 中央寄りに配置 */
   @media (min-width: 769px) {
-    margin-left: auto;
-  }
-  
-  /* モバイルでは非表示 */
-  @media (max-width: 768px) {
-    display: none;
-  }
-`
-
-const MobileDecoration = styled.span`
-  font-size: 16px;
-  animation: twinkle 3s infinite;
-  flex-shrink: 0;
-
-  @keyframes twinkle {
-    0%, 100% { opacity: 1; transform: rotate(0deg); }
-    50% { opacity: 0.7; transform: rotate(10deg); }
+    margin-right: 20%;
   }
 `
 
