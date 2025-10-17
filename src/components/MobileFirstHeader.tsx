@@ -10,38 +10,34 @@ interface MobileFirstHeaderProps {
  * モバイルファーストヘッダーコンポーネント
  * Requirements: 17.1, 17.2 - ヘッダーの簡素化とサイズ縮小
  */
-export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(({
-  children
-}) => {
-  const screenSize = useResponsive()
+export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
+  ({ children }) => {
+    const screenSize = useResponsive()
 
-  return (
-    <HeaderContainer>
-      <HeaderContent>
-        <LogoSection>
-          <LogoIcon>🫧</LogoIcon>
-          <LogoText>
-            <MainTitle>
-              栗林みな実 Malon Bubbles
-            </MainTitle>
-            {!screenSize.isMobile && (
-              <SubTitle>
-                栗林みな実さんの楽曲にタグをつけて魅力を伝えよう🌰
-              </SubTitle>
-            )}
-          </LogoText>
-        </LogoSection>
-        
-        {/* ナビゲーションボタン（PCのみヘッダーに表示） */}
-        {children && !screenSize.isMobile && (
-          <HeaderActions>
-            {children}
-          </HeaderActions>
-        )}
-      </HeaderContent>
-    </HeaderContainer>
-  )
-})
+    return (
+      <HeaderContainer>
+        <HeaderContent>
+          <LogoSection>
+            <LogoIcon>🫧</LogoIcon>
+            <LogoText>
+              <MainTitle>栗林みな実 Malon Bubbles</MainTitle>
+              {!screenSize.isMobile && (
+                <SubTitle>
+                  栗林みな実さんの楽曲にタグをつけて魅力を伝えよう🌰
+                </SubTitle>
+              )}
+            </LogoText>
+          </LogoSection>
+
+          {/* ナビゲーションボタン（PCのみヘッダーに表示） */}
+          {children && !screenSize.isMobile && (
+            <HeaderActions>{children}</HeaderActions>
+          )}
+        </HeaderContent>
+      </HeaderContainer>
+    )
+  }
+)
 
 // シンプルな統一ヘッダー
 const HeaderContainer = styled.header`
@@ -60,7 +56,7 @@ const HeaderContent = styled.div`
   align-items: center;
   justify-content: space-between;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 13px auto;
   padding: 12px 24px;
   gap: 1rem;
 
@@ -85,8 +81,13 @@ const LogoIcon = styled.span`
   flex-shrink: 0;
 
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-2px); }
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-2px);
+    }
   }
 
   @media (max-width: 768px) {
@@ -105,7 +106,12 @@ const MainTitle = styled.h1`
   margin: 0;
   font-weight: 700;
   line-height: 1.1;
-  background: linear-gradient(45deg, var(--bubble-pink, #ff69b4), var(--bubble-rose, #ff1493), var(--bubble-lavender, #dda0dd));
+  background: linear-gradient(
+    45deg,
+    var(--bubble-pink, #ff69b4),
+    var(--bubble-rose, #ff1493),
+    var(--bubble-lavender, #dda0dd)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -133,7 +139,7 @@ const HeaderActions = styled.div`
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
-  
+
   /* PC: 中央寄りに配置 */
   @media (min-width: 769px) {
     margin-right: 20%;

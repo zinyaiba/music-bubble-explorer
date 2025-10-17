@@ -49,7 +49,7 @@
 /* モバイルでのヘッダーとフッターメニュー対応 */
 @media (max-width: 768px) {
   .App {
-    padding-bottom: 10px;
+    padding-bottom: 100px;
   }
 }
 

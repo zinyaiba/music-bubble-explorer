@@ -34,32 +34,32 @@ const DEFAULT_LEGEND_ITEMS: LegendItem[] = [
     category: 'song',
     color: CATEGORY_COLORS.song,
     label: '楽曲',
-    icon: '🎵'
+    icon: '🎵',
   },
   {
     category: 'lyricist',
     color: CATEGORY_COLORS.lyricist,
     label: '作詞家',
-    icon: '✍️'
+    icon: '✍️',
   },
   {
     category: 'composer',
     color: CATEGORY_COLORS.composer,
     label: '作曲家',
-    icon: '🎼'
+    icon: '🎼',
   },
   {
     category: 'arranger',
     color: CATEGORY_COLORS.arranger,
     label: '編曲家',
-    icon: '🎹'
+    icon: '🎹',
   },
   {
     category: 'tag',
     color: CATEGORY_COLORS.tag,
     label: 'タグ',
-    icon: '🏷️'
-  }
+    icon: '🏷️',
+  },
 ]
 
 /**
@@ -71,7 +71,7 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
   isVisible = true,
   showCounts = false,
   categories = DEFAULT_LEGEND_ITEMS,
-  className
+  className,
 }) => {
   if (!isVisible) {
     return null
@@ -81,7 +81,7 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
     <LegendContainer position={position} className={className}>
       <LegendTitle>カテゴリ</LegendTitle>
       <LegendList>
-        {categories.map((item) => (
+        {categories.map(item => (
           <LegendItem key={item.category} title={item.label}>
             <ColorIndicator color={item.color} />
             <LegendContent>
@@ -119,7 +119,7 @@ const LegendContainer = styled.div<{ position: string }>`
         return 'top: 20px; right: 20px;'
     }
   }}
-  
+
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(224, 224, 224, 0.3);
@@ -127,16 +127,16 @@ const LegendContainer = styled.div<{ position: string }>`
   padding: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  
+
   /* コンパクトサイズ */
   width: auto;
   min-width: unset;
   max-width: unset;
-  
+
   /* モバイル対応 */
   @media (max-width: 768px) {
     padding: 6px;
-    
+
     ${({ position }) => {
       switch (position) {
         case 'top-left':
@@ -144,11 +144,11 @@ const LegendContainer = styled.div<{ position: string }>`
         case 'top-right':
           return 'top: 60px; right: 10px;' /* ヘッダーの下に配置 */
         case 'bottom-left':
-          return 'bottom: 100px; left: 10px;' /* フッターメニューの上に配置 */
+          return 'bottom: 10px; left: 10px;' /* フッターメニューの上に配置 */
         case 'bottom-right':
-          return 'bottom: 100px; right: 10px;' /* フッターメニューの上に配置 */
+          return 'bottom: 10px; right: 10px;' /* フッターメニューの上に配置 */
         default:
-          return 'bottom: 100px; right: 10px;' /* デフォルトを右下に変更 */
+          return 'bottom: 10px; right: 10px;' /* デフォルトを右下に変更 */
       }
     }}
   }
@@ -165,7 +165,7 @@ const LegendList = styled.ul`
   display: flex;
   flex-direction: row; /* 横並びでコンパクト化 */
   gap: 4px;
-  
+
   @media (max-width: 768px) {
     gap: 3px;
   }
@@ -179,11 +179,11 @@ const LegendItem = styled.li`
   border-radius: 6px;
   position: relative;
   cursor: help;
-  
+
   &:hover {
     background: rgba(0, 0, 0, 0.05);
   }
-  
+
   /* ツールチップ表示 */
   &:hover::after {
     content: attr(title);
@@ -210,7 +210,7 @@ const ColorIndicator = styled.div<{ color: string }>`
   border: 2px solid rgba(255, 255, 255, 0.8);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
-  
+
   @media (max-width: 768px) {
     width: 18px;
     height: 18px;
@@ -238,13 +238,14 @@ const LegendCount = styled.span`
  * Requirements: 19.4 - 凡例の動的更新機能
  */
 export const useColorLegend = (bubbleStats?: any) => {
-  const [legendItems, setLegendItems] = React.useState<LegendItem[]>(DEFAULT_LEGEND_ITEMS)
+  const [legendItems, setLegendItems] =
+    React.useState<LegendItem[]>(DEFAULT_LEGEND_ITEMS)
 
   React.useEffect(() => {
     if (bubbleStats) {
       const updatedItems = DEFAULT_LEGEND_ITEMS.map(item => ({
         ...item,
-        count: bubbleStats[`${item.category}Bubbles`] || 0
+        count: bubbleStats[`${item.category}Bubbles`] || 0,
       }))
       setLegendItems(updatedItems)
     }
@@ -252,7 +253,7 @@ export const useColorLegend = (bubbleStats?: any) => {
 
   return {
     legendItems,
-    setLegendItems
+    setLegendItems,
   }
 }
 
