@@ -3,20 +3,20 @@
  * 楽曲データの保存・取得を管理
  */
 
-import { 
-  collection, 
-  addDoc, 
-  getDocs, 
-  doc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  orderBy, 
-  where, 
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
+  where,
   limit,
   onSnapshot,
   Timestamp,
-  serverTimestamp
+  serverTimestamp,
 } from 'firebase/firestore'
 import { db } from '@/config/firebase'
 import { Song, MusicDatabase } from '@/types/music'
@@ -75,7 +75,7 @@ export class FirebaseService {
       arrangers: data.arrangers || [],
       tags: data.tags || [],
       notes: data.notes || '',
-      createdAt: this.convertTimestampToString(data.createdAt)
+      createdAt: this.convertTimestampToString(data.createdAt),
     }
   }
 
@@ -108,26 +108,32 @@ export class FirebaseService {
         collection(db!, this.COLLECTION_NAME),
         where('title', '==', song.title.trim())
       )
-      
+
       const existingSnapshot = await getDocs(existingQuery)
       if (!existingSnapshot.empty) {
-        console.warn('🔥 Firebase: 同じタイトルの楽曲が既に存在します:', song.title)
+        console.warn(
+          '🔥 Firebase: 同じタイトルの楽曲が既に存在します:',
+          song.title
+        )
         // 既存の楽曲のIDを返す
         return existingSnapshot.docs[0].id
       }
-      
+
       const firebaseSong: FirebaseSong = {
         ...song,
         createdAt: serverTimestamp() as Timestamp,
         updatedAt: serverTimestamp() as Timestamp,
         userId: userId || 'anonymous',
-        isPublic: true
+        isPublic: true,
       }
 
       // idフィールドを除外
-      const { id, ...songData } = firebaseSong
+      const { id: _id, ...songData } = firebaseSong
 
-      const docRef = await addDoc(collection(db!, this.COLLECTION_NAME), songData)
+      const docRef = await addDoc(
+        collection(db!, this.COLLECTION_NAME),
+        songData
+      )
       console.log('🔥 Firebase: 楽曲を保存しました', docRef.id)
       return docRef.id
     } catch (error) {
@@ -145,17 +151,17 @@ export class FirebaseService {
         console.log('🔥 Firebase: 設定が無効です')
         return []
       }
-      
+
       // シンプルなクエリに変更（インデックス不要）
       const q = query(
         collection(db!, this.COLLECTION_NAME),
         orderBy('createdAt', 'desc')
       )
-      
+
       const querySnapshot = await getDocs(q)
       const songs: Song[] = []
 
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(doc => {
         const data = doc.data() as FirebaseSong
         // isPublicがtrueまたは未設定の楽曲のみを含める
         if (data.isPublic !== false) {
@@ -174,19 +180,22 @@ export class FirebaseService {
   /**
    * 楽曲を更新
    */
-  public async updateSong(songId: string, updates: Partial<Song>): Promise<boolean> {
+  public async updateSong(
+    songId: string,
+    updates: Partial<Song>
+  ): Promise<boolean> {
     try {
       if (!this.isFirebaseAvailable() || !db) {
         console.log('🔥 Firebase: 設定が無効です')
         return false
       }
-      
+
       const songRef = doc(db!, this.COLLECTION_NAME, songId)
       await updateDoc(songRef, {
         ...updates,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       })
-      
+
       console.log('🔥 Firebase: 楽曲を更新しました', songId)
       return true
     } catch (error) {
@@ -201,20 +210,20 @@ export class FirebaseService {
   public async deleteSong(songId: string): Promise<boolean> {
     try {
       console.log('🔥 Firebase: 削除開始', songId)
-      
+
       if (!this.isFirebaseAvailable() || !db) {
         console.log('🔥 Firebase: 設定が無効です')
         return false
       }
-      
+
       if (!songId || songId.trim() === '') {
         console.error('🔥 Firebase: 無効なsongId', songId)
         return false
       }
-      
+
       const docRef = doc(db!, this.COLLECTION_NAME, songId)
       console.log('🔥 Firebase: ドキュメント参照作成', docRef.path)
-      
+
       await deleteDoc(docRef)
       console.log('🔥 Firebase: 楽曲を削除しました', songId)
       return true
@@ -223,7 +232,7 @@ export class FirebaseService {
       console.error('🔥 Firebase: エラー詳細', {
         songId,
         error: error instanceof Error ? error.message : String(error),
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       })
       return false
     }
@@ -239,11 +248,11 @@ export class FirebaseService {
         collection(db!, this.COLLECTION_NAME),
         where('tags', 'array-contains', tag)
       )
-      
+
       const querySnapshot = await getDocs(q)
       const songs: Song[] = []
 
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(doc => {
         const data = doc.data() as FirebaseSong
         // isPublicがtrueまたは未設定の楽曲のみを含める
         if (data.isPublic !== false) {
@@ -267,18 +276,18 @@ export class FirebaseService {
         console.log('🔥 Firebase: 設定が無効です')
         return []
       }
-      
+
       // シンプルなクエリに変更（インデックス不要）
       const q = query(
         collection(db!, this.COLLECTION_NAME),
         orderBy('createdAt', 'desc'),
         limit(limitCount)
       )
-      
+
       const querySnapshot = await getDocs(q)
       const songs: Song[] = []
 
-      querySnapshot.forEach((doc) => {
+      querySnapshot.forEach(doc => {
         const data = doc.data() as FirebaseSong
         // isPublicがtrueまたは未設定の楽曲のみを含める
         if (data.isPublic !== false) {
@@ -303,21 +312,25 @@ export class FirebaseService {
       orderBy('createdAt', 'desc')
     )
 
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const songs: Song[] = []
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as FirebaseSong
-        // isPublicがtrueまたは未設定の楽曲のみを含める
-        if (data.isPublic !== false) {
-          songs.push(this.convertFirebaseSongToSong(doc))
-        }
-      })
+    const unsubscribe = onSnapshot(
+      q,
+      querySnapshot => {
+        const songs: Song[] = []
 
-      callback(songs)
-    }, (error) => {
-      console.error('🔥 Firebase: リアルタイム監視エラー', error)
-    })
+        querySnapshot.forEach(doc => {
+          const data = doc.data() as FirebaseSong
+          // isPublicがtrueまたは未設定の楽曲のみを含める
+          if (data.isPublic !== false) {
+            songs.push(this.convertFirebaseSongToSong(doc))
+          }
+        })
+
+        callback(songs)
+      },
+      error => {
+        console.error('🔥 Firebase: リアルタイム監視エラー', error)
+      }
+    )
 
     return unsubscribe
   }
@@ -327,13 +340,13 @@ export class FirebaseService {
    */
   public async getMusicDatabase(): Promise<MusicDatabase> {
     const songs = await this.getAllSongs()
-    
+
     return {
       songs,
       people: [], // Firebaseでは楽曲データのみを管理
       tags: [],
       lastUpdated: new Date().toISOString(),
-      version: '1.0.0'
+      version: '1.0.0',
     }
   }
 
@@ -346,22 +359,22 @@ export class FirebaseService {
       if (!db) {
         return false
       }
-      
+
       if (!this.isFirebaseAvailable()) {
         return false
       }
-      
+
       // 空のクエリを実行して接続をテスト（タイムアウト付き）
       const timeoutPromise = new Promise<never>((_, reject) => {
         setTimeout(() => reject(new Error('Connection timeout')), 5000)
       })
-      
+
       const connectionPromise = (async () => {
         const q = query(collection(db!, this.COLLECTION_NAME), limit(1))
         await getDocs(q)
         return true
       })()
-      
+
       await Promise.race([connectionPromise, timeoutPromise])
       return true
     } catch (error) {
@@ -369,7 +382,7 @@ export class FirebaseService {
       console.error('🔥 Firebase: エラー詳細:', {
         message: error instanceof Error ? error.message : String(error),
         code: (error as any)?.code,
-        stack: error instanceof Error ? error.stack : undefined
+        stack: error instanceof Error ? error.stack : undefined,
       })
       return false
     }
@@ -386,7 +399,7 @@ export class FirebaseService {
     try {
       const songs = await this.getAllSongs()
       const allTags = new Set<string>()
-      
+
       songs.forEach(song => {
         song.tags?.forEach(tag => allTags.add(tag))
       })
@@ -401,14 +414,14 @@ export class FirebaseService {
       return {
         totalSongs: songs.length,
         totalTags: allTags,
-        recentSongsCount: recentSongs.length
+        recentSongsCount: recentSongs.length,
       }
     } catch (error) {
       console.error('🔥 Firebase: 統計取得エラー', error)
       return {
         totalSongs: 0,
         totalTags: new Set(),
-        recentSongsCount: 0
+        recentSongsCount: 0,
       }
     }
   }

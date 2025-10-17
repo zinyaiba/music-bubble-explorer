@@ -11,33 +11,33 @@ import { BubbleEntity } from '@/types/bubble'
  */
 export interface AdvancedAnimationConfig {
   bubbleLifespan: {
-    min: number      // 最小寿命（秒）
-    max: number      // 最大寿命（秒）
+    min: number // 最小寿命（秒）
+    max: number // 最大寿命（秒）
     variance: number // 寿命のばらつき係数
   }
   floatingSpeed: {
-    min: number      // 最小浮遊速度
-    max: number      // 最大浮遊速度
+    min: number // 最小浮遊速度
+    max: number // 最大浮遊速度
     acceleration: number // 加速度係数
   }
   maxBubbleSize: {
-    min: number      // 最小最大サイズ
-    max: number      // 最大最大サイズ
+    min: number // 最小最大サイズ
+    max: number // 最大最大サイズ
     scaleFactor: number // サイズスケール係数
   }
-  randomnessFactor: number     // ランダム性係数 (0-1)
+  randomnessFactor: number // ランダム性係数 (0-1)
   staggerDisappearance: {
-    enabled: boolean           // まばらな消失の有効化
+    enabled: boolean // まばらな消失の有効化
     delayRange: {
-      min: number              // 最小消失遅延（ミリ秒）
-      max: number              // 最大消失遅延（ミリ秒）
+      min: number // 最小消失遅延（ミリ秒）
+      max: number // 最大消失遅延（ミリ秒）
     }
     pattern: 'random' | 'wave' | 'spiral' | 'cascade' // 消失パターン
   }
   appearanceAnimation: {
-    duration: number           // 出現アニメーション時間（ミリ秒）
-    easing: string            // イージング関数
-    staggerDelay: number      // 出現の時間差（ミリ秒）
+    duration: number // 出現アニメーション時間（ミリ秒）
+    easing: string // イージング関数
+    staggerDelay: number // 出現の時間差（ミリ秒）
   }
 }
 
@@ -47,34 +47,34 @@ export interface AdvancedAnimationConfig {
  */
 export const DEFAULT_ADVANCED_CONFIG: AdvancedAnimationConfig = {
   bubbleLifespan: {
-    min: 5,        // 5秒
-    max: 10,       // 10秒
-    variance: 0.3  // 30%のばらつき
+    min: 5, // 5秒
+    max: 10, // 10秒
+    variance: 0.3, // 30%のばらつき
   },
   floatingSpeed: {
     min: 8,
     max: 35,
-    acceleration: 1.2
+    acceleration: 1.2,
   },
   maxBubbleSize: {
     min: 40,
     max: 120,
-    scaleFactor: 1.0
+    scaleFactor: 1.0,
   },
-  randomnessFactor: 0.7,  // 70%のランダム性
+  randomnessFactor: 0.7, // 70%のランダム性
   staggerDisappearance: {
     enabled: true,
     delayRange: {
-      min: 100,    // 100ms
-      max: 2000    // 2秒
+      min: 100, // 100ms
+      max: 2000, // 2秒
     },
-    pattern: 'random'
+    pattern: 'random',
   },
   appearanceAnimation: {
     duration: 800,
     easing: 'easeOutElastic',
-    staggerDelay: 150
-  }
+    staggerDelay: 150,
+  },
 }
 
 /**
@@ -130,21 +130,30 @@ export class AdvancedAnimationController {
     this.config = {
       ...this.config,
       ...newConfig,
-      bubbleLifespan: { ...this.config.bubbleLifespan, ...newConfig.bubbleLifespan },
-      floatingSpeed: { ...this.config.floatingSpeed, ...newConfig.floatingSpeed },
-      maxBubbleSize: { ...this.config.maxBubbleSize, ...newConfig.maxBubbleSize },
-      staggerDisappearance: { 
-        ...this.config.staggerDisappearance, 
+      bubbleLifespan: {
+        ...this.config.bubbleLifespan,
+        ...newConfig.bubbleLifespan,
+      },
+      floatingSpeed: {
+        ...this.config.floatingSpeed,
+        ...newConfig.floatingSpeed,
+      },
+      maxBubbleSize: {
+        ...this.config.maxBubbleSize,
+        ...newConfig.maxBubbleSize,
+      },
+      staggerDisappearance: {
+        ...this.config.staggerDisappearance,
         ...newConfig.staggerDisappearance,
         delayRange: {
           ...this.config.staggerDisappearance.delayRange,
-          ...newConfig.staggerDisappearance?.delayRange
-        }
+          ...newConfig.staggerDisappearance?.delayRange,
+        },
       },
-      appearanceAnimation: { 
-        ...this.config.appearanceAnimation, 
-        ...newConfig.appearanceAnimation 
-      }
+      appearanceAnimation: {
+        ...this.config.appearanceAnimation,
+        ...newConfig.appearanceAnimation,
+      },
     }
 
     // NaturalAnimationManagerの設定も更新
@@ -152,7 +161,10 @@ export class AdvancedAnimationController {
       this.naturalAnimationManager.updateConfig(this.config)
     }
 
-    console.log('AdvancedAnimationController configuration updated:', this.config)
+    console.log(
+      'AdvancedAnimationController configuration updated:',
+      this.config
+    )
   }
 
   /**
@@ -164,7 +176,7 @@ export class AdvancedAnimationController {
 
     bubbles.forEach(bubble => {
       let state = this.bubbleStates.get(bubble.id)
-      
+
       if (!state) {
         // 新しいシャボン玉の状態を初期化
         state = {
@@ -173,20 +185,25 @@ export class AdvancedAnimationController {
           disappearanceDelay: this.calculateRandomDelay(),
           isDisappearing: false,
           pattern: this.config.staggerDisappearance.pattern,
-          staggerIndex: this.staggerCounter++
+          staggerIndex: this.staggerCounter++,
         }
         this.bubbleStates.set(bubble.id, state)
       }
 
       // 消失タイミングをチェック
-      if (!state.isDisappearing && this.shouldScheduleDisappearance(bubble, currentTime)) {
+      if (
+        !state.isDisappearing &&
+        this.shouldScheduleDisappearance(bubble, currentTime)
+      ) {
         this.scheduleDisappearance(bubble, state, currentTime)
       }
 
       // スケジュールされた消失を実行
-      if (state.disappearanceScheduledTime && 
-          currentTime >= state.disappearanceScheduledTime && 
-          !state.isDisappearing) {
+      if (
+        state.disappearanceScheduledTime &&
+        currentTime >= state.disappearanceScheduledTime &&
+        !state.isDisappearing
+      ) {
         this.executeDisappearance(bubble, state)
       }
     })
@@ -217,17 +234,21 @@ export class AdvancedAnimationController {
           delay = min + (max - min) * (Math.sin(i * 0.5) * 0.5 + 0.5)
           break
 
-        case 'spiral':
+        case 'spiral': {
           // スパイラルパターン: 螺旋状の遅延
           const angle = i * 0.618 * Math.PI * 2 // 黄金角
-          delay = min + (max - min) * ((Math.sin(angle) * 0.5 + 0.5) * (i / bubbleCount))
+          delay =
+            min +
+            (max - min) * ((Math.sin(angle) * 0.5 + 0.5) * (i / bubbleCount))
           break
+        }
 
-        case 'cascade':
+        case 'cascade': {
           // カスケードパターン: 段階的な遅延
           const cascadeStep = Math.floor(i / 3) // 3つずつグループ化
           delay = min + cascadeStep * ((max - min) / Math.ceil(bubbleCount / 3))
           break
+        }
 
         case 'random':
         default:
@@ -237,8 +258,9 @@ export class AdvancedAnimationController {
       }
 
       // ランダム性係数を適用
-      const randomVariation = (Math.random() - 0.5) * 2 * this.config.randomnessFactor
-      delay *= (1 + randomVariation * 0.3)
+      const randomVariation =
+        (Math.random() - 0.5) * 2 * this.config.randomnessFactor
+      delay *= 1 + randomVariation * 0.3
 
       delays.push(Math.max(min, Math.min(max, delay)))
     }
@@ -253,12 +275,14 @@ export class AdvancedAnimationController {
   createNaturalDisappearancePattern(bubbles: BubbleEntity[]): void {
     // Lazy load NaturalAnimationManager to avoid circular dependency
     if (!this.naturalAnimationManager) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { NaturalAnimationManager } = require('./naturalAnimationManager')
       this.naturalAnimationManager = new NaturalAnimationManager(this.config)
     }
-    
-    const patterns = this.naturalAnimationManager.generateDisappearancePatterns(bubbles)
-    
+
+    const patterns =
+      this.naturalAnimationManager.generateDisappearancePatterns(bubbles)
+
     patterns.forEach((pattern: any) => {
       const bubble = bubbles.find(b => b.id === pattern.bubbleId)
       if (bubble) {
@@ -280,34 +304,34 @@ export class AdvancedAnimationController {
     return {
       ...this.config,
       bubbleLifespan: {
-        min: 4,        // モバイルでは少し短く
+        min: 4, // モバイルでは少し短く
         max: 8,
-        variance: 0.2  // ばらつきを抑制
+        variance: 0.2, // ばらつきを抑制
       },
       floatingSpeed: {
-        min: 6,        // 速度を抑制
+        min: 6, // 速度を抑制
         max: 25,
-        acceleration: 1.0
+        acceleration: 1.0,
       },
       maxBubbleSize: {
-        min: 35,       // サイズを少し小さく
+        min: 35, // サイズを少し小さく
         max: 100,
-        scaleFactor: 0.9
+        scaleFactor: 0.9,
       },
-      randomnessFactor: 0.5,  // ランダム性を抑制
+      randomnessFactor: 0.5, // ランダム性を抑制
       staggerDisappearance: {
         enabled: true,
         delayRange: {
-          min: 200,    // 遅延を少し長く
-          max: 1500
+          min: 200, // 遅延を少し長く
+          max: 1500,
         },
-        pattern: 'random' // シンプルなパターン
+        pattern: 'random', // シンプルなパターン
       },
       appearanceAnimation: {
-        duration: 600,  // 短縮
+        duration: 600, // 短縮
         easing: 'easeOut',
-        staggerDelay: 100
-      }
+        staggerDelay: 100,
+      },
     }
   }
 
@@ -317,9 +341,9 @@ export class AdvancedAnimationController {
    */
   pauseAnimationsForDialog(): void {
     this.isDialogOpen = true
-    
+
     // アクティブなアニメーションを一時停止
-    this.activeAnimations.forEach((animation) => {
+    this.activeAnimations.forEach(animation => {
       if (animation.playState === 'running') {
         animation.pause()
       }
@@ -333,9 +357,9 @@ export class AdvancedAnimationController {
    */
   resumeAnimationsAfterDialog(): void {
     this.isDialogOpen = false
-    
+
     // 一時停止されたアニメーションを再開
-    this.activeAnimations.forEach((animation) => {
+    this.activeAnimations.forEach(animation => {
       if (animation.playState === 'paused') {
         animation.play()
       }
@@ -361,24 +385,28 @@ export class AdvancedAnimationController {
     averageDelay: number
     patternDistribution: Record<string, number>
   } {
-    const scheduledCount = Array.from(this.bubbleStates.values())
-      .filter(state => state.disappearanceScheduledTime !== null).length
+    const scheduledCount = Array.from(this.bubbleStates.values()).filter(
+      state => state.disappearanceScheduledTime !== null
+    ).length
 
     const patternCounts: Record<string, number> = {}
     this.bubbleStates.forEach(state => {
       patternCounts[state.pattern] = (patternCounts[state.pattern] || 0) + 1
     })
 
-    const totalDelay = Array.from(this.bubbleStates.values())
-      .reduce((sum, state) => sum + state.disappearanceDelay, 0)
-    const averageDelay = this.bubbleStates.size > 0 ? totalDelay / this.bubbleStates.size : 0
+    const totalDelay = Array.from(this.bubbleStates.values()).reduce(
+      (sum, state) => sum + state.disappearanceDelay,
+      0
+    )
+    const averageDelay =
+      this.bubbleStates.size > 0 ? totalDelay / this.bubbleStates.size : 0
 
     return {
       activeBubbles: this.bubbleStates.size,
       scheduledDisappearances: scheduledCount,
       activeAnimations: this.activeAnimations.size,
       averageDelay,
-      patternDistribution: patternCounts
+      patternDistribution: patternCounts,
     }
   }
 
@@ -404,16 +432,20 @@ export class AdvancedAnimationController {
   private calculateRandomDelay(): number {
     const { min, max } = this.config.staggerDisappearance.delayRange
     const baseDelay = min + Math.random() * (max - min)
-    
+
     // ランダム性係数を適用
-    const randomVariation = (Math.random() - 0.5) * 2 * this.config.randomnessFactor
+    const randomVariation =
+      (Math.random() - 0.5) * 2 * this.config.randomnessFactor
     return Math.max(min, baseDelay * (1 + randomVariation * 0.5))
   }
 
   /**
    * 消失をスケジュールするかどうかを判定
    */
-  private shouldScheduleDisappearance(bubble: BubbleEntity, _currentTime: number): boolean {
+  private shouldScheduleDisappearance(
+    bubble: BubbleEntity,
+    _currentTime: number
+  ): boolean {
     const age = bubble.getAge()
     const lifespan = bubble.lifespan
     const ageRatio = age / lifespan
@@ -426,10 +458,14 @@ export class AdvancedAnimationController {
   /**
    * 消失をスケジュール
    */
-  private scheduleDisappearance(bubble: BubbleEntity, state: BubbleAnimationState, currentTime: number): void {
+  private scheduleDisappearance(
+    bubble: BubbleEntity,
+    state: BubbleAnimationState,
+    currentTime: number
+  ): void {
     state.disappearanceScheduledTime = currentTime + state.disappearanceDelay
     this.bubbleStates.set(bubble.id, state)
-    
+
     // デバッグログを削除（大量出力を防ぐため）
     // console.log(`Scheduled disappearance for bubble ${bubble.id} in ${state.disappearanceDelay}ms`)
   }
@@ -437,19 +473,23 @@ export class AdvancedAnimationController {
   /**
    * 消失アニメーションを実行
    */
-  private executeDisappearance(bubble: BubbleEntity, state: BubbleAnimationState): void {
+  private executeDisappearance(
+    bubble: BubbleEntity,
+    state: BubbleAnimationState
+  ): void {
     state.isDisappearing = true
-    
+
     // 自然な消失アニメーションを作成
     if (this.naturalAnimationManager) {
-      const animation = this.naturalAnimationManager.createDisappearanceAnimation(
-        bubble, 
-        state.pattern as any
-      )
-      
+      const animation =
+        this.naturalAnimationManager.createDisappearanceAnimation(
+          bubble,
+          state.pattern as any
+        )
+
       if (animation) {
         this.activeAnimations.set(bubble.id, animation)
-        
+
         // アニメーション完了時のクリーンアップ
         animation.addEventListener('finish', () => {
           this.activeAnimations.delete(bubble.id)
@@ -458,8 +498,10 @@ export class AdvancedAnimationController {
         })
       }
     }
-    
-    console.log(`Executing disappearance animation for bubble ${bubble.id} with pattern ${state.pattern}`)
+
+    console.log(
+      `Executing disappearance animation for bubble ${bubble.id} with pattern ${state.pattern}`
+    )
   }
 
   /**
@@ -467,12 +509,12 @@ export class AdvancedAnimationController {
    */
   private cleanupRemovedBubbles(activeBubbles: BubbleEntity[]): void {
     const activeBubbleIds = new Set(activeBubbles.map(b => b.id))
-    
+
     // アクティブでないシャボン玉の状態を削除
     for (const bubbleId of this.bubbleStates.keys()) {
       if (!activeBubbleIds.has(bubbleId)) {
         this.bubbleStates.delete(bubbleId)
-        
+
         // 関連するアニメーションも停止・削除
         const animation = this.activeAnimations.get(bubbleId)
         if (animation) {
