@@ -75,21 +75,38 @@ export class TagManager {
   /**
    * タグの人気度に基づいてシャボン玉のサイズを計算
    * Requirements: 6.4 - タグのシャボン玉のサイズがそのタグが付けられた楽曲数に比例する
+   * BubbleManagerの設定に合わせて統一
    */
   calculateTagBubbleSize(tagName: string): number {
     const popularity = this.calculateTagPopularity(tagName)
-    const minSize = 45 // タグ専用の最小サイズ（通常より少し大きめ）
-    const maxSize = 130 // タグ専用の最大サイズ
     
-    // 全タグの中での相対的な人気度を計算
-    const allPopularities = this.tags.map(tag => tag.songs.length)
-    const maxPopularity = Math.max(...allPopularities, 1)
-    const normalizedPopularity = Math.min(popularity / maxPopularity, 1)
+    // BubbleManagerの設定を取得（getCurrentBubbleSettings）
+    const { getCurrentBubbleSettings } = require('@/config/bubbleSettings')
+    const settings = getCurrentBubbleSettings()
     
-    // 対数スケールを使用してより自然なサイズ分布を実現
-    const logScale = Math.log(1 + normalizedPopularity * 9) / Math.log(10) // 0-1の範囲
+    console.log(`🏷️ Tag bubble size calculation for "${tagName}":`, {
+      popularity,
+      minSize: settings.minSize,
+      maxSize: settings.maxSize,
+      isFixedSize: settings.minSize === settings.maxSize
+    })
     
-    return Math.round(minSize + (maxSize - minSize) * logScale)
+    // 最小・最大サイズが同じ場合は固定サイズを返す（BubbleManagerと同じロジック）
+    if (settings.minSize === settings.maxSize) {
+      console.log(`🏷️ Fixed size mode for tag: returning ${settings.minSize}px`)
+      return settings.minSize
+    }
+    
+    // 通常の比例計算（BubbleManagerと同じロジック）
+    const normalizedCount = Math.min(popularity / 20, 1) // 20件で最大サイズ
+    const calculatedSize = settings.minSize + (settings.maxSize - settings.minSize) * normalizedCount
+    
+    // 最大サイズ制限を厳密に適用
+    const finalSize = Math.min(calculatedSize, settings.maxSize)
+    
+    console.log(`🏷️ Tag size calculation: popularity=${popularity}, normalized=${normalizedCount.toFixed(2)}, calculated=${calculatedSize.toFixed(1)}, final=${finalSize.toFixed(1)}`)
+    
+    return Math.round(finalSize)
   }
 
   /**

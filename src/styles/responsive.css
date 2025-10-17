@@ -214,7 +214,7 @@
     border: 2px solid currentColor;
   }
   
-  .stats, .instructions {
+  .instructions {
     border: 1px solid currentColor;
   }
 }
@@ -225,7 +225,7 @@
     box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
   }
   
-  .stats, .instructions {
+  .instructions {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
@@ -242,7 +242,7 @@
     box-shadow: none;
   }
   
-  .stats, .instructions {
+  .instructions {
     background: white;
     border: 1px solid black;
   }

@@ -6,6 +6,8 @@ import { clamp } from '@/utils/PerformanceOptimizer'
 import { TagManager } from './tagManager'
 import { AnimationOptimizer, BezierOptimizer } from '@/utils/animationOptimizer'
 import { BubbleTextRenderer } from '@/utils/textRenderer'
+import { AdvancedAnimationController, type AdvancedAnimationConfig, DEFAULT_ADVANCED_CONFIG } from './advancedAnimationController'
+import { DEFAULT_BUBBLE_SETTINGS, type BubbleSettings, getCurrentBubbleSettings } from '@/config/bubbleSettings'
 
 /**
  * シャボン玉の色パレット（ラブリー＆キュートカラー）
@@ -53,14 +55,9 @@ const TAG_COLORS = [
 /**
  * シャボン玉生成設定
  */
-interface BubbleConfig {
+interface BubbleConfig extends BubbleSettings {
   canvasWidth: number
   canvasHeight: number
-  maxBubbles: number
-  minLifespan: number
-  maxLifespan: number
-  minVelocity: number
-  maxVelocity: number
 }
 
 /**
@@ -75,20 +72,42 @@ export class BubbleManager {
   private tagManager: TagManager
   private animationOptimizer: AnimationOptimizer
   
+  // 新機能: 高度なアニメーション制御
+  // Requirements: 20.1, 20.2, 20.3, 20.4, 20.5
+  private advancedAnimationController: AdvancedAnimationController
+  private advancedAnimationEnabled: boolean = true
+  
   // パフォーマンス最適化: オブジェクトプール
   private bubblePool: ObjectPool<BubbleEntity>
   private velocityCache = new Map<string, Vector2D>()
   private physicsCache = new Map<string, CalculationCache>()
 
-  constructor(musicDatabase: MusicDatabase, config: BubbleConfig) {
+  constructor(musicDatabase: MusicDatabase, config: BubbleConfig, advancedAnimationConfig?: Partial<AdvancedAnimationConfig>) {
     this.musicDatabase = musicDatabase
     this.config = config
+    
+    // デバッグ: 初期化時の設定値をログ出力
+    console.log('🫧 BubbleManager initialized with config:', {
+      minSize: config.minSize,
+      maxSize: config.maxSize,
+      maxBubbles: config.maxBubbles,
+      minVelocity: config.minVelocity,
+      maxVelocity: config.maxVelocity,
+      canvasSize: `${config.canvasWidth}x${config.canvasHeight}`
+    })
     this.animationManager = new BubbleAnimationManager()
     this.tagManager = new TagManager(musicDatabase)
     this.animationOptimizer = new AnimationOptimizer({
       targetFPS: 60,
       maxBubbleCount: config.maxBubbles,
       qualityLevel: 'high'
+    })
+    
+    // 高度なアニメーション制御の初期化
+    // Requirements: 20.1, 20.2, 20.3, 20.4, 20.5
+    this.advancedAnimationController = new AdvancedAnimationController({
+      ...DEFAULT_ADVANCED_CONFIG,
+      ...advancedAnimationConfig
     })
     
     // オブジェクトプールの初期化
@@ -122,7 +141,7 @@ export class BubbleManager {
   }
 
   /**
-   * 新しいシャボン玉を生成（オブジェクトプール最適化版）
+   * 新しいシャボン玉を生成（重複チェック付き）
    */
   generateBubble(): BubbleEntity {
     // データベースが空の場合は例外を投げる
@@ -130,15 +149,25 @@ export class BubbleManager {
       throw new Error('Cannot generate bubble: No songs available in database')
     }
 
-    // オブジェクトプールから取得
-    const bubble = this.bubblePool.acquire()
+    // 既存のシャボン玉の名前を取得（重複チェック用）
+    const existingNames = new Set(this.bubbles.map(bubble => bubble.name))
     
-    // ランダムにエンティティタイプを選択（タグを含む）
-    const entityTypes = ['song', 'lyricist', 'composer', 'arranger', 'tag'] as const
-    const selectedType = entityTypes[Math.floor(Math.random() * entityTypes.length)]
+    // 最大試行回数を設定（無限ループを防ぐ）
+    const maxAttempts = 50
+    let attempts = 0
     
-    let name: string
-    let relatedCount: number
+    while (attempts < maxAttempts) {
+      attempts++
+      
+      // オブジェクトプールから取得
+      const bubble = this.bubblePool.acquire()
+      
+      // ランダムにエンティティタイプを選択（タグを含む）
+      const entityTypes = ['song', 'lyricist', 'composer', 'arranger', 'tag'] as const
+      const selectedType = entityTypes[Math.floor(Math.random() * entityTypes.length)]
+      
+      let name: string
+      let relatedCount: number
 
     if (selectedType === 'song') {
       // ランダムに楽曲を選択
@@ -173,6 +202,13 @@ export class BubbleManager {
       relatedCount = person.songs.length
     }
 
+    // 重複チェック：既に同じ名前のシャボン玉が存在する場合は再試行
+    if (existingNames.has(name)) {
+      // バブルをプールに戻して再試行
+      this.bubblePool.release(bubble)
+      continue
+    }
+
     // シャボン玉のサイズを計算（タグの場合は専用の計算を使用）
     const size = selectedType === 'tag' 
       ? this.tagManager.calculateTagBubbleSize(name)
@@ -183,11 +219,11 @@ export class BubbleManager {
     const x = margin + Math.random() * (this.config.canvasWidth - size)
     const y = margin + Math.random() * (this.config.canvasHeight - size)
     
-    // 初期速度は小さめに設定（浮遊感を重視）
-    const initialSpeed = this.config.maxVelocity * 0.3
+    // 設定ファイルの速度範囲を使用
+    const speed = this.config.minVelocity + Math.random() * (this.config.maxVelocity - this.config.minVelocity)
     const angle = Math.random() * Math.PI * 2
-    const vx = Math.cos(angle) * initialSpeed * (Math.random() * 0.5 + 0.5)
-    const vy = Math.sin(angle) * initialSpeed * (Math.random() * 0.5 + 0.5) - 5 // 少し上向きに
+    const vx = Math.cos(angle) * speed * (Math.random() * 0.5 + 0.5)
+    const vy = Math.sin(angle) * speed * (Math.random() * 0.5 + 0.5) - 5 // 少し上向きに
     
     // タイプに応じた色を選択
     const color = selectedType === 'tag' 
@@ -212,21 +248,62 @@ export class BubbleManager {
     bubble.relatedCount = relatedCount
 
     return bubble
+    }
+    
+    // 最大試行回数に達した場合は、重複を許可して生成
+    console.warn('Could not generate unique bubble after maximum attempts, allowing duplicate')
+    
+    // 最後の試行として重複を許可してバブルを生成
+    const bubble = this.bubblePool.acquire()
+    const song = this.getRandomSong()
+    if (!song) {
+      throw new Error('Cannot generate bubble: No songs available')
+    }
+    
+    // 基本的なバブル設定
+    bubble.type = 'song'
+    bubble.name = song.title
+    bubble.x = 50 + Math.random() * (this.config.canvasWidth - 100)
+    bubble.y = 50 + Math.random() * (this.config.canvasHeight - 100)
+    const fallbackSpeed = this.config.minVelocity + Math.random() * (this.config.maxVelocity - this.config.minVelocity)
+    bubble.vx = (Math.random() - 0.5) * fallbackSpeed
+    bubble.vy = (Math.random() - 0.5) * fallbackSpeed - 5
+    bubble.size = this.calculateBubbleSize(song.lyricists.length + song.composers.length + song.arrangers.length)
+    bubble.color = LOVELY_COLORS[Math.floor(Math.random() * LOVELY_COLORS.length)]
+    bubble.opacity = 1
+    bubble.lifespan = this.config.minLifespan + Math.random() * (this.config.maxLifespan - this.config.minLifespan)
+    bubble.relatedCount = song.lyricists.length + song.composers.length + song.arrangers.length
+
+    return bubble
   }
 
   /**
-   * シャボン玉のサイズを関連データ数に基づいて計算
+   * シャボン玉のサイズを関連データ数に基づいて計算（設定ファイル対応・厳密モード）
+   * Requirements: 3.1, 3.2, 3.4 - 最小・最大サイズが同じ場合の厳密な制御
    */
   calculateBubbleSize(relatedCount: number): number {
-    const minSize = 40
-    const maxSize = 120
+    // 最小サイズと最大サイズが同じ場合は固定サイズを返す（厳密モード）
+    if (this.config.minSize === this.config.maxSize) {
+      console.log(`🫧 Fixed size mode: returning ${this.config.minSize}px (min=${this.config.minSize}, max=${this.config.maxSize})`)
+      return this.config.minSize
+    }
+    
+    // 通常の比例計算
     const normalizedCount = Math.min(relatedCount / 20, 1) // 20件で最大サイズ
-    return minSize + (maxSize - minSize) * normalizedCount
+    const calculatedSize = this.config.minSize + (this.config.maxSize - this.config.minSize) * normalizedCount
+    
+    // 最大サイズ制限を厳密に適用
+    const finalSize = Math.min(calculatedSize, this.config.maxSize)
+    
+    console.log(`🫧 Size calculation: relatedCount=${relatedCount}, normalized=${normalizedCount.toFixed(2)}, calculated=${calculatedSize.toFixed(1)}, final=${finalSize.toFixed(1)} (min=${this.config.minSize}, max=${this.config.maxSize})`)
+    
+    return finalSize
   }
 
   /**
    * すべてのシャボン玉の物理状態を更新（改善版）
    * Requirements: 7.1, 7.4, 7.5 - 改善されたアニメーションシステム
+   * Requirements: 20.1, 20.2, 20.5 - ランダム消失アニメーションシステム
    */
   updateBubblePhysics(bubbles: BubbleEntity[]): BubbleEntity[] {
     const currentTime = performance.now()
@@ -235,6 +312,12 @@ export class BubbleManager {
 
     // パフォーマンス最適化: deltaTimeが異常に大きい場合は制限（60FPS対応）
     const clampedDeltaTime = Math.min(deltaTime, 0.0167) // 60fps相当を上限
+
+    // 高度なアニメーション制御を適用
+    // Requirements: 20.1, 20.2 - ランダムな消失タイミング制御機能
+    if (this.advancedAnimationEnabled && this.advancedAnimationController) {
+      this.advancedAnimationController.applyRandomDisappearance(bubbles)
+    }
 
     // アニメーションフレーム更新（60FPS最適化）
     this.animationManager.updateFrame(currentTime)
@@ -297,14 +380,14 @@ export class BubbleManager {
     // パーリンノイズによる位置オフセット（Requirements: 7.5）
     const noiseOffset = this.animationManager.getNoiseOffset(bubble.id, currentTime)
     
-    // 改善された浮力計算（サイズと密度を考慮）
-    const buoyancyBase = 15 * sizeRatio * deltaTime
+    // 改善された浮力計算（サイズと密度を考慮）- 設定ファイル対応
+    const buoyancyBase = this.config.buoyancyStrength * sizeRatio * deltaTime
     const densityFactor = 0.8 + (bubble.size / 200) // 大きいシャボン玉ほど重い
     const buoyancy = buoyancyBase / densityFactor
     bubble.vy -= buoyancy
     
-    // 改善された空気抵抗（レイノルズ数を模擬）
-    const airResistance = 0.988 - (bubble.size / 1000) // サイズに応じた抵抗
+    // 改善された空気抵抗（レイノルズ数を模擬）- 設定ファイル対応
+    const airResistance = this.config.airResistance - (bubble.size / 1000) // サイズに応じた抵抗
     bubble.vx *= airResistance
     bubble.vy *= airResistance
     
@@ -321,16 +404,17 @@ export class BubbleManager {
     bubble.vx += (naturalTrajectory.x + buoyancyTrajectory.x + windTrajectory.x) * deltaTime
     bubble.vy += (naturalTrajectory.y + buoyancyTrajectory.y + windTrajectory.y) * deltaTime
     
-    // パーリンノイズによる微細な揺れを位置に直接適用（改善版）
-    const noiseIntensity = 12 * sizeRatio // サイズに応じた揺れの強度
+    // パーリンノイズによる微細な揺れを位置に直接適用（改善版）- 設定ファイル対応
+    const noiseIntensity = this.config.noiseIntensity * sizeRatio // サイズに応じた揺れの強度
     bubble.x += noiseOffset.x * deltaTime * noiseIntensity
     bubble.y += noiseOffset.y * deltaTime * noiseIntensity
     
     // 改善された透明度変化（呼吸効果 + ライフサイクル）
     const currentAnimation = this.animationManager.getAnimationState(bubble.id)
     if (!currentAnimation || currentAnimation.type === 'floating') {
-      const breathingFrequency = 0.8 + (bubble.size / 300)
-      const breathingAmplitude = 0.06 + (sizeRatio * 0.02)
+      // 設定ファイル対応の呼吸効果
+      const breathingFrequency = this.config.breathingFrequency + (bubble.size / 300)
+      const breathingAmplitude = this.config.breathingAmplitude + (sizeRatio * 0.02)
       const totalLifespan = bubble.getAge() + bubble.lifespan
       const ageRatio = bubble.getAge() / totalLifespan
       
@@ -344,9 +428,9 @@ export class BubbleManager {
       bubble.opacity = clamp(bubble.opacity, 0.3, 1)
     }
     
-    // 改善された風の効果（確率的ではなく連続的）
+    // 改善された風の効果（確率的ではなく連続的）- 設定ファイル対応
     const windInfluence = Math.sin(timeInSeconds * 0.1) * 0.3 + 0.7 // 0.4-1.0の範囲
-    const windStrength = 8 * sizeRatio * windInfluence
+    const windStrength = this.config.windStrength * sizeRatio * windInfluence
     bubble.vx += Math.sin(timeInSeconds * 0.15) * windStrength * deltaTime
     bubble.vy += Math.cos(timeInSeconds * 0.12) * windStrength * 0.3 * deltaTime
     
@@ -393,7 +477,7 @@ export class BubbleManager {
    * Requirements: 7.4 - 物理的に正確な浮力効果
    */
   private calculateBuoyancyTrajectory(time: number, bubbleSize: number): { x: number; y: number } {
-    const buoyancyFactor = Math.max(0.2, 1 - (bubbleSize / 150))
+    const buoyancyFactor = Math.max(0.2, 1 - (bubbleSize / 150)) * (this.config.buoyancyStrength / 15) // 設定ファイル対応
     const t = (time * 0.2) % 1
     
     // 上昇軌道: 初期は急上昇、後半は緩やか
@@ -410,7 +494,7 @@ export class BubbleManager {
    * Requirements: 7.4 - 環境要因を考慮した動き
    */
   private calculateWindTrajectory(time: number, sizeRatio: number): { x: number; y: number } {
-    const windStrength = 5 * sizeRatio
+    const windStrength = this.config.windStrength * 0.625 * sizeRatio // 元の値(5)との比率を維持
     
     // 風の基本方向（時間とともに変化）
     const windDirection = Math.sin(time * 0.05) * Math.PI * 0.3 // ±54度の範囲
@@ -554,6 +638,31 @@ export class BubbleManager {
    */
   updateConfig(newConfig: Partial<BubbleConfig>): void {
     this.config = { ...this.config, ...newConfig }
+    
+    // maxBubblesが変更された場合は、AnimationOptimizerを再初期化
+    if (newConfig.maxBubbles !== undefined) {
+      this.animationOptimizer = new AnimationOptimizer({
+        targetFPS: 60,
+        maxBubbleCount: newConfig.maxBubbles,
+        qualityLevel: 'high'
+      })
+    }
+  }
+
+  /**
+   * シャボン玉設定を更新（設定ファイルから）
+   */
+  updateBubbleSettings(newSettings: Partial<BubbleSettings>): void {
+    const updatedSettings = { ...this.config, ...newSettings }
+    this.updateConfig(updatedSettings)
+    
+    console.log('Bubble settings updated:', {
+      maxBubbles: updatedSettings.maxBubbles,
+      minVelocity: updatedSettings.minVelocity,
+      maxVelocity: updatedSettings.maxVelocity,
+      minLifespan: updatedSettings.minLifespan,
+      maxLifespan: updatedSettings.maxLifespan
+    })
   }
 
   /**
@@ -799,21 +908,129 @@ export class BubbleManager {
       // this.tagManager.reset()
     }
 
+    // 高度なアニメーション制御もリセット
+    if (this.advancedAnimationController) {
+      this.advancedAnimationController.reset()
+    }
+
     console.log('BubbleManager reset completed')
+  }
+
+  /**
+   * 高度なアニメーション制御を有効/無効にする
+   * Requirements: 20.3 - 設定可能なアニメーションパラメータシステム
+   */
+  setAdvancedAnimationEnabled(enabled: boolean): void {
+    this.advancedAnimationEnabled = enabled
+    console.log(`Advanced animation ${enabled ? 'enabled' : 'disabled'}`)
+  }
+
+  /**
+   * 高度なアニメーション設定を更新
+   * Requirements: 20.4 - 実行時にパラメータを調整できるようにする
+   */
+  updateAdvancedAnimationConfig(config: Partial<AdvancedAnimationConfig>): void {
+    if (this.advancedAnimationController) {
+      this.advancedAnimationController.updateConfiguration(config)
+    }
+  }
+
+  /**
+   * 高度なアニメーション統計を取得
+   * Requirements: 20.1, 20.2, 20.5
+   */
+  getAdvancedAnimationStats() {
+    if (!this.advancedAnimationController) {
+      return null
+    }
+
+    return {
+      enabled: this.advancedAnimationEnabled,
+      stats: this.advancedAnimationController.getAnimationStats(),
+      config: this.advancedAnimationController.getConfiguration()
+    }
+  }
+
+  /**
+   * ダイアログ表示時のアニメーション制御
+   * Requirements: 20.2 - ランダム性を持った間隔を適用する
+   */
+  pauseAdvancedAnimationsForDialog(): void {
+    if (this.advancedAnimationController) {
+      this.advancedAnimationController.pauseAnimationsForDialog()
+    }
+  }
+
+  /**
+   * ダイアログ終了後のアニメーション再開
+   */
+  resumeAdvancedAnimationsAfterDialog(): void {
+    if (this.advancedAnimationController) {
+      this.advancedAnimationController.resumeAnimationsAfterDialog()
+    }
+  }
+
+  /**
+   * モバイル向け最適化を適用
+   * Requirements: 20.3 - 設定可能なアニメーションパラメータシステム
+   */
+  applyMobileOptimization(): void {
+    if (this.advancedAnimationController) {
+      const mobileConfig = this.advancedAnimationController.optimizeForMobile()
+      this.advancedAnimationController.updateConfiguration(mobileConfig)
+    }
+  }
+
+  /**
+   * 自然な消失パターンを作成
+   * Requirements: 20.4, 20.5 - NaturalAnimationManagerによる自然な消失パターン
+   */
+  createNaturalDisappearancePattern(): void {
+    if (this.advancedAnimationController) {
+      this.advancedAnimationController.createNaturalDisappearancePattern(this.bubbles)
+    }
+  }
+
+  /**
+   * まばらな消失タイミングを計算
+   * Requirements: 20.5 - まばらな消失アニメーションの実装
+   */
+  calculateStaggeredDisappearanceTiming(): number[] {
+    if (!this.advancedAnimationController) {
+      return []
+    }
+
+    return this.advancedAnimationController.calculateStaggeredTiming(this.bubbles.length)
+  }
+
+  /**
+   * AdvancedAnimationControllerインスタンスを取得
+   */
+  getAdvancedAnimationController(): AdvancedAnimationController | null {
+    return this.advancedAnimationController
   }
 }
 
 /**
  * 改善されたシャボン玉設定（Requirements: 7.1, 7.4, 7.5）
+ * 設定ファイルから値を取得
+ */
+export function createBubbleConfig(canvasWidth: number, canvasHeight: number): BubbleConfig {
+  const currentSettings = getCurrentBubbleSettings()
+  return {
+    canvasWidth,
+    canvasHeight,
+    ...currentSettings
+  }
+}
+
+/**
+ * デフォルト設定（後方互換性のため）
  */
 export const DEFAULT_BUBBLE_CONFIG: BubbleConfig = {
   canvasWidth: 800,
   canvasHeight: 600,
-  maxBubbles: 25, // 60FPS維持のため最適化
-  minLifespan: 5000, // 5秒（Requirements: 7.1 - 5-10秒のライフサイクル）
-  maxLifespan: 10000, // 10秒（Requirements: 7.1 - 5-10秒のライフサイクル）
-  minVelocity: 8, // より自然な動き（Requirements: 7.4）
-  maxVelocity: 35 // GPU加速を考慮した最適化（Requirements: 7.3）
+  ...DEFAULT_BUBBLE_SETTINGS
 }
 
 export type { BubbleConfig }

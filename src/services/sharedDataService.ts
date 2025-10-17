@@ -105,15 +105,17 @@ export class SharedDataService {
     }
   }
 
-  // ローカルストレージ（現在の方式）
+  // Firebase専用（34.3対応: ローカルストレージ排除）
   private async addSongLocal(song: Song): Promise<boolean> {
-    const { DataManager } = await import('./dataManager')
-    return DataManager.saveSong(song)
+    // ローカルストレージは使用せず、Firebaseのみを使用
+    console.warn('🔥 Local storage disabled, using Firebase only')
+    return this.addSongViaFirebase(song)
   }
 
   private async getDatabaseLocal(): Promise<MusicDatabase> {
-    const { DataManager } = await import('./dataManager')
-    return DataManager.loadMusicDatabase()
+    // ローカルストレージは使用せず、Firebaseのみを使用
+    console.warn('🔥 Local storage disabled, using Firebase only')
+    return this.getDatabaseFromFirebase()
   }
 
   // GitHub Issues経由（簡単な実装）
@@ -182,16 +184,15 @@ ${JSON.stringify(song, null, 2)}
       
       if (firebaseId) {
         console.log('🔥 Firebase保存成功:', firebaseId)
-        // ローカルにも保存（オフライン対応）
-        return this.addSongLocal(song)
+        return true
       } else {
-        console.warn('🔥 Firebase保存失敗、ローカルのみに保存')
-        return this.addSongLocal(song)
+        console.warn('🔥 Firebase保存失敗')
+        return false
       }
     } catch (error) {
       console.error('Firebase保存エラー:', error)
-      // フォールバック: ローカルに保存
-      return this.addSongLocal(song)
+      // Firebase専用モードではフォールバックなし
+      return false
     }
   }
 
@@ -210,21 +211,9 @@ ${JSON.stringify(song, null, 2)}
       const firebaseDatabase = await firebaseService.getMusicDatabase()
       console.log(`🔥 Firebase: ${firebaseDatabase.songs.length}曲を取得`)
       
-      // ローカルデータとマージ
-      const localDatabase = await this.getDatabaseLocal()
-      
-      // 重複を除去してマージ
-      const allSongs = [...firebaseDatabase.songs]
-      const firebaseIds = new Set(firebaseDatabase.songs.map(s => s.id))
-      
-      localDatabase.songs.forEach(localSong => {
-        if (!firebaseIds.has(localSong.id)) {
-          allSongs.push(localSong)
-        }
-      })
-
+      // Firebase専用モードではFirebaseデータのみを返す
       return {
-        songs: allSongs,
+        songs: firebaseDatabase.songs,
         people: [], // TODO: Implement people merging
         tags: [], // TODO: Implement tags merging
         lastUpdated: new Date().toISOString(),
@@ -232,8 +221,14 @@ ${JSON.stringify(song, null, 2)}
       }
     } catch (error) {
       console.error('Firebase取得エラー:', error)
-      // フォールバック: ローカルデータを返す
-      return this.getDatabaseLocal()
+      // Firebase専用モードではエラー時は空のデータベースを返す
+      return {
+        songs: [],
+        people: [],
+        tags: [],
+        lastUpdated: new Date().toISOString(),
+        version: '1.0.0'
+      }
     }
   }
 

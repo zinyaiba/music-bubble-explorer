@@ -1,10 +1,11 @@
 /**
- * Firebase接続テストコンポーネント
+ * Firebase接続テストコンポーネント（34.2対応: 接続状態の監視と表示機能）
  */
 
 import React, { useState, useEffect } from 'react'
 import { testFirebaseConnection, getFirebaseConfigInfo, FirebaseTestResult } from '@/utils/firebaseTest'
 import { FirebaseService } from '@/services/firebaseService'
+import { DataManager } from '@/services/dataManager'
 
 export const FirebaseConnectionTest: React.FC = () => {
   const [testResult, setTestResult] = useState<FirebaseTestResult | null>(null)
@@ -16,18 +17,41 @@ export const FirebaseConnectionTest: React.FC = () => {
     recentSongsCount: number
   } | null>(null)
   const [isLoadingStats, setIsLoadingStats] = useState(false)
+  const [connectionDetails, setConnectionDetails] = useState<any>(null)
+  const [networkStatus, setNetworkStatus] = useState<any>(null)
+  const [detailedError, setDetailedError] = useState<string | null>(null)
 
   const runTest = async () => {
     setIsLoading(true)
+    setDetailedError(null)
+    
     try {
+      // ネットワーク状態をチェック
+      const networkStatus = DataManager.monitorNetworkStatus()
+      setNetworkStatus(networkStatus)
+      
+      // Firebase接続をテスト
       const result = await testFirebaseConnection()
       setTestResult(result)
+      
+      // 詳細な接続情報を取得
+      const connectionInfo = await DataManager.checkFirebaseConnection()
+      setConnectionDetails(connectionInfo)
+      
+      // エラーがある場合は詳細なエラーメッセージを生成
+      if (!result.isConnected && result.error) {
+        const detailedErrorMsg = DataManager.getDetailedErrorMessage(result.error)
+        setDetailedError(detailedErrorMsg)
+      }
       
       // 接続成功時はデータベース統計も取得
       if (result.isConnected) {
         await loadDatabaseStats()
       }
     } catch (error) {
+      const detailedErrorMsg = DataManager.getDetailedErrorMessage(error)
+      setDetailedError(detailedErrorMsg)
+      
       setTestResult({
         isConfigured: false,
         isConnected: false,
@@ -83,6 +107,22 @@ export const FirebaseConnectionTest: React.FC = () => {
         </button>
       </div>
 
+      {/* ネットワーク状態（34.2対応） */}
+      {networkStatus && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">ネットワーク状態</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-sm">
+            <div>オンライン状態: <span className={networkStatus.isOnline ? 'text-green-600' : 'text-red-600'}>
+              {networkStatus.isOnline ? '🟢 オンライン' : '🔴 オフライン'}
+            </span></div>
+            <div>接続タイプ: <span className="text-blue-600">{networkStatus.connectionType}</span></div>
+            {networkStatus.effectiveType && (
+              <div>実効速度: <span className="text-blue-600">{networkStatus.effectiveType}</span></div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* 設定情報 */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold mb-3">設定情報</h3>
@@ -95,6 +135,41 @@ export const FirebaseConnectionTest: React.FC = () => {
           <div>App ID: <span className={configInfo.appId === '設定済み' ? 'text-green-600' : 'text-red-600'}>{configInfo.appId}</span></div>
         </div>
       </div>
+
+      {/* 詳細なエラーメッセージ（34.2対応） */}
+      {detailedError && (
+        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <h3 className="text-lg font-semibold mb-3 text-red-800">詳細エラー情報</h3>
+          <p className="text-sm text-red-700">{detailedError}</p>
+        </div>
+      )}
+
+      {/* 接続詳細情報（34.2対応） */}
+      {connectionDetails && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-3">接続詳細情報</h3>
+          <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+              <div>接続状態: <span className={connectionDetails.isConnected ? 'text-green-600' : 'text-red-600'}>
+                {connectionDetails.isConnected ? '✅ 接続成功' : '❌ 接続失敗'}
+              </span></div>
+              {connectionDetails.error && (
+                <div>エラー: <span className="text-red-600">{connectionDetails.error}</span></div>
+              )}
+              {connectionDetails.details && (
+                <div className="col-span-2">
+                  <details className="mt-2">
+                    <summary className="cursor-pointer text-blue-600">詳細情報を表示</summary>
+                    <pre className="mt-2 p-2 bg-white border rounded text-xs overflow-auto">
+                      {JSON.stringify(connectionDetails.details, null, 2)}
+                    </pre>
+                  </details>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* テスト結果 */}
       {testResult && (

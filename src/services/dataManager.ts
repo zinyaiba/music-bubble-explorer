@@ -2,6 +2,22 @@ import { MusicDatabase, Song, Person, Tag } from '@/types/music'
 import { ErrorType, safeExecute } from '@/utils/errorHandler'
 
 /**
+ * Firebase統合のためのインポート（34.2対応）
+ */
+let FirebaseService: any = null
+const loadFirebaseService = async () => {
+  if (!FirebaseService) {
+    try {
+      const module = await import('./firebaseService')
+      FirebaseService = module.FirebaseService
+    } catch (error) {
+      console.warn('🔥 Firebase service not available:', error)
+    }
+  }
+  return FirebaseService
+}
+
+/**
  * LocalStorageデータの構造
  */
 interface LocalStorageData {
@@ -35,32 +51,21 @@ export class DataManager {
   private static readonly BACKUP_KEY = 'music-bubble-explorer-backup'
   
   /**
-   * 楽曲データを保存
+   * 楽曲データを保存（34.3対応: Firebase専用）
    */
-  public static saveSong(song: Song): boolean {
+  public static async saveSong(song: Song): Promise<boolean> {
     return safeExecute(
-      () => {
-        const currentData = DataManager.loadStorageData()
+      async () => {
+        // Firebase専用モードではFirebaseのみに保存
+        const firebaseSuccess = await DataManager.saveSongToFirebase(song)
         
-        // 既存の楽曲を更新または新規追加
-        const existingIndex = currentData.songs.findIndex(s => s.id === song.id)
-        if (existingIndex >= 0) {
-          currentData.songs[existingIndex] = song
+        if (firebaseSuccess) {
+          console.log(`🔥 Song "${song.title}" saved to Firebase`)
+          return true
         } else {
-          currentData.songs.push(song)
+          console.error(`❌ Failed to save song "${song.title}" to Firebase`)
+          return false
         }
-        
-        // メタデータを更新
-        currentData.lastUpdated = new Date().toISOString()
-        currentData.metadata = {
-          totalSongs: currentData.songs.length,
-          totalPeople: DataManager.extractPeopleFromSongs(currentData.songs).length,
-          createdAt: currentData.metadata?.createdAt || new Date().toISOString()
-        }
-        
-        DataManager.saveStorageData(currentData)
-        console.log(`Song "${song.title}" saved successfully`)
-        return true
       },
       ErrorType.DATA_LOADING,
       { 
@@ -72,33 +77,41 @@ export class DataManager {
   }
 
   /**
-   * 楽曲データを更新
+   * Firebaseに楽曲を保存（34.2対応）
    */
-  public static updateSong(song: Song): boolean {
+  private static async saveSongToFirebase(song: Song): Promise<boolean> {
+    try {
+      const FirebaseServiceClass = await loadFirebaseService()
+      if (!FirebaseServiceClass) {
+        return false
+      }
+
+      const firebaseService = FirebaseServiceClass.getInstance()
+      const firebaseId = await firebaseService.addSong(song)
+      
+      return firebaseId !== null
+    } catch (error) {
+      console.error('🔥 Firebase save error:', error)
+      return false
+    }
+  }
+
+  /**
+   * 楽曲データを更新（34.3対応: Firebase専用）
+   */
+  public static async updateSong(song: Song): Promise<boolean> {
     return safeExecute(
-      () => {
-        const currentData = DataManager.loadStorageData()
+      async () => {
+        // Firebase専用モードではFirebaseのみを更新
+        const firebaseSuccess = await DataManager.updateSongInFirebase(song)
         
-        // 既存の楽曲を検索
-        const existingIndex = currentData.songs.findIndex(s => s.id === song.id)
-        if (existingIndex < 0) {
-          throw new Error(`Song with id "${song.id}" not found`)
+        if (firebaseSuccess) {
+          console.log(`🔥 Song "${song.title}" updated in Firebase`)
+          return true
+        } else {
+          console.error(`❌ Failed to update song "${song.title}" in Firebase`)
+          return false
         }
-        
-        // 楽曲を更新
-        currentData.songs[existingIndex] = song
-        
-        // メタデータを更新
-        currentData.lastUpdated = new Date().toISOString()
-        currentData.metadata = {
-          totalSongs: currentData.songs.length,
-          totalPeople: DataManager.extractPeopleFromSongs(currentData.songs).length,
-          createdAt: currentData.metadata?.createdAt || new Date().toISOString()
-        }
-        
-        DataManager.saveStorageData(currentData)
-        console.log(`Song "${song.title}" updated successfully`)
-        return true
       },
       ErrorType.DATA_LOADING,
       { 
@@ -110,35 +123,39 @@ export class DataManager {
   }
 
   /**
-   * 楽曲データを削除
+   * Firebaseで楽曲を更新（34.2対応）
    */
-  public static deleteSong(songId: string): boolean {
+  private static async updateSongInFirebase(song: Song): Promise<boolean> {
+    try {
+      const FirebaseServiceClass = await loadFirebaseService()
+      if (!FirebaseServiceClass) {
+        return false
+      }
+
+      const firebaseService = FirebaseServiceClass.getInstance()
+      return await firebaseService.updateSong(song.id, song)
+    } catch (error) {
+      console.error('🔥 Firebase update error:', error)
+      return false
+    }
+  }
+
+  /**
+   * 楽曲データを削除（34.3対応: Firebase専用）
+   */
+  public static async deleteSong(songId: string): Promise<boolean> {
     return safeExecute(
-      () => {
-        const currentData = DataManager.loadStorageData()
+      async () => {
+        // Firebase専用モードではFirebaseのみから削除
+        const firebaseSuccess = await DataManager.deleteSongFromFirebase(songId)
         
-        // 削除対象の楽曲を検索
-        const existingIndex = currentData.songs.findIndex(s => s.id === songId)
-        if (existingIndex < 0) {
-          throw new Error(`Song with id "${songId}" not found`)
+        if (firebaseSuccess) {
+          console.log(`🔥 Song with ID "${songId}" deleted from Firebase`)
+          return true
+        } else {
+          console.error(`❌ Failed to delete song with ID "${songId}" from Firebase`)
+          return false
         }
-        
-        const deletedSong = currentData.songs[existingIndex]
-        
-        // 楽曲を削除
-        currentData.songs.splice(existingIndex, 1)
-        
-        // メタデータを更新
-        currentData.lastUpdated = new Date().toISOString()
-        currentData.metadata = {
-          totalSongs: currentData.songs.length,
-          totalPeople: DataManager.extractPeopleFromSongs(currentData.songs).length,
-          createdAt: currentData.metadata?.createdAt || new Date().toISOString()
-        }
-        
-        DataManager.saveStorageData(currentData)
-        console.log(`Song "${deletedSong.title}" deleted successfully`)
-        return true
       },
       ErrorType.DATA_LOADING,
       { 
@@ -146,6 +163,24 @@ export class DataManager {
         songId
       }
     ) || false
+  }
+
+  /**
+   * Firebaseから楽曲を削除（34.2対応）
+   */
+  private static async deleteSongFromFirebase(songId: string): Promise<boolean> {
+    try {
+      const FirebaseServiceClass = await loadFirebaseService()
+      if (!FirebaseServiceClass) {
+        return false
+      }
+
+      const firebaseService = FirebaseServiceClass.getInstance()
+      return await firebaseService.deleteSong(songId)
+    } catch (error) {
+      console.error('🔥 Firebase delete error:', error)
+      return false
+    }
   }
 
   /**
@@ -649,5 +684,338 @@ export class DataManager {
       lastUpdated: new Date().toISOString(),
       version: DataManager.CURRENT_VERSION
     }
+  }
+
+  /**
+   * Firebase接続状態の監視と表示機能（34.2対応）
+   */
+  public static async checkFirebaseConnection(): Promise<{
+    isConnected: boolean
+    error: string | null
+    details: any
+  }> {
+    try {
+      const FirebaseServiceClass = await loadFirebaseService()
+      if (!FirebaseServiceClass) {
+        return {
+          isConnected: false,
+          error: 'Firebase service not available',
+          details: { reason: 'Service not loaded' }
+        }
+      }
+
+      const firebaseService = FirebaseServiceClass.getInstance()
+      const isConnected = await firebaseService.checkConnection()
+      
+      if (isConnected) {
+        const stats = await firebaseService.getStats()
+        return {
+          isConnected: true,
+          error: null,
+          details: {
+            totalSongs: stats.totalSongs,
+            totalTags: stats.totalTags.size,
+            recentSongsCount: stats.recentSongsCount
+          }
+        }
+      } else {
+        return {
+          isConnected: false,
+          error: 'Firebase connection failed',
+          details: { reason: 'Connection test failed' }
+        }
+      }
+    } catch (error) {
+      return {
+        isConnected: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        details: { 
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined
+        }
+      }
+    }
+  }
+
+  /**
+   * データベース操作エラーハンドリングの強化（34.2対応）
+   */
+  public static async syncWithFirebase(): Promise<{
+    success: boolean
+    syncedSongs: number
+    errors: string[]
+  }> {
+    const errors: string[] = []
+    let syncedSongs = 0
+
+    try {
+      const FirebaseServiceClass = await loadFirebaseService()
+      if (!FirebaseServiceClass) {
+        errors.push('Firebase service not available')
+        return { success: false, syncedSongs: 0, errors }
+      }
+
+      const firebaseService = FirebaseServiceClass.getInstance()
+      
+      // 接続チェック
+      const isConnected = await firebaseService.checkConnection()
+      if (!isConnected) {
+        errors.push('Firebase connection failed')
+        return { success: false, syncedSongs: 0, errors }
+      }
+
+      // ローカルの楽曲を取得
+      const localSongs = DataManager.loadSongs()
+      
+      // Firebaseの楽曲を取得
+      const firebaseSongs = await firebaseService.getAllSongs()
+      const firebaseIds = new Set(firebaseSongs.map((s: any) => s.id))
+
+      // ローカルにあってFirebaseにない楽曲をアップロード
+      for (const song of localSongs) {
+        if (!firebaseIds.has(song.id)) {
+          try {
+            const firebaseId = await firebaseService.addSong(song)
+            if (firebaseId) {
+              syncedSongs++
+            } else {
+              errors.push(`Failed to sync song: ${song.title}`)
+            }
+          } catch (error) {
+            errors.push(`Error syncing song ${song.title}: ${error instanceof Error ? error.message : String(error)}`)
+          }
+        }
+      }
+
+      return {
+        success: errors.length === 0,
+        syncedSongs,
+        errors
+      }
+    } catch (error) {
+      errors.push(`Sync error: ${error instanceof Error ? error.message : String(error)}`)
+      return { success: false, syncedSongs: 0, errors }
+    }
+  }
+
+  /**
+   * ネットワーク状態の監視と通知（34.2対応）
+   */
+  public static monitorNetworkStatus(): {
+    isOnline: boolean
+    connectionType: string
+    effectiveType?: string
+  } {
+    if (typeof navigator === 'undefined' || typeof window === 'undefined') {
+      return {
+        isOnline: true,
+        connectionType: 'unknown'
+      }
+    }
+
+    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection
+    
+    return {
+      isOnline: navigator.onLine,
+      connectionType: connection?.type || 'unknown',
+      effectiveType: connection?.effectiveType || undefined
+    }
+  }
+
+  /**
+   * 既存ローカルストレージデータのクリア処理（34.3対応）
+   */
+  public static clearLocalStorageData(): {
+    success: boolean
+    clearedItems: string[]
+    errors: string[]
+  } {
+    const clearedItems: string[] = []
+    const errors: string[] = []
+
+    try {
+      // 既存のローカルストレージキーをクリア
+      const keysToRemove = [
+        DataManager.STORAGE_KEY,
+        DataManager.BACKUP_KEY,
+        'music-bubble-explorer-songs', // 古いキー
+        'music-data', // 古いキー
+        'bubble-data', // 古いキー
+        'shared-music-data' // 共有データキー
+      ]
+
+      keysToRemove.forEach(key => {
+        try {
+          const existingData = localStorage.getItem(key)
+          if (existingData) {
+            localStorage.removeItem(key)
+            clearedItems.push(key)
+            console.log(`🗑️ Cleared localStorage key: ${key}`)
+          }
+        } catch (error) {
+          errors.push(`Failed to clear ${key}: ${error instanceof Error ? error.message : String(error)}`)
+        }
+      })
+
+      // セッションストレージもクリア
+      try {
+        const sessionKeys = ['music-cache', 'bubble-cache', 'temp-music-data']
+        sessionKeys.forEach(key => {
+          const existingData = sessionStorage.getItem(key)
+          if (existingData) {
+            sessionStorage.removeItem(key)
+            clearedItems.push(`session:${key}`)
+            console.log(`🗑️ Cleared sessionStorage key: ${key}`)
+          }
+        })
+      } catch (error) {
+        errors.push(`Failed to clear sessionStorage: ${error instanceof Error ? error.message : String(error)}`)
+      }
+
+      return {
+        success: errors.length === 0,
+        clearedItems,
+        errors
+      }
+    } catch (error) {
+      errors.push(`General error: ${error instanceof Error ? error.message : String(error)}`)
+      return {
+        success: false,
+        clearedItems,
+        errors
+      }
+    }
+  }
+
+  /**
+   * Firebase専用データ管理への移行（34.3対応）
+   */
+  public static async migrateToFirebaseOnly(): Promise<{
+    success: boolean
+    migratedSongs: number
+    errors: string[]
+  }> {
+    const errors: string[] = []
+    let migratedSongs = 0
+
+    try {
+      // ローカルストレージから既存データを取得
+      const localData = DataManager.loadStorageData()
+      
+      if (localData.songs.length === 0) {
+        console.log('📭 No local songs to migrate')
+        return { success: true, migratedSongs: 0, errors: [] }
+      }
+
+      console.log(`🔄 Migrating ${localData.songs.length} songs to Firebase...`)
+
+      // Firebase接続をチェック
+      const FirebaseServiceClass = await loadFirebaseService()
+      if (!FirebaseServiceClass) {
+        errors.push('Firebase service not available')
+        return { success: false, migratedSongs: 0, errors }
+      }
+
+      const firebaseService = FirebaseServiceClass.getInstance()
+      const isConnected = await firebaseService.checkConnection()
+      
+      if (!isConnected) {
+        errors.push('Firebase connection failed')
+        return { success: false, migratedSongs: 0, errors }
+      }
+
+      // 既存のFirebaseデータを取得
+      const existingSongs = await firebaseService.getAllSongs()
+      const existingIds = new Set(existingSongs.map((s: any) => s.id))
+
+      // ローカルの楽曲をFirebaseに移行
+      for (const song of localData.songs) {
+        try {
+          if (!existingIds.has(song.id)) {
+            const firebaseId = await firebaseService.addSong(song)
+            if (firebaseId) {
+              migratedSongs++
+              console.log(`✅ Migrated song: ${song.title}`)
+            } else {
+              errors.push(`Failed to migrate song: ${song.title}`)
+            }
+          } else {
+            console.log(`⏭️ Song already exists in Firebase: ${song.title}`)
+          }
+        } catch (error) {
+          errors.push(`Error migrating song ${song.title}: ${error instanceof Error ? error.message : String(error)}`)
+        }
+      }
+
+      // 移行完了後、ローカルストレージをクリア
+      if (migratedSongs > 0 || localData.songs.length === existingSongs.length) {
+        const clearResult = DataManager.clearLocalStorageData()
+        if (!clearResult.success) {
+          errors.push(...clearResult.errors)
+        } else {
+          console.log(`🗑️ Cleared local storage: ${clearResult.clearedItems.join(', ')}`)
+        }
+      }
+
+      return {
+        success: errors.length === 0,
+        migratedSongs,
+        errors
+      }
+    } catch (error) {
+      errors.push(`Migration error: ${error instanceof Error ? error.message : String(error)}`)
+      return { success: false, migratedSongs: 0, errors }
+    }
+  }
+
+  /**
+   * 具体的なエラーメッセージの実装（34.2対応）
+   */
+  public static getDetailedErrorMessage(error: any): string {
+    if (!error) return 'Unknown error occurred'
+
+    // Firebase特有のエラー
+    if (error.code) {
+      switch (error.code) {
+        case 'permission-denied':
+          return 'Firebase: アクセス権限がありません。認証状態を確認してください。'
+        case 'unavailable':
+          return 'Firebase: サービスが一時的に利用できません。しばらく後に再試行してください。'
+        case 'not-found':
+          return 'Firebase: 指定されたデータが見つかりません。'
+        case 'already-exists':
+          return 'Firebase: 同じデータが既に存在します。'
+        case 'resource-exhausted':
+          return 'Firebase: リソースの制限に達しました。'
+        case 'failed-precondition':
+          return 'Firebase: 操作の前提条件が満たされていません。'
+        case 'aborted':
+          return 'Firebase: 操作が中断されました。'
+        case 'out-of-range':
+          return 'Firebase: 指定された値が範囲外です。'
+        case 'unimplemented':
+          return 'Firebase: この機能は実装されていません。'
+        case 'internal':
+          return 'Firebase: 内部エラーが発生しました。'
+        case 'deadline-exceeded':
+          return 'Firebase: 操作がタイムアウトしました。'
+        case 'cancelled':
+          return 'Firebase: 操作がキャンセルされました。'
+        default:
+          return `Firebase エラー (${error.code}): ${error.message || 'Unknown error'}`
+      }
+    }
+
+    // ネットワークエラー
+    if (error.message && error.message.includes('network')) {
+      return 'ネットワーク接続エラー: インターネット接続を確認してください。'
+    }
+
+    // 一般的なエラー
+    if (error instanceof Error) {
+      return `エラー: ${error.message}`
+    }
+
+    return `予期しないエラー: ${String(error)}`
   }
 }

@@ -3,14 +3,16 @@ import styled from 'styled-components'
 import { announceToScreenReader } from '@/utils/accessibility'
 
 interface NavigationProps {
-  currentView: 'main' | 'registration' | 'management' | 'firebase-test'
-  onViewChange: (view: 'main' | 'registration' | 'management' | 'firebase-test') => void
+  currentView: 'main' | 'registration' | 'management' | 'firebase-test' | 'tag-list'
+  onViewChange: (view: 'main' | 'registration' | 'management' | 'firebase-test' | 'tag-list') => void
   showRegistrationForm: boolean
   showSongManagement: boolean
   showFirebaseTest?: boolean
+  showTagList?: boolean
   onToggleRegistrationForm: () => void
   onToggleSongManagement: () => void
   onToggleFirebaseTest?: () => void
+  onToggleTagList?: () => void
 }
 
 /**
@@ -23,9 +25,11 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
   showRegistrationForm,
   showSongManagement,
   showFirebaseTest = false,
+  showTagList = false,
   onToggleRegistrationForm,
   onToggleSongManagement,
-  onToggleFirebaseTest
+  onToggleFirebaseTest,
+  onToggleTagList
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
@@ -49,13 +53,16 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
     if (showSongManagement) {
       onToggleSongManagement()
     }
+    if (showTagList && onToggleTagList) {
+      onToggleTagList()
+    }
     if (!showRegistrationForm) {
       onToggleRegistrationForm()
     }
     onViewChange('registration')
     setIsMenuOpen(false)
     announceToScreenReader('楽曲登録フォームを開きました')
-  }, [showSongManagement, showRegistrationForm, onToggleSongManagement, onToggleRegistrationForm, onViewChange])
+  }, [showSongManagement, showTagList, showRegistrationForm, onToggleSongManagement, onToggleTagList, onToggleRegistrationForm, onViewChange])
 
   /**
    * 楽曲管理画面を開く
@@ -64,13 +71,16 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
     if (showRegistrationForm) {
       onToggleRegistrationForm()
     }
+    if (showTagList && onToggleTagList) {
+      onToggleTagList()
+    }
     if (!showSongManagement) {
       onToggleSongManagement()
     }
     onViewChange('management')
     setIsMenuOpen(false)
     announceToScreenReader('楽曲管理画面を開きました')
-  }, [showRegistrationForm, showSongManagement, onToggleRegistrationForm, onToggleSongManagement, onViewChange])
+  }, [showRegistrationForm, showTagList, showSongManagement, onToggleRegistrationForm, onToggleTagList, onToggleSongManagement, onViewChange])
 
   /**
    * Firebase接続テストを開く
@@ -84,13 +94,39 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
     if (showSongManagement) {
       onToggleSongManagement()
     }
+    if (showTagList && onToggleTagList) {
+      onToggleTagList()
+    }
     if (!showFirebaseTest) {
       onToggleFirebaseTest()
     }
     onViewChange('firebase-test')
     setIsMenuOpen(false)
     announceToScreenReader('Firebase接続テストを開きました')
-  }, [showRegistrationForm, showSongManagement, showFirebaseTest, onToggleRegistrationForm, onToggleSongManagement, onToggleFirebaseTest, onViewChange])
+  }, [showRegistrationForm, showSongManagement, showTagList, showFirebaseTest, onToggleRegistrationForm, onToggleSongManagement, onToggleTagList, onToggleFirebaseTest, onViewChange])
+
+  /**
+   * タグ一覧画面を開く
+   */
+  const handleOpenTagList = useCallback(() => {
+    if (!onToggleTagList) return
+    
+    if (showRegistrationForm) {
+      onToggleRegistrationForm()
+    }
+    if (showSongManagement) {
+      onToggleSongManagement()
+    }
+    if (showFirebaseTest && onToggleFirebaseTest) {
+      onToggleFirebaseTest()
+    }
+    if (!showTagList) {
+      onToggleTagList()
+    }
+    onViewChange('tag-list')
+    setIsMenuOpen(false)
+    announceToScreenReader('タグ一覧画面を開きました')
+  }, [showRegistrationForm, showSongManagement, showFirebaseTest, showTagList, onToggleRegistrationForm, onToggleSongManagement, onToggleFirebaseTest, onToggleTagList, onViewChange])
 
   return (
     <NavigationContainer role="navigation" aria-label="メインナビゲーション">
@@ -142,6 +178,19 @@ export const Navigation: React.FC<NavigationProps> = React.memo(({
           >
             <ButtonIcon aria-hidden="true">📝</ButtonIcon>
             <ButtonText>楽曲管理</ButtonText>
+          </NavigationButton>
+        </NavigationItem>
+
+        <NavigationItem role="none">
+          <NavigationButton
+            onClick={handleOpenTagList}
+            $isActive={currentView === 'tag-list'}
+            role="menuitem"
+            aria-current={currentView === 'tag-list' ? 'page' : undefined}
+            title="タグ一覧を表示"
+          >
+            <ButtonIcon aria-hidden="true">🏷️</ButtonIcon>
+            <ButtonText>タグ一覧</ButtonText>
           </NavigationButton>
         </NavigationItem>
 

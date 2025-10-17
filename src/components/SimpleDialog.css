@@ -1,0 +1,241 @@
+/* Simple Dialog Component Styles - PCとモバイル統一レイアウト */
+
+/* オーバーレイ（背景） */
+.simple-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* ダイアログ本体 */
+.simple-dialog {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ヘッダー */
+.simple-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  background: #f8f9fa;
+  flex-shrink: 0;
+}
+
+/* タイトル */
+.simple-dialog-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.4;
+}
+
+/* 閉じるボタン */
+.simple-dialog-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.simple-dialog-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.simple-dialog-close:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* コンテンツエリア */
+.simple-dialog-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* フォームスタイル */
+.simple-dialog-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.simple-dialog-content .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.simple-dialog-content label {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.simple-dialog-content input,
+.simple-dialog-content textarea,
+.simple-dialog-content select {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.simple-dialog-content input:focus,
+.simple-dialog-content textarea:focus,
+.simple-dialog-content select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.simple-dialog-content button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.simple-dialog-content .primary-button {
+  background: #007bff;
+  color: white;
+}
+
+.simple-dialog-content .primary-button:hover {
+  background: #0056b3;
+}
+
+.simple-dialog-content .secondary-button {
+  background: #6c757d;
+  color: white;
+}
+
+.simple-dialog-content .secondary-button:hover {
+  background: #545b62;
+}
+
+/* モバイル対応 - PCと同じレイアウトを維持 */
+@media (max-width: 768px) {
+  .simple-dialog-overlay {
+    padding: 12px;
+  }
+  
+  .simple-dialog {
+    max-width: 100%;
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+  
+  .simple-dialog-header {
+    padding: 16px 20px;
+  }
+  
+  .simple-dialog-title {
+    font-size: 1.1rem;
+  }
+  
+  .simple-dialog-content {
+    padding: 20px;
+  }
+  
+  /* タッチ操作の最適化 */
+  .simple-dialog-close {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+  
+  .simple-dialog-content button {
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+}
+
+/* 小さな画面での調整 */
+@media (max-width: 480px) {
+  .simple-dialog-overlay {
+    padding: 8px;
+  }
+  
+  .simple-dialog {
+    max-height: 98vh;
+  }
+  
+  .simple-dialog-header {
+    padding: 12px 16px;
+  }
+  
+  .simple-dialog-content {
+    padding: 16px;
+  }
+}
+
+/* 特定コンテンツタイプのスタイル */
+.song-registration-content,
+.song-management-content,
+.enhanced-tag-list-content {
+  width: 100%;
+  height: 100%;
+}
+
+/* アクセシビリティ対応 */
+@media (prefers-reduced-motion: reduce) {
+  .simple-dialog-overlay,
+  .simple-dialog {
+    animation: none;
+  }
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .simple-dialog {
+    border: 2px solid #000;
+  }
+  
+  .simple-dialog-header {
+    border-bottom: 2px solid #000;
+  }
+  
+  .simple-dialog-close {
+    border: 1px solid #000;
+  }
+}

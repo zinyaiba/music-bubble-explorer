@@ -1,0 +1,805 @@
+/* Mobile-First UI Improvements */
+/* Requirements: 17.1, 17.2, 17.3, 17.4, 17.5 */
+
+/* CSS Variables for Mobile-First Design */
+:root {
+  /* Mobile-First Header Heights */
+  --header-height-mobile: 50px;
+  --header-height-mobile-landscape: 45px;
+  --header-height-tablet: 60px;
+  --header-height-desktop: 80px;
+  
+  /* Mobile-First Navigation Heights */
+  --navigation-height-mobile: 60px;
+  --navigation-height-desktop: 0px;
+  
+  /* Bubble Area Calculations */
+  --bubble-area-mobile: calc(100vh - var(--header-height-mobile) - var(--navigation-height-mobile));
+  --bubble-area-mobile-landscape: calc(100vh - var(--header-height-mobile-landscape) - var(--navigation-height-mobile));
+  --bubble-area-tablet: calc(100vh - var(--header-height-tablet));
+  --bubble-area-desktop: calc(100vh - var(--header-height-desktop));
+  
+  /* Touch Target Sizes */
+  --touch-target-min: 44px;
+  --touch-target-comfortable: 48px;
+  
+  /* Mobile-First Spacing */
+  --spacing-mobile-xs: 4px;
+  --spacing-mobile-sm: 8px;
+  --spacing-mobile-md: 12px;
+  --spacing-mobile-lg: 16px;
+  --spacing-mobile-xl: 20px;
+}
+
+/* Base Mobile-First Styles */
+.mobile-first-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--background-gradient);
+}
+
+/* Mobile-First Header Styles */
+.mobile-first-header {
+  height: var(--header-height-mobile);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(224, 224, 224, 0.3);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-mobile-md);
+  position: relative;
+  z-index: 100;
+}
+
+/* Bubble Area Maximization */
+.mobile-first-bubble-area {
+  flex: 1;
+  height: var(--bubble-area-mobile);
+  padding: var(--spacing-mobile-xs);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Mobile-First Navigation Styles */
+.mobile-first-navigation {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: var(--navigation-height-mobile) !important;
+  background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95)) !important;
+  backdrop-filter: blur(15px) !important;
+  border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-around !important;
+  padding: 16px 20px 20px !important;
+  z-index: 1000 !important;
+  box-shadow: 0 -8px 30px rgba(255, 105, 180, 0.3) !important;
+}
+
+/* Icon-Based Navigation Buttons */
+.mobile-nav-button {
+  background: transparent;
+  border: none;
+  padding: var(--spacing-mobile-xs);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--touch-target-min);
+  min-width: var(--touch-target-min);
+  border-radius: 12px;
+  position: relative;
+}
+
+.mobile-nav-button:hover {
+  background: rgba(255, 182, 193, 0.2);
+}
+
+.mobile-nav-button:active {
+  transform: scale(0.95);
+}
+
+.mobile-nav-button.active {
+  background: rgba(255, 182, 193, 0.15);
+}
+
+.mobile-nav-button.active::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 3px;
+  background: var(--bubble-pink, #ff69b4);
+  border-radius: 2px;
+}
+
+.mobile-nav-icon {
+  font-size: 20px;
+  transition: all 0.3s ease;
+}
+
+.mobile-nav-button.active .mobile-nav-icon {
+  font-size: 24px;
+  transform: scale(1.1);
+}
+
+.mobile-nav-text {
+  font-size: 10px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.3s ease;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.mobile-nav-button.active .mobile-nav-text {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Touch Optimization */
+.touch-optimized {
+  min-height: var(--touch-target-comfortable);
+  min-width: var(--touch-target-comfortable);
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Landscape Orientation Adjustments */
+@media (max-width: 767px) and (orientation: landscape) {
+  .mobile-first-header {
+    height: var(--header-height-mobile-landscape);
+  }
+  
+  .mobile-first-bubble-area {
+    height: var(--bubble-area-mobile-landscape);
+    padding: var(--spacing-mobile-xs) var(--spacing-mobile-sm);
+  }
+  
+  .mobile-first-navigation {
+    padding: 4px var(--spacing-mobile-sm);
+  }
+  
+  .mobile-nav-text {
+    font-size: 9px;
+  }
+}
+
+/* Tablet Styles */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .mobile-first-header {
+    height: var(--header-height-tablet);
+    padding: 0 var(--spacing-mobile-lg);
+  }
+  
+  .mobile-first-bubble-area {
+    height: var(--bubble-area-tablet);
+    padding: var(--spacing-mobile-md);
+  }
+  
+  .mobile-first-navigation {
+    position: relative;
+    height: auto;
+    background: transparent;
+    backdrop-filter: none;
+    border-top: none;
+    box-shadow: none;
+    padding: 0;
+  }
+}
+
+/* Desktop Styles */
+@media (min-width: 1024px) {
+  .mobile-first-header {
+    height: var(--header-height-desktop);
+    padding: 0 var(--spacing-mobile-xl);
+    border-radius: 0 0 30px 30px;
+    border-bottom: 2px solid var(--border-cute, #ffb6c1);
+    box-shadow: 0 4px 20px var(--shadow-light, rgba(255, 105, 180, 0.15));
+  }
+  
+  .mobile-first-bubble-area {
+    height: var(--bubble-area-desktop);
+    padding: var(--spacing-mobile-lg);
+  }
+  
+  .mobile-first-navigation {
+    position: relative;
+    height: auto;
+    background: transparent;
+    backdrop-filter: none;
+    border-top: none;
+    box-shadow: none;
+    padding: 0;
+    display: flex;
+    gap: 8px;
+  }
+  
+  .mobile-nav-button {
+    flex-direction: row;
+    gap: 6px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, var(--bubble-pink, #ff69b4), var(--bubble-rose, #ff1493));
+    border: 2px solid white;
+    border-radius: 20px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-height: 40px;
+    white-space: nowrap;
+  }
+  
+  .mobile-nav-button:hover {
+    background: linear-gradient(135deg, var(--bubble-rose, #ff1493), #dc143c);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  }
+  
+  .mobile-nav-button.active {
+    background: linear-gradient(135deg, var(--bubble-rose, #ff1493), #dc143c);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .mobile-nav-button.active::before {
+    display: none;
+  }
+  
+  .mobile-nav-icon {
+    font-size: 16px;
+  }
+  
+  .mobile-nav-text {
+    font-size: 13px;
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+}
+
+/* Safe Area Support for iPhone X and later */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .mobile-first-navigation {
+    padding-bottom: calc(var(--spacing-mobile-sm) + env(safe-area-inset-bottom));
+  }
+  
+  .mobile-first-bubble-area {
+    padding-bottom: calc(var(--navigation-height-mobile) + var(--spacing-mobile-sm) + env(safe-area-inset-bottom));
+  }
+}
+
+/* High DPI Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .mobile-nav-icon {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-nav-button,
+  .mobile-nav-icon,
+  .mobile-nav-text {
+    transition: none;
+  }
+  
+  .mobile-nav-button:active {
+    transform: none;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .mobile-first-header {
+    border-bottom: 2px solid #000;
+  }
+  
+  .mobile-first-navigation {
+    border-top: 2px solid #000;
+  }
+  
+  .mobile-nav-button {
+    border: 1px solid #000;
+  }
+}
+
+/* Focus Management for Accessibility */
+.mobile-nav-button:focus {
+  outline: 2px solid var(--bubble-pink, #ff69b4);
+  outline-offset: 2px;
+}
+
+/* Loading State for Navigation */
+.mobile-nav-button.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.mobile-nav-button.loading .mobile-nav-icon {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* Error State for Navigation */
+.mobile-nav-button.error {
+  background: rgba(244, 67, 54, 0.1);
+  border-color: #f44336;
+}
+
+.mobile-nav-button.error .mobile-nav-icon {
+  color: #f44336;
+}
+
+/* Success State for Navigation */
+.mobile-nav-button.success {
+  background: rgba(76, 175, 80, 0.1);
+  border-color: #4caf50;
+}
+
+.mobile-nav-button.success .mobile-nav-icon {
+  color: #4caf50;
+}
+
+/* Bubble Area Specific Optimizations */
+.bubble-area-maximized {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.bubble-area-maximized .bubble-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(255, 105, 180, 0.2);
+}
+
+/* Mobile-Specific Canvas Optimizations */
+@media (max-width: 768px) {
+  .bubble-area-maximized .bubble-canvas {
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(255, 105, 180, 0.15);
+  }
+}
+
+/* Performance Optimizations for Mobile */
+.mobile-optimized {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Prevent Zoom on Input Focus (iOS) */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* 強制的にモバイルナビゲーションを表示 */
+@media (max-width: 768px) {
+  /* MobileFirstNavigationコンポーネントのモバイルナビゲーション */
+  nav[aria-label="メインナビゲーション"] ul:last-child {
+    display: flex !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95)) !important;
+    backdrop-filter: blur(15px) !important;
+    border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
+    padding: 16px 20px 20px !important;
+    margin: 0 !important;
+    list-style: none !important;
+    z-index: 1000 !important;
+    box-shadow: 0 -8px 30px rgba(255, 105, 180, 0.3) !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+  }
+
+  /* モバイルナビゲーションボタンのスタイル強化 */
+  nav[aria-label="メインナビゲーション"] ul:last-child li button {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 2px solid rgba(255, 255, 255, 0.9) !important;
+    padding: 12px 8px !important;
+    border-radius: 16px !important;
+    min-height: 60px !important;
+    min-width: 60px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 6px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    transition: all 0.3s ease !important;
+  }
+
+  /* アクティブ状態のボタン */
+  nav[aria-label="メインナビゲーション"] ul:last-child li button[aria-current="page"] {
+    background: rgba(255, 255, 255, 0.95) !important;
+    box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4) !important;
+    transform: translateY(-2px) !important;
+  }
+
+  /* ボタンアイコンのスタイル */
+  nav[aria-label="メインナビゲーション"] ul:last-child li button span:first-child {
+    font-size: 24px !important;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1)) !important;
+  }
+
+  /* アクティブボタンのアイコン */
+  nav[aria-label="メインナビゲーション"] ul:last-child li button[aria-current="page"] span:first-child {
+    font-size: 28px !important;
+    transform: scale(1.2) !important;
+  }
+
+  /* ボタンテキストのスタイル */
+  nav[aria-label="メインナビゲーション"] ul:last-child li button span:last-child {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #555 !important;
+    text-shadow: 0 1px 1px rgba(255,255,255,0.5) !important;
+  }
+
+  /* アクティブボタンのテキスト */
+  nav[aria-label="メインナビゲーション"] ul:last-child li button[aria-current="page"] span:last-child {
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    color: #333 !important;
+  }
+}
+
+/* デバッグ用：ナビゲーション要素を強調表示 */
+@media (max-width: 768px) {
+  nav[aria-label="メインナビゲーション"] {
+    outline: 2px solid red !important;
+    outline-offset: 2px !important;
+  }
+}
+
+/* SimpleBottomNav専用スタイル */
+.simple-bottom-nav {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95)) !important;
+  backdrop-filter: blur(15px) !important;
+  border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
+  padding: 16px 20px 20px !important;
+  z-index: 1000 !important;
+  box-shadow: 0 -8px 30px rgba(255, 105, 180, 0.3) !important;
+  display: flex !important;
+  justify-content: space-around !important;
+  align-items: center !important;
+}
+
+/* ダイアログの強制表示修正 */
+.form-overlay,
+.modal-overlay,
+.dialog-layer {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9998 !important;
+  padding: 20px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* EnhancedTagListは最前面に表示 */
+.enhanced-tag-list-overlay {
+  z-index: 9999 !important;
+}
+
+.form-modal,
+.modal-content,
+.dialog-container {
+  background: white !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3) !important;
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+  overflow: auto !important;
+  z-index: 10000 !important;
+  position: relative !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* モバイル環境でのダイアログ最適化 */
+@media (max-width: 768px) {
+  .form-modal,
+  .modal-content,
+  .dialog-container {
+    max-width: 95vw !important;
+    max-height: 95vh !important;
+    margin: 10px !important;
+    border-radius: 12px !important;
+  }
+  
+  .mobile-dialog {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 200px !important;
+  }
+  
+  .mobile-dialog-stable {
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+/* ダイアログ内容の強制表示 */
+.dialog-container > *,
+.form-modal > *,
+.modal-content > * {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* ヘッダーとボディの強制表示 */
+.dialog-container header,
+.dialog-container .form-header,
+.dialog-container .management-header,
+.form-modal header,
+.form-modal .form-header,
+.form-modal .management-header {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: white !important;
+  padding: 16px !important;
+  border-bottom: 1px solid #eee !important;
+}
+
+.dialog-container .form-body,
+.dialog-container .management-body,
+.form-modal .form-body,
+.form-modal .management-body {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  padding: 20px !important;
+  background: white !important;
+  overflow-y: auto !important;
+  max-height: 70vh !important;
+}
+
+/* フォーム要素の強制表示 */
+.dialog-container form,
+.form-modal form,
+.modal-content form {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 16px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 入力フィールドの強制表示 */
+.dialog-container input,
+.dialog-container textarea,
+.dialog-container select,
+.dialog-container button,
+.form-modal input,
+.form-modal textarea,
+.form-modal select,
+.form-modal button {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 40px !important;
+  padding: 8px 12px !important;
+  border: 1px solid #ccc !important;
+  border-radius: 4px !important;
+  background: white !important;
+  color: #333 !important;
+  font-size: 14px !important;
+}
+
+/* ラベルとテキストの強制表示 */
+.dialog-container label,
+.dialog-container p,
+.dialog-container span,
+.dialog-container div,
+.form-modal label,
+.form-modal p,
+.form-modal span,
+.form-modal div {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #333 !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+/* タイトルの強制表示 */
+.dialog-container h1,
+.dialog-container h2,
+.dialog-container h3,
+.form-modal h1,
+.form-modal h2,
+.form-modal h3 {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: #333 !important;
+  font-weight: bold !important;
+  margin: 0 0 16px 0 !important;
+}
+
+/* レイヤー分離の強制適用 */
+.layer-separated {
+  isolation: isolate !important;
+  contain: layout style paint !important;
+}
+
+/* SongRegistrationForm の強制表示 */
+.song-registration-form[data-visible="true"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* SongManagement の強制表示 */
+.song-management[data-visible="true"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* EnhancedTagList の強制表示 */
+.enhanced-tag-list[data-visible="true"] {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}/
+* Mobile Touch Event Optimization - 34.1対応 */
+.mobile-touch-optimized {
+  touch-action: manipulation !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Canvas Touch Optimization */
+.bubble-canvas.mobile-touch-optimized {
+  touch-action: manipulation !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Mobile Dialog Event Handling */
+@media (max-width: 768px) {
+  .mobile-dialog-stable {
+    position: fixed !important;
+    z-index: 10001 !important;
+    transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    will-change: auto !important;
+    isolation: isolate !important;
+    contain: layout style paint size !important;
+  }
+  
+  /* タッチイベントハンドリングの改善 */
+  .mobile-touch-optimized {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    touch-action: manipulation !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  
+  /* 長押し不要でのダイアログ表示実装 */
+  .mobile-touch-optimized button,
+  .mobile-touch-optimized .bubble-canvas {
+    touch-action: manipulation !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  
+  /* モバイル専用のイベントリスナー最適化 */
+  .mobile-touch-optimized * {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+  }
+  
+  /* ダイアログ表示の一貫性確保 */
+  .simple-dialog-overlay.mobile-dialog-stable {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 10001 !important;
+    background: rgba(0, 0, 0, 0.7) !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .simple-dialog.mobile-touch-optimized {
+    display: flex !important;
+    flex-direction: column !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    background: white !important;
+    border-radius: 12px !important;
+    max-width: 95vw !important;
+    max-height: 95vh !important;
+    overflow: hidden !important;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3) !important;
+  }
+}
+
+/* Touch Event Performance Optimization */
+@media (max-width: 768px) and (pointer: coarse) {
+  /* タッチデバイス専用の最適化 */
+  .bubble-canvas {
+    touch-action: manipulation !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+  }
+  
+  /* タッチ判定エリアの拡大 */
+  .bubble-canvas {
+    cursor: pointer !important;
+  }
+  
+  /* タッチフィードバックの無効化 */
+  .bubble-canvas,
+  .bubble-canvas * {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+  }
+}

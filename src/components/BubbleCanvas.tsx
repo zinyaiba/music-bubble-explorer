@@ -9,6 +9,7 @@ import { GPUAccelerationHelper } from '@/utils/animationOptimizer'
 import { BubbleTextRenderer } from '@/utils/textRenderer'
 import { EnhancedBubbleManager } from '@/services/enhancedBubbleManager'
 
+
 interface BubbleCanvasProps {
   width: number
   height: number
@@ -486,7 +487,8 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(({
   }, [visibleBubbles, onBubbleClick, getEventCoordinates])
 
   /**
-   * タッチイベントハンドラー（モバイル最適化版）
+   * タッチイベントハンドラー（モバイル最適化版 - 34.1対応）
+   * Requirements: 1.1, 1.2, 1.3, 1.4 - モバイルダイアログ表示の修正
    */
   const handleTouchStart = useCallback((event: React.TouchEvent<HTMLCanvasElement>) => {
     // Prevent default to avoid scrolling and zooming
@@ -510,6 +512,26 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(({
       }
     }
   }, [visibleBubbles, onBubbleClick, getEventCoordinates])
+
+  /**
+   * タッチエンドイベントハンドラー（モバイル最適化版 - 34.1対応）
+   * 長押し不要でのダイアログ表示実装
+   */
+  const handleTouchEnd = useCallback((event: React.TouchEvent<HTMLCanvasElement>) => {
+    // Prevent default to avoid click event duplication
+    event.preventDefault()
+    
+    // Touch end handling is already covered by touchStart
+    // This prevents double-firing of events
+  }, [])
+
+  /**
+   * タッチキャンセルイベントハンドラー（モバイル最適化版 - 34.1対応）
+   */
+  const handleTouchCancel = useCallback((event: React.TouchEvent<HTMLCanvasElement>) => {
+    event.preventDefault()
+    // Reset any touch state if needed
+  }, [])
 
   /**
    * マウスホバー効果のためのマウス移動ハンドラー（デスクトップのみ、最適化版）
@@ -616,11 +638,14 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(({
           onClick={handleCanvasClick}
           onMouseMove={handleMouseMove}
           onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchCancel}
           role="img"
           aria-label={`音楽シャボン玉キャンバス。${bubbles.length}個のシャボン玉が表示されています。矢印キーで移動、EnterまたはSpaceで選択できます。`}
           aria-describedby="canvas-instructions canvas-announcements"
           tabIndex={0}
           onKeyDown={handleCanvasKeyDown}
+          className="bubble-canvas gpu-accelerated animation-optimized flicker-prevention stable-rendering mobile-touch-optimized"
           style={{
             display: 'block',
             border: '1px solid #E0E0E0',

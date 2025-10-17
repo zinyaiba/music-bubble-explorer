@@ -44,7 +44,8 @@ export const TagInput: React.FC<TagInputProps> = React.memo(({
     if (!input.trim()) return []
     
     const inputLower = input.toLowerCase()
-    const filteredExisting = existingTags
+    const safeExistingTags = existingTags || []
+    const filteredExisting = safeExistingTags
       .filter(tag => 
         tag.toLowerCase().includes(inputLower) && 
         !tags.includes(tag)
@@ -52,7 +53,7 @@ export const TagInput: React.FC<TagInputProps> = React.memo(({
       .map(tag => ({ tag, isExisting: true }))
     
     // 入力値が既存タグと完全一致しない場合、新規タグとして提案
-    const exactMatch = existingTags.some(tag => tag.toLowerCase() === inputLower)
+    const exactMatch = safeExistingTags.some(tag => tag.toLowerCase() === inputLower)
     const alreadyAdded = tags.some(tag => tag.toLowerCase() === inputLower)
     
     const suggestions: TagSuggestion[] = [...filteredExisting]

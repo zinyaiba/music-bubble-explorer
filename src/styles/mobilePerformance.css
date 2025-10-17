@@ -1,0 +1,300 @@
+/**
+ * Mobile Performance and Flicker Prevention Styles
+ * モバイルパフォーマンス強化とチラつき防止のCSS最適化
+ * Requirements: 18.1, 18.2, 18.3, 18.4, 18.5
+ */
+
+/* GPU加速とレイヤー分離の基本設定 */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.gpu-layer {
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.animation-optimized {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  contain: layout style paint;
+  backface-visibility: hidden;
+}
+
+/* レイヤー分離システム */
+.layer-separated {
+  isolation: isolate;
+  contain: layout style paint;
+}
+
+.dialog-layer {
+  position: fixed;
+  z-index: 9999;
+  isolation: isolate;
+  contain: layout style paint size;
+  transform: translateZ(0);
+  will-change: auto;
+}
+
+.animation-layer {
+  position: relative;
+  z-index: 1;
+  contain: layout style paint;
+  transform: translateZ(0);
+}
+
+.background-layer {
+  position: relative;
+  z-index: 0;
+  contain: layout style paint;
+}
+
+/* チラつき防止システム */
+.flicker-prevention {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: auto;
+  contain: layout style paint;
+}
+
+.stable-rendering {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -webkit-transform: translate3d(0, 0, 0);
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.dialog-stable {
+  position: fixed !important;
+  transform: translate3d(0, 0, 0) !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  will-change: auto !important;
+  contain: layout style paint size !important;
+}
+
+/* ダイアログ保護レイヤー */
+.dialog-protection-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: transparent;
+  isolation: isolate;
+  contain: layout style paint size;
+  transform: translateZ(0);
+  z-index: 9998;
+}
+
+/* レンダリング最適化 */
+.rendering-optimized {
+  contain: layout style paint size;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+.animation-container {
+  contain: layout style paint;
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+.dialog-container {
+  contain: layout style paint size;
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+/* モバイル最適化 */
+@media (max-width: 768px) {
+  .mobile-optimized {
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+    transform: translate3d(0, 0, 0);
+    will-change: transform;
+  }
+
+  .mobile-dialog {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
+    will-change: auto;
+    contain: layout style paint size;
+  }
+
+  .mobile-animation {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+
+  /* モバイルでのチラつき防止強化 */
+  .mobile-flicker-prevention {
+    transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+    will-change: auto !important;
+    contain: layout style paint size !important;
+  }
+
+  /* モバイルでのダイアログ安定化 */
+  .mobile-dialog-stable {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden !important;
+    will-change: auto !important;
+    z-index: 9999 !important;
+  }
+}
+
+/* 高DPI画面での最適化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .high-dpi-optimized {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+}
+
+/* アニメーション制御 */
+.animation-paused {
+  animation-play-state: paused !important;
+  will-change: auto !important;
+}
+
+.animation-running {
+  animation-play-state: running !important;
+  will-change: transform !important;
+}
+
+/* パフォーマンス監視用のクラス */
+.performance-monitored {
+  contain: layout style paint;
+  transform: translateZ(0);
+}
+
+.performance-critical {
+  will-change: transform, opacity;
+  contain: layout style paint size;
+  isolation: isolate;
+}
+
+/* ダイアログ表示中のアニメーション制御 */
+.dialog-open .bubble-canvas {
+  animation-play-state: paused;
+  will-change: auto;
+}
+
+.dialog-open .animation-container {
+  animation-play-state: paused;
+  will-change: auto;
+}
+
+.dialog-closed .bubble-canvas {
+  animation-play-state: running;
+  will-change: transform;
+}
+
+.dialog-closed .animation-container {
+  animation-play-state: running;
+  will-change: transform;
+}
+
+/* 特定のコンポーネント向け最適化 */
+.bubble-canvas {
+  transform: translateZ(0);
+  will-change: transform;
+  contain: layout style paint;
+  backface-visibility: hidden;
+}
+
+.modal-overlay {
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+  contain: layout style paint size;
+  isolation: isolate;
+}
+
+.modal-content {
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+  contain: layout style paint size;
+  backface-visibility: hidden;
+}
+
+.form-modal {
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+  contain: layout style paint size;
+  isolation: isolate;
+}
+
+/* エラー状態での安定化 */
+.error-state-stable {
+  transform: translate3d(0, 0, 0);
+  will-change: auto;
+  contain: layout style paint;
+  backface-visibility: hidden;
+}
+
+/* ローディング状態での最適化 */
+.loading-optimized {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  contain: layout style paint;
+}
+
+/* デバッグ用のスタイル（開発環境のみ） */
+.debug-performance {
+  outline: 2px solid rgba(255, 0, 0, 0.3);
+}
+
+.debug-gpu-layer {
+  outline: 2px solid rgba(0, 255, 0, 0.3);
+}
+
+.debug-dialog-layer {
+  outline: 2px solid rgba(0, 0, 255, 0.3);
+}
+
+/* 縮小モーション設定への対応 */
+@media (prefers-reduced-motion: reduce) {
+  .motion-safe {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+}
+
+/* ダークモードでの最適化 */
+@media (prefers-color-scheme: dark) {
+  .dark-mode-optimized {
+    color-scheme: dark;
+    contain: layout style paint;
+  }
+}
+
+/* プリント時の最適化 */
+@media print {
+  .print-optimized {
+    transform: none !important;
+    will-change: auto !important;
+    contain: none !important;
+  }
+}

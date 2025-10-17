@@ -1,23 +1,30 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import './App.css'
 import './styles/errorStyles.css'
 
 import { ThemeProvider } from './components/ThemeProvider'
-import { Layout } from './components/Layout'
-import { Navigation } from './components/Navigation'
+import { MobileFirstLayout } from './components/MobileFirstLayout'
+import { MobileFirstHeader } from './components/MobileFirstHeader'
+import { MobileFirstNavigation } from './components/MobileFirstNavigation'
+
 import { BubbleCanvas } from './components/BubbleCanvas'
 import { DetailModal } from './components/DetailModal'
 import { MusicDataService } from './services/musicDataService'
-import { BubbleManager, DEFAULT_BUBBLE_CONFIG } from './services/bubbleManager'
+import { BubbleManager, createBubbleConfig } from './services/bubbleManager'
 import { EnhancedBubbleManager } from './services/enhancedBubbleManager'
+import { RoleBasedBubbleManager } from './services/roleBasedBubbleManager'
+import { ColorLegend } from './components/ColorLegend'
+import { useRoleBasedBubbles } from './hooks/useRoleBasedBubbles'
 import { BubbleEntity } from './types/bubble'
-import { Song } from './types/music'
+import { Song, MusicDatabase } from './types/music'
 import { useResponsive, calculateOptimalBubbleCount, calculateOptimalCanvasSize } from './hooks/useResponsive'
 import { ErrorBoundary, DataLoadingErrorBoundary } from './components/ErrorBoundary'
 import { DataLoadingFallback, NetworkErrorFallback, GenericErrorFallback, InlineErrorDisplay } from './components/FallbackComponents'
 import { SongRegistrationForm } from './components/SongRegistrationForm'
 import { SongManagement } from './components/SongManagement'
-import { FirebaseConnectionTest } from './components/FirebaseConnectionTest'
+
+import { EnhancedTagList } from './components/EnhancedTagList'
+import { SimpleDialog } from './components/SimpleDialog'
 // ErrorHandler import removed - using simple error handling
 import { announceToScreenReader, initializeAccessibility } from './utils/accessibility'
 import { initializeResponsiveSystem } from './utils/responsiveUtils'
@@ -28,34 +35,13 @@ import { DebugLogger } from './utils/debugLogger'
 import { enableConsoleDebug } from './utils/debugStorage'
 import { useFirebase } from './hooks/useFirebase'
 
-/**
- * パフォーマンス最適化されたアプリ統計コンポーネント
- */
-const AppStats = React.memo<{ bubbles: BubbleEntity[] }>(({ bubbles }) => {
-  const stats = useMemo(() => ({
-    total: bubbles.length,
-    songs: bubbles.filter(b => b.type === 'song').length,
-    people: bubbles.filter(b => b.type !== 'song' && b.type !== 'tag').length,
-    tags: bubbles.filter(b => b.type === 'tag').length
-  }), [bubbles])
 
-  return (
-    <div className="stats" role="region" aria-label="統計情報">
-      <span aria-label={`シャボン玉の総数: ${stats.total}個`}>
-        <span aria-hidden="true">🫧</span> シャボン玉: {stats.total}個
-      </span>
-      <span aria-label={`楽曲数: ${stats.songs}曲`}>
-        <span aria-hidden="true">🎵</span> 楽曲: {stats.songs}曲
-      </span>
-      <span aria-label={`人物数: ${stats.people}人`}>
-        <span aria-hidden="true">👤</span> 人物: {stats.people}人
-      </span>
-      <span aria-label={`タグ数: ${stats.tags}個`}>
-        <span aria-hidden="true">🏷️</span> タグ: {stats.tags}個
-      </span>
-    </div>
-  )
-})
+// Import mobile performance CSS
+import './styles/mobilePerformance.css'
+// Import mobile-first CSS
+import './styles/mobileFirst.css'
+
+
 
 /**
  * パフォーマンス最適化された操作説明コンポーネント
@@ -93,19 +79,74 @@ function App() {
   const [isRecovering, setIsRecovering] = useState(false)
   const [showRegistrationForm, setShowRegistrationForm] = useState(false)
   const [showSongManagement, setShowSongManagement] = useState(false)
-  const [currentView, setCurrentView] = useState<'main' | 'registration' | 'management' | 'firebase-test'>('main')
-  const [showFirebaseTest, setShowFirebaseTest] = useState(false)
+  const [currentView, setCurrentView] = useState<'main' | 'registration' | 'management' | 'tag-list'>('main')
+
+  const [showTagList, setShowTagList] = useState(false)
 
   const [debugLogger] = useState(() => DebugLogger.getInstance())
 
   // Firebase integration
   const { } = useFirebase() // Firebase hook for initialization
 
+
+
   // Service instances
   const musicServiceRef = useRef<MusicDataService | null>(null)
   const bubbleManagerRef = useRef<BubbleManager | null>(null)
   const enhancedBubbleManagerRef = useRef<EnhancedBubbleManager | null>(null)
+  const roleBasedBubbleManagerRef = useRef<RoleBasedBubbleManager | null>(null)
   const animationFrameRef = useRef<number | null>(null)
+
+  // 開発者ツール用の設定更新関数をwindowオブジェクトに追加
+  useEffect(() => {
+    if (import.meta.env.DEV) {
+      (window as any).updateBubbleSettings = (settings: any) => {
+        if (roleBasedBubbleManagerRef.current) {
+          roleBasedBubbleManagerRef.current.updateBubbleSettings(settings)
+        }
+        if (enhancedBubbleManagerRef.current) {
+          enhancedBubbleManagerRef.current.updateBubbleSettings?.(settings)
+        }
+        console.log('Bubble settings updated via dev tools:', settings)
+      }
+      
+      (window as any).getBubbleStats = () => {
+        if (roleBasedBubbleManagerRef.current) {
+          return roleBasedBubbleManagerRef.current.getStats()
+        }
+        return null
+      }
+
+      // 使用方法をコンソールに表示
+      console.log(`
+🫧 シャボン玉設定の変更方法:
+
+1. 開発者ツールのコンソールで以下のコマンドを実行:
+   updateBubbleSettings({ maxBubbles: 5 })
+
+2. 利用可能な設定:
+   - maxBubbles: シャボン玉の最大数
+   - minVelocity, maxVelocity: 速度
+   - minLifespan, maxLifespan: ライフスパン
+   - buoyancyStrength: 浮力の強さ
+   - windStrength: 風の強さ
+
+3. 現在の統計を確認:
+   getBubbleStats()
+
+例: updateBubbleSettings({ maxBubbles: 5, minVelocity: 5, maxVelocity: 15 })
+      `)
+    }
+  }, [])
+  
+  // Role-based bubble system state
+  const [showColorLegend] = useState(true)
+  const [musicDatabase, setMusicDatabase] = useState<MusicDatabase>({ songs: [], people: [], tags: [] })
+
+  // Role-based bubble system integration
+  const {
+    legendItems
+  } = useRoleBasedBubbles(musicDatabase, canvasSize.width, canvasSize.height, calculateOptimalBubbleCount(canvasSize.width, canvasSize.height, screenSize))
 
 
   /**
@@ -194,64 +235,76 @@ function App() {
         }
         
         // Get music database
-        const musicDatabase = {
+        const musicDatabaseData = {
           songs: musicService.getAllSongs(),
           people: musicService.getAllPeople(),
           tags: musicService.getAllTags()
         }
+        
+        // Update state for role-based bubble system
+        setMusicDatabase(musicDatabaseData)
 
         // Initialize BubbleManager with responsive canvas size and bubble count
         const maxBubbles = calculateOptimalBubbleCount(canvasSize.width, canvasSize.height, screenSize)
         
-        const config = {
-          ...DEFAULT_BUBBLE_CONFIG,
-          canvasWidth: canvasSize.width,
-          canvasHeight: canvasSize.height,
-          maxBubbles
-        }
+        const config = createBubbleConfig(canvasSize.width, canvasSize.height)
+        // レスポンシブ計算されたmaxBubblesで上書き（必要に応じて）
+        config.maxBubbles = Math.min(config.maxBubbles, maxBubbles)
 
+        // Initialize Role-Based Bubble Manager (Requirements: 19.1, 19.2, 19.3, 19.4, 19.5)
+        const roleBasedBubbleManager = new RoleBasedBubbleManager(musicDatabaseData, config)
+        
         // Initialize Enhanced Bubble Manager for visual improvements
-        const enhancedBubbleManager = new EnhancedBubbleManager(musicDatabase, config)
+        const enhancedBubbleManager = new EnhancedBubbleManager(musicDatabaseData, config)
 
+        roleBasedBubbleManagerRef.current = roleBasedBubbleManager
         enhancedBubbleManagerRef.current = enhancedBubbleManager
-        bubbleManagerRef.current = enhancedBubbleManager as BubbleManager // Use enhanced manager as base manager
+        bubbleManagerRef.current = roleBasedBubbleManager as BubbleManager // Use role-based manager as primary manager
 
-        // Generate initial enhanced bubbles
+        // Generate initial role-based bubbles (Requirements: 19.1, 19.2)
         const initialBubbles: BubbleEntity[] = []
         
         // データベースが空でない場合のみシャボン玉を生成
-        if (musicDatabase.songs.length > 0 || musicDatabase.people.length > 0 || musicDatabase.tags.length > 0) {
+        if (musicDatabaseData.songs.length > 0 || musicDatabaseData.people.length > 0 || musicDatabaseData.tags.length > 0) {
           for (let i = 0; i < config.maxBubbles; i++) {
             try {
-              const bubble = enhancedBubbleManager.generateUniqueBubble()
+              const bubble = roleBasedBubbleManager.generateBubble()
               if (bubble) {
                 initialBubbles.push(bubble)
-                enhancedBubbleManager.addBubble(bubble)
+                roleBasedBubbleManager.addBubble(bubble)
               } else {
                 // 利用可能なコンテンツがない場合はループを終了
                 break
               }
             } catch (error) {
-              console.warn(`Failed to generate bubble ${i}:`, error)
+              console.warn(`Failed to generate role-based bubble ${i}:`, error)
             }
           }
+          
+          // Apply category colors and prevent duplicates (Requirements: 19.3, 19.5)
+          const coloredBubbles = roleBasedBubbleManager.assignCategoryColors(initialBubbles)
+          const uniqueBubbles = roleBasedBubbleManager.preventDuplicateDisplay(coloredBubbles)
+          
+          setBubbles(uniqueBubbles)
         } else {
           console.log('📭 Database is empty, no bubbles to generate')
+          setBubbles(initialBubbles)
         }
 
-        setBubbles(initialBubbles)
         setIsLoading(false)
         setRetryCount(0) // Reset retry count on success
 
         // データセット情報をログ出力
         const datasetInfo = musicService.getDatasetInfo()
-        const enhancedStats = enhancedBubbleManager.getEnhancedStats()
-        debugLogger.info('App initialized successfully with enhanced bubbles', {
-          songs: musicDatabase.songs.length,
-          people: musicDatabase.people.length,
+        const roleBasedStats = roleBasedBubbleManager.getRoleBasedStats()
+        debugLogger.info('App initialized successfully with role-based bubbles', {
+          songs: musicDatabaseData.songs.length,
+          people: musicDatabaseData.people.length,
+          tags: musicDatabaseData.tags.length,
           initialBubbles: initialBubbles.length,
-          consolidatedPersons: enhancedStats.consolidatedPersons,
-          multiRolePersons: enhancedStats.multiRolePersons,
+          totalPersons: roleBasedStats.totalPersons,
+          multiRolePersons: roleBasedStats.multiRolePersons.length,
+          displayedRoleBubbles: roleBasedStats.displayedRoleBubbles,
           isLargeDataset: datasetInfo.isLargeDataset,
           estimatedBubbleCount: datasetInfo.estimatedBubbleCount
         })
@@ -281,7 +334,7 @@ function App() {
   }, [canvasSize, screenSize, retryCount])
 
   /**
-   * Handle window resize for responsive canvas with device-specific optimizations
+   * Handle window resize for responsive canvas with mobile-first optimizations
    */
   useEffect(() => {
     const handleResize = () => {
@@ -293,7 +346,24 @@ function App() {
       const container = document.querySelector('.bubble-container')
       if (container) {
         const rect = container.getBoundingClientRect()
-        const optimalSize = calculateOptimalCanvasSize(rect, screenSize)
+        
+        // Mobile-first canvas size calculation
+        let optimalSize
+        if (screenSize.isMobile) {
+          // モバイル: コンテナサイズを最大限活用
+          const headerHeight = screenSize.isLandscape ? 45 : 50
+          const navigationHeight = 60
+          const padding = 8
+          
+          optimalSize = {
+            width: Math.max(300, rect.width - padding * 2),
+            height: Math.max(200, window.innerHeight - headerHeight - navigationHeight - padding * 3)
+          }
+        } else {
+          // デスクトップ/タブレット: 従来の計算方法
+          optimalSize = calculateOptimalCanvasSize(rect, screenSize)
+        }
+        
         setCanvasSize(optimalSize)
       }
     }
@@ -375,7 +445,7 @@ function App() {
       name: bubble.name,
       relatedCount: bubble.relatedCount
     })
-  }, [])
+  }, [debugLogger])
 
   /**
    * Handle modal close (最適化版)
@@ -387,7 +457,7 @@ function App() {
   /**
    * Handle view changes
    */
-  const handleViewChange = useCallback((view: 'main' | 'registration' | 'management' | 'firebase-test') => {
+  const handleViewChange = useCallback((view: 'main' | 'registration' | 'management' | 'tag-list') => {
     setCurrentView(view)
   }, [])
 
@@ -395,27 +465,18 @@ function App() {
    * Handle song registration form toggle with accessibility announcements
    */
   const handleToggleRegistrationForm = useCallback(() => {
-    setShowRegistrationForm(prev => {
-      const newState = !prev
-      
-      // Update current view
-      setCurrentView(newState ? 'registration' : 'main')
-      
-      // Add visual feedback class
-      const button = document.querySelector('.add-song-button')
-      if (button) {
-        button.classList.add(newState ? 'form-opening' : 'form-closing')
-        setTimeout(() => {
-          button.classList.remove('form-opening', 'form-closing')
-        }, newState ? 600 : 300)
-      }
-      
-      // Announce state change for screen readers
-      const announcement = newState ? '楽曲登録フォームを開きました' : '楽曲登録フォームを閉じました'
-      announceToScreenReader(announcement)
-      return newState
-    })
-  }, [])
+    console.log('🎵 App: handleToggleRegistrationForm called')
+    
+    const newState = !showRegistrationForm
+    console.log('🎵 App: Setting showRegistrationForm to:', newState)
+    
+    setShowRegistrationForm(newState)
+    setCurrentView(newState ? 'registration' : 'main')
+    
+    // Announce state change for screen readers
+    const announcement = newState ? '楽曲登録フォームを開きました' : '楽曲登録フォームを閉じました'
+    announceToScreenReader(announcement)
+  }, [showRegistrationForm])
 
   /**
    * Handle song registration form close with accessibility announcements
@@ -430,18 +491,18 @@ function App() {
    * Handle song management toggle with accessibility announcements
    */
   const handleToggleSongManagement = useCallback(() => {
-    setShowSongManagement(prev => {
-      const newState = !prev
-      
-      // Update current view
-      setCurrentView(newState ? 'management' : 'main')
-      
-      // Announce state change for screen readers
-      const announcement = newState ? '楽曲管理画面を開きました' : '楽曲管理画面を閉じました'
-      announceToScreenReader(announcement)
-      return newState
-    })
-  }, [])
+    console.log('📝 App: handleToggleSongManagement called')
+    
+    const newState = !showSongManagement
+    console.log('📝 App: Setting showSongManagement to:', newState)
+    
+    setShowSongManagement(newState)
+    setCurrentView(newState ? 'management' : 'main')
+    
+    // Announce state change for screen readers
+    const announcement = newState ? '楽曲編集画面を開きました' : '楽曲編集画面を閉じました'
+    announceToScreenReader(announcement)
+  }, [showSongManagement])
 
   /**
    * Handle song management close with accessibility announcements
@@ -449,33 +510,35 @@ function App() {
   const handleSongManagementClose = useCallback(() => {
     setShowSongManagement(false)
     setCurrentView('main')
-    announceToScreenReader('楽曲管理画面を閉じました')
+    announceToScreenReader('楽曲編集画面を閉じました')
   }, [])
 
-  /**
-   * Handle Firebase test toggle with accessibility announcements
-   */
-  const handleToggleFirebaseTest = useCallback(() => {
-    setShowFirebaseTest(prev => {
-      const newState = !prev
-      
-      // Update current view
-      setCurrentView(newState ? 'firebase-test' : 'main')
-      
-      // Announce state change for screen readers
-      const announcement = newState ? 'Firebase接続テストを開きました' : 'Firebase接続テストを閉じました'
-      announceToScreenReader(announcement)
-      return newState
-    })
-  }, [])
+
 
   /**
-   * Handle Firebase test close with accessibility announcements
+   * Handle tag list toggle with accessibility announcements
    */
-  const handleFirebaseTestClose = useCallback(() => {
-    setShowFirebaseTest(false)
+  const handleToggleTagList = useCallback(() => {
+    console.log('🏷️ App: handleToggleTagList called')
+    
+    const newState = !showTagList
+    console.log('🏷️ App: Setting showTagList to:', newState)
+    
+    setShowTagList(newState)
+    setCurrentView(newState ? 'tag-list' : 'main')
+    
+    // Announce state change for screen readers
+    const announcement = newState ? 'タグ一覧画面を開きました' : 'タグ一覧画面を閉じました'
+    announceToScreenReader(announcement)
+  }, [showTagList])
+
+  /**
+   * Handle tag list close with accessibility announcements
+   */
+  const handleTagListClose = useCallback(() => {
+    setShowTagList(false)
     setCurrentView('main')
-    announceToScreenReader('Firebase接続テストを閉じました')
+    announceToScreenReader('タグ一覧画面を閉じました')
   }, [])
 
 
@@ -484,8 +547,8 @@ function App() {
    * Handle new song added
    */
   const handleSongAdded = useCallback(async (song: Song) => {
-    // Refresh the enhanced bubble manager with new data
-    if (enhancedBubbleManagerRef.current && musicServiceRef.current) {
+    // Refresh the role-based bubble manager with new data
+    if (roleBasedBubbleManagerRef.current && musicServiceRef.current) {
       // Firebaseから最新データを再読み込み
       try {
         await musicServiceRef.current.loadFromFirebase()
@@ -497,16 +560,24 @@ function App() {
       }
       
       // Get updated music database
-      const musicDatabase = {
+      const updatedMusicDatabase = {
         songs: musicServiceRef.current.getAllSongs(),
         people: musicServiceRef.current.getAllPeople(),
         tags: musicServiceRef.current.getAllTags()
       }
       
-      // Update enhanced bubble manager with new data
-      enhancedBubbleManagerRef.current.updateMusicDatabase(musicDatabase)
+      // Update state and managers
+      setMusicDatabase(updatedMusicDatabase)
       
-      debugLogger.info('Song added and enhanced bubbles updated', song.title)
+      // Update role-based bubble manager with new data
+      roleBasedBubbleManagerRef.current.updateMusicDatabase(updatedMusicDatabase)
+      
+      // Update enhanced bubble manager as well
+      if (enhancedBubbleManagerRef.current) {
+        enhancedBubbleManagerRef.current.updateMusicDatabase(updatedMusicDatabase)
+      }
+      
+      debugLogger.info('Song added and role-based bubbles updated', song.title)
     }
   }, [debugLogger])
 
@@ -514,22 +585,30 @@ function App() {
    * Handle song updated
    */
   const handleSongUpdated = useCallback((song: Song) => {
-    // Refresh the enhanced bubble manager with updated data
-    if (enhancedBubbleManagerRef.current && musicServiceRef.current) {
+    // Refresh the role-based bubble manager with updated data
+    if (roleBasedBubbleManagerRef.current && musicServiceRef.current) {
       // Clear cache and reload data
       musicServiceRef.current.clearCache()
       
       // Get updated music database
-      const musicDatabase = {
+      const updatedMusicDatabase = {
         songs: musicServiceRef.current.getAllSongs(),
         people: musicServiceRef.current.getAllPeople(),
         tags: musicServiceRef.current.getAllTags()
       }
       
-      // Update enhanced bubble manager with new data
-      enhancedBubbleManagerRef.current.updateMusicDatabase(musicDatabase)
+      // Update state and managers
+      setMusicDatabase(updatedMusicDatabase)
       
-      debugLogger.info('Song updated and enhanced bubbles refreshed', song.title)
+      // Update role-based bubble manager with new data
+      roleBasedBubbleManagerRef.current.updateMusicDatabase(updatedMusicDatabase)
+      
+      // Update enhanced bubble manager as well
+      if (enhancedBubbleManagerRef.current) {
+        enhancedBubbleManagerRef.current.updateMusicDatabase(updatedMusicDatabase)
+      }
+      
+      debugLogger.info('Song updated and role-based bubbles refreshed', song.title)
     }
   }, [debugLogger])
 
@@ -537,29 +616,48 @@ function App() {
    * Handle song deleted
    */
   const handleSongDeleted = useCallback((songId: string) => {
-    // Refresh the enhanced bubble manager with updated data
-    if (enhancedBubbleManagerRef.current && musicServiceRef.current) {
+    // Refresh the role-based bubble manager with updated data
+    if (roleBasedBubbleManagerRef.current && musicServiceRef.current) {
       // Clear cache and reload data
       musicServiceRef.current.clearCache()
       
       // Get updated music database
-      const musicDatabase = {
+      const updatedMusicDatabase = {
         songs: musicServiceRef.current.getAllSongs(),
         people: musicServiceRef.current.getAllPeople(),
         tags: musicServiceRef.current.getAllTags()
       }
       
-      // Update enhanced bubble manager with updated data
-      enhancedBubbleManagerRef.current.updateMusicDatabase(musicDatabase)
+      // Update state and managers
+      setMusicDatabase(updatedMusicDatabase)
       
-      debugLogger.info('Song deleted and enhanced bubbles refreshed', songId)
+      // Update role-based bubble manager with updated data
+      roleBasedBubbleManagerRef.current.updateMusicDatabase(updatedMusicDatabase)
+      
+      // Update enhanced bubble manager as well
+      if (enhancedBubbleManagerRef.current) {
+        enhancedBubbleManagerRef.current.updateMusicDatabase(updatedMusicDatabase)
+      }
+      
+      debugLogger.info('Song deleted and role-based bubbles refreshed', songId)
     }
   }, [debugLogger])
 
   /**
-   * Update enhanced bubble manager config when canvas size changes
+   * Update bubble manager configs when canvas size changes
    */
   useEffect(() => {
+    if (roleBasedBubbleManagerRef.current) {
+      try {
+        roleBasedBubbleManagerRef.current.updateConfig({
+          canvasWidth: canvasSize.width,
+          canvasHeight: canvasSize.height
+        })
+      } catch (error) {
+        console.warn('Failed to update role-based bubble manager config:', error)
+      }
+    }
+    
     if (enhancedBubbleManagerRef.current) {
       try {
         enhancedBubbleManagerRef.current.updateConfig({
@@ -680,32 +778,40 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <Layout
-          className="App"
+        <MobileFirstLayout
+          className="App mobile-first-container"
           header={
-            <>
-              <div className="header-text">
-                <h1>栗林みな実 Bubble World</h1>
-                <p>栗林みな実さんの楽曲世界をキュートなシャボン玉で探索しよう💕</p>
-              </div>
-            </>
+            <MobileFirstHeader>
+              {/* デスクトップではヘッダーにナビゲーションを表示 */}
+              <MobileFirstNavigation
+                currentView={currentView}
+                onViewChange={handleViewChange}
+                showRegistrationForm={showRegistrationForm}
+                showSongManagement={showSongManagement}
+                showTagList={showTagList}
+                onToggleRegistrationForm={handleToggleRegistrationForm}
+                onToggleSongManagement={handleToggleSongManagement}
+                onToggleTagList={handleToggleTagList}
+              />
+            </MobileFirstHeader>
           }
           navigation={
-            <Navigation
-              currentView={currentView}
-              onViewChange={handleViewChange}
-              showRegistrationForm={showRegistrationForm}
-              showSongManagement={showSongManagement}
-              showFirebaseTest={showFirebaseTest}
-              onToggleRegistrationForm={handleToggleRegistrationForm}
-              onToggleSongManagement={handleToggleSongManagement}
-              onToggleFirebaseTest={handleToggleFirebaseTest}
-            />
+            /* モバイルでのみ最下部にナビゲーションを表示 */
+            screenSize.isMobile ? (
+              <MobileFirstNavigation
+                currentView={currentView}
+                onViewChange={handleViewChange}
+                showRegistrationForm={showRegistrationForm}
+                showSongManagement={showSongManagement}
+                showTagList={showTagList}
+                onToggleRegistrationForm={handleToggleRegistrationForm}
+                onToggleSongManagement={handleToggleSongManagement}
+                onToggleTagList={handleToggleTagList}
+              />
+            ) : null
           }
         >
-          <a href="#main-content" className="skip-to-main">
-            メインコンテンツにスキップ
-          </a>
+
 
           {/* エラー状態の軽微な警告表示 */}
           {retryCount > 0 && (
@@ -716,7 +822,7 @@ function App() {
           )}
 
           <DataLoadingErrorBoundary>
-            <div className="bubble-container">
+            <div className="bubble-container mobile-first-bubble-area bubble-area-maximized">
               <BubbleCanvas
                 width={canvasSize.width}
                 height={canvasSize.height}
@@ -725,10 +831,17 @@ function App() {
                 className="main-canvas"
                 enhancedBubbleManager={enhancedBubbleManagerRef.current || undefined}
               />
+              
+              {/* Color Legend for role-based bubbles (Requirements: 19.3, 19.4) */}
+              <ColorLegend
+                position="top-right"
+                isVisible={showColorLegend && bubbles.length > 0}
+                showCounts={true}
+                categories={legendItems}
+              />
             </div>
 
             <div className="app-info" role="complementary" aria-label="アプリケーション情報">
-              <AppStats bubbles={bubbles} />
               <AppInstructions isTouchDevice={screenSize.isTouchDevice} />
             </div>
           </DataLoadingErrorBoundary>
@@ -738,42 +851,54 @@ function App() {
             onClose={handleModalClose}
           />
 
-          <SongRegistrationForm
-            id="song-registration-form"
+
+
+          <SimpleDialog
             isVisible={showRegistrationForm}
             onClose={handleRegistrationFormClose}
-            onSongAdded={handleSongAdded}
-          />
+            title="🎵 楽曲登録"
+            className="song-registration-dialog"
+          >
+            <SongRegistrationForm
+              isVisible={true}
+              onClose={handleRegistrationFormClose}
+              onSongAdded={handleSongAdded}
+            />
+          </SimpleDialog>
 
-          <SongManagement
+          <SimpleDialog
             isVisible={showSongManagement}
             onClose={handleSongManagementClose}
-            onSongUpdated={handleSongUpdated}
-            onSongDeleted={handleSongDeleted}
-          />
+            title="📝 楽曲編集"
+            className="song-management-dialog"
+          >
+            <SongManagement
+              isVisible={true}
+              onClose={handleSongManagementClose}
+              onSongUpdated={handleSongUpdated}
+              onSongDeleted={handleSongDeleted}
+            />
+          </SimpleDialog>
 
-          {/* Firebase接続テスト（開発環境のみ） */}
-          {import.meta.env.DEV && showFirebaseTest && (
-            <div className="modal-overlay" onClick={handleFirebaseTestClose}>
-              <div className="modal-content firebase-test-modal" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                  <h2>Firebase接続テスト</h2>
-                  <button 
-                    className="modal-close-button"
-                    onClick={handleFirebaseTestClose}
-                    aria-label="Firebase接続テストを閉じる"
-                  >
-                    ×
-                  </button>
-                </div>
-                <FirebaseConnectionTest />
-              </div>
-            </div>
-          )}
+          <SimpleDialog
+            isVisible={showTagList}
+            onClose={handleTagListClose}
+            title="🏷️ タグ一覧"
+            className="tag-list-dialog"
+          >
+            <EnhancedTagList
+              isVisible={true}
+              onClose={handleTagListClose}
+            />
+          </SimpleDialog>
+
+
 
           {/* PWA Components */}
           <PWAInstallButton />
           <PWAUpdateBanner />
+
+
 
           {/* Live region for screen reader announcements */}
           <div 
@@ -782,7 +907,7 @@ function App() {
             aria-live="polite" 
             aria-atomic="true"
           />
-        </Layout>
+        </MobileFirstLayout>
       </ThemeProvider>
     </ErrorBoundary>
   )

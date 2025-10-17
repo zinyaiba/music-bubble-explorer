@@ -1,5 +1,5 @@
 import { MusicDatabase, Song, Person, Tag } from '@/types/music'
-import { DataManager } from '@/services/dataManager'
+// import { DataManager } from '@/services/dataManager'
 import { SharedDataService } from '@/services/sharedDataService'
 
 /**
@@ -11,34 +11,51 @@ export class MusicDataService {
 
   private constructor() {
     this.musicDatabase = this.initializeDatabase()
+    
+    // Firebase専用モードの初期化（34.3対応）
+    this.initializeFirebaseOnlyMode()
   }
 
   /**
-   * データベースの初期化（共有データサービスから読み込み）
+   * Firebase専用モードの初期化（34.3対応）
+   */
+  private async initializeFirebaseOnlyMode(): Promise<void> {
+    try {
+      // ローカルストレージからFirebaseへの移行を実行
+      const { DataManager } = await import('@/services/dataManager')
+      const migrationResult = await DataManager.migrateToFirebaseOnly()
+      
+      if (migrationResult.success) {
+        console.log(`🔥 Successfully migrated ${migrationResult.migratedSongs} songs to Firebase-only mode`)
+      } else {
+        console.warn('🔥 Migration to Firebase-only mode had errors:', migrationResult.errors)
+      }
+    } catch (error) {
+      console.warn('🔥 Failed to initialize Firebase-only mode:', error)
+    }
+  }
+
+  /**
+   * データベースの初期化（34.3対応: Firebase専用）
    */
   private initializeDatabase(): MusicDatabase {
     try {
-      console.log('🔄 Initializing music database...')
+      console.log('🔄 Initializing music database (Firebase-only mode)...')
 
-      // LocalStorageからデータを読み込み（フォールバック用）
-      const database = DataManager.loadMusicDatabase()
-
-      console.log('✅ Music database loaded successfully:', {
-        songs: database.songs?.length || 0,
-        people: database.people?.length || 0,
-        tags: database.tags?.length || 0
-      })
-
-      // データが空でも正常なデータベースオブジェクトを返す
-      return {
-        songs: database.songs || [],
-        people: database.people || [],
-        tags: database.tags || []
+      // Firebase専用モードでは空のデータベースから開始
+      // 実際のデータはloadFromFirebase()で読み込む
+      const emptyDatabase: MusicDatabase = {
+        songs: [],
+        people: [],
+        tags: []
       }
+
+      console.log('✅ Empty database initialized, will load from Firebase')
+      return emptyDatabase
     } catch (error) {
       console.error('❌ Failed to initialize music database:', error)
 
-      // エラーが発生した場合は空のデータベースを返す
+      // エラーが発生した場合も空のデータベースを返す
       const emptyDatabase: MusicDatabase = {
         songs: [],
         people: [],
@@ -376,6 +393,20 @@ export class MusicDataService {
   public clearCache(): void {
     console.log('🔄 Clearing cache and reinitializing...')
     this.musicDatabase = this.initializeDatabase()
+  }
+
+  /**
+   * Firebase専用モードかどうかをチェック（34.3対応）
+   */
+  public isFirebaseOnlyMode(): boolean {
+    // ローカルストレージにデータがない場合はFirebase専用モード
+    try {
+      const { DataManager } = require('@/services/dataManager')
+      const localData = DataManager.loadStorageData()
+      return localData.songs.length === 0
+    } catch (error) {
+      return true // エラーの場合もFirebase専用モードとみなす
+    }
   }
 
   /**
