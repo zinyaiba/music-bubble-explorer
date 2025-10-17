@@ -8,21 +8,26 @@
   --header-height-mobile-landscape: 45px;
   --header-height-tablet: 60px;
   --header-height-desktop: 80px;
-  
+
   /* Mobile-First Navigation Heights */
   --navigation-height-mobile: 60px;
   --navigation-height-desktop: 0px;
-  
+
   /* Bubble Area Calculations */
-  --bubble-area-mobile: calc(100vh - var(--header-height-mobile) - var(--navigation-height-mobile));
-  --bubble-area-mobile-landscape: calc(100vh - var(--header-height-mobile-landscape) - var(--navigation-height-mobile));
+  --bubble-area-mobile: calc(
+    100vh - var(--header-height-mobile) - var(--navigation-height-mobile)
+  );
+  --bubble-area-mobile-landscape: calc(
+    100vh - var(--header-height-mobile-landscape) -
+      var(--navigation-height-mobile)
+  );
   --bubble-area-tablet: calc(100vh - var(--header-height-tablet));
   --bubble-area-desktop: calc(100vh - var(--header-height-desktop));
-  
+
   /* Touch Target Sizes */
   --touch-target-min: 44px;
   --touch-target-comfortable: 48px;
-  
+
   /* Mobile-First Spacing */
   --spacing-mobile-xs: 4px;
   --spacing-mobile-sm: 8px;
@@ -32,7 +37,8 @@
 }
 
 /* Base Mobile-First Styles */
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -54,11 +60,11 @@ html, body {
     padding-top: 60px !important;
     padding-bottom: 100px !important;
   }
-  
+
   .bubble-container,
   .main-content {
     padding-top: 10px !important;
-    padding-bottom: 100px !important;
+    padding-bottom: 5px !important;
   }
 }
 
@@ -101,7 +107,11 @@ html, body {
   left: 0 !important;
   right: 0 !important;
   height: var(--navigation-height-mobile) !important;
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95)) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 182, 193, 0.95),
+    rgba(255, 105, 180, 0.95)
+  ) !important;
   backdrop-filter: blur(15px) !important;
   border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
   display: flex !important;
@@ -192,16 +202,16 @@ html, body {
   .mobile-first-header {
     height: var(--header-height-mobile-landscape);
   }
-  
+
   .mobile-first-bubble-area {
     height: var(--bubble-area-mobile-landscape);
     padding: var(--spacing-mobile-xs) var(--spacing-mobile-sm);
   }
-  
+
   .mobile-first-navigation {
     padding: 4px var(--spacing-mobile-sm);
   }
-  
+
   .mobile-nav-text {
     font-size: 9px;
   }
@@ -213,12 +223,12 @@ html, body {
     height: var(--header-height-tablet);
     padding: 0 var(--spacing-mobile-lg);
   }
-  
+
   .mobile-first-bubble-area {
     height: var(--bubble-area-tablet);
     padding: var(--spacing-mobile-md);
   }
-  
+
   .mobile-first-navigation {
     position: relative;
     height: auto;
@@ -239,12 +249,12 @@ html, body {
     border-bottom: 2px solid var(--border-cute, #ffb6c1);
     box-shadow: 0 4px 20px var(--shadow-light, rgba(255, 105, 180, 0.15));
   }
-  
+
   .mobile-first-bubble-area {
     height: var(--bubble-area-desktop);
     padding: var(--spacing-mobile-lg);
   }
-  
+
   .mobile-first-navigation {
     position: relative;
     height: auto;
@@ -256,12 +266,16 @@ html, body {
     display: flex;
     gap: 8px;
   }
-  
+
   .mobile-nav-button {
     flex-direction: row;
     gap: 6px;
     padding: 10px 16px;
-    background: linear-gradient(135deg, var(--bubble-pink, #ff69b4), var(--bubble-rose, #ff1493));
+    background: linear-gradient(
+      135deg,
+      var(--bubble-pink, #ff69b4),
+      var(--bubble-rose, #ff1493)
+    );
     border: 2px solid white;
     border-radius: 20px;
     color: white;
@@ -271,26 +285,28 @@ html, body {
     min-height: 40px;
     white-space: nowrap;
   }
-  
+
   .mobile-nav-button:hover {
     background: linear-gradient(135deg, var(--bubble-rose, #ff1493), #dc143c);
     transform: translateY(-1px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   }
-  
+
   .mobile-nav-button.active {
     background: linear-gradient(135deg, var(--bubble-rose, #ff1493), #dc143c);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow:
+      0 4px 16px rgba(0, 0, 0, 0.2),
+      inset 0 2px 4px rgba(0, 0, 0, 0.1);
   }
-  
+
   .mobile-nav-button.active::before {
     display: none;
   }
-  
+
   .mobile-nav-icon {
     font-size: 16px;
   }
-  
+
   .mobile-nav-text {
     font-size: 13px;
     color: white;
@@ -303,11 +319,16 @@ html, body {
 /* Safe Area Support for iPhone X and later */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .mobile-first-navigation {
-    padding-bottom: calc(var(--spacing-mobile-sm) + env(safe-area-inset-bottom));
+    padding-bottom: calc(
+      var(--spacing-mobile-sm) + env(safe-area-inset-bottom)
+    );
   }
-  
+
   .mobile-first-bubble-area {
-    padding-bottom: calc(var(--navigation-height-mobile) + var(--spacing-mobile-sm) + env(safe-area-inset-bottom));
+    padding-bottom: calc(
+      var(--navigation-height-mobile) + var(--spacing-mobile-sm) +
+        env(safe-area-inset-bottom)
+    );
   }
 }
 
@@ -326,7 +347,7 @@ html, body {
   .mobile-nav-text {
     transition: none;
   }
-  
+
   .mobile-nav-button:active {
     transform: none;
   }
@@ -337,11 +358,11 @@ html, body {
   .mobile-first-header {
     border-bottom: 2px solid #000;
   }
-  
+
   .mobile-first-navigation {
     border-top: 2px solid #000;
   }
-  
+
   .mobile-nav-button {
     border: 1px solid #000;
   }
@@ -364,8 +385,13 @@ html, body {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* Error State for Navigation */
@@ -421,7 +447,9 @@ html, body {
 
 /* Prevent Zoom on Input Focus (iOS) */
 @media (max-width: 768px) {
-  input, select, textarea {
+  input,
+  select,
+  textarea {
     font-size: 16px !important;
   }
 }
@@ -429,16 +457,20 @@ html, body {
 /* 強制的にモバイルナビゲーションを表示 */
 @media (max-width: 768px) {
   /* 全てのナビゲーション要素を強制固定 */
-  nav[role="navigation"],
-  nav[aria-label="メインナビゲーション"],
+  nav[role='navigation'],
+  nav[aria-label='メインナビゲーション'],
   .mobile-first-navigation,
-  ul[role="navigation"] {
+  ul[role='navigation'] {
     position: fixed !important;
     bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
     width: 100vw !important;
-    background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95)) !important;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 182, 193, 0.95),
+      rgba(255, 105, 180, 0.95)
+    ) !important;
     backdrop-filter: blur(15px) !important;
     border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
     padding: 16px 20px 20px !important;
@@ -456,14 +488,18 @@ html, body {
   }
 
   /* MobileFirstNavigationコンポーネントのモバイルナビゲーション */
-  nav[aria-label="メインナビゲーション"] ul:last-child {
+  nav[aria-label='メインナビゲーション'] ul:last-child {
     display: flex !important;
     position: fixed !important;
     bottom: 0 !important;
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95)) !important;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 182, 193, 0.95),
+      rgba(255, 105, 180, 0.95)
+    ) !important;
     backdrop-filter: blur(15px) !important;
     border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
     padding: 16px 20px 20px !important;
@@ -480,7 +516,7 @@ html, body {
   }
 
   /* モバイルナビゲーションボタンのスタイル強化 */
-  nav[aria-label="メインナビゲーション"] ul:last-child li button {
+  nav[aria-label='メインナビゲーション'] ul:last-child li button {
     background: rgba(255, 255, 255, 0.8) !important;
     border: 2px solid rgba(255, 255, 255, 0.9) !important;
     padding: 12px 8px !important;
@@ -496,34 +532,53 @@ html, body {
   }
 
   /* アクティブ状態のボタン */
-  nav[aria-label="メインナビゲーション"] ul:last-child li button[aria-current="page"] {
+  nav[aria-label='メインナビゲーション']
+    ul:last-child
+    li
+    button[aria-current='page'] {
     background: rgba(255, 255, 255, 0.95) !important;
     box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4) !important;
     transform: translateY(-2px) !important;
   }
 
   /* ボタンアイコンのスタイル */
-  nav[aria-label="メインナビゲーション"] ul:last-child li button span:first-child {
+  nav[aria-label='メインナビゲーション']
+    ul:last-child
+    li
+    button
+    span:first-child {
     font-size: 24px !important;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1)) !important;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) !important;
   }
 
   /* アクティブボタンのアイコン */
-  nav[aria-label="メインナビゲーション"] ul:last-child li button[aria-current="page"] span:first-child {
+  nav[aria-label='メインナビゲーション']
+    ul:last-child
+    li
+    button[aria-current='page']
+    span:first-child {
     font-size: 28px !important;
     transform: scale(1.2) !important;
   }
 
   /* ボタンテキストのスタイル */
-  nav[aria-label="メインナビゲーション"] ul:last-child li button span:last-child {
+  nav[aria-label='メインナビゲーション']
+    ul:last-child
+    li
+    button
+    span:last-child {
     font-size: 11px !important;
     font-weight: 600 !important;
     color: #555 !important;
-    text-shadow: 0 1px 1px rgba(255,255,255,0.5) !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5) !important;
   }
 
   /* アクティブボタンのテキスト */
-  nav[aria-label="メインナビゲーション"] ul:last-child li button[aria-current="page"] span:last-child {
+  nav[aria-label='メインナビゲーション']
+    ul:last-child
+    li
+    button[aria-current='page']
+    span:last-child {
     font-size: 12px !important;
     font-weight: 700 !important;
     color: #333 !important;
@@ -533,9 +588,9 @@ html, body {
 /* ヘッダーの強制表示 */
 @media (max-width: 768px) {
   /* 全てのヘッダー要素を強制表示 */
-  header[role="banner"],
+  header[role='banner'],
   .mobile-first-header,
-  *[class*="Header"] {
+  *[class*='Header'] {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -554,7 +609,7 @@ html, body {
 /* 追加の強制固定ルール */
 @media (max-width: 768px) {
   /* styled-componentsで生成される要素も強制固定 */
-  ul[class*="MobileNavigation"] {
+  ul[class*='MobileNavigation'] {
     position: fixed !important;
     bottom: 0 !important;
     left: 0 !important;
@@ -565,16 +620,16 @@ html, body {
     visibility: visible !important;
     opacity: 1 !important;
   }
-  
+
   /* 全てのナビゲーション関連要素を強制固定 */
-  *[class*="Navigation"]:last-child,
-  *[class*="mobile"]:last-child,
-  *[class*="bottom"]:last-child {
+  *[class*='Navigation']:last-child,
+  *[class*='mobile']:last-child,
+  *[class*='bottom']:last-child {
     position: fixed !important;
     bottom: 0 !important;
     z-index: 10000 !important;
   }
-  
+
   /* bodyの最後の子要素がナビゲーションの場合 */
   body > div:last-child nav,
   body > div:last-child ul:last-child {
@@ -590,7 +645,11 @@ html, body {
   bottom: 0 !important;
   left: 0 !important;
   right: 0 !important;
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95)) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 182, 193, 0.95),
+    rgba(255, 105, 180, 0.95)
+  ) !important;
   backdrop-filter: blur(15px) !important;
   border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
   padding: 16px 20px 20px !important;
@@ -651,13 +710,13 @@ html, body {
     margin: 10px !important;
     border-radius: 12px !important;
   }
-  
+
   .mobile-dialog {
     width: 100% !important;
     height: auto !important;
     min-height: 200px !important;
   }
-  
+
   .mobile-dialog-stable {
     transform: none !important;
     animation: none !important;
@@ -779,27 +838,26 @@ html, body {
 }
 
 /* SongRegistrationForm の強制表示 */
-.song-registration-form[data-visible="true"] {
+.song-registration-form[data-visible='true'] {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
 }
 
 /* SongManagement の強制表示 */
-.song-management[data-visible="true"] {
+.song-management[data-visible='true'] {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
 }
 
 /* EnhancedTagList の強制表示 */
-.enhanced-tag-list[data-visible="true"] {
+.enhanced-tag-list[data-visible='true'] {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
-}/
-* Mobile Touch Event Optimization - 34.1対応 */
-.mobile-touch-optimized {
+}
+/ * Mobile Touch Event Optimization - 34.1対応 */ .mobile-touch-optimized {
   touch-action: manipulation !important;
   -webkit-touch-callout: none !important;
   -webkit-user-select: none !important;
@@ -828,7 +886,7 @@ html, body {
     isolation: isolate !important;
     contain: layout style paint size !important;
   }
-  
+
   /* タッチイベントハンドリングの改善 */
   .mobile-touch-optimized {
     -webkit-touch-callout: none !important;
@@ -837,7 +895,7 @@ html, body {
     touch-action: manipulation !important;
     -webkit-tap-highlight-color: transparent !important;
   }
-  
+
   /* 長押し不要でのダイアログ表示実装 */
   .mobile-touch-optimized button,
   .mobile-touch-optimized .bubble-canvas {
@@ -847,13 +905,13 @@ html, body {
     user-select: none !important;
     -webkit-tap-highlight-color: transparent !important;
   }
-  
+
   /* モバイル専用のイベントリスナー最適化 */
   .mobile-touch-optimized * {
     pointer-events: auto !important;
     touch-action: manipulation !important;
   }
-  
+
   /* ダイアログ表示の一貫性確保 */
   .simple-dialog-overlay.mobile-dialog-stable {
     display: flex !important;
@@ -869,7 +927,7 @@ html, body {
     align-items: center !important;
     justify-content: center !important;
   }
-  
+
   .simple-dialog.mobile-touch-optimized {
     display: flex !important;
     flex-direction: column !important;
@@ -895,12 +953,12 @@ html, body {
     user-select: none !important;
     -webkit-tap-highlight-color: transparent !important;
   }
-  
+
   /* タッチ判定エリアの拡大 */
   .bubble-canvas {
     cursor: pointer !important;
   }
-  
+
   /* タッチフィードバックの無効化 */
   .bubble-canvas,
   .bubble-canvas * {

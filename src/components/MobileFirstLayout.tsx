@@ -44,10 +44,10 @@ const LayoutContainer = styled.div`
   font-family: 'Comic Sans MS', 'Arial', cursive, sans-serif;
   overflow: hidden;
 
-  /* スマホでのセーフエリア対応 */
+  /* スマホでのセーフエリア対応を強化 */
   @media (max-width: 768px) {
-    padding-top: env(safe-area-inset-top);
-    height: calc(100vh - env(safe-area-inset-top));
+    padding-top: max(env(safe-area-inset-top), 20px);
+    height: calc(100vh - max(env(safe-area-inset-top), 20px));
   }
 `
 
@@ -69,20 +69,24 @@ const MainSection = styled.main`
   overflow-x: hidden;
   padding: 16px;
 
-  /* PC: 中央寄せ */
+  /* PC: 中央寄せ、横幅制限 */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
 
   /* スマホでの調整 */
   @media (max-width: 768px) {
-    padding: 8px;
+    padding: 4px;
     padding-bottom: 100px;
-    gap: 4px;
-    /* シャボン玉領域を縦に長く */
-    min-height: calc(100vh - 50px - 100px);
+    gap: 2px;
+    max-width: 100%;
+    margin: 0;
+    /* シャボン玉領域をもっと縦に長く */
+    min-height: calc(100vh - 70px - 100px);
   }
 
   /* スクロールバー */

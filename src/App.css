@@ -49,7 +49,7 @@
 /* モバイルでのヘッダーとフッターメニュー対応 */
 @media (max-width: 768px) {
   .App {
-    padding-bottom: 100px;
+    padding-bottom: 10px;
   }
 }
 
@@ -922,25 +922,36 @@ ebase Test Modal Styles */
 
 .firebase-test-modal .rounded-lg {
   border-radius: 0;
-} /* Bubb
-le container adjustments for mobile */
+}
+
+/* Bubble container adjustments */
 .bubble-container {
   width: 100%;
-  max-width: 100%;
   margin: 0;
   padding: 0;
 }
 
+/* PC: 横幅制限でシャボン玉が潰れないように */
+@media (min-width: 769px) {
+  .bubble-container {
+    max-width: 800px;
+    aspect-ratio: 4/3;
+    min-height: 400px;
+  }
+}
+
+/* スマホ: 縦長に拡張 */
 @media (max-width: 768px) {
   .bubble-container {
-    /* シャボン玉領域を縦に長く */
-    min-height: 60vh;
-    margin-bottom: 8px;
+    max-width: 100%;
+    /* シャボン玉領域をもっと縦に長く */
+    min-height: 70vh;
+    margin-bottom: 0px;
   }
 
   .app-info {
-    /* 説明文領域との間隔を狭く */
-    margin-top: 4px;
-    padding: 12px;
+    /* 説明文領域との間隔をもっと狭く */
+    margin-top: 0px;
+    padding: 8px;
   }
 }
