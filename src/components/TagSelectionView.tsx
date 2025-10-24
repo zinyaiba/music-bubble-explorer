@@ -113,11 +113,6 @@ export const TagSelectionView: React.FC<TagSelectionViewProps> = ({
     setShowAllTags(prev => !prev)
   }, [])
 
-  // 選択済みタグのクリア
-  const handleClearAllTags = useCallback(() => {
-    onTagsChange([])
-  }, [onTagsChange])
-
   return (
     <div className="tag-selection-view">
       <div className="tag-selection-content">
@@ -149,16 +144,6 @@ export const TagSelectionView: React.FC<TagSelectionViewProps> = ({
             <h4 className="section-title">
               選択済みタグ ({selectedTags.length}/{maxTags})
             </h4>
-            {selectedTags.length > 0 && (
-              <button
-                type="button"
-                onClick={handleClearAllTags}
-                className="clear-all-button"
-                disabled={isLoading}
-              >
-                すべてクリア
-              </button>
-            )}
           </div>
 
           {selectedTags.length > 0 ? (
