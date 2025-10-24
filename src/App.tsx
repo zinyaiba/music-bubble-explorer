@@ -34,6 +34,7 @@ import {
 } from './components/FallbackComponents'
 import { SongRegistrationForm } from './components/SongRegistrationForm'
 import { SongManagement } from './components/SongManagement'
+import { TagRegistrationDialog } from './components/TagRegistrationDialog'
 
 import { EnhancedTagList } from './components/EnhancedTagList'
 import { UnifiedDialogLayout } from './components/UnifiedDialogLayout'
@@ -108,10 +109,11 @@ function App() {
   const [showRegistrationForm, setShowRegistrationForm] = useState(false)
   const [showSongManagement, setShowSongManagement] = useState(false)
   const [currentView, setCurrentView] = useState<
-    'main' | 'registration' | 'management' | 'tag-list'
+    'main' | 'registration' | 'management' | 'tag-list' | 'tag-registration'
   >('main')
 
   const [showTagList, setShowTagList] = useState(false)
+  const [showTagRegistration, setShowTagRegistration] = useState(false)
   const [showDatabaseDebugger, setShowDatabaseDebugger] = useState(false)
 
   const [debugLogger] = useState(() => DebugLogger.getInstance())
@@ -138,7 +140,6 @@ function App() {
         }
         console.log('Bubble settings updated via dev tools:', settings)
       }
-
       ;(window as any).getBubbleStats = () => {
         if (roleBasedBubbleManagerRef.current) {
           return roleBasedBubbleManagerRef.current.getStats()
@@ -246,8 +247,6 @@ function App() {
         setShowDatabaseDebugger(true)
         console.log('🔍 Database debugger opened')
       }
-
-
 
       // 使用方法をコンソールに表示
       console.log(`
@@ -697,7 +696,14 @@ function App() {
    * Handle view changes
    */
   const handleViewChange = useCallback(
-    (view: 'main' | 'registration' | 'management' | 'tag-list') => {
+    (
+      view:
+        | 'main'
+        | 'registration'
+        | 'management'
+        | 'tag-list'
+        | 'tag-registration'
+    ) => {
       setCurrentView(view)
     },
     []
@@ -787,7 +793,86 @@ function App() {
     announceToScreenReader('タグ一覧画面を閉じました')
   }, [])
 
+  /**
+   * Handle tag registration toggle with accessibility announcements
+   */
+  const handleToggleTagRegistration = useCallback(() => {
+    console.log('🏷️➕ App: handleToggleTagRegistration called')
 
+    const newState = !showTagRegistration
+    console.log('🏷️➕ App: Setting showTagRegistration to:', newState)
+
+    setShowTagRegistration(newState)
+    setCurrentView(newState ? 'tag-registration' : 'main')
+
+    // Announce state change for screen readers
+    const announcement = newState
+      ? 'タグ登録画面を開きました'
+      : 'タグ登録画面を閉じました'
+    announceToScreenReader(announcement)
+  }, [showTagRegistration])
+
+  /**
+   * Handle tag registration close with accessibility announcements
+   */
+  const handleTagRegistrationClose = useCallback(() => {
+    setShowTagRegistration(false)
+    setCurrentView('main')
+    announceToScreenReader('タグ登録画面を閉じました')
+  }, [])
+
+  /**
+   * Handle tags registered
+   */
+  const handleTagsRegistered = useCallback(
+    async (songId: string, tags: string[]) => {
+      // Refresh the role-based bubble manager with updated data
+      if (roleBasedBubbleManagerRef.current && musicServiceRef.current) {
+        // Firebaseから最新データを再読み込み
+        try {
+          await musicServiceRef.current.loadFromFirebase()
+          debugLogger.info(
+            '🔥 Reloaded data from Firebase after tag registration'
+          )
+        } catch (error) {
+          debugLogger.warn(
+            '🔥 Firebase reload failed, using local cache:',
+            error
+          )
+          // Clear cache and reload local data
+          musicServiceRef.current.clearCache()
+        }
+
+        // Get updated music database
+        const updatedMusicDatabase = {
+          songs: musicServiceRef.current.getAllSongs(),
+          people: musicServiceRef.current.getAllPeople(),
+          tags: musicServiceRef.current.getAllTags(),
+        }
+
+        // Update state and managers
+        setMusicDatabase(updatedMusicDatabase)
+
+        // Update role-based bubble manager with new data
+        roleBasedBubbleManagerRef.current.updateMusicDatabase(
+          updatedMusicDatabase
+        )
+
+        // Update enhanced bubble manager as well
+        if (enhancedBubbleManagerRef.current) {
+          enhancedBubbleManagerRef.current.updateMusicDatabase(
+            updatedMusicDatabase
+          )
+        }
+
+        debugLogger.info('Tags registered and role-based bubbles updated', {
+          songId,
+          tags,
+        })
+      }
+    },
+    [debugLogger]
+  )
 
   const handleDatabaseDebuggerClose = useCallback(() => {
     setShowDatabaseDebugger(false)
@@ -1091,9 +1176,11 @@ function App() {
                 showRegistrationForm={showRegistrationForm}
                 showSongManagement={showSongManagement}
                 showTagList={showTagList}
+                showTagRegistration={showTagRegistration}
                 onToggleRegistrationForm={handleToggleRegistrationForm}
                 onToggleSongManagement={handleToggleSongManagement}
                 onToggleTagList={handleToggleTagList}
+                onToggleTagRegistration={handleToggleTagRegistration}
               />
             </MobileFirstHeader>
           }
@@ -1106,9 +1193,11 @@ function App() {
                 showRegistrationForm={showRegistrationForm}
                 showSongManagement={showSongManagement}
                 showTagList={showTagList}
+                showTagRegistration={showTagRegistration}
                 onToggleRegistrationForm={handleToggleRegistrationForm}
                 onToggleSongManagement={handleToggleSongManagement}
                 onToggleTagList={handleToggleTagList}
+                onToggleTagRegistration={handleToggleTagRegistration}
               />
             ) : null
           }
@@ -1202,6 +1291,21 @@ function App() {
             mobileOptimized={true}
           >
             <EnhancedTagList isVisible={true} onClose={handleTagListClose} />
+          </UnifiedDialogLayout>
+
+          <UnifiedDialogLayout
+            isVisible={showTagRegistration}
+            onClose={handleTagRegistrationClose}
+            title="🏷️➕ タグ登録"
+            className="tag-registration-dialog"
+            size="standard"
+            mobileOptimized={true}
+          >
+            <TagRegistrationDialog
+              isVisible={true}
+              onClose={handleTagRegistrationClose}
+              onTagsRegistered={handleTagsRegistered}
+            />
           </UnifiedDialogLayout>
 
           {/* PWA Components */}

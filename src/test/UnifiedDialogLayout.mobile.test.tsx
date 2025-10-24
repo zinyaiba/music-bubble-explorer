@@ -11,7 +11,7 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
     isVisible: true,
     onClose: vi.fn(),
     title: 'Mobile Test Dialog',
-    children: <div>Mobile test content</div>
+    children: <div>Mobile test content</div>,
   }
 
   // Mock different mobile viewport sizes
@@ -19,14 +19,14 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
     Object.defineProperty(window, 'innerWidth', {
       writable: true,
       configurable: true,
-      value: width
+      value: width,
     })
     Object.defineProperty(window, 'innerHeight', {
       writable: true,
       configurable: true,
-      value: height
+      value: height,
     })
-    
+
     // Trigger resize event
     window.dispatchEvent(new Event('resize'))
   }
@@ -46,16 +46,16 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
       { name: 'iPhone 12', width: 390, height: 844 },
       { name: 'iPhone 12 Pro Max', width: 428, height: 926 },
       { name: 'Samsung Galaxy S21', width: 360, height: 800 },
-      { name: 'Small Mobile', width: 320, height: 568 }
+      { name: 'Small Mobile', width: 320, height: 568 },
     ]
 
     mobileViewports.forEach(({ name, width, height }) => {
       it(`renders correctly on ${name} (${width}x${height})`, () => {
         mockViewport(width, height)
-        
+
         render(
-          <UnifiedDialogLayout 
-            {...defaultProps} 
+          <UnifiedDialogLayout
+            {...defaultProps}
             size="compact"
             mobileOptimized={true}
           />
@@ -63,7 +63,7 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
         const dialog = document.querySelector('.unified-dialog')
         const overlay = document.querySelector('.unified-dialog-overlay')
-        
+
         expect(dialog).toHaveClass('unified-dialog--compact')
         expect(dialog).toHaveClass('unified-dialog--mobile-optimized')
         expect(overlay).toBeInTheDocument()
@@ -78,8 +78,8 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
     it('applies compact size classes correctly', () => {
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
         />
@@ -93,8 +93,8 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
     it('maintains proper header structure in compact mode', () => {
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
           title="Compact Mobile Header"
@@ -108,7 +108,7 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
       expect(header).toBeInTheDocument()
       expect(title).toHaveTextContent('Compact Mobile Header')
       expect(closeButton).toBeInTheDocument()
-      
+
       // Verify header is part of dialog
       const dialog = document.querySelector('.unified-dialog')
       expect(dialog).toContainElement(header)
@@ -118,14 +118,17 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
       const longContent = (
         <div>
           {Array.from({ length: 20 }, (_, i) => (
-            <p key={i}>This is paragraph {i + 1} with some content to test scrolling behavior.</p>
+            <p key={i}>
+              This is paragraph {i + 1} with some content to test scrolling
+              behavior.
+            </p>
           ))}
         </div>
       )
 
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
         >
@@ -135,17 +138,16 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
       const content = document.querySelector('.unified-dialog-content')
       expect(content).toBeInTheDocument()
-      
+
       // Verify content area has proper overflow handling
-      const computedStyle = window.getComputedStyle(content!)
       expect(content).toHaveClass('unified-dialog-content')
     })
 
     it('handles touch interactions properly', () => {
       const onClose = vi.fn()
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           onClose={onClose}
           size="compact"
           mobileOptimized={true}
@@ -153,7 +155,7 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
       )
 
       const closeButton = screen.getByLabelText('ダイアログを閉じる')
-      
+
       // Simulate touch events
       fireEvent.touchStart(closeButton)
       fireEvent.touchEnd(closeButton)
@@ -170,8 +172,8 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
     it('minimizes vertical scrolling in compact mode', () => {
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
         >
@@ -183,15 +185,15 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
       const dialog = document.querySelector('.unified-dialog')
       const content = document.querySelector('.unified-dialog-content')
-      
+
       expect(dialog).toHaveClass('unified-dialog--compact')
       expect(content).toBeInTheDocument()
     })
 
     it('maintains proper spacing in mobile compact layout', () => {
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
         >
@@ -228,8 +230,8 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
       )
 
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
           showFooter={true}
@@ -241,7 +243,7 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
       const dialog = document.querySelector('.unified-dialog')
       const footer = document.querySelector('.unified-dialog-footer')
-      
+
       expect(dialog).toHaveClass('unified-dialog--compact')
       expect(footer).toBeInTheDocument()
       expect(dialog).toContainElement(footer)
@@ -254,10 +256,10 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
     it('adapts to orientation changes', () => {
       // Portrait mode
       mockViewport(375, 667)
-      
+
       const { rerender } = render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
         />
@@ -268,10 +270,10 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
       // Landscape mode
       mockViewport(667, 375)
-      
+
       rerender(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
         />
@@ -287,16 +289,16 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
         { width: 320, height: 568 }, // Small mobile
         { width: 375, height: 667 }, // iPhone SE
         { width: 414, height: 896 }, // iPhone XR
-        { width: 428, height: 926 }  // iPhone 12 Pro Max
+        { width: 428, height: 926 }, // iPhone 12 Pro Max
       ]
 
       sizes.forEach(({ width, height }) => {
         mockViewport(width, height)
-        
+
         const onClose = vi.fn()
         const { unmount } = render(
-          <UnifiedDialogLayout 
-            {...defaultProps} 
+          <UnifiedDialogLayout
+            {...defaultProps}
             onClose={onClose}
             size="compact"
             mobileOptimized={true}
@@ -305,12 +307,14 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
         // Test basic functionality
         expect(screen.getByRole('dialog')).toBeInTheDocument()
-        expect(screen.getByRole('heading', { name: 'Mobile Test Dialog' })).toBeInTheDocument()
-        
+        expect(
+          screen.getByRole('heading', { name: 'Mobile Test Dialog' })
+        ).toBeInTheDocument()
+
         // Test close functionality
         fireEvent.click(screen.getByLabelText('ダイアログを閉じる'))
         expect(onClose).toHaveBeenCalledTimes(1)
-        
+
         unmount()
       })
     })
@@ -323,8 +327,8 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
     it('maintains accessibility features in mobile compact mode', () => {
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
         />
@@ -343,8 +347,8 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
     it('supports keyboard navigation in mobile mode', () => {
       const onClose = vi.fn()
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           onClose={onClose}
           size="compact"
           mobileOptimized={true}
@@ -363,8 +367,8 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
     it('provides proper focus management in mobile compact mode', () => {
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
         >
@@ -393,11 +397,11 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
     it('handles rapid open/close cycles efficiently', () => {
       const onClose = vi.fn()
-      
+
       for (let i = 0; i < 5; i++) {
         const { unmount } = render(
-          <UnifiedDialogLayout 
-            {...defaultProps} 
+          <UnifiedDialogLayout
+            {...defaultProps}
             onClose={onClose}
             size="compact"
             mobileOptimized={true}
@@ -426,8 +430,8 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
       )
 
       render(
-        <UnifiedDialogLayout 
-          {...defaultProps} 
+        <UnifiedDialogLayout
+          {...defaultProps}
           size="compact"
           mobileOptimized={true}
         >
@@ -437,7 +441,7 @@ describe('UnifiedDialogLayout Mobile Compact Display Tests - Requirements 3.4, 3
 
       const dialog = document.querySelector('.unified-dialog')
       const content = document.querySelector('.unified-dialog-content')
-      
+
       expect(dialog).toBeInTheDocument()
       expect(content).toBeInTheDocument()
       expect(screen.getByText('Section 1')).toBeInTheDocument()

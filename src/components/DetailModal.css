@@ -33,7 +33,7 @@
 .section-title {
   font-size: 1rem;
   font-weight: 600;
-  color: #FF69B4;
+  color: #ff69b4;
   text-shadow: 0 1px 2px rgba(255, 105, 180, 0.2);
   margin: 0 0 10px 0;
   padding-bottom: 6px;
@@ -47,11 +47,15 @@
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  min-height: 200px;
+  min-height: 0px;
 }
 
 .tag-info {
-  background: linear-gradient(135deg, rgba(255, 240, 245, 0.9) 0%, rgba(240, 255, 240, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 240, 245, 0.9) 0%,
+    rgba(240, 255, 240, 0.9) 100%
+  );
   border: 2px solid rgba(255, 182, 193, 0.3);
   border-radius: 15px;
   padding: 12px 16px;
@@ -69,9 +73,13 @@
 
 .tag-description {
   font-size: 13px;
-  color: #FF69B4;
+  color: #ff69b4;
   font-weight: 500;
-  background: linear-gradient(135deg, rgba(255, 240, 245, 0.8) 0%, rgba(240, 255, 240, 0.8) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 240, 245, 0.8) 0%,
+    rgba(240, 255, 240, 0.8) 100%
+  );
   padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid rgba(255, 182, 193, 0.2);
@@ -96,7 +104,11 @@
   justify-content: flex-start;
   gap: 12px;
   padding: 14px 16px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 240, 245, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 240, 245, 0.9) 100%
+  );
   border: 2px solid transparent;
   border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -156,7 +168,7 @@
 .item-name {
   font-size: 1rem;
   font-weight: 600;
-  color: #FF69B4;
+  color: #ff69b4;
   text-shadow: 0 1px 2px rgba(255, 105, 180, 0.1);
   flex: 1;
   text-align: left;
@@ -178,10 +190,14 @@
 .empty-message {
   text-align: center;
   padding: 40px 20px;
-  color: #FF69B4;
+  color: #ff69b4;
   font-size: 1rem;
   font-weight: 500;
-  background: linear-gradient(135deg, rgba(255, 240, 245, 0.8) 0%, rgba(240, 255, 240, 0.8) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 240, 245, 0.8) 0%,
+    rgba(240, 255, 240, 0.8) 100%
+  );
   border-radius: 15px;
   border: 2px dashed rgba(255, 182, 193, 0.4);
   position: relative;
@@ -196,7 +212,7 @@
   .detail-modal-content {
     gap: 12px;
   }
-  
+
   .related-item {
     flex-direction: row;
     align-items: center;
@@ -205,23 +221,23 @@
     padding: 12px 14px;
     min-height: 56px;
   }
-  
+
   .role-tag {
     flex-shrink: 0;
     min-width: 55px;
     font-size: 0.8rem;
     padding: 6px 10px;
   }
-  
+
   .item-name {
     font-size: 0.95rem;
     text-align: left;
   }
-  
+
   .related-list {
     max-height: 350px;
   }
-  
+
   .tag-info {
     padding: 10px 12px;
   }
@@ -232,54 +248,52 @@
     gap: 10px;
     max-height: calc(100vh - 180px);
   }
-  
+
   .section-title {
     font-size: 0.9rem;
   }
-  
+
   .related-item {
     padding: 8px;
   }
-  
+
   .item-name {
     font-size: 0.85rem;
   }
-  
+
   .item-details {
     font-size: 0.75rem;
   }
-  
+
   .tag-info {
     padding: 8px 10px;
   }
-  
+
   .empty-message {
     padding: 20px 15px;
     font-size: 0.85rem;
   }
-  
+
   .related-list {
     max-height: calc(100vh - 220px);
     min-height: 150px;
   }
-  
+
   .tag-song-item {
     padding: 12px;
   }
-  
+
   .credit-line {
     font-size: 0.75rem;
   }
-  
+
   .song-info {
     gap: 6px;
   }
-  
+
   .song-credits {
     gap: 3px;
   }
-  
-
 }
 
 /* アクセシビリティ対応 */
@@ -287,7 +301,7 @@
   .related-item {
     transition: none;
   }
-  
+
   .related-item:hover {
     transform: none;
   }
@@ -298,17 +312,17 @@
   .related-item {
     border-color: #000;
   }
-  
+
   .related-item:hover,
   .related-item:focus {
     border-color: #000;
     background: #f0f0f0;
   }
-  
+
   .role-tag {
     border: 1px solid #000;
   }
-}/* タグ詳細の楽曲表示用スタイル - 最高優先度 */
+} /* タグ詳細の楽曲表示用スタイル - 最高優先度 */
 .related-item.tag-song-item {
   flex-direction: column !important;
   align-items: flex-start !important;
@@ -320,7 +334,7 @@
 .related-item.tag-song-item .item-name {
   font-size: 1rem !important;
   font-weight: 600 !important;
-  color: #FF69B4 !important;
+  color: #ff69b4 !important;
   text-shadow: 0 1px 2px rgba(255, 105, 180, 0.1) !important;
   width: 100% !important;
   margin-bottom: 8px !important;
@@ -368,7 +382,7 @@
 }
 
 .related-item.tag-song-item .credit-names {
-  color: #FF69B4 !important;
+  color: #ff69b4 !important;
   font-weight: 500 !important;
   flex: 1 !important;
   word-break: break-word !important;
@@ -381,30 +395,30 @@
   .related-item.tag-song-item {
     padding: 14px !important;
   }
-  
+
   .related-item.tag-song-item .item-name {
     font-size: 0.9rem !important;
     margin-bottom: 6px !important;
   }
-  
+
   .related-item.tag-song-item .credit-line {
     font-size: 0.8rem !important;
     gap: 4px !important;
   }
-  
+
   .related-item.tag-song-item .credit-label {
     min-width: 35px !important;
     font-size: 0.75rem !important;
   }
-  
+
   .related-item.tag-song-item .credit-names {
     font-size: 0.8rem !important;
   }
-  
+
   .related-item.tag-song-item .song-info {
     gap: 0 !important;
   }
-  
+
   .related-item.tag-song-item .song-credits {
     gap: 3px !important;
     margin-top: 6px !important;
@@ -416,21 +430,21 @@
     font-size: 0.85rem !important;
     margin-bottom: 4px !important;
   }
-  
+
   .related-item.tag-song-item .credit-line {
     font-size: 0.75rem !important;
     gap: 3px !important;
   }
-  
+
   .related-item.tag-song-item .credit-label {
     min-width: 30px !important;
     font-size: 0.7rem !important;
   }
-  
+
   .related-item.tag-song-item .credit-names {
     font-size: 0.75rem !important;
   }
-  
+
   .related-item.tag-song-item .song-credits {
     gap: 2px !important;
     margin-top: 4px !important;

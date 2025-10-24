@@ -1,10 +1,7 @@
 import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { UnifiedDialogLayout } from '@/components/UnifiedDialogLayout'
-import { SongRegistrationForm } from '@/components/SongRegistrationForm'
-import { SongManagement } from '@/components/SongManagement'
-import { EnhancedTagList } from '@/components/EnhancedTagList'
 
 // Mock all CSS imports
 vi.mock('@/components/UnifiedDialogLayout.css', () => ({}))
@@ -18,8 +15,8 @@ vi.mock('@/services/dataManager', () => ({
     loadSongs: vi.fn(() => []),
     loadMusicDatabase: vi.fn(() => ({ songs: [], people: [], tags: [] })),
     saveSong: vi.fn(),
-    deleteSong: vi.fn()
-  }
+    deleteSong: vi.fn(),
+  },
 }))
 
 // Mock MusicDataService
@@ -29,9 +26,9 @@ vi.mock('@/services/musicDataService', () => ({
       getAllSongs: vi.fn(() => []),
       addSong: vi.fn(),
       updateSong: vi.fn(),
-      deleteSong: vi.fn()
-    }))
-  }
+      deleteSong: vi.fn(),
+    })),
+  },
 }))
 
 describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', () => {
@@ -148,8 +145,12 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
     })
 
     it('applies consistent size classes across different dialog contents', () => {
-      const sizes: Array<'compact' | 'standard' | 'large'> = ['compact', 'standard', 'large']
-      
+      const sizes: Array<'compact' | 'standard' | 'large'> = [
+        'compact',
+        'standard',
+        'large',
+      ]
+
       sizes.forEach(size => {
         const { unmount } = render(
           <UnifiedDialogLayout
@@ -164,7 +165,7 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
 
         const dialog = document.querySelector('.unified-dialog')
         expect(dialog).toHaveClass(`unified-dialog--${size}`)
-        
+
         unmount()
       })
     })
@@ -176,12 +177,12 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
       Object.defineProperty(window, 'innerWidth', {
         writable: true,
         configurable: true,
-        value: 375
+        value: 375,
       })
       Object.defineProperty(window, 'innerHeight', {
         writable: true,
         configurable: true,
-        value: 667
+        value: 667,
       })
     }
 
@@ -190,18 +191,18 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
       Object.defineProperty(window, 'innerWidth', {
         writable: true,
         configurable: true,
-        value: 1024
+        value: 1024,
       })
       Object.defineProperty(window, 'innerHeight', {
         writable: true,
         configurable: true,
-        value: 768
+        value: 768,
       })
     }
 
     it('applies mobile optimization classes for compact display', () => {
       mockMobileViewport()
-      
+
       render(
         <UnifiedDialogLayout
           isVisible={true}
@@ -221,7 +222,7 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
 
     it('maintains proper spacing in compact mobile layout', () => {
       mockMobileViewport()
-      
+
       render(
         <UnifiedDialogLayout
           isVisible={true}
@@ -240,10 +241,10 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
 
       const header = document.querySelector('.unified-dialog-header')
       const content = document.querySelector('.unified-dialog-content')
-      
+
       expect(header).toBeInTheDocument()
       expect(content).toBeInTheDocument()
-      
+
       // Verify the dialog structure is maintained
       const dialog = document.querySelector('.unified-dialog')
       expect(dialog).toContainElement(header)
@@ -252,11 +253,35 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
 
     it('handles different content types in mobile compact mode', () => {
       mockMobileViewport()
-      
+
       const contentTypes = [
-        { name: 'Form Content', content: <form><input type="text" /><button>Submit</button></form> },
-        { name: 'List Content', content: <ul><li>Item 1</li><li>Item 2</li></ul> },
-        { name: 'Text Content', content: <div><p>Paragraph 1</p><p>Paragraph 2</p></div> }
+        {
+          name: 'Form Content',
+          content: (
+            <form>
+              <input type="text" />
+              <button>Submit</button>
+            </form>
+          ),
+        },
+        {
+          name: 'List Content',
+          content: (
+            <ul>
+              <li>Item 1</li>
+              <li>Item 2</li>
+            </ul>
+          ),
+        },
+        {
+          name: 'Text Content',
+          content: (
+            <div>
+              <p>Paragraph 1</p>
+              <p>Paragraph 2</p>
+            </div>
+          ),
+        },
       ]
 
       contentTypes.forEach(({ name, content }) => {
@@ -274,18 +299,18 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
 
         const dialog = document.querySelector('.unified-dialog')
         const contentArea = document.querySelector('.unified-dialog-content')
-        
+
         expect(dialog).toHaveClass('unified-dialog--compact')
         expect(dialog).toHaveClass('unified-dialog--mobile-optimized')
         expect(contentArea).toBeInTheDocument()
-        
+
         unmount()
       })
     })
 
     it('maintains accessibility in mobile compact mode', () => {
       mockMobileViewport()
-      
+
       render(
         <UnifiedDialogLayout
           isVisible={true}
@@ -311,7 +336,7 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
     it('responds to viewport changes between mobile and desktop', () => {
       // Start with mobile
       mockMobileViewport()
-      
+
       const { rerender } = render(
         <UnifiedDialogLayout
           isVisible={true}
@@ -328,7 +353,7 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
 
       // Switch to desktop
       mockDesktopViewport()
-      
+
       rerender(
         <UnifiedDialogLayout
           isVisible={true}
@@ -402,10 +427,10 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
 
       const footer = document.querySelector('.unified-dialog-footer')
       expect(footer).not.toBeInTheDocument()
-      
+
       const dialog = document.querySelector('.unified-dialog')
       const content = document.querySelector('.unified-dialog-content')
-      
+
       expect(dialog).toContainElement(content)
     })
   })
@@ -413,7 +438,7 @@ describe('UnifiedDialogLayout Integration Tests - Requirements 3.3, 3.4, 3.5', (
   describe('Cross-Dialog Event Handling Consistency', () => {
     it('handles close events consistently across different dialog contents', () => {
       const onClose = vi.fn()
-      
+
       const { rerender } = render(
         <UnifiedDialogLayout
           isVisible={true}

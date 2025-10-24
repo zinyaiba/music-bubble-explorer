@@ -4,23 +4,35 @@ import { useResponsive } from '@/hooks/useResponsive'
 import { announceToScreenReader } from '@/utils/accessibility'
 
 interface MobileFirstNavigationProps {
-  currentView: 'main' | 'registration' | 'management' | 'tag-list'
+  currentView:
+    | 'main'
+    | 'registration'
+    | 'management'
+    | 'tag-list'
+    | 'tag-registration'
   onViewChange: (
-    view: 'main' | 'registration' | 'management' | 'tag-list'
+    view:
+      | 'main'
+      | 'registration'
+      | 'management'
+      | 'tag-list'
+      | 'tag-registration'
   ) => void
   showRegistrationForm: boolean
   showSongManagement: boolean
   showTagList?: boolean
+  showTagRegistration?: boolean
   onToggleRegistrationForm: () => void
   onToggleSongManagement: () => void
   onToggleTagList?: () => void
+  onToggleTagRegistration?: () => void
 }
 
 interface NavigationItem {
   id: string
   label: string
   icon: string
-  view: 'main' | 'registration' | 'management' | 'tag-list'
+  view: 'main' | 'registration' | 'management' | 'tag-list' | 'tag-registration'
   isActive: boolean
   color: string
   onClick: () => void
@@ -38,9 +50,11 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
       showRegistrationForm,
       showSongManagement,
       showTagList = false,
+      showTagRegistration = false,
       onToggleRegistrationForm,
       onToggleSongManagement,
       onToggleTagList,
+      onToggleTagRegistration,
     }) => {
       // handleGoToMainは削除（シャボン玉ボタンを削除したため不要）
 
@@ -59,6 +73,10 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
           console.log('Closing tag list...')
           onToggleTagList()
         }
+        if (showTagRegistration && onToggleTagRegistration) {
+          console.log('Closing tag registration...')
+          onToggleTagRegistration()
+        }
 
         // 楽曲登録フォームを開く
         console.log('Current showRegistrationForm:', showRegistrationForm)
@@ -72,9 +90,11 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
       }, [
         showSongManagement,
         showTagList,
+        showTagRegistration,
         showRegistrationForm,
         onToggleSongManagement,
         onToggleTagList,
+        onToggleTagRegistration,
         onToggleRegistrationForm,
         onViewChange,
       ])
@@ -94,6 +114,10 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
           console.log('Closing tag list...')
           onToggleTagList()
         }
+        if (showTagRegistration && onToggleTagRegistration) {
+          console.log('Closing tag registration...')
+          onToggleTagRegistration()
+        }
 
         // 楽曲編集画面を開く
         console.log('Current showSongManagement:', showSongManagement)
@@ -107,9 +131,11 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
       }, [
         showRegistrationForm,
         showTagList,
+        showTagRegistration,
         showSongManagement,
         onToggleRegistrationForm,
         onToggleTagList,
+        onToggleTagRegistration,
         onToggleSongManagement,
         onViewChange,
       ])
@@ -131,6 +157,10 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
           console.log('Closing song management...')
           onToggleSongManagement()
         }
+        if (showTagRegistration && onToggleTagRegistration) {
+          console.log('Closing tag registration...')
+          onToggleTagRegistration()
+        }
 
         // タグ一覧画面を開く
         console.log('Current showTagList:', showTagList)
@@ -144,10 +174,55 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
       }, [
         showRegistrationForm,
         showSongManagement,
+        showTagRegistration,
         showTagList,
         onToggleRegistrationForm,
         onToggleSongManagement,
+        onToggleTagRegistration,
         onToggleTagList,
+        onViewChange,
+      ])
+
+      /**
+       * タグ登録画面を開く
+       */
+      const handleOpenTagRegistration = useCallback(() => {
+        if (!onToggleTagRegistration) return
+
+        console.log('🏷️➕ Opening tag registration...')
+
+        // 他のダイアログを閉じる
+        if (showRegistrationForm) {
+          console.log('Closing registration form...')
+          onToggleRegistrationForm()
+        }
+        if (showSongManagement) {
+          console.log('Closing song management...')
+          onToggleSongManagement()
+        }
+        if (showTagList && onToggleTagList) {
+          console.log('Closing tag list...')
+          onToggleTagList()
+        }
+
+        // タグ登録画面を開く
+        console.log('Current showTagRegistration:', showTagRegistration)
+        if (!showTagRegistration) {
+          console.log('Toggling tag registration...')
+          onToggleTagRegistration()
+        }
+
+        onViewChange('tag-registration')
+        announceToScreenReader('タグ登録画面を開きました')
+      }, [
+        showRegistrationForm,
+        showSongManagement,
+        showTagList,
+        showTagRegistration,
+        onToggleRegistrationForm,
+        onToggleSongManagement,
+        onToggleTagList,
+        onToggleTagRegistration,
         onViewChange,
       ])
 
@@ -170,6 +245,15 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
           isActive: currentView === 'management',
           color: '#DDA0DD',
           onClick: handleOpenManagement,
+        },
+        {
+          id: 'tag-registration',
+          label: 'タグ登録',
+          icon: '🏷️➕',
+          view: 'tag-registration',
+          isActive: currentView === 'tag-registration',
+          color: '#FFB6C1',
+          onClick: handleOpenTagRegistration,
         },
         {
           id: 'tag-list',
@@ -320,7 +404,7 @@ const MobileNavButton = styled.button<{ $isActive: boolean; $color: string }>`
 `
 
 const MobileButtonIcon = styled.span<{ $isActive: boolean }>`
-  font-size: ${props => (props.$isActive ? '28px' : '24px')};
+  font-size: ${props => (props.$isActive ? '21px' : '21px')};
   transition: all 0.3s ease;
 `
 
