@@ -26,7 +26,7 @@ export class MusicDataService {
       const migrationResult = await DataManager.migrateToFirebaseOnly()
       
       if (migrationResult.success) {
-        console.log(`🔥 Successfully migrated ${migrationResult.migratedSongs} songs to Firebase-only mode`)
+        // console.log(`🔥 Successfully migrated ${migrationResult.migratedSongs} songs to Firebase-only mode`)
       } else {
         console.warn('🔥 Migration to Firebase-only mode had errors:', migrationResult.errors)
       }
@@ -40,7 +40,7 @@ export class MusicDataService {
    */
   private initializeDatabase(): MusicDatabase {
     try {
-      console.log('🔄 Initializing music database (Firebase-only mode)...')
+      // console.log('🔄 Initializing music database (Firebase-only mode)...')
 
       // Firebase専用モードでは空のデータベースから開始
       // 実際のデータはloadFromFirebase()で読み込む
@@ -50,7 +50,7 @@ export class MusicDataService {
         tags: []
       }
 
-      console.log('✅ Empty database initialized, will load from Firebase')
+      // console.log('✅ Empty database initialized, will load from Firebase')
       return emptyDatabase
     } catch (error) {
       console.error('❌ Failed to initialize music database:', error)
@@ -72,7 +72,7 @@ export class MusicDataService {
    */
   public async loadFromSharedDatabase(): Promise<boolean> {
     try {
-      console.log('🔄 Loading from shared database...')
+      // console.log('🔄 Loading from shared database...')
       
       const sharedDataService = SharedDataService.getInstance()
       const sharedDatabase = await sharedDataService.getSharedDatabase()
@@ -102,7 +102,7 @@ export class MusicDataService {
    */
   public async loadFromFirebase(): Promise<boolean> {
     try {
-      console.log('🔥 Loading from Firebase...')
+      // console.log('🔥 Loading from Firebase...')
       
       const { FirebaseService } = await import('@/services/firebaseService')
       const firebaseService = FirebaseService.getInstance()
@@ -124,11 +124,11 @@ export class MusicDataService {
         tags: firebaseDatabase.tags || []
       }
 
-      console.log('🔥 Firebase database loaded successfully:', {
-        songs: this.musicDatabase.songs.length,
-        people: this.musicDatabase.people.length,
-        tags: this.musicDatabase.tags.length
-      })
+      // console.log('🔥 Firebase database loaded successfully:', {
+      //   songs: this.musicDatabase.songs.length,
+      //   people: this.musicDatabase.people.length,
+      //   tags: this.musicDatabase.tags.length
+      // })
 
       return true
     } catch (error) {

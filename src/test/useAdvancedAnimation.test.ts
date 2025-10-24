@@ -353,7 +353,7 @@ describe('useAdvancedAnimation', () => {
       // 統計を更新
       act(() => {
         // 内部的に統計が更新されることをシミュレート
-        ;(result.current as any).stats = {
+        (result.current as any).stats = {
           activeBubbles: 10,
           scheduledDisappearances: 5,
           activeAnimations: 60, // 60個の多数のアニメーション

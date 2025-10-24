@@ -1,83 +1,96 @@
 import { MusicDataService } from '@/services/musicDataService'
 import { RelationshipCalculator } from '@/utils/relationshipCalculator'
 import { DataValidator } from '@/utils/dataValidation'
+import { logger } from '../config/logConfig'
 
 /**
  * データモデルとユーティリティの動作確認用テスト関数
  */
 export function testDataModels(): void {
-  console.log('=== データモデルとユーティリティのテスト開始 ===')
+  logger.debug('データモデルとユーティリティのテスト開始')
 
   try {
     // MusicDataServiceのテスト
     const musicService = MusicDataService.getInstance()
     
-    console.log('\n1. 基本データ取得テスト')
+    logger.debug('基本データ取得テスト')
     const allSongs = musicService.getAllSongs()
     const allPeople = musicService.getAllPeople()
-    console.log(`楽曲数: ${allSongs.length}`)
-    console.log(`人物数: ${allPeople.length}`)
+    logger.debug('データ取得結果', { songCount: allSongs.length, peopleCount: allPeople.length })
 
     // 最初の楽曲の詳細を確認
     if (allSongs.length > 0) {
       const firstSong = allSongs[0]
-      console.log(`\n最初の楽曲: ${firstSong.title}`)
-      
       const relatedPeople = musicService.getPeopleForSong(firstSong.id)
-      console.log(`関連人物数: ${relatedPeople.length}`)
-      relatedPeople.forEach(person => {
-        console.log(`  - ${person.name} (${person.type})`)
+      logger.debug('最初の楽曲詳細', {
+        title: firstSong.title,
+        relatedPeopleCount: relatedPeople.length,
+        relatedPeople: relatedPeople.map(p => ({ name: p.name, type: p.type }))
       })
     }
 
     // 関連性計算のテスト
-    console.log('\n2. 関連性計算テスト')
+    logger.debug('関連性計算テスト')
     const relationshipCalc = new RelationshipCalculator()
     
     if (allSongs.length > 0) {
       const songId = allSongs[0].id
       const bubbleSize = relationshipCalc.calculateBubbleSize('song', songId)
-      console.log(`楽曲 "${allSongs[0].title}" のシャボン玉サイズ: ${bubbleSize}px`)
-      
       const complexity = relationshipCalc.calculateSongComplexity(songId)
-      console.log(`楽曲の複雑さ: 人数=${complexity.totalPeople}, 役割数=${complexity.roleVariety}, 複雑度=${complexity.complexity}`)
+      logger.debug('楽曲関連性計算結果', {
+        title: allSongs[0].title,
+        bubbleSize: `${bubbleSize}px`,
+        complexity: {
+          totalPeople: complexity.totalPeople,
+          roleVariety: complexity.roleVariety,
+          complexity: complexity.complexity
+        }
+      })
     }
 
     if (allPeople.length > 0) {
       const personId = allPeople[0].id
       const influence = relationshipCalc.calculatePersonInfluence(personId)
-      console.log(`人物 "${allPeople[0].name}" の影響力: ${influence.influence.toFixed(2)}`)
+      logger.debug('人物影響力計算結果', {
+        name: allPeople[0].name,
+        influence: influence.influence.toFixed(2)
+      })
     }
 
     // データベース統計の確認
-    console.log('\n3. データベース統計')
+    logger.debug('データベース統計')
     const stats = musicService.getDatabaseStats()
-    console.log(`総楽曲数: ${stats.totalSongs}`)
-    console.log(`総人物数: ${stats.totalPeople}`)
-    console.log(`楽曲あたり平均協力者数: ${stats.averageCollaboratorsPerSong.toFixed(2)}`)
-    console.log(`人物あたり平均楽曲数: ${stats.averageSongsPerPerson.toFixed(2)}`)
-    if (stats.mostProductivePerson) {
-      console.log(`最多楽曲関与者: ${stats.mostProductivePerson.name} (${stats.mostProductivePerson.songCount}曲)`)
-    }
+    logger.debug('データベース統計結果', {
+      totalSongs: stats.totalSongs,
+      totalPeople: stats.totalPeople,
+      averageCollaboratorsPerSong: stats.averageCollaboratorsPerSong.toFixed(2),
+      averageSongsPerPerson: stats.averageSongsPerPerson.toFixed(2),
+      mostProductivePerson: stats.mostProductivePerson ? {
+        name: stats.mostProductivePerson.name,
+        songCount: stats.mostProductivePerson.songCount
+      } : null
+    })
 
     // データ検証のテスト
-    console.log('\n4. データ検証テスト')
+    logger.debug('データ検証テスト')
     const database = { songs: allSongs, people: allPeople }
     const validation = DataValidator.validateMusicDatabase(database)
-    console.log(`データ検証結果: ${validation.isValid ? '成功' : '失敗'}`)
-    if (!validation.isValid) {
-      console.log('検証エラー:', validation.errors)
-    }
+    logger.debug('データ検証結果', {
+      isValid: validation.isValid,
+      errors: validation.isValid ? [] : validation.errors
+    })
 
     const dbStats = DataValidator.getDatabaseStats(database)
-    console.log(`作詞家数: ${dbStats.lyricistCount}`)
-    console.log(`作曲家数: ${dbStats.composerCount}`)
-    console.log(`編曲家数: ${dbStats.arrangerCount}`)
+    logger.debug('データベース統計詳細', {
+      lyricistCount: dbStats.lyricistCount,
+      composerCount: dbStats.composerCount,
+      arrangerCount: dbStats.arrangerCount
+    })
 
-    console.log('\n=== テスト完了: すべて正常に動作しています ===')
+    logger.debug('テスト完了: すべて正常に動作')
 
   } catch (error) {
-    console.error('テスト中にエラーが発生しました:', error)
+    logger.error('テスト中にエラーが発生', error)
   }
 }
 

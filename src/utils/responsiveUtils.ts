@@ -306,11 +306,7 @@ export const initializeResponsiveSystem = (): (() => void) => {
     
     // デバッグ情報（開発環境のみ）
     if (process.env.NODE_ENV === 'development') {
-      console.log('📱 Responsive system updated:', {
-        width,
-        screenCategory,
-        isTouchDevice
-      })
+      // Responsive system updated - debug info available via logger
     }
   }
   

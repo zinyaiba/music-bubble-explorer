@@ -112,7 +112,7 @@ export class AuthService {
     } catch (error) {
       // エラーを警告レベルに変更（コンソールを汚さない）
       if (import.meta.env.DEV) {
-        console.warn('🔐 匿名ログインエラー（ローカルモードで継続）:', error)
+        // console.warn('🔐 匿名ログインエラー（ローカルモードで継続）:', error)
       }
       return null
     }

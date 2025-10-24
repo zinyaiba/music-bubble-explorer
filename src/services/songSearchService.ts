@@ -385,7 +385,7 @@ export class SongSearchService {
       }
 
       // アーティストから候補を生成
-      ;[...song.lyricists, ...song.composers, ...song.arrangers].forEach(
+      [...song.lyricists, ...song.composers, ...song.arrangers].forEach(
         artist => {
           if (this.normalizeSearchTerm(artist).includes(normalizedTerm)) {
             suggestions.add(artist)

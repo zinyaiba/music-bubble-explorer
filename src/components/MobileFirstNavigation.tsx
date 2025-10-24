@@ -226,26 +226,9 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
         onViewChange,
       ])
 
-      // ナビゲーションアイテムの定義（シャボン玉ボタンを削除）
+      // ナビゲーションアイテムの定義（使用頻度順に最適化）
+      // Priority 1: タグ登録, Priority 2: タグ一覧, Priority 3: 楽曲編集, Priority 4: 楽曲登録
       const navigationItems: NavigationItem[] = [
-        {
-          id: 'add-song',
-          label: '楽曲登録',
-          icon: '➕',
-          view: 'registration',
-          isActive: currentView === 'registration',
-          color: '#B6E5D8',
-          onClick: handleOpenRegistration,
-        },
-        {
-          id: 'manage-songs',
-          label: '楽曲編集',
-          icon: '📝',
-          view: 'management',
-          isActive: currentView === 'management',
-          color: '#DDA0DD',
-          onClick: handleOpenManagement,
-        },
         {
           id: 'tag-registration',
           label: 'タグ登録',
@@ -263,6 +246,24 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
           isActive: currentView === 'tag-list',
           color: '#98FB98',
           onClick: handleOpenTagList,
+        },
+        {
+          id: 'manage-songs',
+          label: '楽曲編集',
+          icon: '📝',
+          view: 'management',
+          isActive: currentView === 'management',
+          color: '#DDA0DD',
+          onClick: handleOpenManagement,
+        },
+        {
+          id: 'add-song',
+          label: '楽曲登録',
+          icon: '➕',
+          view: 'registration',
+          isActive: currentView === 'registration',
+          color: '#B6E5D8',
+          onClick: handleOpenRegistration,
         },
       ]
 

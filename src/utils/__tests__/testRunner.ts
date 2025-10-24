@@ -5,13 +5,13 @@ import { runColorSelectorTests } from './colorSelector.test'
 import { runAllBubbleTests } from '../../services/__tests__/bubbleTestRunner'
 import { runBubbleCanvasTests } from '../../components/__tests__/BubbleCanvasTest'
 import { runDetailModalTests } from '../../components/__tests__/DetailModalTest'
+import { logger } from '../../config/logConfig'
 
 /**
  * 全てのユニットテストを実行するテストランナー
  */
 export function runAllTests(): void {
-  console.log('🚀 データモデルとユーティリティのユニットテスト開始')
-  console.log('=' .repeat(60))
+  logger.debug('データモデルとユーティリティのユニットテスト開始')
   
   const startTime = Date.now()
   
@@ -28,12 +28,10 @@ export function runAllTests(): void {
     const endTime = Date.now()
     const duration = endTime - startTime
     
-    console.log('=' .repeat(60))
-    console.log(`🎉 全てのテストが完了しました！ (実行時間: ${duration}ms)`)
-    console.log('✅ データモデルとユーティリティは正常に動作しています')
+    logger.debug('全てのテストが完了', { duration: `${duration}ms` })
     
   } catch (error) {
-    console.error('❌ テスト実行中にエラーが発生しました:', error)
+    logger.error('テスト実行中にエラーが発生', error)
     throw error
   }
 }
@@ -57,13 +55,16 @@ export const testSuites = {
 if (typeof window !== 'undefined') {
   (window as any).runTests = testSuites
   
-  console.log('🧪 テスト関数が利用可能です:')
-  console.log('  - window.runTests.all() - 全てのテストを実行')
-  console.log('  - window.runTests.dataValidation() - データ検証テストのみ')
-  console.log('  - window.runTests.dataParser() - データパーサーテストのみ')
-  console.log('  - window.runTests.relationshipCalculator() - 関連性計算テストのみ')
-  console.log('  - window.runTests.colorSelector() - カラーセレクターテストのみ')
-  console.log('  - window.runTests.bubbleLogic() - シャボン玉ロジックテストのみ')
-  console.log('  - window.runTests.bubbleCanvas() - BubbleCanvasコンポーネントテストのみ')
+  logger.debug('テスト関数が利用可能', {
+    available: [
+      'window.runTests.all() - 全てのテストを実行',
+      'window.runTests.dataValidation() - データ検証テストのみ',
+      'window.runTests.dataParser() - データパーサーテストのみ',
+      'window.runTests.relationshipCalculator() - 関連性計算テストのみ',
+      'window.runTests.colorSelector() - カラーセレクターテストのみ',
+      'window.runTests.bubbleLogic() - シャボン玉ロジックテストのみ',
+      'window.runTests.bubbleCanvas() - BubbleCanvasコンポーネントテストのみ'
+    ]
+  })
   console.log('  - window.runTests.detailModal() - DetailModalコンポーネントテストのみ')
 }

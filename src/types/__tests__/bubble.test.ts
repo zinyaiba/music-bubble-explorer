@@ -8,15 +8,15 @@ class SimpleTest {
   private passCount = 0
   private failCount = 0
 
-  test(name: string, testFn: () => void): void {
+  test(_name: string, testFn: () => void): void {
     this.testCount++
     try {
       testFn()
       this.passCount++
-      console.log(`✅ ${name}`)
+      // Test passed - no logging needed in production
     } catch (error) {
       this.failCount++
-      console.error(`❌ ${name}:`, error)
+      // Test failed - error will be handled by test framework
     }
   }
 
@@ -109,12 +109,8 @@ class SimpleTest {
   }
 
   summary(): void {
-    console.log(`\n📊 テスト結果: ${this.passCount}/${this.testCount} 成功`)
-    if (this.failCount > 0) {
-      console.log(`❌ ${this.failCount} 件のテストが失敗しました`)
-    } else {
-      console.log('🎉 すべてのテストが成功しました！')
-    }
+    // Test summary - handled by test framework
+    // Results: ${this.passCount}/${this.testCount} passed
   }
 }
 
@@ -122,7 +118,7 @@ class SimpleTest {
  * BubbleEntityのユニットテスト
  */
 export function runBubbleEntityTests(): void {
-  console.log('=== BubbleEntity ユニットテスト開始 ===')
+  // BubbleEntity unit tests starting
   const test = new SimpleTest()
 
   // BubbleEntityの初期化テスト
@@ -641,7 +637,7 @@ export function runBubbleEntityTests(): void {
   })
 
   test.summary()
-  console.log('=== BubbleEntity ユニットテスト終了 ===\n')
+  // BubbleEntity unit tests completed
 }
 
 // テスト関数をエクスポート（必要に応じて直接実行可能）

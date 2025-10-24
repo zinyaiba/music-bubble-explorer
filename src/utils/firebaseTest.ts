@@ -4,6 +4,7 @@
 
 import { FirebaseService } from '@/services/firebaseService'
 import { db } from '@/config/firebase'
+import { logger } from '../config/logConfig'
 
 export interface FirebaseTestResult {
   isConfigured: boolean
@@ -48,7 +49,7 @@ export async function testFirebaseConnection(): Promise<FirebaseTestResult> {
                          result.details.hasProjectId && 
                          result.details.hasAuthDomain
     
-    console.log('🔥 Firebase設定チェック結果:', result.details)
+    logger.debug('Firebase設定チェック結果', result.details)
 
     if (!result.isConfigured) {
       result.error = '環境変数が設定されていません'
@@ -84,7 +85,7 @@ export async function testFirebaseConnection(): Promise<FirebaseTestResult> {
  */
 export function getFirebaseConfigInfo() {
   // 直接Firebase設定を確認
-  let actualConfig = {
+  const actualConfig = {
     apiKey: "AIzaSyDkJCEmdaqTmaBYVH3xLtg0HaKwRzSuefA",
     authDomain: "music-bubble-explorer.firebaseapp.com",
     projectId: "music-bubble-explorer",
@@ -93,7 +94,7 @@ export function getFirebaseConfigInfo() {
     appId: "1:1000893317937:web:82904e4282466acee0a610"
   }
 
-  console.log('🔥 Firebase設定確認:', actualConfig)
+  logger.debug('Firebase設定確認', actualConfig)
 
   return {
     apiKey: actualConfig.apiKey ? '設定済み' : '未設定',

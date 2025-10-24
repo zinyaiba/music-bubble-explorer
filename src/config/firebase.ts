@@ -34,7 +34,7 @@ try {
   firebaseConfig = githubPagesConfig
 }
 
-console.log('🔥 Firebase設定確認:', firebaseConfig)
+// console.log('🔥 Firebase設定確認:', firebaseConfig)
 
 // Firebase設定が有効かチェック
 const isFirebaseConfigured = firebaseConfig.apiKey && 
@@ -43,12 +43,12 @@ const isFirebaseConfigured = firebaseConfig.apiKey &&
 
 // ログ出力を制限（エラーを防ぐため）
 if (import.meta.env.DEV) {
-  console.log('🔥 Firebase設定状況:', {
-    isConfigured: isFirebaseConfigured,
-    apiKey: firebaseConfig.apiKey ? '設定済み' : '未設定',
-    authDomain: firebaseConfig.authDomain ? '設定済み' : '未設定',
-    projectId: firebaseConfig.projectId ? '設定済み' : '未設定'
-  })
+  // console.log('🔥 Firebase設定状況:', {
+  //   isConfigured: isFirebaseConfigured,
+  //   apiKey: firebaseConfig.apiKey ? '設定済み' : '未設定',
+  //   authDomain: firebaseConfig.authDomain ? '設定済み' : '未設定',
+  //   projectId: firebaseConfig.projectId ? '設定済み' : '未設定'
+  // })
 }
 
 let app: FirebaseApp | null = null
@@ -67,7 +67,7 @@ if (isFirebaseConfigured) {
     auth = getAuth(app)
     
     if (import.meta.env.DEV) {
-      console.log('🔥 Firebase初期化完了')
+      // console.log('🔥 Firebase初期化完了')
     }
   } catch (error) {
     // エラーを警告レベルに変更（コンソールを汚さない）

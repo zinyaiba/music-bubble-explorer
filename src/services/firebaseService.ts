@@ -169,7 +169,7 @@ export class FirebaseService {
         }
       })
 
-      console.log(`🔥 Firebase: ${songs.length}曲を取得しました`)
+      // console.log(`🔥 Firebase: ${songs.length}曲を取得しました`)
       return songs
     } catch (error) {
       console.error('🔥 Firebase: 楽曲取得エラー', error)
@@ -209,7 +209,7 @@ export class FirebaseService {
    */
   public async deleteSong(songId: string): Promise<boolean> {
     try {
-      console.log('🔥 Firebase: 削除開始', songId)
+      // console.log('🔥 Firebase: 削除開始', songId)
 
       if (!this.isFirebaseAvailable() || !db) {
         console.log('🔥 Firebase: 設定が無効です')
@@ -225,7 +225,7 @@ export class FirebaseService {
       console.log('🔥 Firebase: ドキュメント参照作成', docRef.path)
 
       await deleteDoc(docRef)
-      console.log('🔥 Firebase: 楽曲を削除しました', songId)
+      // console.log('🔥 Firebase: 楽曲を削除しました', songId)
       return true
     } catch (error) {
       console.error('🔥 Firebase: 楽曲削除エラー', error)

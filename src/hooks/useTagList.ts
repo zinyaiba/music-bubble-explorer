@@ -42,15 +42,15 @@ export const useTagList = () => {
       
       // Firebase接続状態を確認
       const firebaseConnection = await DataManager.checkFirebaseConnection()
-      console.log('🔥 Firebase connection status:', firebaseConnection)
+      // console.log('🔥 Firebase connection status:', firebaseConnection)
       
       // MusicDataServiceからもデータを取得してみる
       const musicService = MusicDataService.getInstance()
       
       // Firebaseから最新データを読み込み
       try {
-        const firebaseLoaded = await musicService.loadFromFirebase()
-        console.log('🔥 Firebase data loaded:', firebaseLoaded)
+        await musicService.loadFromFirebase()
+        // console.log('🔥 Firebase data loaded:', firebaseLoaded)
       } catch (firebaseError) {
         console.warn('🔥 Firebase load failed:', firebaseError)
       }
@@ -70,13 +70,13 @@ export const useTagList = () => {
         serviceTags: serviceTags.length
       })
       
-      console.log('🏷️ Loaded data:', {
-        songsCount: loadedSongs.length,
-        tagsCount: musicDatabase.tags.length,
-        firebaseConnected: firebaseConnection.isConnected,
-        songs: loadedSongs.slice(0, 3).map(s => ({ title: s.title, tags: s.tags })),
-        tags: musicDatabase.tags.slice(0, 5).map(t => ({ name: t.name, songCount: t.songs.length }))
-      })
+      // console.log('🏷️ Loaded data:', {
+      //   songsCount: loadedSongs.length,
+      //   tagsCount: musicDatabase.tags.length,
+      //   firebaseConnected: firebaseConnection.isConnected,
+      //   songs: loadedSongs.slice(0, 3).map(s => ({ title: s.title, tags: s.tags })),
+      //   tags: musicDatabase.tags.slice(0, 5).map(t => ({ name: t.name, songCount: t.songs.length }))
+      // })
       
       // より多くのデータがある方を使用
       const finalSongs = serviceSongs.length > loadedSongs.length ? serviceSongs : loadedSongs

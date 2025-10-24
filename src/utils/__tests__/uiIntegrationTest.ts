@@ -4,6 +4,7 @@
  */
 
 import { announceToScreenReader, FocusManager, AccessibilityValidator } from '../accessibility'
+import { logger } from '../../config/logConfig'
 
 /**
  * UI統合テストスイート
@@ -15,7 +16,7 @@ export class UIIntegrationTest {
    * 楽曲登録フォームの表示・非表示切り替えテスト
    */
   static testFormToggle(): void {
-    console.log('🧪 Testing form toggle functionality...')
+    logger.debug('Testing form toggle functionality')
     
     try {
       // フォームボタンの存在確認
@@ -39,14 +40,14 @@ export class UIIntegrationTest {
         message: 'Form button has proper ARIA attributes'
       })
 
-      console.log('✅ Form toggle test passed')
+      logger.debug('Form toggle test passed')
     } catch (error) {
       this.testResults.push({
         test: 'Form Toggle Accessibility',
         passed: false,
         message: error instanceof Error ? error.message : 'Unknown error'
       })
-      console.error('❌ Form toggle test failed:', error)
+      logger.error('Form toggle test failed', error)
     }
   }
 
@@ -54,7 +55,7 @@ export class UIIntegrationTest {
    * タグシャボン玉の詳細モーダル対応テスト
    */
   static testTagBubbleModal(): void {
-    console.log('🧪 Testing tag bubble modal functionality...')
+    logger.debug('Testing tag bubble modal functionality')
     
     try {
       // DetailModalコンポーネントの存在確認（DOM上に存在しない場合もあるため、クラス定義の確認）
@@ -76,14 +77,14 @@ export class UIIntegrationTest {
         message: 'Modal accessibility attributes are properly configured'
       })
 
-      console.log('✅ Tag bubble modal test passed')
+      logger.debug('Tag bubble modal test passed')
     } catch (error) {
       this.testResults.push({
         test: 'Tag Bubble Modal',
         passed: false,
         message: error instanceof Error ? error.message : 'Unknown error'
       })
-      console.error('❌ Tag bubble modal test failed:', error)
+      logger.error('Tag bubble modal test failed', error)
     }
   }
 
@@ -91,7 +92,7 @@ export class UIIntegrationTest {
    * 全体的なレイアウトの調整テスト
    */
   static testResponsiveLayout(): void {
-    console.log('🧪 Testing responsive layout...')
+    logger.debug('Testing responsive layout')
     
     try {
       // 主要なレイアウト要素の存在確認
@@ -114,7 +115,7 @@ export class UIIntegrationTest {
                          appInfoStyles.display === 'flex'
 
       if (!usesFlexbox) {
-        console.warn('⚠️ Layout may not be using modern CSS layout methods')
+        logger.warn('Layout may not be using modern CSS layout methods')
       }
 
       this.testResults.push({
@@ -123,14 +124,14 @@ export class UIIntegrationTest {
         message: 'Layout elements are properly structured'
       })
 
-      console.log('✅ Responsive layout test passed')
+      logger.debug('Responsive layout test passed')
     } catch (error) {
       this.testResults.push({
         test: 'Responsive Layout',
         passed: false,
         message: error instanceof Error ? error.message : 'Unknown error'
       })
-      console.error('❌ Responsive layout test failed:', error)
+      logger.error('Responsive layout test failed', error)
     }
   }
 
@@ -138,7 +139,7 @@ export class UIIntegrationTest {
    * アクセシビリティの向上テスト
    */
   static testAccessibilityImprovements(): void {
-    console.log('🧪 Testing accessibility improvements...')
+    logger.debug('Testing accessibility improvements')
     
     try {
       // スキップリンクの存在確認
@@ -175,7 +176,7 @@ export class UIIntegrationTest {
       })
 
       if (issues.length > 0) {
-        console.warn('⚠️ Accessibility issues found:', issues)
+        logger.warn('Accessibility issues found', issues)
       }
 
       this.testResults.push({
@@ -184,14 +185,14 @@ export class UIIntegrationTest {
         message: `Accessibility features implemented. ${issues.length} minor issues found.`
       })
 
-      console.log('✅ Accessibility improvements test passed')
+      logger.debug('Accessibility improvements test passed')
     } catch (error) {
       this.testResults.push({
         test: 'Accessibility Improvements',
         passed: false,
         message: error instanceof Error ? error.message : 'Unknown error'
       })
-      console.error('❌ Accessibility improvements test failed:', error)
+      logger.error('Accessibility improvements test failed', error)
     }
   }
 
@@ -199,7 +200,7 @@ export class UIIntegrationTest {
    * キーボードナビゲーションテスト
    */
   static testKeyboardNavigation(): void {
-    console.log('🧪 Testing keyboard navigation...')
+    logger.debug('Testing keyboard navigation')
     
     try {
       // Canvas要素のキーボードサポート確認
@@ -235,14 +236,14 @@ export class UIIntegrationTest {
         message: `${complianceRate.toFixed(1)}% of focusable elements have proper labels`
       })
 
-      console.log('✅ Keyboard navigation test passed')
+      logger.debug('Keyboard navigation test passed')
     } catch (error) {
       this.testResults.push({
         test: 'Keyboard Navigation',
         passed: false,
         message: error instanceof Error ? error.message : 'Unknown error'
       })
-      console.error('❌ Keyboard navigation test failed:', error)
+      logger.error('Keyboard navigation test failed', error)
     }
   }
 
@@ -250,7 +251,7 @@ export class UIIntegrationTest {
    * スクリーンリーダー対応テスト
    */
   static testScreenReaderSupport(): void {
-    console.log('🧪 Testing screen reader support...')
+    logger.debug('Testing screen reader support')
     
     try {
       // ライブリージョンのテスト
@@ -276,7 +277,7 @@ export class UIIntegrationTest {
           message: 'Live region announcements working properly'
         })
 
-        console.log('✅ Screen reader support test passed')
+        logger.debug('Screen reader support test passed')
       }, 100)
     } catch (error) {
       this.testResults.push({
@@ -284,7 +285,7 @@ export class UIIntegrationTest {
         passed: false,
         message: error instanceof Error ? error.message : 'Unknown error'
       })
-      console.error('❌ Screen reader support test failed:', error)
+      logger.error('Screen reader support test failed', error)
     }
   }
 
@@ -292,7 +293,7 @@ export class UIIntegrationTest {
    * 全テストの実行
    */
   static runAllTests(): void {
-    console.log('🚀 Starting UI Integration and Accessibility Tests...')
+    logger.debug('Starting UI Integration and Accessibility Tests')
     
     this.testResults = []
     
@@ -309,18 +310,16 @@ export class UIIntegrationTest {
       const passedTests = this.testResults.filter(result => result.passed).length
       const totalTests = this.testResults.length
       
-      console.log('\n📊 UI Integration Test Results:')
-      console.log(`✅ Passed: ${passedTests}/${totalTests}`)
-      
-      this.testResults.forEach(result => {
-        const icon = result.passed ? '✅' : '❌'
-        console.log(`${icon} ${result.test}: ${result.message}`)
+      logger.debug('UI Integration Test Results', {
+        passed: passedTests,
+        total: totalTests,
+        results: this.testResults
       })
       
       if (passedTests === totalTests) {
-        console.log('\n🎉 All UI integration tests passed!')
+        logger.info('All UI integration tests passed')
       } else {
-        console.log(`\n⚠️ ${totalTests - passedTests} test(s) failed. Please review the issues above.`)
+        logger.warn(`${totalTests - passedTests} test(s) failed`, this.testResults.filter(r => !r.passed))
       }
     }, 500)
   }

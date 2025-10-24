@@ -357,7 +357,7 @@ export class BubbleRegistry {
    */
   private returnContentToPool(contentId: string, type: 'song' | 'person' | 'tag'): void {
     // 既存のコンテンツアイテムを検索または再構築
-    let contentItem = this.findContentItemById(contentId, type)
+    const contentItem = this.findContentItemById(contentId, type)
     
     if (contentItem) {
       this.availableContent.set(contentId, contentItem)

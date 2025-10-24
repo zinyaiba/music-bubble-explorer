@@ -74,7 +74,7 @@ describe('AdvancedAnimationController', () => {
     // 各シャボン玉の年齢を設定（消失判定のため）
     mockBubbles.forEach((bubble, index) => {
       // 年齢を設定するためのプライベートプロパティアクセス
-      ;(bubble as any).createdAt = performance.now() - (5000 + index * 1000)
+      (bubble as any).createdAt = performance.now() - (5000 + index * 1000)
     })
   })
 

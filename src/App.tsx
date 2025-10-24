@@ -131,7 +131,7 @@ function App() {
   // 開発者ツール用の設定更新関数をwindowオブジェクトに追加
   useEffect(() => {
     if (import.meta.env.DEV) {
-      ;(window as any).updateBubbleSettings = (settings: any) => {
+      (window as any).updateBubbleSettings = (settings: any) => {
         if (roleBasedBubbleManagerRef.current) {
           roleBasedBubbleManagerRef.current.updateBubbleSettings(settings)
         }

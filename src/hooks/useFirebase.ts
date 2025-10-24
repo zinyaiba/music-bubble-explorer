@@ -108,7 +108,7 @@ export const useFirebase = () => {
           error: null
         }))
 
-        console.log('🔥 Firebase初期化完了')
+        // console.log('🔥 Firebase初期化完了')
       } else {
         // Firebase接続に失敗した場合はローカルモードで動作
         sharedDataService.configure({

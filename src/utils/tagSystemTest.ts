@@ -1,4 +1,5 @@
 import { MusicDataService } from '@/services/musicDataService'
+import { logger } from '../config/logConfig'
 import { BubbleManager } from '@/services/bubbleManager'
 // import { DEFAULT_BUBBLE_CONFIG } from '@/config/bubbleConfig'
 
@@ -6,7 +7,7 @@ import { BubbleManager } from '@/services/bubbleManager'
  * タグシステムの動作確認用テスト関数
  */
 export function testTagSystem(): void {
-  console.log('🏷️ タグシステムのテストを開始します...')
+  logger.debug('タグシステムのテストを開始')
   
   try {
     // MusicDataServiceを取得
@@ -14,35 +15,36 @@ export function testTagSystem(): void {
     
     // 全タグを取得
     const allTags = musicService.getAllTags()
-    console.log('📊 タグ統計:', { totalTags: allTags.length })
+    logger.debug('タグ統計', { totalTags: allTags.length })
     
     if (allTags.length > 0) {
       // 最初のタグの詳細を表示
       const firstTag = allTags[0]
-      console.log(`🔍 タグ "${firstTag.name}" の詳細:`)
-      console.log(`  - ID: ${firstTag.id}`)
-      console.log(`  - 関連楽曲数: ${firstTag.songs.length}`)
-      
-      // 関連楽曲を取得
       const relatedSongs = musicService.getSongsForTag(firstTag.name)
-      console.log(`  - 関連楽曲: ${relatedSongs.map(s => s.title).join(', ')}`)
-      
-      // 関連タグを取得
       const relatedTags = musicService.getRelatedTags(firstTag.name)
-      console.log(`  - 関連タグ: ${relatedTags.map(t => t.name).join(', ')}`)
+      
+      logger.debug('タグ詳細', {
+        name: firstTag.name,
+        id: firstTag.id,
+        relatedSongCount: firstTag.songs.length,
+        relatedSongs: relatedSongs.map(s => s.title),
+        relatedTags: relatedTags.map(t => t.name)
+      })
     }
     
     // 人気度順のタグを取得（楽曲数でソート）
     const popularTags = allTags.sort((a, b) => b.songs.length - a.songs.length)
-    console.log('🔥 人気度順タグ:')
-    popularTags.slice(0, 5).forEach((tag, index) => {
-      console.log(`  ${index + 1}. ${tag.name} (${tag.songs.length}曲)`)
-    })
+    const topTags = popularTags.slice(0, 5).map((tag, index) => ({
+      rank: index + 1,
+      name: tag.name,
+      songCount: tag.songs.length
+    }))
     
-    console.log('✅ タグシステムのテストが完了しました！')
+    logger.debug('人気度順タグ', { topTags })
+    logger.debug('タグシステムのテストが完了')
     
   } catch (error) {
-    console.error('❌ タグシステムのテストでエラーが発生しました:', error)
+    logger.error('タグシステムのテストでエラーが発生', error)
   }
 }
 

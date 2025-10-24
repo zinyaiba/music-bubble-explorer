@@ -52,7 +52,7 @@ export class SharedDataService {
    */
   public configure(config: SharedDataConfig): void {
     this.config = config
-    console.log('🔧 Shared data service configured:', config.method)
+    // console.log('🔧 Shared data service confisgured:', config.method)
   }
 
   /**

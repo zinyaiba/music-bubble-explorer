@@ -59,14 +59,16 @@ export class DebugLogger {
   /**
    * Log informational messages
    */
-  public info(message: string, data?: any): void {
+  public info(_message: string, _data?: any): void {
     if (!this.shouldLog()) return;
 
-    if (data !== undefined) {
-      console.info(`[INFO] ${message}`, data);
-    } else {
-      console.info(`[INFO] ${message}`);
-    }
+    // Info logging is currently disabled in production
+    // Uncomment below if needed:
+    // if (_data !== undefined) {
+    //   console.info(`[INFO] ${_message}`, _data);
+    // } else {
+    //   console.info(`[INFO] ${_message}`);
+    // }
   }
 
   /**
