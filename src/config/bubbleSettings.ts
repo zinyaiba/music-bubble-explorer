@@ -5,27 +5,27 @@
 
 export interface BubbleSettings {
   // 基本設定
-  maxBubbles: number          // 最大シャボン玉数
-  minLifespan: number         // 最小ライフスパン（ミリ秒）
-  maxLifespan: number         // 最大ライフスパン（ミリ秒）
+  maxBubbles: number // 最大シャボン玉数
+  minLifespan: number // 最小ライフスパン（ミリ秒）
+  maxLifespan: number // 最大ライフスパン（ミリ秒）
 
   // 速度設定
-  minVelocity: number         // 最小速度
-  maxVelocity: number         // 最大速度
+  minVelocity: number // 最小速度
+  maxVelocity: number // 最大速度
 
   // サイズ設定
-  minSize: number             // 最小サイズ
-  maxSize: number             // 最大サイズ
+  minSize: number // 最小サイズ
+  maxSize: number // 最大サイズ
 
   // 物理設定
-  buoyancyStrength: number    // 浮力の強さ
-  airResistance: number       // 空気抵抗
-  windStrength: number        // 風の強さ
+  buoyancyStrength: number // 浮力の強さ
+  airResistance: number // 空気抵抗
+  windStrength: number // 風の強さ
 
   // アニメーション設定
-  breathingFrequency: number  // 呼吸効果の周波数
-  breathingAmplitude: number  // 呼吸効果の振幅
-  noiseIntensity: number      // ノイズの強度
+  breathingFrequency: number // 呼吸効果の周波数
+  breathingAmplitude: number // 呼吸効果の振幅
+  noiseIntensity: number // ノイズの強度
 }
 
 /**
@@ -34,27 +34,27 @@ export interface BubbleSettings {
  */
 export const DEFAULT_BUBBLE_SETTINGS: BubbleSettings = {
   // 基本設定
-  maxBubbles: 5,             // シャボン玉の最大数（パフォーマンスに影響）
-  minLifespan: 10,          // 5秒 - シャボン玉が消えるまでの最短時間
-  maxLifespan: 15,         // 10秒 - シャボン玉が消えるまでの最長時間
+  maxBubbles: 7, // シャボン玉の最大数（パフォーマンスに影響）
+  minLifespan: 5, // 5秒 - シャボン玉が消えるまでの最短時間
+  maxLifespan: 15, // 10秒 - シャボン玉が消えるまでの最長時間
 
   // 速度設定（値を大きくすると速く動く）
-  minVelocity: 10,             // 最小速度
-  maxVelocity: 35,            // 最大速度
+  minVelocity: 100, // 最小速度
+  maxVelocity: 150, // 最大速度
 
   // サイズ設定
-  minSize: 80,                // 最小サイズ（ピクセル）
-  maxSize: 150,               // 最大サイズ（ピクセル）
+  minSize: 80, // 最小サイズ（ピクセル）
+  maxSize: 150, // 最大サイズ（ピクセル）
 
   // 物理設定（値を大きくすると効果が強くなる）
-  buoyancyStrength: 5,       // 浮力の強さ（上向きの力）
-  airResistance: 0.999,       // 空気抵抗（0.9-0.999の範囲、小さいほど抵抗が大きい）
-  windStrength: 8,            // 風の強さ
+  buoyancyStrength: 80, // 浮力の強さ（上向きの力）
+  airResistance: 0.999, // 空気抵抗（0.9-0.999の範囲、小さいほど抵抗が大きい）
+  windStrength: 40, // 風の強さ
 
   // アニメーション設定
-  breathingFrequency: 0.8,    // 呼吸効果の周波数（大きいほど速く点滅）
-  breathingAmplitude: 0.06,   // 呼吸効果の振幅（大きいほど透明度変化が大きい）
-  noiseIntensity: 12,         // ノイズの強度（大きいほど揺れが大きい）
+  breathingFrequency: 0.8, // 呼吸効果の周波数（大きいほど速く点滅）
+  breathingAmplitude: 0.06, // 呼吸効果の振幅（大きいほど透明度変化が大きい）
+  noiseIntensity: 12, // ノイズの強度（大きいほど揺れが大きい）
 }
 
 /**
@@ -114,7 +114,9 @@ let currentSettings: BubbleSettings = { ...DEFAULT_BUBBLE_SETTINGS }
 /**
  * 設定を更新
  */
-export function updateBubbleSettings(newSettings: Partial<BubbleSettings>): BubbleSettings {
+export function updateBubbleSettings(
+  newSettings: Partial<BubbleSettings>
+): BubbleSettings {
   currentSettings = { ...currentSettings, ...newSettings }
   return currentSettings
 }

@@ -1,0 +1,102 @@
+/* EnhancedBubbleBackground.css - 栗モチーフ背景のスタイル定義 */
+
+.enhanced-bubble-background {
+  /* GPU加速の最適化 */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000px;
+  perspective: 1000px;
+
+  /* レイヤー管理 */
+  isolation: isolate;
+}
+
+.enhanced-bubble-background .gradient-layer {
+  /* グラデーション層の最適化 */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+.enhanced-bubble-background .pattern-layer {
+  /* パターン層のブレンドモード */
+  mix-blend-mode: multiply;
+  opacity: 0.4;
+
+  /* アニメーション効果（軽微） */
+  animation: subtle-float 20s ease-in-out infinite;
+}
+
+.enhanced-bubble-background canvas {
+  /* Canvas層の最適化 */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  image-rendering: optimizeSpeed;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+}
+
+/* 軽微なフロートアニメーション（栗モチーフ用） */
+@keyframes subtle-float {
+  0%,
+  100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  25% {
+    transform: translateY(-2px) translateX(1px);
+  }
+  50% {
+    transform: translateY(0px) translateX(-1px);
+  }
+  75% {
+    transform: translateY(2px) translateX(0px);
+  }
+}
+
+/* パフォーマンスモード時のスタイル */
+.enhanced-bubble-background.performance-mode {
+  will-change: auto;
+}
+
+.enhanced-bubble-background.performance-mode .pattern-layer {
+  display: none;
+}
+
+.enhanced-bubble-background.performance-mode canvas {
+  display: none;
+}
+
+/* テーマ別のスタイル調整 */
+.enhanced-bubble-background.theme-chestnut {
+  /* 栗テーマ特有のスタイル */
+}
+
+.enhanced-bubble-background.theme-default {
+  /* デフォルトテーマのスタイル */
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .enhanced-bubble-background .pattern-layer {
+    /* モバイルでは軽量化 */
+    opacity: 0.2;
+    animation: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .enhanced-bubble-background .pattern-layer {
+    /* アクセシビリティ: アニメーション無効化 */
+    animation: none;
+  }
+}
+
+/* 高DPI画面での最適化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .enhanced-bubble-background canvas {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: optimize-contrast;
+  }
+}

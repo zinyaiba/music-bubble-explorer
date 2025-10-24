@@ -1221,6 +1221,9 @@ function App() {
                 enhancedBubbleManager={
                   enhancedBubbleManagerRef.current || undefined
                 }
+                backgroundTheme="chestnut"
+                backgroundIntensity="moderate"
+                performanceMode={screenSize.isMobile}
               />
 
               {/* Color Legend for role-based bubbles (Requirements: 19.3, 19.4) */}
