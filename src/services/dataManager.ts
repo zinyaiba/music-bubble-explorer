@@ -49,31 +49,33 @@ export class DataManager {
   private static readonly STORAGE_KEY = 'music-bubble-explorer-data'
   private static readonly CURRENT_VERSION = '1.0.0'
   private static readonly BACKUP_KEY = 'music-bubble-explorer-backup'
-  
+
   /**
    * 楽曲データを保存（34.3対応: Firebase専用）
    */
   public static async saveSong(song: Song): Promise<boolean> {
-    return safeExecute(
-      async () => {
-        // Firebase専用モードではFirebaseのみに保存
-        const firebaseSuccess = await DataManager.saveSongToFirebase(song)
-        
-        if (firebaseSuccess) {
-          console.log(`🔥 Song "${song.title}" saved to Firebase`)
-          return true
-        } else {
-          console.error(`❌ Failed to save song "${song.title}" to Firebase`)
-          return false
+    return (
+      safeExecute(
+        async () => {
+          // Firebase専用モードではFirebaseのみに保存
+          const firebaseSuccess = await DataManager.saveSongToFirebase(song)
+
+          if (firebaseSuccess) {
+            console.log(`🔥 Song "${song.title}" saved to Firebase`)
+            return true
+          } else {
+            console.error(`❌ Failed to save song "${song.title}" to Firebase`)
+            return false
+          }
+        },
+        ErrorType.DATA_LOADING,
+        {
+          source: 'DataManager.saveSong',
+          songId: song.id,
+          songTitle: song.title,
         }
-      },
-      ErrorType.DATA_LOADING,
-      { 
-        source: 'DataManager.saveSong',
-        songId: song.id,
-        songTitle: song.title
-      }
-    ) || false
+      ) || false
+    )
   }
 
   /**
@@ -88,7 +90,7 @@ export class DataManager {
 
       const firebaseService = FirebaseServiceClass.getInstance()
       const firebaseId = await firebaseService.addSong(song)
-      
+
       return firebaseId !== null
     } catch (error) {
       console.error('🔥 Firebase save error:', error)
@@ -100,26 +102,30 @@ export class DataManager {
    * 楽曲データを更新（34.3対応: Firebase専用）
    */
   public static async updateSong(song: Song): Promise<boolean> {
-    return safeExecute(
-      async () => {
-        // Firebase専用モードではFirebaseのみを更新
-        const firebaseSuccess = await DataManager.updateSongInFirebase(song)
-        
-        if (firebaseSuccess) {
-          console.log(`🔥 Song "${song.title}" updated in Firebase`)
-          return true
-        } else {
-          console.error(`❌ Failed to update song "${song.title}" in Firebase`)
-          return false
+    return (
+      safeExecute(
+        async () => {
+          // Firebase専用モードではFirebaseのみを更新
+          const firebaseSuccess = await DataManager.updateSongInFirebase(song)
+
+          if (firebaseSuccess) {
+            console.log(`🔥 Song "${song.title}" updated in Firebase`)
+            return true
+          } else {
+            console.error(
+              `❌ Failed to update song "${song.title}" in Firebase`
+            )
+            return false
+          }
+        },
+        ErrorType.DATA_LOADING,
+        {
+          source: 'DataManager.updateSong',
+          songId: song.id,
+          songTitle: song.title,
         }
-      },
-      ErrorType.DATA_LOADING,
-      { 
-        source: 'DataManager.updateSong',
-        songId: song.id,
-        songTitle: song.title
-      }
-    ) || false
+      ) || false
+    )
   }
 
   /**
@@ -144,31 +150,38 @@ export class DataManager {
    * 楽曲データを削除（34.3対応: Firebase専用）
    */
   public static async deleteSong(songId: string): Promise<boolean> {
-    return safeExecute(
-      async () => {
-        // Firebase専用モードではFirebaseのみから削除
-        const firebaseSuccess = await DataManager.deleteSongFromFirebase(songId)
-        
-        if (firebaseSuccess) {
-          console.log(`🔥 Song with ID "${songId}" deleted from Firebase`)
-          return true
-        } else {
-          console.error(`❌ Failed to delete song with ID "${songId}" from Firebase`)
-          return false
+    return (
+      safeExecute(
+        async () => {
+          // Firebase専用モードではFirebaseのみから削除
+          const firebaseSuccess =
+            await DataManager.deleteSongFromFirebase(songId)
+
+          if (firebaseSuccess) {
+            console.log(`🔥 Song with ID "${songId}" deleted from Firebase`)
+            return true
+          } else {
+            console.error(
+              `❌ Failed to delete song with ID "${songId}" from Firebase`
+            )
+            return false
+          }
+        },
+        ErrorType.DATA_LOADING,
+        {
+          source: 'DataManager.deleteSong',
+          songId,
         }
-      },
-      ErrorType.DATA_LOADING,
-      { 
-        source: 'DataManager.deleteSong',
-        songId
-      }
-    ) || false
+      ) || false
+    )
   }
 
   /**
    * Firebaseから楽曲を削除（34.2対応）
    */
-  private static async deleteSongFromFirebase(songId: string): Promise<boolean> {
+  private static async deleteSongFromFirebase(
+    songId: string
+  ): Promise<boolean> {
     try {
       const FirebaseServiceClass = await loadFirebaseService()
       if (!FirebaseServiceClass) {
@@ -187,239 +200,286 @@ export class DataManager {
    * 特定の楽曲データを取得
    */
   public static getSong(songId: string): Song | null {
-    return safeExecute(
-      () => {
-        const currentData = DataManager.loadStorageData()
-        const song = currentData.songs.find(s => s.id === songId)
-        return song || null
-      },
-      ErrorType.DATA_LOADING,
-      { 
-        source: 'DataManager.getSong',
-        songId
-      }
-    ) || null
+    return (
+      safeExecute(
+        () => {
+          const currentData = DataManager.loadStorageData()
+          console.log('🔍 DataManager.getSong:', {
+            searchingForId: songId,
+            totalSongs: currentData.songs.length,
+            songIds: currentData.songs.map(s => ({ id: s.id, title: s.title })),
+          })
+          const song = currentData.songs.find(s => s.id === songId)
+          console.log(
+            '🔍 Found song:',
+            song ? { id: song.id, title: song.title } : 'NOT FOUND'
+          )
+          return song || null
+        },
+        ErrorType.DATA_LOADING,
+        {
+          source: 'DataManager.getSong',
+          songId,
+        }
+      ) || null
+    )
   }
 
   /**
    * 複数の楽曲データを一括保存
    */
   public static saveSongs(songs: Song[]): boolean {
-    return safeExecute(
-      () => {
-        const currentData = DataManager.loadStorageData()
-        
-        // 既存データとマージ
-        songs.forEach(song => {
-          const existingIndex = currentData.songs.findIndex(s => s.id === song.id)
-          if (existingIndex >= 0) {
-            currentData.songs[existingIndex] = song
-          } else {
-            currentData.songs.push(song)
+    return (
+      safeExecute(
+        () => {
+          const currentData = DataManager.loadStorageData()
+
+          // 既存データとマージ
+          songs.forEach(song => {
+            const existingIndex = currentData.songs.findIndex(
+              s => s.id === song.id
+            )
+            if (existingIndex >= 0) {
+              currentData.songs[existingIndex] = song
+            } else {
+              currentData.songs.push(song)
+            }
+          })
+
+          // メタデータを更新
+          currentData.lastUpdated = new Date().toISOString()
+          currentData.metadata = {
+            totalSongs: currentData.songs.length,
+            totalPeople: DataManager.extractPeopleFromSongs(currentData.songs)
+              .length,
+            createdAt:
+              currentData.metadata?.createdAt || new Date().toISOString(),
           }
-        })
-        
-        // メタデータを更新
-        currentData.lastUpdated = new Date().toISOString()
-        currentData.metadata = {
-          totalSongs: currentData.songs.length,
-          totalPeople: DataManager.extractPeopleFromSongs(currentData.songs).length,
-          createdAt: currentData.metadata?.createdAt || new Date().toISOString()
+
+          DataManager.saveStorageData(currentData)
+          console.log(`${songs.length} songs saved successfully`)
+          return true
+        },
+        ErrorType.DATA_LOADING,
+        {
+          source: 'DataManager.saveSongs',
+          songCount: songs.length,
         }
-        
-        DataManager.saveStorageData(currentData)
-        console.log(`${songs.length} songs saved successfully`)
-        return true
-      },
-      ErrorType.DATA_LOADING,
-      { 
-        source: 'DataManager.saveSongs',
-        songCount: songs.length
-      }
-    ) || false
+      ) || false
+    )
   }
 
   /**
    * 保存された楽曲データを読み込み
    */
   public static loadSongs(): Song[] {
-    return safeExecute(
-      () => {
-        const data = DataManager.loadStorageData()
-        console.log(`Loaded ${data.songs.length} songs from storage`)
-        return data.songs
-      },
-      ErrorType.DATA_LOADING,
-      { source: 'DataManager.loadSongs' }
-    ) || []
+    return (
+      safeExecute(
+        () => {
+          const data = DataManager.loadStorageData()
+          console.log(`Loaded ${data.songs.length} songs from storage`)
+          return data.songs
+        },
+        ErrorType.DATA_LOADING,
+        { source: 'DataManager.loadSongs' }
+      ) || []
+    )
   }
 
   /**
    * 完全なMusicDatabaseを読み込み
    */
   public static loadMusicDatabase(): MusicDatabase {
-    return safeExecute(
-      () => {
-        const songs = DataManager.loadSongs()
-        const people = DataManager.extractPeopleFromSongs(songs)
-        const tags = DataManager.extractTagsFromSongs(songs)
-        
-        return {
-          songs,
-          people,
-          tags
-        }
-      },
-      ErrorType.DATA_LOADING,
-      { source: 'DataManager.loadMusicDatabase' }
-    ) || { songs: [], people: [], tags: [] }
+    return (
+      safeExecute(
+        () => {
+          const songs = DataManager.loadSongs()
+          const people = DataManager.extractPeopleFromSongs(songs)
+          const tags = DataManager.extractTagsFromSongs(songs)
+
+          return {
+            songs,
+            people,
+            tags,
+          }
+        },
+        ErrorType.DATA_LOADING,
+        { source: 'DataManager.loadMusicDatabase' }
+      ) || { songs: [], people: [], tags: [] }
+    )
   }
 
   /**
    * データをJSON形式でエクスポート
    */
   public static exportData(): string {
-    return safeExecute(
-      () => {
-        const data = DataManager.loadStorageData()
-        const exportData = {
-          ...data,
-          exportedAt: new Date().toISOString(),
-          exportVersion: DataManager.CURRENT_VERSION
-        }
-        
-        const jsonString = JSON.stringify(exportData, null, 2)
-        console.log('Data exported successfully')
-        return jsonString
-      },
-      ErrorType.DATA_LOADING,
-      { source: 'DataManager.exportData' }
-    ) || '{}'
+    return (
+      safeExecute(
+        () => {
+          const data = DataManager.loadStorageData()
+          const exportData = {
+            ...data,
+            exportedAt: new Date().toISOString(),
+            exportVersion: DataManager.CURRENT_VERSION,
+          }
+
+          const jsonString = JSON.stringify(exportData, null, 2)
+          console.log('Data exported successfully')
+          return jsonString
+        },
+        ErrorType.DATA_LOADING,
+        { source: 'DataManager.exportData' }
+      ) || '{}'
+    )
   }
 
   /**
    * JSON形式のデータをインポート
    */
   public static importData(jsonData: string): boolean {
-    return safeExecute(
-      () => {
-        const importedData = JSON.parse(jsonData)
-        
-        // データの妥当性を検証
-        if (!DataManager.validateImportData(importedData)) {
-          throw new Error('Invalid import data format')
-        }
-        
-        // バックアップを作成
-        DataManager.createBackup()
-        
-        // バージョンマイグレーションを実行
-        const migrationResult = DataManager.migrateData(importedData)
-        if (!migrationResult.success) {
-          throw new Error(`Migration failed: ${migrationResult.errors?.join(', ')}`)
-        }
-        
-        // データを保存
-        const storageData: LocalStorageData = {
-          songs: importedData.songs || [],
-          version: DataManager.CURRENT_VERSION,
-          lastUpdated: new Date().toISOString(),
-          metadata: {
-            totalSongs: importedData.songs?.length || 0,
-            totalPeople: DataManager.extractPeopleFromSongs(importedData.songs || []).length,
-            createdAt: importedData.metadata?.createdAt || new Date().toISOString()
+    return (
+      safeExecute(
+        () => {
+          const importedData = JSON.parse(jsonData)
+
+          // データの妥当性を検証
+          if (!DataManager.validateImportData(importedData)) {
+            throw new Error('Invalid import data format')
           }
+
+          // バックアップを作成
+          DataManager.createBackup()
+
+          // バージョンマイグレーションを実行
+          const migrationResult = DataManager.migrateData(importedData)
+          if (!migrationResult.success) {
+            throw new Error(
+              `Migration failed: ${migrationResult.errors?.join(', ')}`
+            )
+          }
+
+          // データを保存
+          const storageData: LocalStorageData = {
+            songs: importedData.songs || [],
+            version: DataManager.CURRENT_VERSION,
+            lastUpdated: new Date().toISOString(),
+            metadata: {
+              totalSongs: importedData.songs?.length || 0,
+              totalPeople: DataManager.extractPeopleFromSongs(
+                importedData.songs || []
+              ).length,
+              createdAt:
+                importedData.metadata?.createdAt || new Date().toISOString(),
+            },
+          }
+
+          DataManager.saveStorageData(storageData)
+          console.log(
+            `Data imported successfully: ${storageData.songs.length} songs`
+          )
+          return true
+        },
+        ErrorType.DATA_LOADING,
+        {
+          source: 'DataManager.importData',
+          dataLength: jsonData.length,
         }
-        
-        DataManager.saveStorageData(storageData)
-        console.log(`Data imported successfully: ${storageData.songs.length} songs`)
-        return true
-      },
-      ErrorType.DATA_LOADING,
-      { 
-        source: 'DataManager.importData',
-        dataLength: jsonData.length
-      }
-    ) || false
+      ) || false
+    )
   }
 
   /**
    * 保存されたデータを削除
    */
   public static clearData(): boolean {
-    return safeExecute(
-      () => {
-        // バックアップを作成してから削除
-        DataManager.createBackup()
-        
-        localStorage.removeItem(DataManager.STORAGE_KEY)
-        console.log('All data cleared successfully')
-        return true
-      },
-      ErrorType.DATA_LOADING,
-      { source: 'DataManager.clearData' }
-    ) || false
+    return (
+      safeExecute(
+        () => {
+          // バックアップを作成してから削除
+          DataManager.createBackup()
+
+          localStorage.removeItem(DataManager.STORAGE_KEY)
+          console.log('All data cleared successfully')
+          return true
+        },
+        ErrorType.DATA_LOADING,
+        { source: 'DataManager.clearData' }
+      ) || false
+    )
   }
 
   /**
    * データのバックアップを作成
    */
   public static createBackup(): boolean {
-    return safeExecute(
-      () => {
-        const currentData = localStorage.getItem(DataManager.STORAGE_KEY)
-        if (currentData) {
-          const backupData = {
-            data: currentData,
-            backedUpAt: new Date().toISOString()
+    return (
+      safeExecute(
+        () => {
+          const currentData = localStorage.getItem(DataManager.STORAGE_KEY)
+          if (currentData) {
+            const backupData = {
+              data: currentData,
+              backedUpAt: new Date().toISOString(),
+            }
+            localStorage.setItem(
+              DataManager.BACKUP_KEY,
+              JSON.stringify(backupData)
+            )
+            console.log('Backup created successfully')
           }
-          localStorage.setItem(DataManager.BACKUP_KEY, JSON.stringify(backupData))
-          console.log('Backup created successfully')
-        }
-        return true
-      },
-      ErrorType.DATA_LOADING,
-      { source: 'DataManager.createBackup' }
-    ) || false
+          return true
+        },
+        ErrorType.DATA_LOADING,
+        { source: 'DataManager.createBackup' }
+      ) || false
+    )
   }
 
   /**
    * バックアップからデータを復元
    */
   public static restoreFromBackup(): boolean {
-    return safeExecute(
-      () => {
-        const backupData = localStorage.getItem(DataManager.BACKUP_KEY)
-        if (!backupData) {
-          throw new Error('No backup data found')
-        }
-        
-        const backup = JSON.parse(backupData)
-        localStorage.setItem(DataManager.STORAGE_KEY, backup.data)
-        console.log('Data restored from backup successfully')
-        return true
-      },
-      ErrorType.DATA_LOADING,
-      { source: 'DataManager.restoreFromBackup' }
-    ) || false
+    return (
+      safeExecute(
+        () => {
+          const backupData = localStorage.getItem(DataManager.BACKUP_KEY)
+          if (!backupData) {
+            throw new Error('No backup data found')
+          }
+
+          const backup = JSON.parse(backupData)
+          localStorage.setItem(DataManager.STORAGE_KEY, backup.data)
+          console.log('Data restored from backup successfully')
+          return true
+        },
+        ErrorType.DATA_LOADING,
+        { source: 'DataManager.restoreFromBackup' }
+      ) || false
+    )
   }
 
   /**
    * ストレージの使用量を取得（概算）
    */
-  public static getStorageUsage(): { used: number; available: number; percentage: number } {
-    return safeExecute(
-      () => {
-        const data = localStorage.getItem(DataManager.STORAGE_KEY)
-        const used = data ? new Blob([data]).size : 0
-        const available = 5 * 1024 * 1024 // 5MB (LocalStorageの一般的な制限)
-        const percentage = (used / available) * 100
-        
-        return { used, available, percentage }
-      },
-      ErrorType.DATA_LOADING,
-      { source: 'DataManager.getStorageUsage' }
-    ) || { used: 0, available: 0, percentage: 0 }
+  public static getStorageUsage(): {
+    used: number
+    available: number
+    percentage: number
+  } {
+    return (
+      safeExecute(
+        () => {
+          const data = localStorage.getItem(DataManager.STORAGE_KEY)
+          const used = data ? new Blob([data]).size : 0
+          const available = 5 * 1024 * 1024 // 5MB (LocalStorageの一般的な制限)
+          const percentage = (used / available) * 100
+
+          return { used, available, percentage }
+        },
+        ErrorType.DATA_LOADING,
+        { source: 'DataManager.getStorageUsage' }
+      ) || { used: 0, available: 0, percentage: 0 }
+    )
   }
 
   // Private helper methods
@@ -429,28 +489,31 @@ export class DataManager {
    */
   private static loadStorageData(): LocalStorageData {
     const stored = localStorage.getItem(DataManager.STORAGE_KEY)
-    
+
     if (!stored) {
       return {
         songs: [],
         version: DataManager.CURRENT_VERSION,
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       }
     }
-    
+
     try {
       const data = JSON.parse(stored)
-      
+
       // バージョンマイグレーションを実行
       const migrationResult = DataManager.migrateData(data)
       if (migrationResult.success) {
         return data
       } else {
-        console.warn('Migration failed, returning empty data:', migrationResult.errors)
+        console.warn(
+          'Migration failed, returning empty data:',
+          migrationResult.errors
+        )
         return {
           songs: [],
           version: DataManager.CURRENT_VERSION,
-          lastUpdated: new Date().toISOString()
+          lastUpdated: new Date().toISOString(),
         }
       }
     } catch (error) {
@@ -458,7 +521,7 @@ export class DataManager {
       return {
         songs: [],
         version: DataManager.CURRENT_VERSION,
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
       }
     }
   }
@@ -481,7 +544,7 @@ export class DataManager {
    */
   private static extractPeopleFromSongs(songs: Song[]): Person[] {
     const peopleMap = new Map<string, Person>()
-    
+
     songs.forEach(song => {
       // 作詞家を追加
       song.lyricists.forEach(name => {
@@ -491,12 +554,12 @@ export class DataManager {
             id,
             name,
             type: 'lyricist',
-            songs: []
+            songs: [],
           })
         }
         peopleMap.get(id)!.songs.push(song.id)
       })
-      
+
       // 作曲家を追加
       song.composers.forEach(name => {
         const id = `composer-${name}`
@@ -505,12 +568,12 @@ export class DataManager {
             id,
             name,
             type: 'composer',
-            songs: []
+            songs: [],
           })
         }
         peopleMap.get(id)!.songs.push(song.id)
       })
-      
+
       // 編曲家を追加
       song.arrangers.forEach(name => {
         const id = `arranger-${name}`
@@ -519,13 +582,13 @@ export class DataManager {
             id,
             name,
             type: 'arranger',
-            songs: []
+            songs: [],
           })
         }
         peopleMap.get(id)!.songs.push(song.id)
       })
     })
-    
+
     return Array.from(peopleMap.values())
   }
 
@@ -534,7 +597,7 @@ export class DataManager {
    */
   private static extractTagsFromSongs(songs: Song[]): Tag[] {
     const tagMap = new Map<string, Set<string>>()
-    
+
     songs.forEach(song => {
       if (song.tags && song.tags.length > 0) {
         song.tags.forEach(tagName => {
@@ -545,11 +608,11 @@ export class DataManager {
         })
       }
     })
-    
+
     return Array.from(tagMap.entries()).map(([tagName, songIds]) => ({
       id: `tag-${tagName}`,
       name: tagName,
-      songs: Array.from(songIds)
+      songs: Array.from(songIds),
     }))
   }
 
@@ -560,19 +623,21 @@ export class DataManager {
     if (!data || typeof data !== 'object') {
       return false
     }
-    
+
     if (!Array.isArray(data.songs)) {
       return false
     }
-    
+
     // 各楽曲データの妥当性をチェック
     return data.songs.every((song: any) => {
-      return song &&
+      return (
+        song &&
         typeof song.id === 'string' &&
         typeof song.title === 'string' &&
         Array.isArray(song.lyricists) &&
         Array.isArray(song.composers) &&
         Array.isArray(song.arrangers)
+      )
     })
   }
 
@@ -582,50 +647,52 @@ export class DataManager {
   private static migrateData(data: any): MigrationResult {
     try {
       const currentVersion = data.version || '0.0.0'
-      
+
       // 現在のバージョンと同じ場合はマイグレーション不要
       if (currentVersion === DataManager.CURRENT_VERSION) {
         return {
           success: true,
-          migratedTo: DataManager.CURRENT_VERSION
+          migratedTo: DataManager.CURRENT_VERSION,
         }
       }
-      
+
       // バージョン0.0.0から1.0.0へのマイグレーション
       if (currentVersion === '0.0.0') {
         // メタデータが存在しない場合は追加
         if (!data.metadata) {
           data.metadata = {
             totalSongs: data.songs?.length || 0,
-            totalPeople: DataManager.extractPeopleFromSongs(data.songs || []).length,
-            createdAt: new Date().toISOString()
+            totalPeople: DataManager.extractPeopleFromSongs(data.songs || [])
+              .length,
+            createdAt: new Date().toISOString(),
           }
         }
-        
+
         // バージョンを更新
         data.version = DataManager.CURRENT_VERSION
         data.lastUpdated = new Date().toISOString()
-        
+
         return {
           success: true,
           migratedFrom: '0.0.0',
-          migratedTo: DataManager.CURRENT_VERSION
+          migratedTo: DataManager.CURRENT_VERSION,
         }
       }
-      
+
       // 未知のバージョンの場合
       console.warn(`Unknown version: ${currentVersion}`)
       return {
         success: true,
         migratedFrom: currentVersion,
-        migratedTo: DataManager.CURRENT_VERSION
+        migratedTo: DataManager.CURRENT_VERSION,
       }
-      
     } catch (error) {
       return {
         success: false,
         migratedTo: DataManager.CURRENT_VERSION,
-        errors: [error instanceof Error ? error.message : 'Unknown migration error']
+        errors: [
+          error instanceof Error ? error.message : 'Unknown migration error',
+        ],
       }
     }
   }
@@ -634,22 +701,24 @@ export class DataManager {
    * 全てのタグ名を取得
    */
   public static getAllTags(): string[] {
-    return safeExecute(
-      () => {
-        const songs = DataManager.loadSongs()
-        const tagSet = new Set<string>()
-        
-        songs.forEach(song => {
-          if (song.tags && song.tags.length > 0) {
-            song.tags.forEach(tag => tagSet.add(tag))
-          }
-        })
-        
-        return Array.from(tagSet).sort()
-      },
-      ErrorType.DATA_LOADING,
-      { source: 'DataManager.getAllTags' }
-    ) || []
+    return (
+      safeExecute(
+        () => {
+          const songs = DataManager.loadSongs()
+          const tagSet = new Set<string>()
+
+          songs.forEach(song => {
+            if (song.tags && song.tags.length > 0) {
+              song.tags.forEach(tag => tagSet.add(tag))
+            }
+          })
+
+          return Array.from(tagSet).sort()
+        },
+        ErrorType.DATA_LOADING,
+        { source: 'DataManager.getAllTags' }
+      ) || []
+    )
   }
 
   /**
@@ -662,28 +731,30 @@ export class DataManager {
     lastUpdated: string
     version: string
   } {
-    return safeExecute(
-      () => {
-        const data = DataManager.loadStorageData()
-        const storageUsage = DataManager.getStorageUsage()
-        
-        return {
-          songCount: data.songs.length,
-          peopleCount: DataManager.extractPeopleFromSongs(data.songs).length,
-          storageUsage,
-          lastUpdated: data.lastUpdated,
-          version: data.version
-        }
-      },
-      ErrorType.DATA_LOADING,
-      { source: 'DataManager.getDataStats' }
-    ) || {
-      songCount: 0,
-      peopleCount: 0,
-      storageUsage: { used: 0, available: 0, percentage: 0 },
-      lastUpdated: new Date().toISOString(),
-      version: DataManager.CURRENT_VERSION
-    }
+    return (
+      safeExecute(
+        () => {
+          const data = DataManager.loadStorageData()
+          const storageUsage = DataManager.getStorageUsage()
+
+          return {
+            songCount: data.songs.length,
+            peopleCount: DataManager.extractPeopleFromSongs(data.songs).length,
+            storageUsage,
+            lastUpdated: data.lastUpdated,
+            version: data.version,
+          }
+        },
+        ErrorType.DATA_LOADING,
+        { source: 'DataManager.getDataStats' }
+      ) || {
+        songCount: 0,
+        peopleCount: 0,
+        storageUsage: { used: 0, available: 0, percentage: 0 },
+        lastUpdated: new Date().toISOString(),
+        version: DataManager.CURRENT_VERSION,
+      }
+    )
   }
 
   /**
@@ -700,13 +771,13 @@ export class DataManager {
         return {
           isConnected: false,
           error: 'Firebase service not available',
-          details: { reason: 'Service not loaded' }
+          details: { reason: 'Service not loaded' },
         }
       }
 
       const firebaseService = FirebaseServiceClass.getInstance()
       const isConnected = await firebaseService.checkConnection()
-      
+
       if (isConnected) {
         const stats = await firebaseService.getStats()
         return {
@@ -715,24 +786,24 @@ export class DataManager {
           details: {
             totalSongs: stats.totalSongs,
             totalTags: stats.totalTags.size,
-            recentSongsCount: stats.recentSongsCount
-          }
+            recentSongsCount: stats.recentSongsCount,
+          },
         }
       } else {
         return {
           isConnected: false,
           error: 'Firebase connection failed',
-          details: { reason: 'Connection test failed' }
+          details: { reason: 'Connection test failed' },
         }
       }
     } catch (error) {
       return {
         isConnected: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        details: { 
+        details: {
           error: error instanceof Error ? error.message : String(error),
-          stack: error instanceof Error ? error.stack : undefined
-        }
+          stack: error instanceof Error ? error.stack : undefined,
+        },
       }
     }
   }
@@ -756,7 +827,7 @@ export class DataManager {
       }
 
       const firebaseService = FirebaseServiceClass.getInstance()
-      
+
       // 接続チェック
       const isConnected = await firebaseService.checkConnection()
       if (!isConnected) {
@@ -766,7 +837,7 @@ export class DataManager {
 
       // ローカルの楽曲を取得
       const localSongs = DataManager.loadSongs()
-      
+
       // Firebaseの楽曲を取得
       const firebaseSongs = await firebaseService.getAllSongs()
       const firebaseIds = new Set(firebaseSongs.map((s: any) => s.id))
@@ -782,7 +853,9 @@ export class DataManager {
               errors.push(`Failed to sync song: ${song.title}`)
             }
           } catch (error) {
-            errors.push(`Error syncing song ${song.title}: ${error instanceof Error ? error.message : String(error)}`)
+            errors.push(
+              `Error syncing song ${song.title}: ${error instanceof Error ? error.message : String(error)}`
+            )
           }
         }
       }
@@ -790,10 +863,12 @@ export class DataManager {
       return {
         success: errors.length === 0,
         syncedSongs,
-        errors
+        errors,
       }
     } catch (error) {
-      errors.push(`Sync error: ${error instanceof Error ? error.message : String(error)}`)
+      errors.push(
+        `Sync error: ${error instanceof Error ? error.message : String(error)}`
+      )
       return { success: false, syncedSongs: 0, errors }
     }
   }
@@ -809,16 +884,19 @@ export class DataManager {
     if (typeof navigator === 'undefined' || typeof window === 'undefined') {
       return {
         isOnline: true,
-        connectionType: 'unknown'
+        connectionType: 'unknown',
       }
     }
 
-    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection
-    
+    const connection =
+      (navigator as any).connection ||
+      (navigator as any).mozConnection ||
+      (navigator as any).webkitConnection
+
     return {
       isOnline: navigator.onLine,
       connectionType: connection?.type || 'unknown',
-      effectiveType: connection?.effectiveType || undefined
+      effectiveType: connection?.effectiveType || undefined,
     }
   }
 
@@ -841,7 +919,7 @@ export class DataManager {
         'music-bubble-explorer-songs', // 古いキー
         'music-data', // 古いキー
         'bubble-data', // 古いキー
-        'shared-music-data' // 共有データキー
+        'shared-music-data', // 共有データキー
       ]
 
       keysToRemove.forEach(key => {
@@ -853,7 +931,9 @@ export class DataManager {
             console.log(`🗑️ Cleared localStorage key: ${key}`)
           }
         } catch (error) {
-          errors.push(`Failed to clear ${key}: ${error instanceof Error ? error.message : String(error)}`)
+          errors.push(
+            `Failed to clear ${key}: ${error instanceof Error ? error.message : String(error)}`
+          )
         }
       })
 
@@ -869,20 +949,24 @@ export class DataManager {
           }
         })
       } catch (error) {
-        errors.push(`Failed to clear sessionStorage: ${error instanceof Error ? error.message : String(error)}`)
+        errors.push(
+          `Failed to clear sessionStorage: ${error instanceof Error ? error.message : String(error)}`
+        )
       }
 
       return {
         success: errors.length === 0,
         clearedItems,
-        errors
+        errors,
       }
     } catch (error) {
-      errors.push(`General error: ${error instanceof Error ? error.message : String(error)}`)
+      errors.push(
+        `General error: ${error instanceof Error ? error.message : String(error)}`
+      )
       return {
         success: false,
         clearedItems,
-        errors
+        errors,
       }
     }
   }
@@ -901,7 +985,7 @@ export class DataManager {
     try {
       // ローカルストレージから既存データを取得
       const localData = DataManager.loadStorageData()
-      
+
       if (localData.songs.length === 0) {
         console.log('📭 No local songs to migrate')
         return { success: true, migratedSongs: 0, errors: [] }
@@ -918,7 +1002,7 @@ export class DataManager {
 
       const firebaseService = FirebaseServiceClass.getInstance()
       const isConnected = await firebaseService.checkConnection()
-      
+
       if (!isConnected) {
         errors.push('Firebase connection failed')
         return { success: false, migratedSongs: 0, errors }
@@ -943,27 +1027,36 @@ export class DataManager {
             console.log(`⏭️ Song already exists in Firebase: ${song.title}`)
           }
         } catch (error) {
-          errors.push(`Error migrating song ${song.title}: ${error instanceof Error ? error.message : String(error)}`)
+          errors.push(
+            `Error migrating song ${song.title}: ${error instanceof Error ? error.message : String(error)}`
+          )
         }
       }
 
       // 移行完了後、ローカルストレージをクリア
-      if (migratedSongs > 0 || localData.songs.length === existingSongs.length) {
+      if (
+        migratedSongs > 0 ||
+        localData.songs.length === existingSongs.length
+      ) {
         const clearResult = DataManager.clearLocalStorageData()
         if (!clearResult.success) {
           errors.push(...clearResult.errors)
         } else {
-          console.log(`🗑️ Cleared local storage: ${clearResult.clearedItems.join(', ')}`)
+          console.log(
+            `🗑️ Cleared local storage: ${clearResult.clearedItems.join(', ')}`
+          )
         }
       }
 
       return {
         success: errors.length === 0,
         migratedSongs,
-        errors
+        errors,
       }
     } catch (error) {
-      errors.push(`Migration error: ${error instanceof Error ? error.message : String(error)}`)
+      errors.push(
+        `Migration error: ${error instanceof Error ? error.message : String(error)}`
+      )
       return { success: false, migratedSongs: 0, errors }
     }
   }

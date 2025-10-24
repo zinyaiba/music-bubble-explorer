@@ -1,0 +1,555 @@
+/* SongSelectionView コンポーネントのスタイル */
+.song-selection-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 70vh;
+  overflow: hidden;
+}
+
+/* 検索・フィルターセクション */
+.search-filter-section {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #fafafa;
+}
+
+.search-input-container {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 40px 12px 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  pointer-events: none;
+}
+
+/* 検索候補 */
+.search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.search-suggestion {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.search-suggestion:hover {
+  background: #f0f0f0;
+}
+
+.search-suggestion:focus {
+  background: #e3f2fd;
+  outline: none;
+}
+
+/* タグフィルターセクション */
+.tag-filter-section {
+  margin-top: 12px;
+}
+
+.tag-filter-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.clear-tags-button {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  background: white;
+  color: #666;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clear-tags-button:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
+}
+
+.tag-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-filter-chip {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tag-filter-chip:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
+}
+
+.tag-filter-chip.active {
+  background: #4caf50;
+  color: white;
+  border-color: #4caf50;
+}
+
+/* コントロールセクション */
+.controls-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background: white;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.view-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.view-mode-button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.view-mode-button:hover {
+  background: #f0f0f0;
+}
+
+.view-mode-button.active {
+  background: #4caf50;
+  color: white;
+  border-color: #4caf50;
+}
+
+.sort-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-select {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.results-info {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.filter-indicator {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+/* 楽曲コンテナ */
+.songs-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* リスト表示 */
+.songs-container.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.songs-container.list .song-item {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+/* グリッド表示 */
+.songs-container.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.songs-container.grid .song-item {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  min-height: 120px;
+}
+
+/* 楽曲アイテム共通スタイル */
+.song-item:hover {
+  border-color: #4caf50;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.song-item:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.song-main-info {
+  flex: 1;
+}
+
+.song-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.song-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.song-credit {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.3;
+}
+
+.song-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.tag-chip {
+  padding: 4px 8px;
+  background: #f0f0f0;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.song-select-indicator {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  background: #4caf50;
+  color: white;
+  border-radius: 4px;
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.song-item:hover .song-select-indicator {
+  opacity: 1;
+}
+
+/* 楽曲なしメッセージ */
+.no-songs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #666;
+  font-size: 16px;
+  text-align: center;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin: 16px;
+  gap: 12px;
+}
+
+.clear-search-button {
+  padding: 8px 16px;
+  border: 1px solid #4caf50;
+  background: white;
+  color: #4caf50;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.clear-search-button:hover {
+  background: #4caf50;
+  color: white;
+}
+
+/* ページネーション */
+.pagination-section {
+  padding: 16px;
+  border-top: 1px solid #e0e0e0;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-controls {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.pagination-button {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  min-width: 40px;
+  transition: all 0.2s ease;
+}
+
+.pagination-button:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
+}
+
+.pagination-button.active {
+  background: #4caf50;
+  color: white;
+  border-color: #4caf50;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 12px;
+  color: #666;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .song-selection-container {
+    max-height: 60vh;
+  }
+
+  .search-filter-section {
+    padding: 12px;
+  }
+
+  .controls-section {
+    padding: 8px 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .view-controls {
+    justify-content: center;
+  }
+
+  .sort-controls {
+    justify-content: center;
+  }
+
+  .results-info {
+    text-align: center;
+  }
+
+  /* モバイルでのグリッド表示調整 */
+  .songs-container.grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 8px;
+  }
+
+  .songs-container {
+    padding: 4px;
+  }
+
+  .song-item {
+    padding: 12px;
+  }
+
+  .song-title {
+    font-size: 15px;
+  }
+
+  .song-credit {
+    font-size: 12px;
+  }
+
+  /* タッチ操作の改善 */
+  .song-item {
+    min-height: 44px; /* タッチターゲットの最小サイズ */
+  }
+
+  .view-mode-button,
+  .pagination-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .tag-filter-chip {
+    min-height: 32px;
+    padding: 8px 12px;
+  }
+
+  /* ページネーションをモバイル向けに調整 */
+  .pagination-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* 小さなモバイル画面 */
+@media (max-width: 480px) {
+  .songs-container.grid {
+    grid-template-columns: 1fr;
+  }
+
+  .controls-section {
+    padding: 8px;
+  }
+
+  .song-details {
+    font-size: 12px;
+  }
+
+  .tag-filter-chips {
+    max-height: 80px;
+    overflow-y: auto;
+  }
+}
+
+/* アクセシビリティ対応 */
+.song-item:focus {
+  outline: 2px solid #4caf50;
+  outline-offset: 2px;
+}
+
+.view-mode-button:focus,
+.pagination-button:focus,
+.tag-filter-chip:focus {
+  outline: 2px solid #4caf50;
+  outline-offset: 2px;
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  .song-item {
+    border-width: 2px;
+  }
+
+  .tag-chip {
+    border: 1px solid #666;
+  }
+
+  .pagination-button,
+  .view-mode-button {
+    border-width: 2px;
+  }
+}
+
+/* ダークモード対応の準備 */
+@media (prefers-color-scheme: dark) {
+  .search-filter-section {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+
+  .search-input {
+    background: #333;
+    color: white;
+    border-color: #555;
+  }
+
+  .song-item {
+    background: #333;
+    border-color: #555;
+    color: white;
+  }
+
+  .controls-section {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+
+  .pagination-section {
+    background: #2a2a2a;
+    border-color: #444;
+  }
+}

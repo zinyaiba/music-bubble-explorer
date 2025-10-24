@@ -2,7 +2,9 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { Song } from '@/types/music'
 import { MusicDataService } from '@/services/musicDataService'
 import { DataManager } from '@/services/dataManager'
-import TagInput from './TagInput'
+import { TagRegistrationService } from '@/services/tagRegistrationService'
+
+import TagSelectionView from './TagSelectionView'
 import './TagRegistrationDialog.css'
 
 interface TagRegistrationDialogProps {
@@ -47,21 +49,72 @@ export const TagRegistrationDialog: React.FC<TagRegistrationDialogProps> = ({
   // 楽曲データとタグデータを読み込み
   useEffect(() => {
     if (isVisible) {
-      const musicService = MusicDataService.getInstance()
-      const allSongs = musicService.getAllSongs()
-      const allTags = DataManager.getAllTags()
+      const loadData = async () => {
+        const musicService = MusicDataService.getInstance()
 
-      setSongs(allSongs)
-      setFilteredSongs(allSongs)
-      setState(prev => ({
-        ...prev,
-        availableTags: allTags,
-        step: 'song-selection',
-        selectedSong: null,
-        selectedTags: [],
-        newTags: [],
-        searchTerm: '',
-      }))
+        // Firebaseからデータを読み込み
+        await musicService.loadFromFirebase()
+
+        const allSongs = musicService.getAllSongs()
+
+        // 複数のソースからデータを取得
+        const loadedSongs = DataManager.loadSongs()
+        const musicDatabase = DataManager.loadMusicDatabase()
+        const serviceTags = musicService.getAllTags()
+
+        console.log('🎵 Loading song data from multiple sources:', {
+          musicServiceSongs: allSongs.length,
+          dataManagerSongs: loadedSongs.length,
+          musicServiceTags: serviceTags.length,
+          dataManagerTags: musicDatabase.tags.length,
+        })
+
+        // より多くのデータがある方を使用
+        const finalSongs =
+          allSongs.length > loadedSongs.length ? allSongs : loadedSongs
+        const finalTags =
+          serviceTags.length > musicDatabase.tags.length
+            ? serviceTags
+            : musicDatabase.tags
+
+        console.log('🎵 Selected data source:', {
+          finalSongs: finalSongs.length,
+          sampleSongs: finalSongs
+            .slice(0, 3)
+            .map(s => ({ id: s.id, title: s.title })),
+        })
+
+        // タグデータを抽出
+        let availableTags: string[] = []
+
+        if (finalTags.length > 0) {
+          // Tag配列からタグ名を抽出
+          availableTags = finalTags.map(tag => tag.name)
+        } else {
+          // 手動でタグを抽出
+          const manualTags = new Set<string>()
+          finalSongs.forEach(song => {
+            if (song.tags && song.tags.length > 0) {
+              song.tags.forEach(tag => manualTags.add(tag))
+            }
+          })
+          availableTags = Array.from(manualTags)
+        }
+
+        setSongs(finalSongs)
+        setFilteredSongs(finalSongs)
+        setState(prev => ({
+          ...prev,
+          availableTags: availableTags,
+          step: 'song-selection',
+          selectedSong: null,
+          selectedTags: [],
+          newTags: [],
+          searchTerm: '',
+        }))
+      }
+
+      loadData()
     }
   }, [isVisible])
 
@@ -93,6 +146,12 @@ export const TagRegistrationDialog: React.FC<TagRegistrationDialogProps> = ({
 
   // 楽曲選択ハンドラー
   const handleSongSelect = useCallback((song: Song) => {
+    console.log('🎵 Selected song:', {
+      id: song.id,
+      title: song.title,
+      hasId: !!song.id,
+      idType: typeof song.id,
+    })
     setState(prev => ({
       ...prev,
       selectedSong: song,
@@ -131,26 +190,31 @@ export const TagRegistrationDialog: React.FC<TagRegistrationDialogProps> = ({
   const handleRegisterTags = useCallback(async () => {
     if (!state.selectedSong) return
 
+    console.log('🏷️ Registering tags for song:', {
+      songId: state.selectedSong.id,
+      songTitle: state.selectedSong.title,
+      selectedTags: state.selectedTags,
+      hasId: !!state.selectedSong.id,
+      idType: typeof state.selectedSong.id,
+    })
+
     setIsLoading(true)
     setError(null)
 
     try {
-      const updatedSong: Song = {
-        ...state.selectedSong,
-        tags: state.selectedTags,
-      }
+      const tagService = TagRegistrationService.getInstance()
+      const result = await tagService.replaceTagsForSong(
+        state.selectedSong.id,
+        state.selectedTags
+      )
 
-      const success = await DataManager.updateSong(updatedSong)
-
-      if (success) {
-        // MusicDataServiceのキャッシュをクリア
-        const musicService = MusicDataService.getInstance()
-        musicService.clearCache()
-
+      if (result.success && result.updatedSong) {
         onTagsRegistered(state.selectedSong.id, state.selectedTags)
         onClose()
       } else {
-        throw new Error('タグの登録に失敗しました')
+        const errorMessage =
+          result.errorMessages?.join(', ') || 'タグの登録に失敗しました'
+        throw new Error(errorMessage)
       }
     } catch (err) {
       const errorMessage =
@@ -175,7 +239,7 @@ export const TagRegistrationDialog: React.FC<TagRegistrationDialogProps> = ({
       )}
 
       {state.step === 'tag-registration' && state.selectedSong && (
-        <TagRegistrationView
+        <TagSelectionView
           song={state.selectedSong}
           selectedTags={state.selectedTags}
           availableTags={state.availableTags}
@@ -263,95 +327,6 @@ const SongSelectionView: React.FC<SongSelectionViewProps> = ({
             </div>
           ))
         )}
-      </div>
-    </div>
-  )
-}
-
-/**
- * タグ登録ビューコンポーネント
- * Requirements: 1.2, 1.3, 1.4, 1.5
- */
-interface TagRegistrationViewProps {
-  song: Song
-  selectedTags: string[]
-  availableTags: string[]
-  onTagsChange: (tags: string[]) => void
-  onBack: () => void
-  onRegister: () => void
-  isLoading: boolean
-  error: string | null
-}
-
-const TagRegistrationView: React.FC<TagRegistrationViewProps> = ({
-  song,
-  selectedTags,
-  availableTags,
-  onTagsChange,
-  onBack,
-  onRegister,
-  isLoading,
-  error,
-}) => {
-  return (
-    <div className="tag-registration-view">
-      <div className="selected-song-info">
-        <h3 className="song-title">{song.title}</h3>
-        <div className="song-credits">
-          {song.lyricists.length > 0 && (
-            <div>作詞: {song.lyricists.join(', ')}</div>
-          )}
-          {song.composers.length > 0 && (
-            <div>作曲: {song.composers.join(', ')}</div>
-          )}
-          {song.arrangers.length > 0 && (
-            <div>編曲: {song.arrangers.join(', ')}</div>
-          )}
-        </div>
-      </div>
-
-      <div className="tag-input-section">
-        <label htmlFor="tag-input">タグ</label>
-        <TagInput
-          id="tag-input"
-          tags={selectedTags}
-          onTagsChange={onTagsChange}
-          existingTags={availableTags}
-          maxTags={10}
-          placeholder="タグを入力してください（例: バラード, アニメ, 感動）"
-          disabled={isLoading}
-        />
-        <div className="help-text">
-          ジャンルやテーマを個別に入力してください。既存のタグは候補として表示されます。
-        </div>
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-
-      <div className="button-group">
-        <button
-          type="button"
-          onClick={onBack}
-          className="secondary-button"
-          disabled={isLoading}
-        >
-          戻る
-        </button>
-        <button
-          type="button"
-          onClick={onRegister}
-          className="primary-button"
-          disabled={isLoading}
-        >
-          {isLoading ? (
-            <>
-              <span className="loading-spinner"></span>
-              登録中...
-            </>
-          ) : (
-            'タグを登録'
-          )}
-        </button>
       </div>
     </div>
   )

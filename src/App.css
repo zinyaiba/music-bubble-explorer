@@ -268,7 +268,7 @@
 }
 
 .main-canvas::before {
-  content: '🫧';
+  /* content: '🫧'; */
   position: absolute;
   top: -15px;
   left: 20px;
@@ -304,7 +304,7 @@
 }
 
 .instructions::before {
-  content: '💡';
+  /* content: '💡'; */
   position: absolute;
   top: -8px;
   right: 20px;
