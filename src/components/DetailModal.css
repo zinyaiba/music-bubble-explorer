@@ -1,44 +1,33 @@
-/* Detail Modal Styles */
+/* Detail Modal Content Styles - UnifiedDialogLayoutと統合 */
 
 .detail-modal-content {
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: linear-gradient(135deg, #FAFAFA 0%, #FFF0F5 50%, #F0FFF0 100%);
-  position: relative;
+  min-height: 200px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 105, 180, 0.3) transparent;
 }
 
-.main-info {
-  border-bottom: 2px solid rgba(255, 182, 193, 0.2);
-  padding-bottom: 12px;
-  background: linear-gradient(135deg, rgba(255, 240, 245, 0.8) 0%, rgba(240, 255, 240, 0.8) 100%);
-  border-radius: 15px;
-  padding: 16px;
-  margin: -8px -8px 8px -8px;
+.detail-modal-content::-webkit-scrollbar {
+  width: 6px;
 }
 
-.main-title {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: #FF69B4;
-  text-shadow: 0 2px 4px rgba(255, 105, 180, 0.2);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+.detail-modal-content::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.multi-role-indicator {
-  display: inline-block;
-  margin-left: 12px;
-  padding: 4px 8px;
-  background: linear-gradient(135deg, #ff69b4, #ff1493);
-  color: white;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
+.detail-modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 105, 180, 0.3);
+  border-radius: 3px;
+}
+
+.detail-modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 105, 180, 0.5);
 }
 
 .section-title {
@@ -57,6 +46,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
+  min-height: 200px;
 }
 
 .tag-info {
@@ -73,27 +64,38 @@
   font-weight: 600;
   color: #ff69b4;
   margin-bottom: 4px;
+  text-shadow: 0 1px 2px rgba(255, 105, 180, 0.1);
 }
 
 .tag-description {
-  font-size: 12px;
-  color: #666;
+  font-size: 13px;
+  color: #FF69B4;
+  font-weight: 500;
+  background: linear-gradient(135deg, rgba(255, 240, 245, 0.8) 0%, rgba(240, 255, 240, 0.8) 100%);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 182, 193, 0.2);
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(255, 182, 193, 0.1);
 }
 
 .related-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: 250px;
+  gap: 8px;
+  max-height: calc(100vh - 280px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
+  min-height: 200px;
 }
 
 .related-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 240, 245, 0.9) 100%);
   border: 2px solid transparent;
   border-radius: 12px;
@@ -101,34 +103,16 @@
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(255, 182, 193, 0.1);
   position: relative;
-  overflow: hidden;
-  min-height: 48px;
-}
-
-.related-item::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, #FFB6C1, #98FB98, #DDA0DD);
-  border-radius: 12px;
-  padding: 2px;
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  z-index: -1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  overflow: visible;
+  min-height: 52px;
+  width: 100%;
+  box-sizing: border-box;
+  flex-wrap: nowrap;
 }
 
 .related-item:hover {
   transform: translateY(-2px) scale(1.01);
   box-shadow: 0 4px 12px rgba(255, 182, 193, 0.2);
-}
-
-.related-item:hover::before {
-  opacity: 1;
 }
 
 .related-item:focus {
@@ -138,17 +122,19 @@
 }
 
 .role-tag {
-  padding: 6px 12px;
+  padding: 8px 14px;
   border-radius: 15px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: white;
   flex-shrink: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  min-height: 24px;
+  min-height: 28px;
+  min-width: 60px;
   display: flex;
   align-items: center;
   justify-content: center;
+  text-align: center;
 }
 
 .role-tag.role-lyricist {
@@ -168,12 +154,18 @@
 }
 
 .item-name {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #FF69B4;
   text-shadow: 0 1px 2px rgba(255, 105, 180, 0.1);
   flex: 1;
-  word-break: break-word;
+  text-align: left;
+  line-height: 1.4;
+  width: 100%;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .item-details {
@@ -185,52 +177,49 @@
 
 .empty-message {
   text-align: center;
-  padding: 30px 20px;
+  padding: 40px 20px;
   color: #FF69B4;
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
   background: linear-gradient(135deg, rgba(255, 240, 245, 0.8) 0%, rgba(240, 255, 240, 0.8) 100%);
   border-radius: 15px;
   border: 2px dashed rgba(255, 182, 193, 0.4);
   position: relative;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Mobile Responsive - タグ一覧ダイアログと統一 */
+/* モバイル対応 */
 @media (max-width: 768px) {
   .detail-modal-content {
     gap: 12px;
   }
   
-  .main-info {
-    padding: 12px;
-    margin: -4px -4px 4px -4px;
-  }
-  
-  .main-title {
-    font-size: 1.2rem;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-  }
-  
-  .multi-role-indicator {
-    margin-left: 0;
-    align-self: flex-start;
-  }
-  
   .related-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
-    padding: 8px 10px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    min-height: 56px;
   }
   
   .role-tag {
-    align-self: flex-start;
+    flex-shrink: 0;
+    min-width: 55px;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+  }
+  
+  .item-name {
+    font-size: 0.95rem;
+    text-align: left;
   }
   
   .related-list {
-    max-height: 200px;
+    max-height: 350px;
   }
   
   .tag-info {
@@ -241,14 +230,7 @@
 @media (max-width: 480px) {
   .detail-modal-content {
     gap: 10px;
-  }
-  
-  .main-info {
-    padding: 10px;
-  }
-  
-  .main-title {
-    font-size: 1.1rem;
+    max-height: calc(100vh - 180px);
   }
   
   .section-title {
@@ -275,9 +257,32 @@
     padding: 20px 15px;
     font-size: 0.85rem;
   }
+  
+  .related-list {
+    max-height: calc(100vh - 220px);
+    min-height: 150px;
+  }
+  
+  .tag-song-item {
+    padding: 12px;
+  }
+  
+  .credit-line {
+    font-size: 0.75rem;
+  }
+  
+  .song-info {
+    gap: 6px;
+  }
+  
+  .song-credits {
+    gap: 3px;
+  }
+  
+
 }
 
-/* Accessibility */
+/* アクセシビリティ対応 */
 @media (prefers-reduced-motion: reduce) {
   .related-item {
     transition: none;
@@ -288,7 +293,7 @@
   }
 }
 
-/* High contrast mode */
+/* ハイコントラストモード対応 */
 @media (prefers-contrast: high) {
   .related-item {
     border-color: #000;
@@ -302,5 +307,132 @@
   
   .role-tag {
     border: 1px solid #000;
+  }
+}/* タグ詳細の楽曲表示用スタイル - 最高優先度 */
+.related-item.tag-song-item {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  padding: 16px !important;
+  min-height: auto !important;
+  gap: 0 !important;
+}
+
+.related-item.tag-song-item .item-name {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #FF69B4 !important;
+  text-shadow: 0 1px 2px rgba(255, 105, 180, 0.1) !important;
+  width: 100% !important;
+  margin-bottom: 8px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-align: left !important;
+  line-height: 1.4 !important;
+  flex: none !important;
+}
+
+.related-item.tag-song-item .song-info {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0 !important;
+  align-items: flex-start !important;
+}
+
+.related-item.tag-song-item .song-credits {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  margin-top: 8px !important;
+  width: 100% !important;
+  align-items: flex-start !important;
+}
+
+.related-item.tag-song-item .credit-line {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 6px !important;
+  font-size: 0.85rem !important;
+  width: 100% !important;
+  text-align: left !important;
+  line-height: 1.4 !important;
+}
+
+.related-item.tag-song-item .credit-label {
+  font-weight: 600 !important;
+  color: #666 !important;
+  min-width: 40px !important;
+  flex-shrink: 0 !important;
+  text-align: left !important;
+}
+
+.related-item.tag-song-item .credit-names {
+  color: #FF69B4 !important;
+  font-weight: 500 !important;
+  flex: 1 !important;
+  word-break: break-word !important;
+  text-align: left !important;
+  line-height: 1.4 !important;
+}
+
+/* タグ詳細楽曲のモバイル対応 */
+@media (max-width: 768px) {
+  .related-item.tag-song-item {
+    padding: 14px !important;
+  }
+  
+  .related-item.tag-song-item .item-name {
+    font-size: 0.9rem !important;
+    margin-bottom: 6px !important;
+  }
+  
+  .related-item.tag-song-item .credit-line {
+    font-size: 0.8rem !important;
+    gap: 4px !important;
+  }
+  
+  .related-item.tag-song-item .credit-label {
+    min-width: 35px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  .related-item.tag-song-item .credit-names {
+    font-size: 0.8rem !important;
+  }
+  
+  .related-item.tag-song-item .song-info {
+    gap: 0 !important;
+  }
+  
+  .related-item.tag-song-item .song-credits {
+    gap: 3px !important;
+    margin-top: 6px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .related-item.tag-song-item .item-name {
+    font-size: 0.85rem !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .related-item.tag-song-item .credit-line {
+    font-size: 0.75rem !important;
+    gap: 3px !important;
+  }
+  
+  .related-item.tag-song-item .credit-label {
+    min-width: 30px !important;
+    font-size: 0.7rem !important;
+  }
+  
+  .related-item.tag-song-item .credit-names {
+    font-size: 0.75rem !important;
+  }
+  
+  .related-item.tag-song-item .song-credits {
+    gap: 2px !important;
+    margin-top: 4px !important;
   }
 }

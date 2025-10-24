@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react'
-import { Song } from '@/types/music'
+import { BubbleEntity } from '@/types/bubble'
 import { useTagList, TagListItem, TagSortBy } from '@/hooks/useTagList'
+import { DetailModal } from './DetailModal'
 import './EnhancedTagList.css'
 
 /**
@@ -17,73 +18,7 @@ export interface EnhancedTagListProps {
   onTagClick?: (tag: TagListItem) => void
 }
 
-/**
- * タグ詳細モーダルのプロパティ
- */
-interface TagDetailModalProps {
-  tag: TagListItem | null
-  songs: Song[]
-  onClose: () => void
-}
 
-/**
- * タグ詳細モーダルコンポーネント
- */
-const TagDetailModal: React.FC<TagDetailModalProps> = ({ tag, songs, onClose }) => {
-  if (!tag) return null
-
-  return (
-    <div className="tag-detail-modal-overlay" onClick={onClose}>
-      <div className="tag-detail-modal" onClick={(e) => e.stopPropagation()}>
-        <div className="tag-detail-header">
-          <h3>{tag.displayName}</h3>
-          <button 
-            className="close-button" 
-            onClick={onClose}
-            aria-label="タグ詳細を閉じる"
-          >
-            ×
-          </button>
-        </div>
-        
-        <div className="tag-detail-content">
-          <div className="tag-stats">
-            <span className="tag-stat">
-              <span className="stat-label">楽曲数:</span>
-              <span className="stat-value">{tag.songCount}曲</span>
-            </span>
-            <span className="tag-stat">
-              <span className="stat-label">人気度:</span>
-              <span className="stat-value">{Math.round(tag.popularity * 100)}%</span>
-            </span>
-          </div>
-          
-          <div className="related-songs">
-            <h4>関連楽曲</h4>
-            <div className="song-list">
-              {songs.map(song => (
-                <div key={song.id} className="song-item">
-                  <div className="song-title">{song.title}</div>
-                  <div className="song-credits">
-                    {song.lyricists.length > 0 && (
-                      <span className="credit">作詞: {song.lyricists.join(', ')}</span>
-                    )}
-                    {song.composers.length > 0 && (
-                      <span className="credit">作曲: {song.composers.join(', ')}</span>
-                    )}
-                    {song.arrangers.length > 0 && (
-                      <span className="credit">編曲: {song.arrangers.join(', ')}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
 /**
  * Enhanced Tag List Component
@@ -95,7 +30,6 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
 }) => {
   // Use custom hook for tag management
   const {
-    getSongsForTag,
     filterAndSortTags,
     isLoading,
     error,
@@ -106,7 +40,7 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<TagSortBy>('frequency')
   const [layout, setLayout] = useState<TagLayout>('grid')
-  const [selectedTag, setSelectedTag] = useState<TagListItem | null>(null)
+  const [selectedTag, setSelectedTag] = useState<BubbleEntity | null>(null)
 
   // Filter and sort tags based on search and sort criteria
   const filteredAndSortedTags = useMemo(() => {
@@ -115,7 +49,22 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
 
   // Handle tag click (Requirements: 21.4)
   const handleTagClick = useCallback((tag: TagListItem) => {
-    setSelectedTag(tag)
+    // Convert TagListItem to BubbleEntity for DetailModal
+    const bubbleEntity = new BubbleEntity({
+      id: tag.id,
+      name: tag.name,
+      type: 'tag',
+      x: 0,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      size: 20,
+      color: '#98FB98',
+      opacity: 1,
+      lifespan: 1000,
+      relatedCount: tag.songCount
+    })
+    setSelectedTag(bubbleEntity)
     onTagClick?.(tag)
   }, [onTagClick])
 
@@ -124,11 +73,7 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
     setSelectedTag(null)
   }, [])
 
-  // Get songs for selected tag
-  const selectedTagSongs = useMemo(() => {
-    if (!selectedTag) return []
-    return getSongsForTag(selectedTag.name)
-  }, [selectedTag, getSongsForTag])
+  // Get songs for selected tag - not needed anymore as DetailModal handles this
 
   // Handle search input change
   const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -301,10 +246,9 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
           )}
         </div>
 
-            {/* Tag Detail Modal (Requirements: 21.4) */}
-            <TagDetailModal
-              tag={selectedTag}
-              songs={selectedTagSongs}
+            {/* Tag Detail Modal (Requirements: 21.4) - Using DetailModal for consistency */}
+            <DetailModal
+              selectedBubble={selectedTag}
               onClose={handleTagDetailClose}
             />
           </>

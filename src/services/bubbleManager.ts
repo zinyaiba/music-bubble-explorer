@@ -612,7 +612,7 @@ export class BubbleManager {
         this.addBubble(newBubble)
       } catch (error) {
         // データベースが空の場合はシャボン玉生成を停止
-        console.log('Cannot generate more bubbles: Database is empty')
+        // console.log('Cannot generate more bubbles: Database is empty')
         break
       }
     }

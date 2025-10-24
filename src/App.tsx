@@ -9,6 +9,7 @@ import { MobileFirstNavigation } from './components/MobileFirstNavigation'
 
 import { BubbleCanvas } from './components/BubbleCanvas'
 import { DetailModal } from './components/DetailModal'
+import { DatabaseDebugger } from './components/DatabaseDebugger'
 import { MusicDataService } from './services/musicDataService'
 import { BubbleManager, createBubbleConfig } from './services/bubbleManager'
 import { EnhancedBubbleManager } from './services/enhancedBubbleManager'
@@ -35,7 +36,7 @@ import { SongRegistrationForm } from './components/SongRegistrationForm'
 import { SongManagement } from './components/SongManagement'
 
 import { EnhancedTagList } from './components/EnhancedTagList'
-import { SimpleDialog } from './components/SimpleDialog'
+import { UnifiedDialogLayout } from './components/UnifiedDialogLayout'
 // ErrorHandler import removed - using simple error handling
 import {
   announceToScreenReader,
@@ -111,6 +112,7 @@ function App() {
   >('main')
 
   const [showTagList, setShowTagList] = useState(false)
+  const [showDatabaseDebugger, setShowDatabaseDebugger] = useState(false)
 
   const [debugLogger] = useState(() => DebugLogger.getInstance())
 
@@ -239,6 +241,14 @@ function App() {
         }
       }
 
+      // データベースデバッガーを開く機能を追加
+      ;(window as any).openDatabaseDebugger = () => {
+        setShowDatabaseDebugger(true)
+        console.log('🔍 Database debugger opened')
+      }
+
+
+
       // 使用方法をコンソールに表示
       console.log(`
 🫧 シャボン玉設定の変更方法:
@@ -268,6 +278,9 @@ function App() {
    setLogLevel('minimal')  // 最小限のログ
    setLogLevel('normal')   // 通常のログ（デフォルト）
    setLogLevel('verbose')  // 全てのログ
+
+7. データベースデバッガーを開く:
+   openDatabaseDebugger()  // データベースの内容を確認
 
 例: updateBubbleSettings({ maxBubbles: 5, minSize: 60, maxSize: 120 })
       `)
@@ -774,6 +787,12 @@ function App() {
     announceToScreenReader('タグ一覧画面を閉じました')
   }, [])
 
+
+
+  const handleDatabaseDebuggerClose = useCallback(() => {
+    setShowDatabaseDebugger(false)
+  }, [])
+
   /**
    * Handle new song added
    */
@@ -1138,24 +1157,33 @@ function App() {
             onClose={handleModalClose}
           />
 
-          <SimpleDialog
+          <DatabaseDebugger
+            isVisible={showDatabaseDebugger}
+            onClose={handleDatabaseDebuggerClose}
+          />
+
+          <UnifiedDialogLayout
             isVisible={showRegistrationForm}
             onClose={handleRegistrationFormClose}
             title="🎵 楽曲登録"
             className="song-registration-dialog"
+            size="standard"
+            mobileOptimized={true}
           >
             <SongRegistrationForm
               isVisible={true}
               onClose={handleRegistrationFormClose}
               onSongAdded={handleSongAdded}
             />
-          </SimpleDialog>
+          </UnifiedDialogLayout>
 
-          <SimpleDialog
+          <UnifiedDialogLayout
             isVisible={showSongManagement}
             onClose={handleSongManagementClose}
             title="📝 楽曲編集"
             className="song-management-dialog"
+            size="large"
+            mobileOptimized={true}
           >
             <SongManagement
               isVisible={true}
@@ -1163,16 +1191,18 @@ function App() {
               onSongUpdated={handleSongUpdated}
               onSongDeleted={handleSongDeleted}
             />
-          </SimpleDialog>
+          </UnifiedDialogLayout>
 
-          <SimpleDialog
+          <UnifiedDialogLayout
             isVisible={showTagList}
             onClose={handleTagListClose}
             title="🏷️ タグ一覧"
             className="tag-list-dialog"
+            size="standard"
+            mobileOptimized={true}
           >
             <EnhancedTagList isVisible={true} onClose={handleTagListClose} />
-          </SimpleDialog>
+          </UnifiedDialogLayout>
 
           {/* PWA Components */}
           <PWAInstallButton />

@@ -186,7 +186,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
         console.log('🎵 Updating existing song:', songToSave)
         const localUpdateSuccess = await DataManager.updateSong(songToSave)
         console.log('🎵 Update result:', localUpdateSuccess)
-        
+
         if (!localUpdateSuccess) {
           throw new Error('楽曲の更新に失敗しました')
         }
@@ -204,7 +204,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
         console.log('🎵 Saving new song:', songToSave)
         const saveSuccess = await DataManager.saveSong(songToSave)
         console.log('🎵 Save result:', saveSuccess)
-        
+
         if (!saveSuccess) {
           throw new Error('楽曲の保存に失敗しました')
         }
@@ -239,8 +239,14 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
     )
   }
 
+
+
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="song-form" noValidate>
+    <form
+      ref={formRef}
+      onSubmit={handleSubmit}
+      className={`song-form ${editingSong ? 'song-form--editing' : 'song-form--registration'}`}
+      noValidate>
       <div className="form-group">
         <label htmlFor="title" className="required">
           楽曲名
@@ -333,8 +339,8 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
       )}
 
       <div className="button-group">
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={isSubmitting}
           className="primary-button"
         >

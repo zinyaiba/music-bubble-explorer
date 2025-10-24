@@ -1,0 +1,1110 @@
+/* Unified Dialog Layout - 全ダイアログ統一スタイル */
+
+/* オーバーレイ（背景） - 完全中央配置 */
+.unified-dialog-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 1000 !important;
+  padding: 20px !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ダイアログ本体 - 中央配置保証 */
+.unified-dialog {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 500px;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  margin: 0;
+  min-height: 200px;
+}
+
+/* サイズバリエーション */
+.unified-dialog--compact {
+  max-width: 400px;
+  min-height: 150px;
+}
+
+.unified-dialog--standard {
+  max-width: 500px;
+  min-height: 200px;
+}
+
+.unified-dialog--large {
+  max-width: 700px;
+  min-height: 300px;
+}
+
+/* モバイル最適化 */
+.unified-dialog--mobile-optimized {
+  border-radius: 12px;
+}
+
+/* ヘッダー */
+.unified-dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: none;
+  background: linear-gradient(135deg, #FFE4E6 0%, #E8F4FD 50%, #F0FFF0 100%);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  min-height: 52px;
+}
+
+.unified-dialog-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 182, 193, 0.1) 0%, transparent 70%);
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(180deg); }
+}
+
+/* タイトル */
+.unified-dialog-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #FF69B4;
+  text-shadow: 0 2px 4px rgba(255, 105, 180, 0.2);
+  line-height: 1.3;
+  letter-spacing: 0.3px;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 閉じるボタン */
+.unified-dialog-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  touch-action: manipulation;
+}
+
+.unified-dialog-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.unified-dialog-close:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* コンテンツエリア */
+.unified-dialog-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  background: linear-gradient(135deg, #FAFAFA 0%, #FFF0F5 50%, #F0FFF0 100%);
+  position: relative;
+  min-height: 0;
+  max-height: calc(100vh - 200px);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+}
+
+.unified-dialog-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(255, 182, 193, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(152, 251, 152, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 60%, rgba(221, 160, 221, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Webkit系ブラウザ用のスクロールバースタイル */
+.unified-dialog-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.unified-dialog-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.unified-dialog-content::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.unified-dialog-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* フッター */
+.unified-dialog-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  align-items: center;
+}
+
+/* フォームスタイル - 楽曲登録フォーム以外に適用 */
+.unified-dialog-content form:not(.song-form) {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.unified-dialog-content .form-group:not(.song-form .form-group) {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.unified-dialog-content label {
+  font-weight: 600;
+  color: #333;
+  font-size: 13px;
+}
+
+.unified-dialog-content input,
+.unified-dialog-content textarea,
+.unified-dialog-content select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.unified-dialog-content input:focus,
+.unified-dialog-content textarea:focus,
+.unified-dialog-content select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.unified-dialog-content button {
+  padding: 5px 5px;
+  border: none;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 20px;
+  touch-action: manipulation;
+}
+
+.unified-dialog-content .primary-button {
+  background: #007bff;
+  color: white;
+}
+
+.unified-dialog-content .primary-button:hover {
+  background: #0056b3;
+}
+
+.unified-dialog-content .secondary-button {
+  background: #6c757d;
+  color: white;
+}
+
+.unified-dialog-content .secondary-button:hover {
+  background: #545b62;
+}
+
+/* タブレット対応 (769px - 1023px) */
+@media (min-width: 769px) and (max-width: 1023px) {
+  .unified-dialog-overlay {
+    padding: 24px !important;
+  }
+  
+  .unified-dialog {
+    max-height: calc(100vh - 48px);
+  }
+}
+
+/* モバイル対応 - 最高優先度で強制適用 */
+@media screen and (max-width: 768px) {
+  div.unified-dialog-overlay[role="dialog"] {
+    padding: 16px 16px 160px 16px !important; /* フッターメニュー分を考慮 */
+    box-sizing: border-box !important;
+    align-items: flex-start !important;
+    padding-top: 120px !important; /* ブラウザメニューバー分を考慮 */
+    justify-content: center !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog {
+    max-height: calc(100vh - 280px) !important; /* ブラウザメニューバー + フッターメニュー分を考慮 */
+    border-radius: 12px !important;
+    width: calc(100% - 32px) !important;
+    max-width: calc(100% - 32px) !important;
+    margin: 0 auto !important;
+    position: relative !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog.unified-dialog--large {
+    max-height: calc(100vh - 140px) !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog.unified-dialog--large .unified-dialog-content {
+    max-height: calc(100vh - 400px) !important; /* ブラウザメニューバー分を考慮 */
+    overflow-y: auto !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-header {
+    padding: 14px 18px !important;
+    min-height: 48px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-title {
+    font-size: 1.1rem !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-content {
+    padding: 16px 18px !important;
+    max-height: calc(100vh - 360px) !important; /* ブラウザメニューバー + フッターメニュー分を考慮 */
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-footer {
+    padding: 14px 18px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-close {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    font-size: 20px !important;
+  }
+}
+
+/* iPhone 15 Pro等の中型モバイル対応 - 最高優先度 */
+@media screen and (min-width: 390px) and (max-width: 430px) and (max-height: 900px) {
+  div.unified-dialog-overlay[role="dialog"] {
+    padding: 16px 16px 130px 16px !important;
+    align-items: flex-start !important;
+    padding-top: 130px !important; /* ブラウザメニューバー分を考慮 */
+    box-sizing: border-box !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog {
+    max-height: calc(100vh - 260px) !important; /* ブラウザメニューバー分を考慮 */
+    width: calc(100% - 32px) !important;
+    max-width: calc(100% - 32px) !important;
+    margin: 0 auto !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-content {
+    max-height: calc(100vh - 340px) !important; /* ブラウザメニューバー分を考慮 */
+    overflow-y: auto !important;
+  }
+}
+
+/* 小型モバイル対応 - 最高優先度 */
+@media screen and (max-width: 480px) {
+  div.unified-dialog-overlay[role="dialog"] {
+    padding: 12px 12px 160px 12px !important; /* フッターメニュー分を考慮 */
+    align-items: flex-start !important;
+    padding-top: 120px !important; /* ブラウザメニューバー分を考慮 */
+    box-sizing: border-box !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog {
+    max-height: calc(100vh - 280px) !important; /* ブラウザメニューバー + フッターメニュー分を考慮 */
+    border-radius: 8px !important;
+    width: calc(100% - 24px) !important;
+    max-width: calc(100% - 24px) !important;
+    min-height: 150px !important;
+    margin: 0 auto !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-header {
+    padding: 12px 16px !important;
+    min-height: 44px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-title {
+    font-size: 1rem !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-content {
+    padding: 14px 16px !important;
+    max-height: calc(100vh - 360px) !important; /* ブラウザメニューバー + フッターメニュー分を考慮 */
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-footer {
+    padding: 12px 16px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-close {
+    min-width: 32px !important;
+    min-height: 32px !important;
+    font-size: 18px !important;
+  }
+}
+
+/* 極小モバイル対応 - 最高優先度 */
+@media screen and (max-width: 320px) {
+  div.unified-dialog-overlay[role="dialog"] {
+    padding: 8px 8px 110px 8px !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+    padding-top: 115px !important; /* ブラウザメニューバー分を考慮 */
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog {
+    max-height: calc(100vh - 218px) !important; /* ブラウザメニューバー分を考慮 */
+    width: calc(100% - 16px) !important;
+    max-width: calc(100% - 16px) !important;
+    min-height: 120px !important;
+    border-radius: 6px !important;
+    margin: 0 auto !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-header {
+    padding: 10px 14px !important;
+    min-height: 40px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-title {
+    font-size: 0.95rem !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-content {
+    padding: 12px 14px !important;
+    max-height: calc(100vh - 300px) !important; /* ブラウザメニューバー分を考慮 */
+    overflow-y: auto !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-footer {
+    padding: 10px 14px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] .unified-dialog-close {
+    min-width: 28px !important;
+    min-height: 28px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* コンパクトサイズでの調整 */
+.unified-dialog--compact .unified-dialog-header {
+  padding: 12px 16px;
+  min-height: 44px;
+}
+
+.unified-dialog--compact .unified-dialog-title {
+  font-size: 1rem;
+}
+
+.unified-dialog--compact .unified-dialog-content {
+  padding: 14px 16px;
+}
+
+.unified-dialog--compact .unified-dialog-footer {
+  padding: 12px 16px;
+}
+
+/* ラージサイズでの調整 */
+.unified-dialog--large {
+  max-height: calc(100vh - 40px);
+}
+
+.unified-dialog--large .unified-dialog-header {
+  padding: 18px 24px;
+  min-height: 56px;
+}
+
+.unified-dialog--large .unified-dialog-title {
+  font-size: 1.3rem;
+}
+
+.unified-dialog--large .unified-dialog-content {
+  padding: 24px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+}
+
+.unified-dialog--large .unified-dialog-footer {
+  padding: 18px 24px;
+}
+
+/* 特定コンテンツタイプのスタイル */
+.song-registration-content,
+.song-management-content,
+.enhanced-tag-list-content,
+.detail-modal-content {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 楽曲登録フォーム（通常サイズ） */
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration,
+div.unified-dialog div.unified-dialog-content form.song-form--registration,
+.unified-dialog-content form.song-form--registration {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  width: 100% !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  position: relative !important;
+}
+
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group,
+div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group,
+.unified-dialog-content form.song-form--registration div.form-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+  position: relative !important;
+  z-index: 1 !important;
+  margin-bottom: 16px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group label,
+div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group label,
+.unified-dialog-content form.song-form--registration div.form-group label {
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  color: #FF69B4 !important;
+  text-shadow: 0 1px 2px rgba(255, 105, 180, 0.2) !important;
+  min-width: 80px !important;
+  flex-shrink: 0 !important;
+}
+
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group input,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group textarea,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group select,
+div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group input,
+div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group textarea,
+div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group select,
+.unified-dialog-content form.song-form--registration div.form-group input,
+.unified-dialog-content form.song-form--registration div.form-group textarea,
+.unified-dialog-content form.song-form--registration div.form-group select {
+  padding: 10px 16px !important;
+  border: 2px solid transparent !important;
+  border-radius: 15px !important;
+  font-size: 0.9rem !important;
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #FFB6C1, #98FB98, #DDA0DD) border-box !important;
+  color: #333 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15) !important;
+  flex: 1 !important;
+}
+
+/* 楽曲編集フォーム（コンパクトサイズ） - ラージダイアログ内でも適用 */
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing,
+div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing,
+div.unified-dialog div.unified-dialog-content form.song-form--editing,
+.unified-dialog--large .unified-dialog-content form.song-form--editing,
+.unified-dialog-content form.song-form--editing {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1px !important;
+  width: 100% !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  position: relative !important;
+  max-height: calc(100vh - 300px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 105, 180, 0.3) transparent !important;
+}
+
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing div.form-group,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group,
+div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing div.form-group,
+div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group,
+.unified-dialog--large .unified-dialog-content form.song-form--editing div.form-group,
+.unified-dialog-content form.song-form--editing div.form-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 2px !important;
+  position: relative !important;
+  z-index: 1 !important;
+  margin-bottom: 2px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing div.form-group label,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group label,
+div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing div.form-group label,
+div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group label,
+.unified-dialog--large .unified-dialog-content form.song-form--editing div.form-group label,
+.unified-dialog-content form.song-form--editing div.form-group label {
+  font-size: 0.65rem !important;
+  font-weight: 600 !important;
+  color: #FF69B4 !important;
+  text-shadow: 0 1px 2px rgba(255, 105, 180, 0.2) !important;
+  min-width: 35px !important;
+  max-width: 35px !important;
+  flex-shrink: 0 !important;
+  text-align: left !important;
+  line-height: 0.9 !important;
+}
+
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing div.form-group input,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing div.form-group textarea,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing div.form-group select,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group input,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group textarea,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group select,
+div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing div.form-group input,
+div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing div.form-group textarea,
+div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing div.form-group select,
+div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group input,
+div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group textarea,
+div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group select,
+.unified-dialog--large .unified-dialog-content form.song-form--editing div.form-group input,
+.unified-dialog--large .unified-dialog-content form.song-form--editing div.form-group textarea,
+.unified-dialog--large .unified-dialog-content form.song-form--editing div.form-group select,
+.unified-dialog-content form.song-form--editing div.form-group input,
+.unified-dialog-content form.song-form--editing div.form-group textarea,
+.unified-dialog-content form.song-form--editing div.form-group select {
+  padding: 3px 5px !important;
+  border: 2px solid transparent !important;
+  border-radius: 4px !important;
+  font-size: 0.7rem !important;
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135dx, #FFB6C1, #98FB98, #DDA0DD) border-box !important;
+  color: #333 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15) !important;
+  flex: 1 !important;
+  width: auto !important;
+  max-width: none !important;
+}
+
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form div.button-group,
+div.unified-dialog div.unified-dialog-content form.song-form div.button-group,
+.unified-dialog-content form.song-form div.button-group {
+  display: flex !important;
+  gap: 12px !important;
+  justify-content: center !important;
+  margin-top: 8px !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+/* 楽曲編集フォーム用スクロールバースタイル - ラージダイアログ内でも適用 */
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing::-webkit-scrollbar,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing::-webkit-scrollbar,
+div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing::-webkit-scrollbar,
+div.unified-dialog div.unified-dialog-content form.song-form--editing::-webkit-scrollbar,
+.unified-dialog--large .unified-dialog-content form.song-form--editing::-webkit-scrollbar,
+.unified-dialog-content form.song-form--editing::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-track,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-track,
+div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-track,
+div.unified-dialog div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-track,
+.unified-dialog--large .unified-dialog-content form.song-form--editing::-webkit-scrollbar-track,
+.unified-dialog-content form.song-form--editing::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb,
+div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb,
+div.unified-dialog div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb,
+.unified-dialog--large .unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb,
+.unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb {
+  background: rgba(255, 105, 180, 0.3) !important;
+  border-radius: 3px !important;
+}
+
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb:hover,
+div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb:hover,
+div.unified-dialog.unified-dialog--large div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb:hover,
+div.unified-dialog div.unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb:hover,
+.unified-dialog--large .unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb:hover,
+.unified-dialog-content form.song-form--editing::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 105, 180, 0.5) !important;
+}
+
+/* ボタンコンテナのスタイル */
+.unified-dialog-content .button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.unified-dialog-content .button-container button {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* モバイルでのボタンスタイル調整 */
+@media screen and (max-width: 768px) {
+  .unified-dialog-content .button-container button {
+    min-height: 48px;
+    font-size: 16px;
+    padding: 14px 18px;
+  }
+  
+  /* 楽曲登録フォームのモバイル対応（通常サイズ維持） */
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration,
+  .unified-dialog-content form.song-form--registration {
+    gap: 10px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group,
+  .unified-dialog-content form.song-form--registration div.form-group {
+    gap: 8px !important;
+    margin-bottom: 20px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group label,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group label,
+  .unified-dialog-content form.song-form--registration div.form-group label {
+    min-width: 70px !important;
+    font-size: 0.8rem !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group input,
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group textarea,
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group select,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group input,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group textarea,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group select,
+  .unified-dialog-content form.song-form--registration div.form-group input,
+  .unified-dialog-content form.song-form--registration div.form-group textarea,
+  .unified-dialog-content form.song-form--registration div.form-group select {
+    padding: 10px 14px !important;
+    font-size: 0.9rem !important;
+    border-radius: 12px !important;
+  }
+
+  /* 楽曲編集フォームのモバイル対応（コンパクト） */
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing,
+  .unified-dialog-content form.song-form--editing {
+    gap: 0px !important;
+    max-height: calc(100vh - 360px) !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group,
+  .unified-dialog-content form.song-form--editing div.form-group {
+    gap: 2px !important;
+    margin-bottom: 3px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group label,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group label,
+  .unified-dialog-content form.song-form--editing div.form-group label {
+    min-width: 30px !important;
+    max-width: 30px !important;
+    font-size: 0.65rem !important;
+    line-height: 0.9 !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group input,
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group textarea,
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group select,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group input,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group textarea,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group select,
+  .unified-dialog-content form.song-form--editing div.form-group input,
+  .unified-dialog-content form.song-form--editing div.form-group textarea,
+  .unified-dialog-content form.song-form--editing div.form-group select {
+    padding: 3px 5px !important;
+    font-size: 0.7rem !important;
+    border-radius: 4px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* 楽曲登録フォームの小画面対応（通常サイズ維持） */
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration,
+  .unified-dialog-content form.song-form--registration {
+    gap: 8px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group,
+  .unified-dialog-content form.song-form--registration div.form-group {
+    margin-bottom: 18px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group label,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group label,
+  .unified-dialog-content form.song-form--registration div.form-group label {
+    min-width: 60px !important;
+    font-size: 0.75rem !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group input,
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group textarea,
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group select,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group input,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group textarea,
+  div.unified-dialog div.unified-dialog-content form.song-form--registration div.form-group select,
+  .unified-dialog-content form.song-form--registration div.form-group input,
+  .unified-dialog-content form.song-form--registration div.form-group textarea,
+  .unified-dialog-content form.song-form--registration div.form-group select {
+    padding: 12px 14px !important;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    border-radius: 10px !important;
+  }
+
+  /* 楽曲編集フォームの小画面対応（コンパクト） */
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing,
+  .unified-dialog-content form.song-form--editing {
+    gap: 0px !important;
+    max-height: calc(100vh - 280px) !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group,
+  .unified-dialog-content form.song-form--editing div.form-group {
+    margin-bottom: 2px !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group label,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group label,
+  .unified-dialog-content form.song-form--editing div.form-group label {
+    min-width: 25px !important;
+    max-width: 25px !important;
+    font-size: 0.6rem !important;
+  }
+  
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group input,
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group textarea,
+  div.unified-dialog-overlay[role="dialog"] div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group select,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group input,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group textarea,
+  div.unified-dialog div.unified-dialog-content form.song-form--editing div.form-group select,
+  .unified-dialog-content form.song-form--editing div.form-group input,
+  .unified-dialog-content form.song-form--editing div.form-group textarea,
+  .unified-dialog-content form.song-form--editing div.form-group select {
+    padding: 4px 6px !important;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    border-radius: 3px !important;
+  }
+}
+
+/* アクセシビリティ対応 */
+@media (prefers-reduced-motion: reduce) {
+  .unified-dialog-overlay,
+  .unified-dialog,
+  .unified-dialog-header::before {
+    animation: none;
+  }
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .unified-dialog {
+    border: 2px solid #000;
+  }
+  
+  .unified-dialog-header {
+    border-bottom: 2px solid #000;
+  }
+  
+  .unified-dialog-close {
+    border: 1px solid #000;
+  }
+  
+  .unified-dialog-footer {
+    border-top: 2px solid #000;
+  }
+}/*
+ 追加のレイアウト修正 */
+
+/* ダイアログ内のすべての要素のボックスサイジング統一 */
+.unified-dialog *,
+.unified-dialog *::before,
+.unified-dialog *::after {
+  box-sizing: border-box;
+}
+
+/* コンテンツエリアの子要素の幅制御 */
+.unified-dialog-content > * {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* テキスト要素の改行処理 */
+.unified-dialog-content p,
+.unified-dialog-content div,
+.unified-dialog-content span {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* リストアイテムのスタイル */
+.unified-dialog-content ul,
+.unified-dialog-content ol {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.unified-dialog-content li {
+  margin-bottom: 4px;
+  word-wrap: break-word;
+}
+
+/* 画像の最大幅制御 */
+.unified-dialog-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* テーブルのレスポンシブ対応 */
+.unified-dialog-content table {
+  width: 100%;
+  border-collapse: collapse;
+  overflow-x: auto;
+  display: block;
+  white-space: nowrap;
+}
+
+.unified-dialog-content table th,
+.unified-dialog-content table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+/* モバイルでのテーブル調整 */
+@media screen and (max-width: 768px) {
+  .unified-dialog-content table {
+    font-size: 12px;
+  }
+  
+  .unified-dialog-content table th,
+  .unified-dialog-content table td {
+    padding: 6px;
+  }
+}
+
+/* フレックスレイアウトの調整 */
+.unified-dialog-content .flex-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.unified-dialog-content .flex-item {
+  flex: 1;
+  min-width: 0;
+}
+
+/* モバイルでのフレックスアイテム調整 */
+@media screen and (max-width: 768px) {
+  .unified-dialog-content .flex-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .unified-dialog-content .flex-item {
+    width: 100%;
+  }
+}
+
+/* 安全エリア対応（ノッチ付きデバイス） */
+@supports (padding: max(0px)) {
+  @media screen and (max-width: 768px) {
+    div.unified-dialog-overlay[role="dialog"] {
+      padding-top: max(120px, env(safe-area-inset-top, 0px) + 20px) !important;
+      padding-left: max(16px, env(safe-area-inset-left, 0px) + 16px) !important;
+      padding-right: max(16px, env(safe-area-inset-right, 0px) + 16px) !important;
+      padding-bottom: max(120px, env(safe-area-inset-bottom, 0px) + 120px) !important;
+    }
+  }
+}
+
+/* 楽曲編集フォーム専用スタイル - 最終的な解決策 - 最高優先度 */
+.unified-dialog-content form.song-form--editing {
+  gap: 0px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  max-height: calc(100vh - 300px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+.unified-dialog-content form.song-form--editing .form-group {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 1px !important;
+  margin-bottom: 1px !important;
+  padding: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.unified-dialog-content form.song-form--editing .form-group label {
+  min-width: 25px !important;
+  max-width: 25px !important;
+  font-size: 0.6rem !important;
+  line-height: 0.9 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  text-align: left !important;
+  font-weight: 600 !important;
+  color: #FF69B4 !important;
+}
+
+.unified-dialog-content form.song-form--editing .form-group input,
+.unified-dialog-content form.song-form--editing .form-group textarea,
+.unified-dialog-content form.song-form--editing .form-group select {
+  padding: 2px 4px !important;
+  font-size: 0.65rem !important;
+  border-radius: 3px !important;
+  margin: 0 !important;
+  border: 2px solid transparent !important;
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #FFB6C1, #98FB98, #DDA0DD) border-box !important;
+  flex: 1 !important;
+  color: #333 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15) !important;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .unified-dialog-content form.song-form--editing {
+    max-height: calc(100vh - 360px) !important;
+  }
+  
+  .unified-dialog-content form.song-form--editing .form-group {
+    gap: 0px !important;
+    margin-bottom: 0px !important;
+  }
+  
+  .unified-dialog-content form.song-form--editing .form-group label {
+    min-width: 20px !important;
+    max-width: 20px !important;
+    font-size: 0.55rem !important;
+    line-height: 0.8 !important;
+  }
+  
+  .unified-dialog-content form.song-form--editing .form-group input,
+  .unified-dialog-content form.song-form--editing .form-group textarea,
+  .unified-dialog-content form.song-form--editing .form-group select {
+    padding: 1px 3px !important;
+    font-size: 0.6rem !important;
+    border-radius: 2px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .unified-dialog-content form.song-form--editing {
+    max-height: calc(100vh - 280px) !important;
+  }
+  
+  .unified-dialog-content form.song-form--editing .form-group label {
+    min-width: 18px !important;
+    max-width: 18px !important;
+    font-size: 0.5rem !important;
+    line-height: 0.7 !important;
+  }
+  
+  .unified-dialog-content form.song-form--editing .form-group input,
+  .unified-dialog-content form.song-form--editing .form-group textarea,
+  .unified-dialog-content form.song-form--editing .form-group select {
+    padding: 1px 2px !important;
+    font-size: 16px !important; /* Prevent zoom on iOS */
+    border-radius: 1px !important;
+  }
+}

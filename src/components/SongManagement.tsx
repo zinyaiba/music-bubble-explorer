@@ -3,6 +3,7 @@ import { Song } from '@/types/music'
 import { DataManager } from '@/services/dataManager'
 import { MusicDataService } from '@/services/musicDataService'
 import { SongRegistrationForm } from './SongRegistrationForm'
+import { UnifiedDialogLayout } from './UnifiedDialogLayout'
 import './SongManagement.css'
 
 interface SongManagementProps {
@@ -24,6 +25,14 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     onSongUpdated,
     onSongDeleted
 }) => {
+    // デバッグログ追加
+    // console.log('🎵 SongManagement rendered', {
+    //     timestamp: new Date().toISOString(),
+    //     viewport: {
+    //         width: window.innerWidth,
+    //         height: window.innerHeight
+    //     }
+    // })
     const [songs, setSongs] = useState<Song[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -86,6 +95,14 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     }, [songs, searchQuery])
 
     const handleEditSong = useCallback((song: Song) => {
+        console.log('✏️ Opening edit form for song:', {
+            songId: song.id,
+            songTitle: song.title,
+            viewport: {
+                width: window.innerWidth,
+                height: window.innerHeight
+            }
+        })
         setEditingSong(song)
         setShowEditForm(true)
     }, [])
@@ -317,31 +334,36 @@ export const SongManagement: React.FC<SongManagementProps> = ({
             </div>
 
             {showEditForm && editingSong && (
-                <div className="edit-form-overlay">
-                    <div className="edit-form-container">
-                        <SongRegistrationForm
-                            isVisible={showEditForm}
-                            onClose={handleCloseEditForm}
-                            onSongAdded={handleSongUpdated}
-                            editingSong={editingSong}
-                        />
-                    </div>
-                </div>
+                <UnifiedDialogLayout
+                    isVisible={showEditForm}
+                    onClose={handleCloseEditForm}
+                    title={`✏️ 楽曲編集: ${editingSong.title}`}
+                    size="large"
+                    mobileOptimized={true}
+                >
+                    <SongRegistrationForm
+                        isVisible={showEditForm}
+                        onClose={handleCloseEditForm}
+                        onSongAdded={handleSongUpdated}
+                        editingSong={editingSong}
+                    />
+                </UnifiedDialogLayout>
             )}
 
             {deleteConfirmation.isOpen && deleteConfirmation.song && (
-                <div className="delete-confirmation-overlay">
-                    <div className="delete-confirmation-dialog">
-                        <div className="delete-confirmation-header">
-                            <h3>楽曲の削除確認</h3>
-                        </div>
-                        <div className="delete-confirmation-body">
-                            <p>以下の楽曲を削除してもよろしいですか？</p>
-                            <div className="delete-song-info">
-                                <div className="delete-song-title">「{deleteConfirmation.song.title}」</div>
-                                <div className="delete-song-details">
-                                    この操作は取り消すことができません。
-                                </div>
+                <UnifiedDialogLayout
+                    isVisible={deleteConfirmation.isOpen}
+                    onClose={handleCloseDeleteConfirmation}
+                    title="🗑️ 楽曲の削除確認"
+                    size="compact"
+                    mobileOptimized={true}
+                >
+                    <div className="delete-confirmation-content">
+                        <p>以下の楽曲を削除してもよろしいですか？</p>
+                        <div className="delete-song-info">
+                            <div className="delete-song-title">「{deleteConfirmation.song.title}」</div>
+                            <div className="delete-song-details">
+                                この操作は取り消すことができません。
                             </div>
                         </div>
                         <div className="delete-confirmation-actions">
@@ -368,7 +390,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                             </button>
                         </div>
                     </div>
-                </div>
+                </UnifiedDialogLayout>
             )}
         </div>
     )
