@@ -13,6 +13,7 @@ export interface TagSelectionViewProps {
   isLoading?: boolean
   error?: string | null
   maxTags?: number
+  warningThreshold?: number
 }
 
 /**
@@ -29,7 +30,8 @@ export const TagSelectionView: React.FC<TagSelectionViewProps> = ({
   onRegister,
   isLoading = false,
   error = null,
-  maxTags = 10,
+  maxTags = 100,
+  warningThreshold = 80,
 }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [showAllTags, setShowAllTags] = useState(false)
@@ -56,9 +58,32 @@ export const TagSelectionView: React.FC<TagSelectionViewProps> = ({
       return unselectedTags
     }
 
-    // デフォルトでは最初の20個まで表示
-    return unselectedTags.slice(0, 20)
+    // デフォルトでは最初の30個まで表示（100個対応のため増加）
+    return unselectedTags.slice(0, 30)
   }, [filteredAvailableTags, selectedTags, showAllTags])
+
+  // タグ制限の状態を計算
+  const tagLimitStatus = useMemo(() => {
+    const currentCount = selectedTags.length
+    const isNearLimit =
+      currentCount >= warningThreshold && currentCount < maxTags
+    const isAtLimit = currentCount >= maxTags
+    const remainingTags = maxTags - currentCount
+
+    return {
+      currentCount,
+      maxTags,
+      remainingTags,
+      isNearLimit,
+      isAtLimit,
+      warningMessage: isNearLimit
+        ? `タグ数が制限に近づいています（${currentCount}/${maxTags}個）`
+        : null,
+      errorMessage: isAtLimit
+        ? `タグ数が上限に達しました（${currentCount}/${maxTags}個）`
+        : null,
+    }
+  }, [selectedTags.length, maxTags, warningThreshold])
 
   // タグの追加処理
   const handleTagAdd = useCallback(
@@ -142,9 +167,28 @@ export const TagSelectionView: React.FC<TagSelectionViewProps> = ({
         <div className="selected-tags-section">
           <div className="section-header">
             <h4 className="section-title">
-              選択済みタグ ({selectedTags.length}/{maxTags})
+              選択済みタグ ({tagLimitStatus.currentCount}/
+              {tagLimitStatus.maxTags})
             </h4>
+            {tagLimitStatus.remainingTags <= 20 &&
+              tagLimitStatus.remainingTags > 0 && (
+                <div className="tag-limit-info">
+                  残り{tagLimitStatus.remainingTags}個まで追加可能
+                </div>
+              )}
           </div>
+
+          {/* タグ制限の警告・エラー表示 */}
+          {tagLimitStatus.warningMessage && (
+            <div className="tag-limit-warning">
+              ⚠️ {tagLimitStatus.warningMessage}
+            </div>
+          )}
+          {tagLimitStatus.errorMessage && (
+            <div className="tag-limit-error">
+              🚫 {tagLimitStatus.errorMessage}
+            </div>
+          )}
 
           {selectedTags.length > 0 ? (
             <div className="selected-tags-container">
@@ -261,9 +305,9 @@ export const TagSelectionView: React.FC<TagSelectionViewProps> = ({
             tags={[]}
             onTagsChange={handleTagInputChange}
             existingTags={availableTags}
-            maxTags={maxTags}
+            maxTags={maxTags - selectedTags.length}
             placeholder="新しいタグを入力してください"
-            disabled={isLoading}
+            disabled={isLoading || tagLimitStatus.isAtLimit}
           />
           <div className="help-text">
             ジャンルやテーマを個別に入力してください。既存のタグは候補として表示されます。

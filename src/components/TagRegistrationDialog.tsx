@@ -248,6 +248,8 @@ export const TagRegistrationDialog: React.FC<TagRegistrationDialogProps> = ({
           onRegister={handleRegisterTags}
           isLoading={isLoading}
           error={error}
+          maxTags={100}
+          warningThreshold={80}
         />
       )}
     </div>

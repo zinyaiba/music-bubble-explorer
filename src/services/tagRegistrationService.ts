@@ -38,6 +38,18 @@ export interface TagValidationResult {
 }
 
 /**
+ * タグ制限検証結果の型
+ */
+export interface TagLimitValidation {
+  isValid: boolean
+  currentCount: number
+  maxCount: number
+  warningMessage?: string
+  errorMessage?: string
+  isNearLimit: boolean
+}
+
+/**
  * タグ統計情報の型
  */
 export interface TagStatistics {
@@ -54,7 +66,8 @@ export interface TagStatistics {
  */
 export class TagRegistrationService {
   private static instance: TagRegistrationService
-  private static readonly MAX_TAGS_PER_SONG = 10
+  private static readonly MAX_TAGS_PER_SONG = 100
+  private static readonly WARNING_THRESHOLD = 80
   private static readonly MAX_TAG_LENGTH = 50
   private static readonly MIN_TAG_LENGTH = 1
 
@@ -91,16 +104,6 @@ export class TagRegistrationService {
             }
           }
 
-          // タグの検証
-          const validationResult = this.validateTags(tagsToAdd)
-          if (!validationResult.isValid) {
-            return {
-              success: false,
-              errors: validationResult.errors,
-              errorMessages: validationResult.errorMessages,
-            }
-          }
-
           // 現在のタグを取得
           const currentTags = song.tags || []
 
@@ -112,17 +115,16 @@ export class TagRegistrationService {
             )
           })
 
-          // タグ数制限チェック
-          if (
-            currentTags.length + newTags.length >
-            TagRegistrationService.MAX_TAGS_PER_SONG
-          ) {
+          // 拡張されたタグ検証（制限チェック含む）
+          const validationResult = this.validateTagsWithLimit(
+            currentTags,
+            newTags
+          )
+          if (!validationResult.isValid) {
             return {
               success: false,
-              errors: [TagRegistrationError.TAG_LIMIT_EXCEEDED],
-              errorMessages: [
-                `楽曲あたりのタグ数は最大${TagRegistrationService.MAX_TAGS_PER_SONG}個までです`,
-              ],
+              errors: validationResult.errors,
+              errorMessages: validationResult.errorMessages,
             }
           }
 
@@ -312,16 +314,6 @@ export class TagRegistrationService {
             }
           }
 
-          // タグの検証
-          const validationResult = this.validateTags(newTags)
-          if (!validationResult.isValid) {
-            return {
-              success: false,
-              errors: validationResult.errors,
-              errorMessages: validationResult.errorMessages,
-            }
-          }
-
           // 重複を除去して正規化
           const uniqueTags = Array.from(
             new Set(
@@ -329,14 +321,13 @@ export class TagRegistrationService {
             )
           )
 
-          // タグ数制限チェック
-          if (uniqueTags.length > TagRegistrationService.MAX_TAGS_PER_SONG) {
+          // 拡張されたタグ検証（制限チェック含む）
+          const validationResult = this.validateTagsWithLimit([], uniqueTags)
+          if (!validationResult.isValid) {
             return {
               success: false,
-              errors: [TagRegistrationError.TAG_LIMIT_EXCEEDED],
-              errorMessages: [
-                `楽曲あたりのタグ数は最大${TagRegistrationService.MAX_TAGS_PER_SONG}個までです`,
-              ],
+              errors: validationResult.errors,
+              errorMessages: validationResult.errorMessages,
             }
           }
 
@@ -454,6 +445,72 @@ export class TagRegistrationService {
       isValid: errors.length === 0,
       errors: Array.from(new Set(errors)), // 重複を除去
       errorMessages: Array.from(new Set(errorMessages)), // 重複を除去
+    }
+  }
+
+  /**
+   * タグ制限の検証（拡張版）
+   * Requirements: 1.1, 1.4
+   */
+  public validateTagLimit(
+    currentTags: string[],
+    newTags: string[]
+  ): TagLimitValidation {
+    const currentCount = currentTags.length
+    const totalCount = currentCount + newTags.length
+    const maxCount = TagRegistrationService.MAX_TAGS_PER_SONG
+    const warningThreshold = TagRegistrationService.WARNING_THRESHOLD
+
+    const isValid = totalCount <= maxCount
+    const isNearLimit = totalCount >= warningThreshold && totalCount < maxCount
+
+    let warningMessage: string | undefined
+    let errorMessage: string | undefined
+
+    if (!isValid) {
+      errorMessage = `楽曲あたりのタグ数は最大${maxCount}個までです。現在${currentCount}個、追加しようとしているタグ${newTags.length}個で合計${totalCount}個になります。`
+    } else if (isNearLimit) {
+      warningMessage = `タグ数が制限に近づいています（${totalCount}/${maxCount}個）。`
+    }
+
+    return {
+      isValid,
+      currentCount,
+      maxCount,
+      warningMessage,
+      errorMessage,
+      isNearLimit,
+    }
+  }
+
+  /**
+   * 拡張されたタグ検証（制限チェック含む）
+   * Requirements: 1.1, 1.4
+   */
+  public validateTagsWithLimit(
+    currentTags: string[],
+    newTags: string[]
+  ): TagValidationResult & { limitValidation: TagLimitValidation } {
+    // 基本的なタグ検証
+    const basicValidation = this.validateTags(newTags)
+
+    // タグ制限検証
+    const limitValidation = this.validateTagLimit(currentTags, newTags)
+
+    // 制限エラーを基本検証に追加
+    const errors = [...basicValidation.errors]
+    const errorMessages = [...basicValidation.errorMessages]
+
+    if (!limitValidation.isValid && limitValidation.errorMessage) {
+      errors.push(TagRegistrationError.TAG_LIMIT_EXCEEDED)
+      errorMessages.push(limitValidation.errorMessage)
+    }
+
+    return {
+      isValid: basicValidation.isValid && limitValidation.isValid,
+      errors,
+      errorMessages,
+      limitValidation,
     }
   }
 
@@ -657,11 +714,13 @@ export class TagRegistrationService {
    */
   public getTagLimits(): {
     maxTagsPerSong: number
+    warningThreshold: number
     maxTagLength: number
     minTagLength: number
   } {
     return {
       maxTagsPerSong: TagRegistrationService.MAX_TAGS_PER_SONG,
+      warningThreshold: TagRegistrationService.WARNING_THRESHOLD,
       maxTagLength: TagRegistrationService.MAX_TAG_LENGTH,
       minTagLength: TagRegistrationService.MIN_TAG_LENGTH,
     }
