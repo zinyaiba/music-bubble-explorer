@@ -1,1 +1,0 @@
-import{D as o}from"./index-1ee45e87.js";import"./vendor-b36e4360.js";import"./styled-99d924a4.js";const t={method:o.GITHUB_ISSUES,github:{repo:{}.REACT_APP_GITHUB_REPO||"",token:{}.REACT_APP_GITHUB_TOKEN||"",labels:["song-registration","community-contribution"]}};export{t as SHARING_CONFIG};
