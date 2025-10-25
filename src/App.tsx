@@ -65,7 +65,8 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
   ({ isTouchDevice }) => (
     <div className="instructions" role="region" aria-label="操作説明">
       <p className="instructions-title">
-        🌰🌰マロンバブルの使い方🌰🌰  
+        🌰 {isTouchDevice ? '📱' : '💻️'}マロンバブルの使い方{' '}
+        {isTouchDevice ? '📱' : '💻️'}🌰
       </p>
       <p className="instructions-item">
         ➕「タグ登録」から自由にタグを作ってみよう！
@@ -77,9 +78,6 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
         🫧登録した情報はシャボン玉になって登場するよ
       </p>
       <p className="instructions-item">
-        {isTouchDevice ? '👆タップしてシャボン玉の詳細を見てみよう' : '🖱️クリックしてシャボン玉の詳細を見てみよう'}
-      </p>
-      <p className="instructions-item">
         ❣️タグであなたの「推しポイント」を紹介してみよう
       </p>
       <p className="instructions-item">
@@ -87,9 +85,9 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
       </p>
       <p className="instructions-item">
         ✉️改善要望・不具合については
-        <a 
-          href="https://x.com/kentaro_uechan" 
-          target="_blank" 
+        <a
+          href="https://x.com/kentaro_uechan"
+          target="_blank"
           rel="noopener noreferrer"
           className="twitter-link"
         >
@@ -268,8 +266,6 @@ function App() {
         setShowDatabaseDebugger(true)
         console.log('🔍 Database debugger opened')
       }
-      
-
 
       // 使用方法をコンソールに表示
       //       console.log(`
@@ -337,8 +333,6 @@ function App() {
     // モバイル最適化の初期化
     const mobileConfig = MobileOptimizer.initialize()
     debugLogger.info('Mobile optimization initialized', mobileConfig)
-    
-
 
     // 共有データサービスの初期化
     const initializeSharedDataService = async () => {
@@ -591,7 +585,7 @@ function App() {
             width: Math.max(300, rect.width - padding * 2),
             height: Math.max(
               400, // 最小高さを400pxに設定してスクロールが発生しやすくする
-              500  // 固定高さでスクロールを確実に発生させる
+              500 // 固定高さでスクロールを確実に発生させる
             ),
           }
         } else {
