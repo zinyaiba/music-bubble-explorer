@@ -10,6 +10,7 @@ import { GPUAccelerationHelper } from '@/utils/animationOptimizer'
 import { EnhancedBubbleManager } from '@/services/enhancedBubbleManager'
 import { EnhancedBubbleBackground } from './EnhancedBubbleBackground'
 import { GenreService } from '@/services/genreService'
+import { useResponsive } from '@/hooks/useResponsive'
 import './EnhancedBubbleBackground.css'
 
 interface BubbleCanvasProps {
@@ -75,6 +76,7 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
     selectedGenres = [],
     enableGenreFiltering = false,
   }) => {
+    const screenSize = useResponsive()
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [, setIsAnimating] = useState(true)
     const [hasCanvasError, setHasCanvasError] = useState(false)
@@ -197,7 +199,7 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         // 透明度を設定
         ctx.globalAlpha = displayOpacity
 
-        // Canvas描画最適化: グラデーション作成を最小限に
+        // ガラスモーフィズム効果のグラデーション
         const gradient = ctx.createRadialGradient(
           x - radius * 0.3, // ハイライト位置（左上寄り）
           y - radius * 0.3,
@@ -207,43 +209,45 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
           radius
         )
 
-        // グラデーションの色を設定
-        gradient.addColorStop(0, '#FFFFFF') // 中心は白（ハイライト）
-        gradient.addColorStop(0.3, color) // メインカラー
-        gradient.addColorStop(0.7, color) // メインカラー
-        gradient.addColorStop(1, '#00000020') // 外側は少し暗く
+        // ガラスモーフィズムのグラデーション設定
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)') // 中心は透明な白
+        gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.4)') // 内側のガラス効果
+        gradient.addColorStop(0.4, `${color}60`) // メインカラー（透明度60%）
+        gradient.addColorStop(0.8, `${color}40`) // 外側のメインカラー（透明度40%）
+        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.1)') // 外側は薄い影
 
         // Canvas描画最適化: パスの再利用
         ctx.beginPath()
         ctx.arc(x, y, radius, 0, Math.PI * 2)
 
-        // シャボン玉の本体を描画
+        // シャボン玉の本体を描画（ガラスモーフィズム）
         ctx.fillStyle = gradient
         ctx.fill()
 
-        // シャボン玉の輪郭を描画（同じパスを再利用）
-        ctx.strokeStyle = `${color}80` // 半透明の輪郭
-        ctx.lineWidth = 2
+        // ガラスモーフィズムの境界線（非常に薄く）
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'
+        ctx.lineWidth = 1
         ctx.stroke()
 
-        // Canvas描画最適化: 小さいシャボン玉はハイライトをスキップ
-        if (radius > 25) {
+        // ガラスモーフィズムのハイライト効果
+        if (radius > 20) {
           const highlightGradient = ctx.createRadialGradient(
             x - radius * 0.4,
             y - radius * 0.4,
             0,
             x - radius * 0.4,
             y - radius * 0.4,
-            radius * 0.6
+            radius * 0.5
           )
-          highlightGradient.addColorStop(0, '#FFFFFF60')
-          highlightGradient.addColorStop(1, '#FFFFFF00')
+          highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)')
+          highlightGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)')
+          highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
 
           ctx.beginPath()
           ctx.arc(
-            x - radius * 0.3,
-            y - radius * 0.3,
-            radius * 0.4,
+            x - radius * 0.35,
+            y - radius * 0.35,
+            radius * 0.3,
             0,
             Math.PI * 2
           )
@@ -251,7 +255,7 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
           ctx.fill()
         }
 
-        // 見やすいテキスト描画（コントラスト改善）
+        // 改善されたテキスト描画（統一フォント + 柔らかい色）
         if (displaySize > 35) {
           ctx.globalAlpha = displayOpacity * 0.9
 
@@ -261,20 +265,45 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
 
           // フォントサイズを計算
           const fontSize = Math.max(10, Math.min(20, displaySize * 0.25))
-          ctx.font = `bold ${fontSize}px Arial, sans-serif`
+          
+          // 日本語・英語・タグに応じたフォント設定
+          const isTag = bubble.type === 'tag'
+          const hasEnglish = /[a-zA-Z]/.test(displayName)
+          const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(displayName)
+          
+          let fontWeight = '500' // 通常：500
+          let needsLetterSpacing = false
+          
+          if (isTag || (hasEnglish && !hasJapanese)) {
+            fontWeight = '600' // 英字部分：600
+            needsLetterSpacing = true // 英字のletter-spacingを広め
+          }
+          
+          ctx.font = `${fontWeight} ${fontSize}px "M PLUS Rounded 1c", "Poppins", sans-serif`
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
 
-          // 強い影を描画（コントラスト向上）
-          // ctx.fillStyle = 'rgba(0, 0, 0, 0.0)'
-          // ctx.fillText(displayName, x + 2, y + 2)
-          // ctx.fillText(displayName, x + 1, y + 1)
-          // ctx.fillText(displayName, x - 1, y + 1)
-          // ctx.fillText(displayName, x + 1, y - 1)
-
-          // メインテキストを描画（濃い色で視認性向上）
-          ctx.fillStyle = '#333333'
-          ctx.fillText(displayName, x, y)
+          // 柔らかい黒色でテキストを描画
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'
+          
+          // 英字の場合は文字間隔を手動で調整
+          if (needsLetterSpacing && displayName.length > 1) {
+            // 文字間隔を広げて描画（簡易実装）
+            const chars = displayName.split('')
+            const totalWidth = ctx.measureText(displayName).width
+            const spacing = fontSize * 0.05 // 0.05em相当
+            const adjustedWidth = totalWidth + (chars.length - 1) * spacing
+            
+            let startX = x - adjustedWidth / 2
+            chars.forEach((char, index) => {
+              const charWidth = ctx.measureText(char).width
+              ctx.fillText(char, startX + charWidth / 2, y)
+              startX += charWidth + spacing
+            })
+          } else {
+            // 通常の描画
+            ctx.fillText(displayName, x, y)
+          }
         }
 
         // キーボード選択時のハイライト表示
@@ -741,12 +770,22 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
             aria-describedby="canvas-instructions canvas-announcements"
             tabIndex={0}
             onKeyDown={handleCanvasKeyDown}
-            className="bubble-canvas gpu-accelerated animation-optimized flicker-prevention stable-rendering mobile-touch-optimized"
+            className="bubble-canvas gpu-accelerated animation-optimized flicker-prevention stable-rendering mobile-touch-optimized bubble-canvas-improved"
             style={{
               display: 'block',
-              border: '1px solid #E0E0E0',
-              borderRadius: '8px',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              width: '100%',
+              height: '100%',
+              minWidth: screenSize.isMobile ? '280px' : '400px',
+              minHeight: screenSize.isMobile ? '480px' : '300px',
+              visibility: 'visible',
+              opacity: 1,
+              // ガラスモーフィズム効果を適用
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '20px',
+              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
               touchAction: 'manipulation', // Optimize for touch
               WebkitTouchCallout: 'none',
               WebkitUserSelect: 'none',
@@ -759,8 +798,6 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
               backfaceVisibility: 'hidden',
               WebkitPerspective: '1000px', // 3D変換を有効化
               perspective: '1000px',
-              // 背景を透明にしてEnhancedBubbleBackgroundを表示
-              backgroundColor: 'transparent',
               // レイヤー順序を確保
               position: 'relative',
               zIndex: 1,

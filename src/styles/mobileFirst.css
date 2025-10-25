@@ -1,154 +1,205 @@
 /* Mobile-First UI Improvements */
 /* Requirements: 17.1, 17.2, 17.3, 17.4, 17.5 */
 
-/* CSS Variables for Mobile-First Design */
+/* Glassmorphism Mobile-First Design Variables */
 :root {
-  /* Mobile-First Header Heights */
-  --header-height-mobile: 50px;
-  --header-height-mobile-landscape: 45px;
-  --header-height-tablet: 60px;
-  --header-height-desktop: 80px;
+  /* ===== GLASSMORPHISM MOBILE-FIRST HEIGHTS ===== */
+  --glass-header-height-mobile: 50px;
+  --glass-header-height-mobile-landscape: 45px;
+  --glass-header-height-tablet: 60px;
+  --glass-header-height-desktop: 80px;
 
-  /* Mobile-First Navigation Heights */
-  --navigation-height-mobile: 60px;
-  --navigation-height-desktop: 0px;
+  /* ===== GLASSMORPHISM NAVIGATION HEIGHTS ===== */
+  --glass-navigation-height-mobile: 60px;
+  --glass-navigation-height-desktop: 0px;
 
-  /* Bubble Area Calculations */
-  --bubble-area-mobile: calc(
-    100vh - var(--header-height-mobile) - var(--navigation-height-mobile)
-  );
-  --bubble-area-mobile-landscape: calc(
-    100vh - var(--header-height-mobile-landscape) -
-      var(--navigation-height-mobile)
-  );
-  --bubble-area-tablet: calc(100vh - var(--header-height-tablet));
-  --bubble-area-desktop: calc(100vh - var(--header-height-desktop));
+  /* ===== GLASSMORPHISM BUBBLE AREA CALCULATIONS ===== */
+  --glass-bubble-area-mobile: calc(100vh - var(--glass-header-height-mobile) - var(--glass-navigation-height-mobile));
+  --glass-bubble-area-mobile-landscape: calc(100vh - var(--glass-header-height-mobile-landscape) - var(--glass-navigation-height-mobile));
+  --glass-bubble-area-tablet: calc(100vh - var(--glass-header-height-tablet));
+  --glass-bubble-area-desktop: calc(100vh - var(--glass-header-height-desktop));
 
-  /* Touch Target Sizes */
-  --touch-target-min: 44px;
-  --touch-target-comfortable: 48px;
+  /* ===== GLASSMORPHISM TOUCH TARGETS ===== */
+  --glass-touch-target-min: 44px;
+  --glass-touch-target-comfortable: 48px;
+  --glass-touch-target-large: 56px;
 
-  /* Mobile-First Spacing */
-  --spacing-mobile-xs: 4px;
-  --spacing-mobile-sm: 8px;
-  --spacing-mobile-md: 12px;
-  --spacing-mobile-lg: 16px;
-  --spacing-mobile-xl: 20px;
+  /* ===== GLASSMORPHISM MOBILE SPACING ===== */
+  --glass-spacing-mobile-xs: var(--glass-space-1);
+  /* 4px */
+  --glass-spacing-mobile-sm: var(--glass-space-2);
+  /* 8px */
+  --glass-spacing-mobile-md: var(--glass-space-3);
+  /* 12px */
+  --glass-spacing-mobile-lg: var(--glass-space-4);
+  /* 16px */
+  --glass-spacing-mobile-xl: var(--glass-space-5);
+  /* 20px */
+
+  /* ===== LEGACY COMPATIBILITY ===== */
+  --header-height-mobile: var(--glass-header-height-mobile);
+  --header-height-mobile-landscape: var(--glass-header-height-mobile-landscape);
+  --header-height-tablet: var(--glass-header-height-tablet);
+  --header-height-desktop: var(--glass-header-height-desktop);
+  --navigation-height-mobile: var(--glass-navigation-height-mobile);
+  --navigation-height-desktop: var(--glass-navigation-height-desktop);
+  --bubble-area-mobile: var(--glass-bubble-area-mobile);
+  --bubble-area-mobile-landscape: var(--glass-bubble-area-mobile-landscape);
+  --bubble-area-tablet: var(--glass-bubble-area-tablet);
+  --bubble-area-desktop: var(--glass-bubble-area-desktop);
+  --touch-target-min: var(--glass-touch-target-min);
+  --touch-target-comfortable: var(--glass-touch-target-comfortable);
+  --spacing-mobile-xs: var(--glass-spacing-mobile-xs);
+  --spacing-mobile-sm: var(--glass-spacing-mobile-sm);
+  --spacing-mobile-md: var(--glass-spacing-mobile-md);
+  --spacing-mobile-lg: var(--glass-spacing-mobile-lg);
+  --spacing-mobile-xl: var(--glass-spacing-mobile-xl);
 }
 
-/* Base Mobile-First Styles */
+/* Base Mobile-First Styles - 強制表示 */
 html,
 body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  overflow-x: hidden !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+}
+
+/* Root要素の強制表示 */
+#root {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100vh !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
 }
 
 .mobile-first-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: var(--background-gradient);
+  background: var(--glass-background);
   position: relative;
+  /* ガラスモーフィズム最適化 */
+  isolation: isolate;
+  contain: layout style paint;
 }
 
 /* モバイルでのヘッダーとフッターメニュー用の余白確保 */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .mobile-first-container {
-    padding-top: 60px !important;
-    padding-bottom: 100px !important;
+    /* パディングはMobileFirstLayoutで管理するため削除 */
   }
 
   .bubble-container,
   .main-content {
-    padding-top: 10px !important;
-    padding-bottom: 5px !important;
+    /* パディングはMobileFirstLayoutで管理するため削除 */
   }
 }
 
-/* Mobile-First Header Styles */
+/* Glassmorphism Mobile-First Header Styles */
 .mobile-first-header {
-  height: var(--header-height-mobile);
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(10px) !important;
-  border-bottom: 1px solid rgba(224, 224, 224, 0.3) !important;
+  height: var(--glass-header-height-mobile);
+  background: var(--glass-strong) !important;
+  backdrop-filter: var(--glass-blur-medium) !important;
+  -webkit-backdrop-filter: var(--glass-blur-medium) !important;
+  border-bottom: var(--glass-border-glass) !important;
   display: flex !important;
   align-items: center !important;
-  padding: 0 var(--spacing-mobile-md) !important;
+  padding: 0 var(--glass-spacing-mobile-md) !important;
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
   width: 100% !important;
-  z-index: 10001 !important;
+  z-index: var(--glass-z-fixed) !important;
   visibility: visible !important;
   opacity: 1 !important;
+  /* ガラスモーフィズム強化 */
+  box-shadow: var(--glass-shadow-medium) !important;
+  border: var(--glass-border-glass) !important;
+  border-top: none !important;
 }
 
-/* Bubble Area Maximization */
+/* Glassmorphism Bubble Area Maximization */
 .mobile-first-bubble-area {
   flex: 1;
-  height: var(--bubble-area-mobile);
-  padding: var(--spacing-mobile-xs);
+  height: var(--glass-bubble-area-mobile);
+  padding: var(--glass-spacing-mobile-xs);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
   position: relative;
   overflow: hidden;
+  /* ガラスモーフィズム最適化 */
+  background: transparent;
+  contain: layout style paint;
 }
 
-/* Mobile-First Navigation Styles */
+/* Glassmorphism Mobile-First Navigation Styles */
 .mobile-first-navigation {
   position: fixed !important;
   bottom: 0 !important;
   left: 0 !important;
   right: 0 !important;
-  height: var(--navigation-height-mobile) !important;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 182, 193, 0.95),
-    rgba(255, 105, 180, 0.95)
-  ) !important;
-  backdrop-filter: blur(15px) !important;
-  border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
+  height: var(--glass-navigation-height-mobile) !important;
+  background: var(--glass-tinted-strong) !important;
+  backdrop-filter: var(--glass-blur-medium) !important;
+  -webkit-backdrop-filter: var(--glass-blur-medium) !important;
+  border-top: var(--glass-border-accent) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-around !important;
-  padding: 16px 20px 20px !important;
-  z-index: 1000 !important;
-  box-shadow: 0 -8px 30px rgba(255, 105, 180, 0.3) !important;
+  padding: var(--glass-space-4) var(--glass-space-5) var(--glass-space-5) !important;
+  z-index: var(--glass-z-fixed) !important;
+  box-shadow: var(--glass-shadow-strong) !important;
+  /* ガラスモーフィズム強化 */
+  border: var(--glass-border-glass) !important;
+  border-bottom: none !important;
 }
 
-/* Icon-Based Navigation Buttons */
+/* Glassmorphism Icon-Based Navigation Buttons */
 .mobile-nav-button {
-  background: transparent;
-  border: none;
-  padding: var(--spacing-mobile-xs);
+  background: var(--glass-light);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: var(--glass-border-subtle);
+  padding: var(--glass-spacing-mobile-xs);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--glass-transition-normal);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  min-height: var(--touch-target-min);
-  min-width: var(--touch-target-min);
-  border-radius: 12px;
+  gap: var(--glass-space-1);
+  min-height: var(--glass-touch-target-min);
+  min-width: var(--glass-touch-target-min);
+  border-radius: var(--glass-radius-md);
   position: relative;
+  /* ガラスモーフィズム強化 */
+  box-shadow: var(--glass-shadow-subtle);
 }
 
 .mobile-nav-button:hover {
-  background: rgba(255, 182, 193, 0.2);
+  background: var(--glass-medium);
+  box-shadow: var(--glass-shadow-medium);
 }
 
 .mobile-nav-button:active {
   transform: scale(0.95);
+  background: var(--glass-strong);
 }
 
 .mobile-nav-button.active {
-  background: rgba(255, 182, 193, 0.15);
+  background: var(--glass-tinted);
+  border: var(--glass-border-accent);
+  box-shadow: var(--glass-shadow-colored);
 }
 
 .mobile-nav-button.active::before {
@@ -159,8 +210,9 @@ body {
   transform: translateX(-50%);
   width: 24px;
   height: 3px;
-  background: var(--bubble-pink, #ff69b4);
-  border-radius: 2px;
+  background: var(--glass-accent);
+  border-radius: var(--glass-radius-xs);
+  box-shadow: var(--glass-shadow-subtle);
 }
 
 .mobile-nav-icon {
@@ -174,59 +226,64 @@ body {
 }
 
 .mobile-nav-text {
-  font-size: 10px;
-  font-weight: 500;
-  color: #666;
-  transition: all 0.3s ease;
+  font-size: var(--font-size-xs, 10px);
+  font-weight: var(--font-weight-medium, 500);
+  font-family: var(--font-family-primary);
+  color: var(--glass-text-secondary);
+  transition: var(--glass-transition-normal);
   text-align: center;
-  line-height: 1.2;
+  line-height: var(--line-height-tight, 1.2);
 }
 
 .mobile-nav-button.active .mobile-nav-text {
-  font-weight: 600;
-  color: #333;
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--glass-text-primary);
 }
 
-/* Touch Optimization */
+/* Glassmorphism Touch Optimization */
 .touch-optimized {
-  min-height: var(--touch-target-comfortable);
-  min-width: var(--touch-target-comfortable);
+  min-height: var(--glass-touch-target-comfortable);
+  min-width: var(--glass-touch-target-comfortable);
   touch-action: manipulation;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   user-select: none;
+  /* ガラスモーフィズム用タッチ最適化 */
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
 }
 
-/* Landscape Orientation Adjustments */
+/* Glassmorphism Landscape Orientation Adjustments */
 @media (max-width: 767px) and (orientation: landscape) {
   .mobile-first-header {
-    height: var(--header-height-mobile-landscape);
+    height: var(--glass-header-height-mobile-landscape);
   }
 
   .mobile-first-bubble-area {
-    height: var(--bubble-area-mobile-landscape);
-    padding: var(--spacing-mobile-xs) var(--spacing-mobile-sm);
+    height: var(--glass-bubble-area-mobile-landscape);
+    padding: var(--glass-spacing-mobile-xs) var(--glass-spacing-mobile-sm);
   }
 
   .mobile-first-navigation {
-    padding: 4px var(--spacing-mobile-sm);
+    padding: var(--glass-space-1) var(--glass-spacing-mobile-sm);
   }
 
   .mobile-nav-text {
-    font-size: 9px;
+    font-size: var(--font-size-2xs, 9px);
   }
 }
 
-/* Tablet Styles */
+/* Glassmorphism Tablet Styles */
 @media (min-width: 768px) and (max-width: 1023px) {
   .mobile-first-header {
-    height: var(--header-height-tablet);
-    padding: 0 var(--spacing-mobile-lg);
+    height: var(--glass-header-height-tablet);
+    padding: 0 var(--glass-spacing-mobile-lg);
+    border-radius: 0 0 var(--glass-radius-lg) var(--glass-radius-lg);
   }
 
   .mobile-first-bubble-area {
-    height: var(--bubble-area-tablet);
-    padding: var(--spacing-mobile-md);
+    height: var(--glass-bubble-area-tablet);
+    padding: var(--glass-spacing-mobile-md);
   }
 
   .mobile-first-navigation {
@@ -234,25 +291,26 @@ body {
     height: auto;
     background: transparent;
     backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border-top: none;
     box-shadow: none;
     padding: 0;
   }
 }
 
-/* Desktop Styles */
+/* Glassmorphism Desktop Styles */
 @media (min-width: 1024px) {
   .mobile-first-header {
-    height: var(--header-height-desktop);
-    padding: 0 var(--spacing-mobile-xl);
-    border-radius: 0 0 30px 30px;
-    border-bottom: 2px solid var(--border-cute, #ffb6c1);
-    box-shadow: 0 4px 20px var(--shadow-light, rgba(255, 105, 180, 0.15));
+    height: var(--glass-header-height-desktop);
+    padding: 0 var(--glass-spacing-mobile-xl);
+    border-radius: 0 0 var(--glass-radius-3xl) var(--glass-radius-3xl);
+    border-bottom: var(--glass-border-accent);
+    box-shadow: var(--glass-shadow-medium);
   }
 
   .mobile-first-bubble-area {
-    height: var(--bubble-area-desktop);
-    padding: var(--spacing-mobile-lg);
+    height: var(--glass-bubble-area-desktop);
+    padding: var(--glass-spacing-mobile-lg);
   }
 
   .mobile-first-navigation {
@@ -260,43 +318,42 @@ body {
     height: auto;
     background: transparent;
     backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     border-top: none;
     box-shadow: none;
     padding: 0;
     display: flex;
-    gap: 8px;
+    gap: var(--glass-space-2);
   }
 
   .mobile-nav-button {
     flex-direction: row;
-    gap: 6px;
-    padding: 10px 16px;
-    background: linear-gradient(
-      135deg,
-      var(--bubble-pink, #ff69b4),
-      var(--bubble-rose, #ff1493)
-    );
-    border: 2px solid white;
-    border-radius: 20px;
-    color: white;
-    font-size: 13px;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    gap: var(--glass-space-2);
+    padding: var(--glass-space-2) var(--glass-space-4);
+    background: var(--glass-tinted);
+    backdrop-filter: var(--glass-blur-medium);
+    -webkit-backdrop-filter: var(--glass-blur-medium);
+    border: var(--glass-border-glass);
+    border-radius: var(--glass-radius-xl);
+    color: var(--glass-text-on-glass);
+    font-size: var(--font-size-sm, 13px);
+    font-weight: var(--font-weight-semibold, 600);
+    font-family: var(--font-family-primary);
+    box-shadow: var(--glass-shadow-medium);
     min-height: 40px;
     white-space: nowrap;
   }
 
   .mobile-nav-button:hover {
-    background: linear-gradient(135deg, var(--bubble-rose, #ff1493), #dc143c);
+    background: var(--glass-tinted-strong);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--glass-shadow-strong);
   }
 
   .mobile-nav-button.active {
-    background: linear-gradient(135deg, var(--bubble-rose, #ff1493), #dc143c);
-    box-shadow:
-      0 4px 16px rgba(0, 0, 0, 0.2),
-      inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: var(--glass-strong);
+    border: var(--glass-border-accent);
+    box-shadow: var(--glass-shadow-colored), var(--glass-shadow-inset);
   }
 
   .mobile-nav-button.active::before {
@@ -308,32 +365,29 @@ body {
   }
 
   .mobile-nav-text {
-    font-size: 13px;
-    color: white;
-    font-weight: 600;
+    font-size: var(--font-size-sm, 13px);
+    color: var(--glass-text-on-glass);
+    font-weight: var(--font-weight-semibold, 600);
+    font-family: var(--font-family-primary);
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: var(--letter-spacing-wide, 0.3px);
   }
 }
 
 /* Safe Area Support for iPhone X and later */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .mobile-first-navigation {
-    padding-bottom: calc(
-      var(--spacing-mobile-sm) + env(safe-area-inset-bottom)
-    );
+    padding-bottom: calc(var(--spacing-mobile-sm) + env(safe-area-inset-bottom));
   }
 
   .mobile-first-bubble-area {
-    padding-bottom: calc(
-      var(--navigation-height-mobile) + var(--spacing-mobile-sm) +
-        env(safe-area-inset-bottom)
-    );
+    padding-bottom: calc(var(--navigation-height-mobile) + var(--spacing-mobile-sm) + env(safe-area-inset-bottom));
   }
 }
 
 /* High DPI Display Optimizations */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
   .mobile-nav-icon {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
@@ -342,6 +396,7 @@ body {
 
 /* Reduced Motion Support */
 @media (prefers-reduced-motion: reduce) {
+
   .mobile-nav-button,
   .mobile-nav-icon,
   .mobile-nav-text {
@@ -385,10 +440,12 @@ body {
 }
 
 @keyframes pulse {
+
   0%,
   100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -430,7 +487,7 @@ body {
 }
 
 /* Mobile-Specific Canvas Optimizations */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .bubble-area-maximized .bubble-canvas {
     border-radius: 8px;
     box-shadow: 0 2px 12px rgba(255, 105, 180, 0.15);
@@ -446,7 +503,8 @@ body {
 }
 
 /* Prevent Zoom on Input Focus (iOS) */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+
   input,
   select,
   textarea {
@@ -455,7 +513,8 @@ body {
 }
 
 /* 強制的にモバイルナビゲーションを表示 */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+
   /* 全てのナビゲーション要素を強制固定 */
   nav[role='navigation'],
   nav[aria-label='メインナビゲーション'],
@@ -466,11 +525,9 @@ body {
     left: 0 !important;
     right: 0 !important;
     width: 100vw !important;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 182, 193, 0.95),
-      rgba(255, 105, 180, 0.95)
-    ) !important;
+    background: linear-gradient(135deg,
+        rgba(255, 182, 193, 0.95),
+        rgba(255, 105, 180, 0.95)) !important;
     backdrop-filter: blur(15px) !important;
     border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
     padding: 16px 20px 20px !important;
@@ -495,11 +552,9 @@ body {
     left: 0 !important;
     right: 0 !important;
     width: 100% !important;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 182, 193, 0.95),
-      rgba(255, 105, 180, 0.95)
-    ) !important;
+    background: linear-gradient(135deg,
+        rgba(255, 182, 193, 0.95),
+        rgba(255, 105, 180, 0.95)) !important;
     backdrop-filter: blur(15px) !important;
     border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
     padding: 16px 20px 20px !important;
@@ -532,41 +587,26 @@ body {
   }
 
   /* アクティブ状態のボタン */
-  nav[aria-label='メインナビゲーション']
-    ul:last-child
-    li
-    button[aria-current='page'] {
+  nav[aria-label='メインナビゲーション'] ul:last-child li button[aria-current='page'] {
     background: rgba(255, 255, 255, 0.95) !important;
     box-shadow: 0 4px 15px rgba(255, 105, 180, 0.4) !important;
     transform: translateY(-2px) !important;
   }
 
   /* ボタンアイコンのスタイル */
-  nav[aria-label='メインナビゲーション']
-    ul:last-child
-    li
-    button
-    span:first-child {
+  nav[aria-label='メインナビゲーション'] ul:last-child li button span:first-child {
     font-size: 24px !important;
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1)) !important;
   }
 
   /* アクティブボタンのアイコン */
-  nav[aria-label='メインナビゲーション']
-    ul:last-child
-    li
-    button[aria-current='page']
-    span:first-child {
+  nav[aria-label='メインナビゲーション'] ul:last-child li button[aria-current='page'] span:first-child {
     font-size: 28px !important;
     transform: scale(1.2) !important;
   }
 
   /* ボタンテキストのスタイル */
-  nav[aria-label='メインナビゲーション']
-    ul:last-child
-    li
-    button
-    span:last-child {
+  nav[aria-label='メインナビゲーション'] ul:last-child li button span:last-child {
     font-size: 11px !important;
     font-weight: 600 !important;
     color: #555 !important;
@@ -574,11 +614,7 @@ body {
   }
 
   /* アクティブボタンのテキスト */
-  nav[aria-label='メインナビゲーション']
-    ul:last-child
-    li
-    button[aria-current='page']
-    span:last-child {
+  nav[aria-label='メインナビゲーション'] ul:last-child li button[aria-current='page'] span:last-child {
     font-size: 12px !important;
     font-weight: 700 !important;
     color: #333 !important;
@@ -586,7 +622,8 @@ body {
 }
 
 /* ヘッダーの強制表示 */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+
   /* 全てのヘッダー要素を強制表示 */
   header[role='banner'],
   .mobile-first-header,
@@ -607,7 +644,8 @@ body {
 }
 
 /* 追加の強制固定ルール */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+
   /* styled-componentsで生成される要素も強制固定 */
   ul[class*='MobileNavigation'] {
     position: fixed !important;
@@ -631,8 +669,8 @@ body {
   }
 
   /* bodyの最後の子要素がナビゲーションの場合 */
-  body > div:last-child nav,
-  body > div:last-child ul:last-child {
+  body>div:last-child nav,
+  body>div:last-child ul:last-child {
     position: fixed !important;
     bottom: 0 !important;
     z-index: 10000 !important;
@@ -645,11 +683,9 @@ body {
   bottom: 0 !important;
   left: 0 !important;
   right: 0 !important;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 182, 193, 0.95),
-    rgba(255, 105, 180, 0.95)
-  ) !important;
+  background: linear-gradient(135deg,
+      rgba(255, 182, 193, 0.95),
+      rgba(255, 105, 180, 0.95)) !important;
   backdrop-filter: blur(15px) !important;
   border-top: 3px solid rgba(255, 105, 180, 0.5) !important;
   padding: 16px 20px 20px !important;
@@ -701,7 +737,8 @@ body {
 }
 
 /* モバイル環境でのダイアログ最適化 */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
+
   .form-modal,
   .modal-content,
   .dialog-container {
@@ -724,9 +761,9 @@ body {
 }
 
 /* ダイアログ内容の強制表示 */
-.dialog-container > *,
-.form-modal > *,
-.modal-content > * {
+.dialog-container>*,
+.form-modal>*,
+.modal-content>* {
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
@@ -857,7 +894,9 @@ body {
   visibility: visible !important;
   opacity: 1 !important;
 }
-/ * Mobile Touch Event Optimization - 34.1対応 */ .mobile-touch-optimized {
+
+/* Mobile Touch Event Optimization - 34.1対応 */
+.mobile-touch-optimized {
   touch-action: manipulation !important;
   -webkit-touch-callout: none !important;
   -webkit-user-select: none !important;
@@ -875,7 +914,7 @@ body {
 }
 
 /* Mobile Dialog Event Handling */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .mobile-dialog-stable {
     position: fixed !important;
     z-index: 10001 !important;
@@ -944,7 +983,8 @@ body {
 }
 
 /* Touch Event Performance Optimization */
-@media (max-width: 768px) and (pointer: coarse) {
+@media (max-width: 900px) and (pointer: coarse) {
+
   /* タッチデバイス専用の最適化 */
   .bubble-canvas {
     touch-action: manipulation !important;

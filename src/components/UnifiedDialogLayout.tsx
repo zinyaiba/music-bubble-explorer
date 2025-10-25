@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from 'react'
 import './UnifiedDialogLayout.css'
+// import { useGlassmorphismTheme } from './GlassmorphismThemeProvider' // TODO: Use for dynamic theming
 
 interface UnifiedDialogLayoutProps {
   isVisible: boolean
@@ -29,6 +30,7 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
   showFooter = false,
   footerContent
 }) => {
+  // const theme = useGlassmorphismTheme() // TODO: Use theme for dynamic styling
   /**
    * バックドロップクリックハンドラー
    */

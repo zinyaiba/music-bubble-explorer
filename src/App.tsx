@@ -80,6 +80,16 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
         たくさん知ってほしいからよぉ
         <span aria-hidden="true">🌰</span>
       </p>
+      <p>
+        <span aria-hidden="true">🌰</span>
+        ■使い方
+        <span aria-hidden="true">🌰</span>
+      </p>
+      <p>
+        <span aria-hidden="true">🌰</span>
+        「タグ登録」からタグを登録してみよう
+        <span aria-hidden="true">🌰</span>
+      </p>
       <div className="sr-only">
         シャボン玉をクリックまたはタップすると、楽曲の詳細情報や関連する作詞家、作曲家、編曲家の情報を表示できます。
         キーボードでの操作も可能です。Tabキーで要素を移動し、Enterキーで選択してください。
@@ -251,6 +261,8 @@ function App() {
         setShowDatabaseDebugger(true)
         console.log('🔍 Database debugger opened')
       }
+      
+
 
       // 使用方法をコンソールに表示
       //       console.log(`
@@ -318,6 +330,8 @@ function App() {
     // モバイル最適化の初期化
     const mobileConfig = MobileOptimizer.initialize()
     debugLogger.info('Mobile optimization initialized', mobileConfig)
+    
+
 
     // 共有データサービスの初期化
     const initializeSharedDataService = async () => {
@@ -563,16 +577,14 @@ function App() {
         // Mobile-first canvas size calculation
         let optimalSize
         if (screenSize.isMobile) {
-          // モバイル: コンテナサイズを最大限活用
-          const headerHeight = screenSize.isLandscape ? 45 : 50
-          const navigationHeight = 60
-          const padding = 8
+          // モバイル: スクロール可能な領域でのキャンバスサイズ
+          const padding = 16
 
           optimalSize = {
             width: Math.max(300, rect.width - padding * 2),
             height: Math.max(
-              200,
-              window.innerHeight - headerHeight - navigationHeight - padding * 3
+              400, // 最小高さを400pxに設定してスクロールが発生しやすくする
+              500  // 固定高さでスクロールを確実に発生させる
             ),
           }
         } else {
@@ -1210,7 +1222,7 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <MobileFirstLayout
-          className="App mobile-first-container"
+          className="App mobile-first-container improved-background"
           header={
             <MobileFirstHeader>
               {/* デスクトップではヘッダーにナビゲーションを表示 */}

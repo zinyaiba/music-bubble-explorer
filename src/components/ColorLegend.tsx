@@ -42,31 +42,26 @@ const DEFAULT_LEGEND_ITEMS: LegendItem[] = [
     category: 'song',
     color: CATEGORY_COLORS.song,
     label: '楽曲',
-    icon: '🎵',
   },
   {
     category: 'lyricist',
     color: CATEGORY_COLORS.lyricist,
-    label: '作詞家',
-    icon: '✍️',
+    label: '作詞',
   },
   {
     category: 'composer',
     color: CATEGORY_COLORS.composer,
-    label: '作曲家',
-    icon: '🎼',
+    label: '作曲',
   },
   {
     category: 'arranger',
     color: CATEGORY_COLORS.arranger,
-    label: '編曲家',
-    icon: '🎹',
+    label: '編曲',
   },
   {
     category: 'tag',
     color: CATEGORY_COLORS.tag,
     label: 'タグ',
-    icon: '🏷️',
   },
 ]
 
@@ -132,28 +127,27 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
           return (
             <LegendItem
               key={item.category}
-              title={`${item.label}${isItemClickable ? 'でフィルター' : ''}`}
               isClickable={isItemClickable}
               isSelected={isSelected}
               onClick={
                 isItemClickable
                   ? () => {
-                      // window.console.log('🔍 [CLICK] LegendItem clicked:', item.category)
-                      handleCategoryClick(item.category)
-                    }
+                    // window.console.log('🔍 [CLICK] LegendItem clicked:', item.category)
+                    handleCategoryClick(item.category)
+                  }
                   : undefined
               }
               role={isItemClickable ? 'button' : undefined}
               tabIndex={isItemClickable ? 0 : undefined}
-              aria-label={`${item.label}${isSelected ? '（選択中）' : ''}でフィルター`}
+              aria-label={`${item.label}${isSelected ? '（選択中）' : ''}`}
               onKeyDown={
                 isItemClickable
                   ? e => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        handleCategoryClick(item.category)
-                      }
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      handleCategoryClick(item.category)
                     }
+                  }
                   : undefined
               }
             >
@@ -162,9 +156,8 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
                 isSelected={isSelected}
                 isClickable={isItemClickable}
               />
-              <LegendContent isVisible={showCounts || isSelected}>
-                <LegendLabel>
-                  {item.icon && <LegendIcon>{item.icon}</LegendIcon>}
+              <LegendContent isVisible={showCounts}>
+                <LegendLabel isSelected={isSelected}>
                   {item.label}
                 </LegendLabel>
                 {showCounts && item.count !== undefined && (
@@ -187,7 +180,7 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
             <FilterCategory>
               {selectedCategories.length === 1
                 ? categories.find(c => c.category === selectedCategories[0])
-                    ?.label
+                  ?.label
                 : `${selectedCategories.length}個選択中`}
             </FilterCategory>
           )}
@@ -217,7 +210,7 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
  */
 const LegendContainer = styled.div.withConfig({
   shouldForwardProp: prop => !['position', 'isFilterActive'].includes(prop),
-})<{
+}) <{
   position: string
   isFilterActive?: boolean
 }>`
@@ -241,7 +234,7 @@ const LegendContainer = styled.div.withConfig({
   backdrop-filter: blur(8px);
   border: 1px solid
     ${({ isFilterActive }) =>
-      isFilterActive ? 'rgba(33, 150, 243, 0.5)' : 'rgba(224, 224, 224, 0.3)'};
+    isFilterActive ? 'rgba(33, 150, 243, 0.5)' : 'rgba(224, 224, 224, 0.3)'};
   border-radius: 8px;
   padding: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -262,19 +255,19 @@ const LegendContainer = styled.div.withConfig({
     padding: 6px;
 
     ${({ position }) => {
-      switch (position) {
-        case 'top-left':
-          return 'top: 60px; left: 10px;'
-        case 'top-right':
-          return 'top: 60px; right: 10px;'
-        case 'bottom-left':
-          return 'bottom: 10px; left: 10px;'
-        case 'bottom-right':
-          return 'bottom: 10px; right: 10px;'
-        default:
-          return 'bottom: 10px; right: 10px;'
-      }
-    }}
+    switch (position) {
+      case 'top-left':
+        return 'top: 60px; left: 10px;'
+      case 'top-right':
+        return 'top: 60px; right: 10px;'
+      case 'bottom-left':
+        return 'bottom: 10px; left: 10px;'
+      case 'bottom-right':
+        return 'bottom: 10px; right: 8px;'
+      default:
+        return 'bottom: 10px; right: 10px;'
+    }
+  }}
   }
 `
 
@@ -297,7 +290,7 @@ const LegendList = styled.ul`
 
 const LegendItem = styled.li.withConfig({
   shouldForwardProp: prop => !['isClickable', 'isSelected'].includes(prop),
-})<{
+}) <{
   isClickable?: boolean
   isSelected?: boolean
 }>`
@@ -312,31 +305,23 @@ const LegendItem = styled.li.withConfig({
   min-height: 32px;
   min-width: 32px;
 
-  /* 選択状態のスタイル */
-  ${({ isSelected }) =>
-    isSelected &&
-    `
-    background: rgba(33, 150, 243, 0.1);
-    border: 2px solid rgba(33, 150, 243, 0.5);
-    transform: scale(1.1);
-  `}
+  /* 選択状態のスタイル - 背景色のみ */
+  background: transparent;
 
   /* クリック可能な場合のホバー効果 */
-  ${({ isClickable, isSelected }) =>
+  ${({ isClickable }) =>
     isClickable &&
     `
     &:hover {
-      background: ${isSelected ? 'rgba(33, 150, 243, 0.2)' : 'rgba(0, 0, 0, 0.1)'};
-      transform: ${isSelected ? 'scale(1.15)' : 'scale(1.05)'};
+      background: rgba(0, 0, 0, 0.05);
     }
     
     &:active {
-      transform: ${isSelected ? 'scale(1.05)' : 'scale(0.95)'};
+      background: rgba(0, 0, 0, 0.1);
     }
     
     &:focus {
-      outline: 2px solid #2196F3;
-      outline-offset: 2px;
+      outline: none;
     }
   `}
 
@@ -349,22 +334,7 @@ const LegendItem = styled.li.withConfig({
     }
   `}
 
-  /* ツールチップ表示 */
-  &:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    white-space: nowrap;
-    z-index: 1001;
-    margin-bottom: 4px;
-  }
+
 
   /* モバイル対応 */
   @media (max-width: 768px) {
@@ -372,8 +342,8 @@ const LegendItem = styled.li.withConfig({
     min-width: 36px;
 
     ${({ isClickable }) =>
-      isClickable &&
-      `
+    isClickable &&
+    `
       /* タップ領域を拡大 */
       &::before {
         content: '';
@@ -391,7 +361,7 @@ const LegendItem = styled.li.withConfig({
 const ColorIndicator = styled.div.withConfig({
   shouldForwardProp: prop =>
     !['color', 'isSelected', 'isClickable'].includes(prop),
-})<{
+}) <{
   color: string
   isSelected?: boolean
   isClickable?: boolean
@@ -400,33 +370,12 @@ const ColorIndicator = styled.div.withConfig({
   height: 20px;
   border-radius: 50%;
   background-color: ${({ color }) => color};
-  border: 2px solid
-    ${({ isSelected }) =>
-      isSelected ? 'rgba(33, 150, 243, 0.8)' : 'rgba(255, 255, 255, 0.8)'};
-  box-shadow: ${({ isSelected }) =>
-    isSelected
-      ? '0 4px 8px rgba(33, 150, 243, 0.3), 0 0 0 2px rgba(33, 150, 243, 0.2)'
-      : '0 2px 4px rgba(0, 0, 0, 0.1)'};
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
   transition: all 0.2s ease;
 
-  /* 選択時の内側の輝き */
-  ${({ isSelected }) =>
-    isSelected &&
-    `
-    position: relative;
-    
-    &::after {
-      content: '';
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      right: 2px;
-      bottom: 2px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-    }
-  `}
+
 
   @media (max-width: 768px) {
     width: 18px;
@@ -436,7 +385,7 @@ const ColorIndicator = styled.div.withConfig({
 
 const LegendContent = styled.div.withConfig({
   shouldForwardProp: prop => !['isVisible'].includes(prop),
-})<{ isVisible?: boolean }>`
+}) <{ isVisible?: boolean }>`
   display: ${({ isVisible }) => (isVisible ? 'flex' : 'none')};
   flex-direction: column;
   align-items: center;
@@ -444,16 +393,16 @@ const LegendContent = styled.div.withConfig({
   font-size: 10px;
 `
 
-const LegendLabel = styled.span`
-  color: #333;
-  font-weight: 500;
+const LegendLabel = styled.span.withConfig({
+  shouldForwardProp: prop => !['isSelected'].includes(prop),
+}) <{ isSelected?: boolean }>`
+  color: ${({ isSelected }) => isSelected ? '#e91e63' : '#333'};
+  font-weight: ${({ isSelected }) => isSelected ? '600' : '500'};
   white-space: nowrap;
+  transition: all 0.2s ease;
 `
 
-const LegendIcon = styled.span`
-  font-size: 8px;
-  margin-right: 2px;
-`
+
 
 const LegendCount = styled.span`
   color: #666;
@@ -476,7 +425,7 @@ const FilterStatus = styled.div`
 
 const FilterIcon = styled.span.withConfig({
   shouldForwardProp: prop => !['isActive'].includes(prop),
-})<{ isActive: boolean }>`
+}) <{ isActive: boolean }>`
   font-size: 10px;
   opacity: ${({ isActive }) => (isActive ? 1 : 0.6)};
 `

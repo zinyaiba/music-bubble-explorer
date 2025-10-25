@@ -2,54 +2,102 @@
 @import './styles/pwa.css';
 /* Import enhanced responsive styles */
 @import './styles/responsive-enhanced.css';
+/* Import improved glassmorphism styles */
+@import './styles/improved-glassmorphism.css';
 
-/* CSS Variables for theming - Lovely & Cute Theme */
+/* ===== 今風のガラスモーフィズムスクロールバー（グローバル適用） ===== */
+/* 全てのスクロール可能な要素に統一スタイルを適用 */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent; /* トラックは透明 */
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 182, 193, 0.45);
+  border-radius: 999px;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35); /* ガラス感の内側白線 */
+  transition: all 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 182, 193, 0.65);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Firefox用のスクロールバー */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 182, 193, 0.45) transparent;
+}
+
+/* Glassmorphism Theme Integration - App Level Variables */
 :root {
-  --background-gradient: linear-gradient(
-    135deg,
-    #ffeef8 0%,
-    #ffe0f0 25%,
-    #ffd1e8 50%,
-    #ffc2e0 75%,
-    #ffb3d8 100%
-  );
-  --bubble-pink: #ff69b4;
-  --bubble-rose: #ff1493;
-  --bubble-lavender: #dda0dd;
-  --bubble-peach: #ffb6c1;
-  --bubble-mint: #98fb98;
-  --bubble-sky: #87ceeb;
-  --bubble-cream: #fff8dc;
-  --bubble-coral: #ff7f50;
-  --text-primary: #8b4a8c;
-  --text-secondary: #b565a7;
-  --modal-background: rgba(255, 240, 248, 0.98);
-  --shadow-light: rgba(255, 105, 180, 0.15);
-  --shadow-medium: rgba(255, 105, 180, 0.25);
-  --shadow-strong: rgba(255, 105, 180, 0.35);
-  --border-cute: #ffb6c1;
-  --accent-sparkle: #ffd700;
+  /* ===== GLASSMORPHISM THEME OVERRIDES ===== */
+  /* アプリ固有のガラスモーフィズム設定 */
+  --app-glass-background: var(--glass-background);
+  --app-glass-surface: var(--glass-medium);
+  --app-glass-accent: var(--glass-primary-400);
+  
+  /* ===== LEGACY COMPATIBILITY MAINTAINED ===== */
+  /* 既存のテーマ変数を新しいガラスモーフィズムシステムにマッピング */
+  --background-gradient: var(--glass-background);
+  --bubble-pink: var(--glass-primary-400);
+  --bubble-rose: var(--glass-primary-500);
+  --bubble-lavender: #dda0dd;  /* 既存色を維持 */
+  --bubble-peach: var(--glass-primary-200);
+  --bubble-mint: #98fb98;      /* 既存色を維持 */
+  --bubble-sky: #87ceeb;       /* 既存色を維持 */
+  --bubble-cream: var(--glass-neutral-50);
+  --bubble-coral: #ff7f50;     /* 既存色を維持 */
+  --text-primary: var(--glass-text-primary);
+  --text-secondary: var(--glass-text-secondary);
+  --modal-background: var(--glass-strong);
+  --shadow-light: var(--glass-shadow-subtle);
+  --shadow-medium: var(--glass-shadow-medium);
+  --shadow-strong: var(--glass-shadow-strong);
+  --border-cute: var(--glass-primary-300);
+  --accent-sparkle: #ffd700;   /* 既存色を維持 */
+  
+  /* ===== APP-SPECIFIC GLASSMORPHISM ENHANCEMENTS ===== */
+  /* アプリ固有のガラスモーフィズム強化 */
+  --app-header-glass: var(--glass-strong);
+  --app-canvas-glass: var(--glass-medium);
+  --app-navigation-glass: var(--glass-tinted);
+  --app-modal-glass: var(--glass-strong);
 }
 
 .App {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  /* ちらつき防止のためのスタイル */
+  /* ガラスモーフィズム最適化 */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
-  background: var(--background-gradient);
-  font-family: 'Comic Sans MS', 'Arial', cursive, sans-serif;
+  background: var(--app-glass-background);
+  font-family: var(--font-family-primary, 'M PLUS Rounded 1c', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Comic Sans MS', 'Arial', cursive, sans-serif);
   position: relative;
   overflow-x: hidden;
+  /* ガラスモーフィズム用のパフォーマンス最適化 */
+  will-change: auto;
+  contain: layout style paint;
 }
 
 /* モバイルでのヘッダーとフッターメニュー対応 */
 @media (max-width: 768px) {
   .App {
-    padding-bottom: 100px;
+    /* パディングはMobileFirstLayoutで管理するため削除 */
+    padding: 0;
   }
 }
 
@@ -86,13 +134,17 @@
 
 .App-header {
   text-align: center;
-  padding: 2rem 1rem 1rem;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(15px);
-  border-bottom: 2px solid var(--border-cute);
-  border-radius: 0 0 30px 30px;
-  box-shadow: 0 4px 20px var(--shadow-light);
+  padding: var(--glass-space-8) var(--glass-space-4) var(--glass-space-4);
+  background: var(--app-header-glass);
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  border-bottom: var(--glass-border-accent);
+  border-radius: 0 0 var(--glass-radius-3xl) var(--glass-radius-3xl);
+  box-shadow: var(--glass-shadow-medium);
   position: relative;
+  /* ガラスモーフィズム強化 */
+  border: var(--glass-border-glass);
+  border-top: none;
 }
 
 .header-content {
@@ -117,45 +169,51 @@
 
 .add-song-button,
 .manage-songs-button {
-  background: linear-gradient(135deg, var(--bubble-pink), var(--bubble-rose));
-  border: 3px solid white;
-  border-radius: 25px;
-  padding: 12px 20px;
-  color: white;
-  font-size: 14px;
-  font-weight: 700;
+  background: var(--glass-tinted);
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  border: var(--glass-border-glass);
+  border-radius: var(--glass-radius-2xl);
+  padding: var(--glass-space-3) var(--glass-space-5);
+  color: var(--glass-text-on-glass);
+  font-size: var(--font-size-button, 14px);
+  font-weight: var(--font-weight-semibold, 600);
+  font-family: var(--font-family-primary);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--glass-transition-normal);
   display: flex;
   align-items: center;
-  gap: 8px;
-  box-shadow: 0 6px 20px var(--shadow-medium);
+  gap: var(--glass-space-2);
+  box-shadow: var(--glass-shadow-medium);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--letter-spacing-wide, 0.5px);
   min-height: 48px;
   white-space: nowrap;
+  /* ガラスモーフィズム強化 */
+  position: relative;
+  overflow: hidden;
 }
 
 .manage-songs-button {
-  background: linear-gradient(
-    135deg,
-    var(--bubble-lavender),
-    var(--bubble-peach)
-  );
+  background: var(--glass-tinted-light);
+  border: var(--glass-border-tinted);
 }
 
 .add-song-button:hover,
 .manage-songs-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px var(--shadow-strong);
+  box-shadow: var(--glass-shadow-strong);
+  background: var(--glass-strong);
 }
 
 .add-song-button:hover {
-  background: linear-gradient(135deg, var(--bubble-rose), #dc143c);
+  background: var(--glass-tinted-strong);
+  border: var(--glass-border-accent);
 }
 
 .manage-songs-button:hover {
-  background: linear-gradient(135deg, #ba68c8, #f48fb1);
+  background: var(--glass-medium);
+  border: var(--glass-border-tinted);
 }
 
 .add-song-button:active,
@@ -247,24 +305,21 @@
 }
 
 .main-canvas {
-  box-shadow:
-    0 12px 40px var(--shadow-medium),
-    0 0 0 4px var(--border-cute);
-  border-radius: 25px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 240, 248, 0.1)
-  );
-  backdrop-filter: blur(10px);
-  border: 3px solid var(--border-cute);
+  box-shadow: var(--glass-shadow-strong), var(--glass-shadow-inset);
+  border-radius: var(--glass-radius-2xl);
+  background: var(--app-canvas-glass);
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  border: var(--glass-border-glass);
   position: relative;
-  /* ちらつき防止のためのスタイル */
+  /* ガラスモーフィズム最適化 */
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   will-change: transform;
+  /* パフォーマンス向上 */
+  contain: layout style paint;
 }
 
 .main-canvas::before {
@@ -284,23 +339,30 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   max-width: 600px;
   text-align: center;
+  /* テキスト量に応じて高さが伸びるように */
+  height: auto;
+  min-height: auto;
+  
+  /* モバイルでの間隔調整 */
+  @media (max-width: 900px) {
+    gap: 0.25rem;
+  }
 }
 
 .instructions {
-  padding: 1.5rem 2rem;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 240, 248, 0.8),
-    rgba(255, 228, 240, 0.6)
-  );
-  backdrop-filter: blur(15px);
-  border-radius: 25px;
-  border: 2px solid var(--border-cute);
-  box-shadow: 0 8px 25px var(--shadow-light);
+  padding: var(--glass-space-6) var(--glass-space-8);
+  background: var(--glass-tinted);
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  border-radius: var(--glass-radius-2xl);
+  border: var(--glass-border-tinted);
+  box-shadow: var(--glass-shadow-medium);
   position: relative;
+  /* ガラスモーフィズム強化 */
+  overflow: hidden;
 }
 
 .instructions::before {
@@ -436,8 +498,8 @@
   box-shadow: 0 2px 12px rgba(255, 105, 180, 0.15);
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.1),
-    rgba(255, 240, 248, 0.1)
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 248, 252, 0.08)
   );
   backdrop-filter: blur(10px);
   border: 2px solid var(--border-cute);
@@ -450,8 +512,8 @@
   padding: 0.75rem 1rem;
   background: linear-gradient(
     135deg,
-    rgba(255, 240, 248, 0.8),
-    rgba(255, 228, 240, 0.6)
+    rgba(255, 248, 252, 0.6),
+    rgba(255, 240, 248, 0.4)
   );
   backdrop-filter: blur(15px);
   border-radius: 20px;
@@ -474,29 +536,29 @@
 @media (min-width: 768px) {
   .bubble-container {
     max-width: 800px;
-    padding: 0 0.5rem;
+    padding: 0 var(--glass-space-2);
   }
 
   .main-canvas {
-    border-radius: 14px;
-    box-shadow: 0 6px 20px rgba(255, 105, 180, 0.2);
+    border-radius: var(--glass-radius-lg);
+    box-shadow: var(--glass-shadow-medium);
   }
 
   .header-buttons {
     justify-content: center;
-    gap: 1rem;
-    padding: 0.875rem 1.25rem;
-    font-size: 0.9rem;
-    border-radius: 25px;
+    gap: var(--glass-space-4);
+    padding: var(--glass-space-3) var(--glass-space-5);
+    font-size: var(--font-size-sm, 0.9rem);
+    border-radius: var(--glass-radius-2xl);
   }
 
   .instructions {
-    padding: 1rem 1.5rem;
-    border-radius: 25px;
+    padding: var(--glass-space-4) var(--glass-space-6);
+    border-radius: var(--glass-radius-2xl);
   }
 
   .instructions p {
-    font-size: 1rem;
+    font-size: var(--font-size-body1, 1rem);
   }
 }
 
@@ -504,23 +566,21 @@
 @media (min-width: 1024px) {
   .bubble-container {
     max-width: 1000px;
-    padding: 0 1rem;
+    padding: 0 var(--glass-space-4);
   }
 
   .main-canvas {
-    border-radius: 25px;
-    box-shadow:
-      0 12px 40px var(--shadow-medium),
-      0 0 0 4px var(--border-cute);
+    border-radius: var(--glass-radius-2xl);
+    box-shadow: var(--glass-shadow-strong), var(--glass-shadow-inset);
   }
 
   .instructions {
-    padding: 1.5rem 2rem;
-    border-radius: 25px;
+    padding: var(--glass-space-6) var(--glass-space-8);
+    border-radius: var(--glass-radius-2xl);
   }
 
   .instructions p {
-    font-size: 1rem;
+    font-size: var(--font-size-body1, 1rem);
   }
 }
 
@@ -934,24 +994,312 @@ ebase Test Modal Styles */
 /* PC: 横幅制限でシャボン玉が潰れないように */
 @media (min-width: 769px) {
   .bubble-container {
-    max-width: 800px;
+    max-width: 900px; /* 横幅を少し拡大 */
     aspect-ratio: 4/3;
-    min-height: 400px;
+    min-height: 500px; /* 最小高さを増加 */
+    margin-top: 0; /* 上部マージンを削除してヘッダーとの間隔を調整 */
   }
 }
 
-/* スマホ: 縦長に拡張 */
-@media (max-width: 768px) {
+/* スマホ: 縦長に拡張 - 強制表示 */
+@media (max-width: 900px) {
+  /* 全体のレイアウトを強制表示 */
+  .App,
+  .mobile-first-container {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    width: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+
+}
+
+/* モバイル表示の確保 */
+@media (max-width: 900px) {
+  body, html, #root {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+  }
+}
+
+/* 小さなモバイルサイズ（iPhone等）用の追加スタイル */
+@media (max-width: 500px) {
+  /* 全体のレイアウトを強制表示 */
+  .App,
+  .mobile-first-container {
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 100vh !important;
+    width: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* メインコンテンツエリアを強制表示 */
+  main {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    width: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding: 4px !important;
+  }
+
   .bubble-container {
-    max-width: 100%;
-    /* シャボン玉領域をもっと縦に長く */
-    min-height: 70vh;
-    margin-bottom: 0px;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 35vh !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 4px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: transparent !important;
+  }
+
+  .main-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 250px !important;
+    min-height: 200px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 
   .app-info {
-    /* 説明文領域との間隔をもっと狭く */
-    margin-top: 0px;
-    padding: 8px;
+    margin: 4px 0 !important;
+    padding: 8px !important;
+    width: 100% !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .instructions {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 !important;
+    padding: 12px !important;
+    background: rgba(255, 248, 252, 0.8) !important;
+    border-radius: 12px !important;
+    border: 2px solid rgba(255, 182, 193, 0.3) !important;
+  }
+
+  .instructions p {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    color: #333 !important;
+  }
+
+  /* メインコンテンツエリアを強制表示 */
+  main {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    width: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    padding: 8px !important;
+  }
+
+  .bubble-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    /* シャボン玉領域をもっと縦に長く */
+    min-height: 40vh !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: transparent !important;
+  }
+
+  .main-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 280px !important;
+    min-height: 480px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* モバイルでのメインセクション全体のスクロール設定 */
+  .mobile-first-container main {
+    /* メインセクション全体にスクロールを適用 */
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: smooth !important;
+    /* より確実な位置とサイズ設定 */
+    position: fixed !important;
+    top: 70px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 88px !important;
+    width: 100vw !important;
+    height: auto !important;
+    max-height: none !important;
+    z-index: 1 !important;
+  }
+
+  .bubble-container {
+    /* シャボン玉領域の調整 */
+    flex: 0 0 auto !important; /* 固定サイズに変更 */
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    margin-bottom: 0px !important; /* ヘルプメッセージとの間隔 */
+  }
+
+  .app-info {
+    /* ヘルプメッセージ領域の調整 */
+    margin: 8px 0 !important;
+    padding: 12px !important;
+    width: 100% !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    /* テキスト量に応じて高さが伸びるように */
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .instructions {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 !important;
+    padding: 16px !important;
+    background: rgba(255, 248, 252, 0.8) !important;
+    border-radius: 16px !important;
+    border: 2px solid rgba(255, 182, 193, 0.3) !important;
+  }
+
+  /* 今風のガラスモーフィズムスクロールバー */
+  .mobile-first-container main::-webkit-scrollbar {
+    width: 10px !important;
+  }
+
+  .mobile-first-container main::-webkit-scrollbar-track {
+    background: transparent !important; /* トラックは透明 */
+  }
+
+  .mobile-first-container main::-webkit-scrollbar-thumb {
+    background: rgba(255, 182, 193, 0.45) !important;
+    border-radius: 999px !important;
+    border: none !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35) !important; /* ガラス感の内側白線 */
+    transition: all 0.2s ease !important;
+  }
+
+  .mobile-first-container main::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 182, 193, 0.65) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45) !important;
+  }
+
+  /* Firefox用のスクロールバー */
+  .mobile-first-container main {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255, 182, 193, 0.45) transparent !important;
+  }
+
+  /* ダイアログ・モーダル用のスクロールバー */
+  .dialog-container::-webkit-scrollbar,
+  .modal-content::-webkit-scrollbar,
+  .form-modal::-webkit-scrollbar,
+  .enhanced-tag-list::-webkit-scrollbar {
+    width: 8px !important; /* ダイアログでは少し細く */
+  }
+
+  .dialog-container::-webkit-scrollbar-track,
+  .modal-content::-webkit-scrollbar-track,
+  .form-modal::-webkit-scrollbar-track,
+  .enhanced-tag-list::-webkit-scrollbar-track {
+    background: transparent !important;
+  }
+
+  .dialog-container::-webkit-scrollbar-thumb,
+  .modal-content::-webkit-scrollbar-thumb,
+  .form-modal::-webkit-scrollbar-thumb,
+  .enhanced-tag-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 182, 193, 0.45) !important;
+    border-radius: 999px !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35) !important;
+    transition: all 0.2s ease !important;
+  }
+
+  .dialog-container::-webkit-scrollbar-thumb:hover,
+  .modal-content::-webkit-scrollbar-thumb:hover,
+  .form-modal::-webkit-scrollbar-thumb:hover,
+  .enhanced-tag-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 182, 193, 0.65) !important;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45) !important;
+  }
+
+  .instructions {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 !important;
+    padding: 16px !important;
+    background: rgba(255, 248, 252, 0.8) !important;
+    border-radius: 16px !important;
+    border: 2px solid rgba(255, 182, 193, 0.3) !important;
+    /* テキスト量に応じて高さが伸びるように */
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+  }
+
+  .instructions p {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    margin: 0 !important;
+    font-size: 10px !important;
+    line-height: 1.5 !important;
+    color: #333 !important;
+  }
+
+  /* データローディングエラーバウンダリーも強制表示 */
+  div[class*="DataLoadingErrorBoundary"],
+  div[class*="ErrorBoundary"] {
+    display: block !important;
+    width: 100% !important;
+    visibility: visible !important;
+    opacity: 1 !important;
   }
 }

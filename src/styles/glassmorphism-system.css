@@ -1,0 +1,541 @@
+/* Glassmorphism Design System - Complete CSS Variables and Utilities */
+
+/* Import font system */
+@import './glassmorphism-fonts.css';
+
+/* Glassmorphism CSS Custom Properties - Unified System */
+:root {
+  /* ===== PRIMARY COLOR PALETTE (淡いピンク系) ===== */
+  --glass-primary-50: #fef7f7;    /* 最も薄いピンク */
+  --glass-primary-100: #fce8e8;   /* 薄いピンク */
+  --glass-primary-200: #f8d1d1;   /* 中間ピンク */
+  --glass-primary-300: #f3b4b4;   /* やや濃いピンク */
+  --glass-primary-400: #ec8b8b;   /* 濃いピンク */
+  --glass-primary-500: #e06666;   /* メインピンク */
+  --glass-primary-600: #d44444;   /* より濃いピンク */
+  
+  /* ===== NEUTRAL COLORS (白とグレー系) ===== */
+  --glass-neutral-0: #ffffff;     /* 純白 */
+  --glass-neutral-50: #fafafa;    /* オフホワイト */
+  --glass-neutral-100: #f5f5f5;   /* 薄いグレー */
+  --glass-neutral-200: #e5e5e5;   /* 中間グレー */
+  --glass-neutral-300: #d4d4d4;   /* やや濃いグレー */
+  --glass-neutral-400: #a3a3a3;   /* 濃いグレー */
+  --glass-neutral-500: #737373;   /* ダークグレー */
+  --glass-neutral-600: #525252;   /* より濃いグレー */
+  --glass-neutral-700: #404040;   /* 非常に濃いグレー */
+  
+  /* ===== GLASS EFFECTS (ガラスモーフィズム効果) ===== */
+  --glass-light: rgba(255, 255, 255, 0.1);      /* 軽いガラス効果 */
+  --glass-medium: rgba(255, 255, 255, 0.2);     /* 中程度のガラス効果 */
+  --glass-strong: rgba(255, 255, 255, 0.3);     /* 強いガラス効果 */
+  --glass-tinted: rgba(254, 247, 247, 0.2);     /* ピンクティントガラス */
+  --glass-tinted-light: rgba(254, 247, 247, 0.1); /* 薄いピンクティント */
+  --glass-tinted-strong: rgba(254, 247, 247, 0.3); /* 濃いピンクティント */
+  
+  /* ===== LEGACY COMPATIBILITY (既存変数との互換性) ===== */
+  /* 既存のbubble色をガラスモーフィズムに統合 */
+  --bubble-pink: var(--glass-primary-400);      /* #ec8b8b */
+  --bubble-rose: var(--glass-primary-500);      /* #e06666 */
+  --bubble-lavender: #dda0dd;                   /* 既存のラベンダー色を維持 */
+  --bubble-peach: var(--glass-primary-200);     /* #f8d1d1 */
+  --bubble-mint: #98fb98;                       /* 既存のミント色を維持 */
+  --bubble-sky: #87ceeb;                        /* 既存のスカイ色を維持 */
+  --bubble-cream: var(--glass-neutral-50);      /* #fafafa */
+  --bubble-coral: #ff7f50;                      /* 既存のコーラル色を維持 */
+  
+  /* ===== TEXT COLORS (テキスト色) ===== */
+  --glass-text-primary: #374151;               /* メインテキスト */
+  --glass-text-secondary: #6b7280;             /* セカンダリテキスト */
+  --glass-text-on-glass: #1f2937;              /* ガラス上のテキスト */
+  --glass-text-accent: var(--glass-primary-500); /* アクセントテキスト */
+  --glass-text-muted: var(--glass-neutral-400); /* ミュートテキスト */
+  
+  /* ===== TITLE COLORS (タイトル色) ===== */
+  --glass-title-pink: #f8bbd9;                 /* 栗林みな実用の淡ピンク */
+  --glass-title-lavender: #dda0dd;             /* Malon Bubbles用のラベンダー */
+  
+  /* 既存テキスト色との互換性 */
+  --text-primary: var(--glass-text-primary);
+  --text-secondary: var(--glass-text-secondary);
+  
+  /* ===== BACKGROUND COLORS (背景色) ===== */
+  --glass-background: linear-gradient(135deg, #FFFCFD 0%, #FDF5F3 100%);
+  --glass-surface: var(--glass-neutral-0);
+  --glass-accent: var(--glass-primary-500);
+  
+  /* ===== IMPROVED GLASSMORPHISM EFFECTS ===== */
+  --glass-bubble: rgba(255, 255, 255, 0.2);
+  --glass-bubble-blur: blur(8px);
+  --glass-board-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  
+  /* 既存背景色との互換性 */
+  --background-gradient: var(--glass-background);
+  --modal-background: rgba(255, 240, 248, 0.98);
+  
+  /* ===== BLUR EFFECTS (ぼかし効果) ===== */
+  --glass-blur-light: blur(8px);               /* 軽いぼかし */
+  --glass-blur-medium: blur(12px);             /* 中程度のぼかし */
+  --glass-blur-strong: blur(20px);             /* 強いぼかし */
+  --glass-blur-subtle: blur(6px);              /* 非常に軽いぼかし */
+  --glass-blur-intense: blur(24px);            /* 非常に強いぼかし */
+  
+  /* ===== SHADOWS (シャドウ) ===== */
+  --glass-shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.05);        /* 微細なシャドウ */
+  --glass-shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.1);        /* 中程度のシャドウ */
+  --glass-shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.15);       /* 強いシャドウ */
+  --glass-shadow-colored: 0 4px 16px rgba(224, 102, 102, 0.1); /* ピンクティントシャドウ */
+  --glass-shadow-colored-strong: 0 6px 24px rgba(224, 102, 102, 0.15); /* 強いピンクシャドウ */
+  --glass-shadow-inset: inset 0 1px 3px rgba(255, 255, 255, 0.2); /* 内側シャドウ */
+  
+  /* 既存シャドウとの互換性 */
+  --shadow-light: var(--glass-shadow-subtle);
+  --shadow-medium: var(--glass-shadow-medium);
+  --shadow-strong: var(--glass-shadow-strong);
+  
+  /* ===== BORDERS (ボーダー) ===== */
+  --glass-border-glass: 1px solid rgba(255, 255, 255, 0.2);    /* ガラス風ボーダー */
+  --glass-border-subtle: 1px solid rgba(255, 255, 255, 0.1);   /* 微細なボーダー */
+  --glass-border-accent: 1px solid rgba(224, 102, 102, 0.2);   /* アクセントボーダー */
+  --glass-border-strong: 1px solid rgba(255, 255, 255, 0.3);   /* 強いボーダー */
+  --glass-border-tinted: 1px solid rgba(254, 247, 247, 0.3);   /* ピンクティントボーダー */
+  
+  /* 既存ボーダーとの互換性 */
+  --border-cute: var(--glass-primary-300);
+  --border-light: var(--glass-border-subtle);
+  
+  /* ===== BORDER RADIUS (角丸) ===== */
+  --glass-radius-xs: 4px;                      /* 極小角丸 */
+  --glass-radius-sm: 8px;                      /* 小角丸 */
+  --glass-radius-md: 12px;                     /* 中角丸 */
+  --glass-radius-lg: 16px;                     /* 大角丸 */
+  --glass-radius-xl: 20px;                     /* 特大角丸 */
+  --glass-radius-2xl: 24px;                    /* 超特大角丸 */
+  --glass-radius-3xl: 32px;                    /* 最大角丸 */
+  --glass-radius-full: 9999px;                 /* 完全な円形 */
+  
+  /* ===== SPACING SCALE (間隔スケール) ===== */
+  --glass-space-0: 0;                          /* スペースなし */
+  --glass-space-1: 0.25rem;                    /* 4px */
+  --glass-space-2: 0.5rem;                     /* 8px */
+  --glass-space-3: 0.75rem;                    /* 12px */
+  --glass-space-4: 1rem;                       /* 16px */
+  --glass-space-5: 1.25rem;                    /* 20px */
+  --glass-space-6: 1.5rem;                     /* 24px */
+  --glass-space-8: 2rem;                       /* 32px */
+  --glass-space-10: 2.5rem;                    /* 40px */
+  --glass-space-12: 3rem;                      /* 48px */
+  --glass-space-16: 4rem;                      /* 64px */
+  --glass-space-20: 5rem;                      /* 80px */
+  --glass-space-24: 6rem;                      /* 96px */
+  
+  /* ===== TRANSITIONS (トランジション) ===== */
+  --glass-transition-fast: 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);    /* 高速 */
+  --glass-transition-normal: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);   /* 標準 */
+  --glass-transition-slow: 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);     /* 低速 */
+  --glass-transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* バウンス */
+  
+  /* ===== Z-INDEX SCALE (重ね順) ===== */
+  --glass-z-base: 0;                           /* ベース */
+  --glass-z-dropdown: 10;                      /* ドロップダウン */
+  --glass-z-sticky: 20;                        /* スティッキー */
+  --glass-z-fixed: 30;                         /* 固定要素 */
+  --glass-z-modal-backdrop: 40;                /* モーダル背景 */
+  --glass-z-modal: 50;                         /* モーダル */
+  --glass-z-popover: 60;                       /* ポップオーバー */
+  --glass-z-tooltip: 70;                       /* ツールチップ */
+  --glass-z-toast: 80;                         /* トースト */
+  --glass-z-max: 9999;                         /* 最大値 */
+  
+  /* ===== RESPONSIVE BREAKPOINTS (レスポンシブブレークポイント) ===== */
+  --glass-breakpoint-xs: 320px;                /* 極小画面 */
+  --glass-breakpoint-sm: 640px;                /* 小画面 */
+  --glass-breakpoint-md: 768px;                /* 中画面 */
+  --glass-breakpoint-lg: 1024px;               /* 大画面 */
+  --glass-breakpoint-xl: 1280px;               /* 特大画面 */
+  --glass-breakpoint-2xl: 1536px;              /* 超特大画面 */
+}
+
+/* Base Glassmorphism Classes */
+
+/* Glass Card Variants */
+.glass-card {
+  background: var(--glass-medium);
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  border: var(--glass-border-glass);
+  border-radius: var(--glass-radius-lg);
+  box-shadow: var(--glass-shadow-medium);
+  transition: var(--glass-transition-normal);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card-primary {
+  background: var(--glass-medium);
+  border: var(--glass-border-glass);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.glass-card-secondary {
+  background: var(--glass-light);
+  border: var(--glass-border-subtle);
+  box-shadow: var(--glass-shadow-subtle);
+}
+
+.glass-card-accent {
+  background: var(--glass-tinted);
+  border: var(--glass-border-accent);
+  box-shadow: var(--glass-shadow-colored);
+}
+
+/* Interactive Glass Cards */
+.glass-card-interactive {
+  cursor: pointer;
+  will-change: transform, box-shadow;
+}
+
+.glass-card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glass-shadow-strong);
+  background: var(--glass-strong);
+}
+
+.glass-card-interactive:active {
+  transform: translateY(0);
+  transition: var(--glass-transition-fast);
+}
+
+.glass-card-interactive:focus {
+  outline: 2px solid var(--glass-accent);
+  outline-offset: 2px;
+}
+
+/* Blur Variants */
+.glass-blur-light {
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+}
+
+.glass-blur-medium {
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+}
+
+.glass-blur-strong {
+  backdrop-filter: var(--glass-blur-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+}
+
+/* Background Variants */
+.glass-bg-light {
+  background: var(--glass-light);
+}
+
+.glass-bg-medium {
+  background: var(--glass-medium);
+}
+
+.glass-bg-strong {
+  background: var(--glass-strong);
+}
+
+.glass-bg-tinted {
+  background: var(--glass-tinted);
+}
+
+/* Border Variants */
+.glass-border {
+  border: var(--glass-border-glass);
+}
+
+.glass-border-subtle {
+  border: var(--glass-border-subtle);
+}
+
+.glass-border-accent {
+  border: var(--glass-border-accent);
+}
+
+/* Shadow Variants */
+.glass-shadow-subtle {
+  box-shadow: var(--glass-shadow-subtle);
+}
+
+.glass-shadow-medium {
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.glass-shadow-strong {
+  box-shadow: var(--glass-shadow-strong);
+}
+
+.glass-shadow-colored {
+  box-shadow: var(--glass-shadow-colored);
+}
+
+/* Radius Variants */
+.glass-radius-sm {
+  border-radius: var(--glass-radius-sm);
+}
+
+.glass-radius-md {
+  border-radius: var(--glass-radius-md);
+}
+
+.glass-radius-lg {
+  border-radius: var(--glass-radius-lg);
+}
+
+.glass-radius-xl {
+  border-radius: var(--glass-radius-xl);
+}
+
+.glass-radius-2xl {
+  border-radius: var(--glass-radius-2xl);
+}
+
+/* Text Color Variants */
+.glass-text-primary {
+  color: var(--glass-text-primary);
+}
+
+.glass-text-secondary {
+  color: var(--glass-text-secondary);
+}
+
+.glass-text-on-glass {
+  color: var(--glass-text-on-glass);
+}
+
+.glass-text-accent {
+  color: var(--glass-accent);
+}
+
+/* Layout Utilities */
+.glass-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--glass-space-4);
+}
+
+.glass-section {
+  padding: var(--glass-space-8) var(--glass-space-4);
+}
+
+.glass-grid {
+  display: grid;
+  gap: var(--glass-space-4);
+}
+
+.glass-flex {
+  display: flex;
+  gap: var(--glass-space-4);
+}
+
+.glass-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--glass-space-4);
+}
+
+/* Button Styles */
+.glass-button {
+  background: var(--glass-medium);
+  backdrop-filter: var(--glass-blur-medium);
+  -webkit-backdrop-filter: var(--glass-blur-medium);
+  border: var(--glass-border-glass);
+  border-radius: var(--glass-radius-lg);
+  padding: var(--glass-space-3) var(--glass-space-6);
+  color: var(--glass-text-on-glass);
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-button);
+  letter-spacing: var(--letter-spacing-wide);
+  cursor: pointer;
+  transition: var(--glass-transition-normal);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--glass-space-2);
+  text-decoration: none;
+  outline: none;
+}
+
+.glass-button:hover {
+  background: var(--glass-strong);
+  transform: translateY(-1px);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.glass-button:active {
+  transform: translateY(0);
+  transition: var(--glass-transition-fast);
+}
+
+.glass-button:focus {
+  outline: 2px solid var(--glass-accent);
+  outline-offset: 2px;
+}
+
+.glass-button-primary {
+  background: var(--glass-tinted);
+  border: var(--glass-border-accent);
+  color: var(--glass-accent);
+}
+
+.glass-button-primary:hover {
+  background: var(--glass-accent);
+  color: var(--glass-neutral-0);
+}
+
+/* Input Styles */
+.glass-input {
+  background: var(--glass-light);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: var(--glass-border-subtle);
+  border-radius: var(--glass-radius-md);
+  padding: var(--glass-space-3) var(--glass-space-4);
+  color: var(--glass-text-primary);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-body1);
+  transition: var(--glass-transition-normal);
+  outline: none;
+  width: 100%;
+}
+
+.glass-input:focus {
+  border: var(--glass-border-accent);
+  background: var(--glass-medium);
+  box-shadow: var(--glass-shadow-subtle);
+}
+
+.glass-input::placeholder {
+  color: var(--glass-text-secondary);
+}
+
+/* Modal Styles */
+.glass-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.glass-modal {
+  background: var(--glass-strong);
+  backdrop-filter: var(--glass-blur-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+  border: var(--glass-border-glass);
+  border-radius: var(--glass-radius-2xl);
+  box-shadow: var(--glass-shadow-strong);
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  position: relative;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  :root {
+    --glass-space-4: 0.75rem;
+    --glass-space-6: 1.25rem;
+    --glass-space-8: 1.5rem;
+  }
+  
+  .glass-card {
+    border-radius: var(--glass-radius-md);
+  }
+  
+  .glass-card-interactive:hover {
+    transform: none;
+  }
+  
+  .glass-card-interactive:active {
+    transform: scale(0.98);
+  }
+  
+  .glass-button {
+    padding: var(--glass-space-4) var(--glass-space-6);
+    min-height: 48px;
+  }
+  
+  .glass-modal {
+    border-radius: var(--glass-radius-xl);
+    margin: var(--glass-space-4);
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  .glass-card {
+    background: var(--glass-surface);
+    border: 2px solid var(--glass-neutral-400);
+  }
+  
+  .glass-button {
+    background: var(--glass-surface);
+    border: 2px solid var(--glass-neutral-400);
+  }
+  
+  .glass-input {
+    background: var(--glass-surface);
+    border: 2px solid var(--glass-neutral-400);
+  }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card,
+  .glass-button,
+  .glass-input {
+    transition: none;
+  }
+  
+  .glass-card-interactive:hover,
+  .glass-button:hover {
+    transform: none;
+  }
+}
+
+/* Performance Optimizations */
+.glass-optimize {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* Backdrop Filter Fallback */
+@supports not (backdrop-filter: blur(10px)) {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-modal {
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-neutral-200);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .glass-card,
+  .glass-button,
+  .glass-modal {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+}

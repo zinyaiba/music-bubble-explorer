@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useEffect } from 'react'
+import { useGlassmorphismTheme } from './GlassmorphismThemeProvider'
 
 interface EnhancedBubbleBackgroundProps {
   width: number
@@ -24,152 +25,163 @@ export const EnhancedBubbleBackground: React.FC<
   className = '',
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const glassmorphismTheme = useGlassmorphismTheme()
 
-  // 栗モチーフの色パレット
-  const chestnutColors = useMemo(() => {
+  // ガラスモーフィズムテーマベースの色パレット
+  const glassmorphismColors = useMemo(() => {
     const baseColors = {
       subtle: {
-        primary: '#8B4513', // サドルブラウン
-        secondary: '#D2691E', // チョコレート
-        accent: '#DEB887', // バーリーウッド
-        highlight: '#F5DEB3', // ウィート
-        background: '#FFF8DC', // コーンシルク
+        primary: glassmorphismTheme.colors.primary[100],
+        secondary: glassmorphismTheme.colors.primary[200],
+        accent: glassmorphismTheme.colors.primary[300],
+        highlight: glassmorphismTheme.colors.neutral[50],
+        background: glassmorphismTheme.colors.neutral[0],
       },
       moderate: {
-        primary: '#A0522D', // シエナ
-        secondary: '#CD853F', // ペルー
-        accent: '#DAA520', // ゴールデンロッド
-        highlight: '#F0E68C', // カーキ
-        background: '#FFFACD', // レモンシフォン
+        primary: glassmorphismTheme.colors.primary[200],
+        secondary: glassmorphismTheme.colors.primary[300],
+        accent: glassmorphismTheme.colors.primary[400],
+        highlight: glassmorphismTheme.colors.neutral[100],
+        background: glassmorphismTheme.colors.primary[50],
       },
       vibrant: {
-        primary: '#B22222', // ファイアブリック
-        secondary: '#DC143C', // クリムゾン
-        accent: '#FF6347', // トマト
-        highlight: '#FFB6C1', // ライトピンク
-        background: '#FFF0F5', // ラベンダーブラッシュ
+        primary: glassmorphismTheme.colors.primary[300],
+        secondary: glassmorphismTheme.colors.primary[400],
+        accent: glassmorphismTheme.colors.primary[500],
+        highlight: glassmorphismTheme.colors.primary[100],
+        background: glassmorphismTheme.colors.primary[100],
       },
     }
     return baseColors[intensity]
-  }, [intensity])
+  }, [intensity, glassmorphismTheme])
 
-  // デフォルトテーマの色パレット
+  // デフォルトテーマの色パレット（ガラスモーフィズム対応）
   const defaultColors = useMemo(
     () => ({
-      primary: '#E8F4FD',
-      secondary: '#FFF0F5',
-      accent: '#F0F8FF',
-      highlight: '#FFFFFF',
-      background: '#FAFAFA',
+      primary: glassmorphismTheme.colors.primary[100],
+      secondary: glassmorphismTheme.colors.primary[50],
+      accent: glassmorphismTheme.colors.neutral[100],
+      highlight: glassmorphismTheme.colors.neutral[0],
+      background: glassmorphismTheme.colors.neutral[50],
     }),
-    []
+    [glassmorphismTheme]
   )
 
-  // 現在のテーマに基づく色パレット
-  const colors = theme === 'chestnut' ? chestnutColors : defaultColors
+  // 現在のテーマに基づく色パレット（ガラスモーフィズム対応）
+  const colors = theme === 'chestnut' ? glassmorphismColors : defaultColors
 
-  // SVGパターンの生成（栗の形状モチーフ）
-  const chestnutPattern = useMemo(() => {
+  // SVGパターンの生成（ガラスモーフィズム対応の抽象的パターン）
+  const glassmorphismPattern = useMemo(() => {
     if (performanceMode) return null
 
     return `
-      <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
+      <svg width="120" height="120" xmlns="http://www.w3.org/2000/svg">
         <defs>
-          <pattern id="chestnutPattern" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
-            <!-- 栗の形状 -->
-            <ellipse cx="25" cy="35" rx="12" ry="15" fill="${colors.primary}" opacity="0.1"/>
-            <ellipse cx="25" cy="32" rx="8" ry="10" fill="${colors.secondary}" opacity="0.08"/>
-            <!-- 栗のとげとげ -->
-            <path d="M25,20 L27,15 L23,15 Z" fill="${colors.accent}" opacity="0.06"/>
-            <path d="M20,25 L15,23 L15,27 Z" fill="${colors.accent}" opacity="0.06"/>
-            <path d="M30,25 L35,23 L35,27 Z" fill="${colors.accent}" opacity="0.06"/>
+          <pattern id="glassmorphismPattern" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+            <!-- ガラスモーフィズム円形パターン -->
+            <circle cx="30" cy="30" r="20" fill="${colors.primary}" opacity="0.03"/>
+            <circle cx="30" cy="30" r="12" fill="${colors.secondary}" opacity="0.02"/>
+            <circle cx="30" cy="30" r="6" fill="${colors.highlight}" opacity="0.015"/>
+            <!-- 光の反射効果 -->
+            <ellipse cx="25" cy="25" rx="8" ry="4" fill="${colors.highlight}" opacity="0.01" transform="rotate(-45 25 25)"/>
           </pattern>
           
-          <pattern id="leafPattern" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-            <!-- 葉っぱの形状 -->
-            <ellipse cx="15" cy="15" rx="8" ry="4" fill="${colors.highlight}" opacity="0.05" transform="rotate(45 15 15)"/>
-            <ellipse cx="15" cy="15" rx="6" ry="3" fill="${colors.accent}" opacity="0.03" transform="rotate(-30 15 15)"/>
+          <pattern id="bubblePattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <!-- シャボン玉風パターン -->
+            <circle cx="20" cy="20" r="12" fill="${colors.accent}" opacity="0.015"/>
+            <circle cx="20" cy="20" r="8" fill="${colors.highlight}" opacity="0.01"/>
+            <!-- ハイライト効果 -->
+            <ellipse cx="16" cy="16" rx="4" ry="2" fill="${colors.highlight}" opacity="0.02" transform="rotate(30 16 16)"/>
           </pattern>
         </defs>
       </svg>
     `
   }, [colors, performanceMode])
 
-  // CSS背景グラデーションの生成
+  // CSS背景グラデーションの生成（ガラスモーフィズム対応）
   const backgroundGradient = useMemo(() => {
     if (theme === 'chestnut') {
       return `
-        radial-gradient(circle at 20% 30%, ${colors.background}40 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, ${colors.highlight}30 0%, transparent 50%),
-        radial-gradient(circle at 40% 80%, ${colors.accent}20 0%, transparent 50%),
-        linear-gradient(135deg, ${colors.primary}15 0%, ${colors.secondary}10 50%, ${colors.background}20 100%)
+        radial-gradient(circle at 25% 25%, ${colors.background}20 0%, transparent 60%),
+        radial-gradient(circle at 75% 75%, ${colors.highlight}15 0%, transparent 60%),
+        radial-gradient(circle at 50% 90%, ${colors.accent}10 0%, transparent 60%),
+        linear-gradient(135deg, ${colors.primary}08 0%, ${colors.secondary}06 50%, ${colors.background}10 100%)
       `
     } else {
       return `
-        linear-gradient(135deg, ${colors.primary} 0%, ${colors.secondary} 100%)
+        radial-gradient(circle at 30% 20%, ${colors.highlight}15 0%, transparent 50%),
+        radial-gradient(circle at 70% 80%, ${colors.accent}12 0%, transparent 50%),
+        linear-gradient(135deg, ${colors.primary}10 0%, ${colors.secondary}08 100%)
       `
     }
   }, [theme, colors])
 
-  // Canvas描画による高度な背景効果（パフォーマンスモード時は無効）
+  // Canvas描画による高度な背景効果（ガラスモーフィズム対応）
   const drawEnhancedBackground = useMemo(() => {
     if (performanceMode) return null
 
     return (ctx: CanvasRenderingContext2D) => {
-      // 栗の散布パターン
-      const chestnutCount = Math.min(Math.floor((width * height) / 10000), 20)
+      // ガラスモーフィズム円形パターンの散布
+      const circleCount = Math.min(Math.floor((width * height) / 12000), 18)
 
-      for (let i = 0; i < chestnutCount; i++) {
+      for (let i = 0; i < circleCount; i++) {
         const x = Math.random() * width
         const y = Math.random() * height
-        const size = 15 + Math.random() * 10
-        const opacity = 0.03 + Math.random() * 0.02
+        const size = 20 + Math.random() * 15
+        const opacity = 0.008 + Math.random() * 0.007
 
         ctx.save()
         ctx.globalAlpha = opacity
 
-        // 栗の本体
-        ctx.fillStyle = colors.primary
+        // メインの円形
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, size)
+        gradient.addColorStop(0, colors.highlight)
+        gradient.addColorStop(0.5, colors.primary)
+        gradient.addColorStop(1, 'transparent')
+        
+        ctx.fillStyle = gradient
         ctx.beginPath()
-        ctx.ellipse(x, y, size * 0.6, size * 0.8, 0, 0, Math.PI * 2)
+        ctx.arc(x, y, size, 0, Math.PI * 2)
         ctx.fill()
 
-        // 栗のハイライト
+        // ハイライト効果
+        ctx.globalAlpha = opacity * 1.5
         ctx.fillStyle = colors.highlight
         ctx.beginPath()
-        ctx.ellipse(
-          x - size * 0.2,
-          y - size * 0.3,
-          size * 0.3,
-          size * 0.4,
-          0,
-          0,
-          Math.PI * 2
-        )
+        ctx.arc(x - size * 0.3, y - size * 0.3, size * 0.4, 0, Math.PI * 2)
         ctx.fill()
 
         ctx.restore()
       }
 
-      // 葉っぱの散布パターン
-      const leafCount = Math.min(Math.floor((width * height) / 15000), 15)
+      // 小さなシャボン玉風パターン
+      const bubbleCount = Math.min(Math.floor((width * height) / 18000), 12)
 
-      for (let i = 0; i < leafCount; i++) {
+      for (let i = 0; i < bubbleCount; i++) {
         const x = Math.random() * width
         const y = Math.random() * height
-        const size = 8 + Math.random() * 6
-        const rotation = Math.random() * Math.PI * 2
-        const opacity = 0.02 + Math.random() * 0.015
+        const size = 8 + Math.random() * 8
+        const opacity = 0.005 + Math.random() * 0.005
 
         ctx.save()
         ctx.globalAlpha = opacity
-        ctx.translate(x, y)
-        ctx.rotate(rotation)
 
-        // 葉っぱの形状
-        ctx.fillStyle = colors.accent
+        // シャボン玉の本体
+        const bubbleGradient = ctx.createRadialGradient(x, y, 0, x, y, size)
+        bubbleGradient.addColorStop(0, colors.accent)
+        bubbleGradient.addColorStop(0.7, colors.secondary)
+        bubbleGradient.addColorStop(1, 'transparent')
+        
+        ctx.fillStyle = bubbleGradient
         ctx.beginPath()
-        ctx.ellipse(0, 0, size, size * 0.5, 0, 0, Math.PI * 2)
+        ctx.arc(x, y, size, 0, Math.PI * 2)
+        ctx.fill()
+
+        // 光の反射
+        ctx.globalAlpha = opacity * 2
+        ctx.fillStyle = colors.highlight
+        ctx.beginPath()
+        ctx.arc(x - size * 0.4, y - size * 0.4, size * 0.25, 0, Math.PI * 2)
         ctx.fill()
 
         ctx.restore()
@@ -212,7 +224,7 @@ export const EnhancedBubbleBackground: React.FC<
     backfaceVisibility: 'hidden',
   }
 
-  // SVGパターンのスタイル（パフォーマンスモード時は無効）
+  // SVGパターンのスタイル（ガラスモーフィズム対応）
   const patternStyle: React.CSSProperties = performanceMode
     ? {}
     : {
@@ -221,12 +233,12 @@ export const EnhancedBubbleBackground: React.FC<
         left: 0,
         width: '100%',
         height: '100%',
-        backgroundImage: chestnutPattern
-          ? `url("data:image/svg+xml,${encodeURIComponent(chestnutPattern)}")`
+        backgroundImage: glassmorphismPattern
+          ? `url("data:image/svg+xml,${encodeURIComponent(glassmorphismPattern)}")`
           : 'none',
         backgroundRepeat: 'repeat',
-        opacity: 0.4,
-        mixBlendMode: 'multiply',
+        opacity: 0.1,
+        mixBlendMode: 'soft-light',
       }
 
   return (

@@ -284,7 +284,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
       </div>
 
       <div className="form-group">
-        <label htmlFor="composers">作曲家</label>
+        <label htmlFor="composers">作曲</label>
         <input
           id="composers"
           type="text"

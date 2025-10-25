@@ -1,37 +1,87 @@
+/* Import glassmorphism design system */
+@import './styles/glassmorphism-system.css';
 /* Import color palette and responsive utilities */
 @import './styles/colors.css';
 @import './styles/responsive.css';
 @import './styles/mobilePerformance.css';
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* ===== GLASSMORPHISM FONT SYSTEM ===== */
+  font-family: var(--font-family-primary, 'M PLUS Rounded 1c', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif);
+  line-height: var(--line-height-normal, 1.5);
+  font-weight: var(--font-weight-normal, 400);
   
+  /* ===== GLASSMORPHISM COLOR SCHEME ===== */
   color-scheme: light;
-  color: var(--text-primary);
-  background: var(--background-gradient);
+  color: var(--glass-text-primary);
+  background: var(--glass-background);
   
+  /* ===== GLASSMORPHISM FONT RENDERING ===== */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+  
+  /* ===== GLASSMORPHISM PERFORMANCE ===== */
+  font-display: swap;
+  font-optical-sizing: auto;
 }
 
+/* ===== GLASSMORPHISM BASE STYLES ===== */
 * {
+  box-sizing: border-box;
+}
+
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
+  padding: 0;
   display: flex;
   place-items: center;
-  min-width: 320px;
+  min-width: var(--glass-breakpoint-xs, 320px);
   min-height: 100vh;
+  /* ガラスモーフィズム最適化 */
+  background: var(--glass-background);
+  color: var(--glass-text-primary);
+  font-family: var(--font-family-primary);
+  line-height: var(--line-height-normal, 1.5);
+  /* パフォーマンス最適化 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 #root {
   width: 100%;
   margin: 0 auto;
   text-align: center;
+  /* ガラスモーフィズム用の最適化 */
+  isolation: isolate;
+  contain: layout style paint;
+}
+
+/* ===== GLASSMORPHISM ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===== GLASSMORPHISM HIGH CONTRAST ===== */
+@media (prefers-contrast: high) {
+  :root {
+    --glass-text-primary: #000000;
+    --glass-text-secondary: #333333;
+    --glass-border-glass: 2px solid #000000;
+    --glass-shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.5);
+  }
 }

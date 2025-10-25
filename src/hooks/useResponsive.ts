@@ -39,8 +39,8 @@ export const useResponsive = (): ScreenSize => {
       width,
       height,
       isMobileSmall: width <= 480,
-      isMobile: width <= 768,
-      isTablet: width > 768 && width <= 1024,
+      isMobile: width <= 900, // より広い範囲をモバイルとして扱う
+      isTablet: width > 900 && width <= 1024,
       isDesktop: width > 1024 && width <= 1200,
       isDesktopLarge: width > 1200,
       isTouchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
@@ -57,8 +57,8 @@ export const useResponsive = (): ScreenSize => {
         width,
         height,
         isMobileSmall: width <= 480,
-        isMobile: width <= 768,
-        isTablet: width > 768 && width <= 1024,
+        isMobile: width <= 900, // より広い範囲をモバイルとして扱う
+        isTablet: width > 900 && width <= 1024,
         isDesktop: width > 1024 && width <= 1200,
         isDesktopLarge: width > 1200,
         isTouchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0,

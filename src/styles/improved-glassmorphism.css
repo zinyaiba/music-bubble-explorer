@@ -1,0 +1,222 @@
+/* Improved Glassmorphism Styles - Modern UI Update */
+
+/* ===== IMPROVED BUBBLE STYLES ===== */
+.bubble-glassmorphism {
+  /* 外枠を削除してガラスモーフィズムに */
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: none !important;
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  border-radius: 50% !important;
+  position: relative !important;
+}
+
+.bubble-glassmorphism::before {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  width: 30%;
+  height: 30%;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+/* ===== IMPROVED BOARD STYLES ===== */
+.board-glassmorphism {
+  /* 完全に白くせず、グラデーション背景の上に浮かせる */
+  background: rgba(255, 255, 255, 0.15) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+  position: relative !important;
+}
+
+.board-glassmorphism::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ===== IMPROVED TITLE STYLES ===== */
+.title-kuribayashi {
+  color: #f8bbd9 !important; /* 淡ピンク */
+  font-family: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif !important;
+  font-weight: 500 !important;
+  text-shadow: 0 2px 4px rgba(248, 187, 217, 0.3) !important;
+}
+
+.title-malon-bubbles {
+  color: #dda0dd !important; /* ラベンダー系 */
+  font-family: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif !important;
+  font-weight: 400 !important;
+  text-shadow: 0 2px 4px rgba(221, 160, 221, 0.3) !important;
+}
+
+/* ===== IMPROVED BACKGROUND ===== */
+.improved-background {
+  background: linear-gradient(135deg, #FFFCFD 0%, #FDF5F3 100%) !important;
+  min-height: 100vh !important;
+  position: relative !important;
+}
+
+.improved-background::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 25% 25%, rgba(255, 252, 253, 0.4) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(253, 245, 243, 0.3) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ===== UNIFIED FONT APPLICATION ===== */
+.unified-font {
+  font-family: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif !important;
+}
+
+/* ===== CANVAS IMPROVEMENTS ===== */
+.bubble-canvas-improved {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 20px !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  box-shadow: 
+    0 4px 10px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ===== HEADER IMPROVEMENTS ===== */
+.header-improved {
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ===== NAVIGATION IMPROVEMENTS ===== */
+.navigation-improved {
+  background: rgba(255, 255, 255, 0.25) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: none !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ===== BUTTON IMPROVEMENTS ===== */
+.button-improved {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+  font-family: 'M PLUS Rounded 1c', 'Noto Sans JP', sans-serif !important;
+  transition: all 0.3s ease !important;
+}
+
+.button-improved:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ===== MODAL/DIALOG IMPROVEMENTS ===== */
+.modal-improved {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+@media (max-width: 768px) {
+  .board-glassmorphism {
+    border-radius: 16px !important;
+    margin: 8px !important;
+  }
+  
+  .bubble-canvas-improved {
+    border-radius: 16px !important;
+  }
+  
+  .modal-improved {
+    border-radius: 16px !important;
+    margin: 16px !important;
+  }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+.glassmorphism-optimized {
+  will-change: transform, opacity !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
+  transform: translateZ(0) !important;
+  -webkit-transform: translateZ(0) !important;
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+@media (prefers-reduced-motion: reduce) {
+  .button-improved:hover {
+    transform: none !important;
+  }
+  
+  .button-improved,
+  .modal-improved {
+    transition: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .bubble-glassmorphism,
+  .board-glassmorphism,
+  .button-improved,
+  .modal-improved {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 2px solid #000 !important;
+  }
+}
+
+/* ===== FALLBACK FOR UNSUPPORTED BROWSERS ===== */
+@supports not (backdrop-filter: blur(8px)) {
+  .bubble-glassmorphism,
+  .board-glassmorphism,
+  .button-improved,
+  .modal-improved {
+    background: rgba(255, 255, 255, 0.95) !important;
+  }
+  
+  .header-improved,
+  .navigation-improved {
+    background: rgba(255, 255, 255, 0.98) !important;
+  }
+}
