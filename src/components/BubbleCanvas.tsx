@@ -265,27 +265,29 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
 
           // フォントサイズを計算
           const fontSize = Math.max(10, Math.min(20, displaySize * 0.25))
-          
+
           // 日本語・英語・タグに応じたフォント設定
           const isTag = bubble.type === 'tag'
           const hasEnglish = /[a-zA-Z]/.test(displayName)
-          const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(displayName)
-          
+          const hasJapanese = /[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]/.test(
+            displayName
+          )
+
           let fontWeight = '500' // 通常：500
           let needsLetterSpacing = false
-          
+
           if (isTag || (hasEnglish && !hasJapanese)) {
             fontWeight = '600' // 英字部分：600
             needsLetterSpacing = true // 英字のletter-spacingを広め
           }
-          
+
           ctx.font = `${fontWeight} ${fontSize}px "M PLUS Rounded 1c", "Poppins", sans-serif`
           ctx.textAlign = 'center'
           ctx.textBaseline = 'middle'
 
           // 柔らかい黒色でテキストを描画
           ctx.fillStyle = 'rgba(0, 0, 0, 0.75)'
-          
+
           // 英字の場合は文字間隔を手動で調整
           if (needsLetterSpacing && displayName.length > 1) {
             // 文字間隔を広げて描画（簡易実装）
@@ -293,9 +295,9 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
             const totalWidth = ctx.measureText(displayName).width
             const spacing = fontSize * 0.05 // 0.05em相当
             const adjustedWidth = totalWidth + (chars.length - 1) * spacing
-            
+
             let startX = x - adjustedWidth / 2
-            chars.forEach((char, index) => {
+            chars.forEach((char, _index) => {
               const charWidth = ctx.measureText(char).width
               ctx.fillText(char, startX + charWidth / 2, y)
               startX += charWidth + spacing
@@ -785,7 +787,8 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
               WebkitBackdropFilter: 'blur(12px)',
               border: '1px solid rgba(255, 255, 255, 0.2)',
               borderRadius: '20px',
-              boxShadow: '0 4px 10px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+              boxShadow:
+                '0 4px 10px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
               touchAction: 'manipulation', // Optimize for touch
               WebkitTouchCallout: 'none',
               WebkitUserSelect: 'none',
