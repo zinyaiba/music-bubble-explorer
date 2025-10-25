@@ -77,6 +77,9 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
         🫧登録した情報はシャボン玉になって登場するよ
       </p>
       <p className="instructions-item">
+        {isTouchDevice ? '👆タップしてシャボン玉の詳細を見てみよう' : '🖱️クリックしてシャボン玉の詳細を見てみよう'}
+      </p>
+      <p className="instructions-item">
         ❣️タグであなたの「推しポイント」を紹介してみよう
       </p>
       <p className="instructions-item">
