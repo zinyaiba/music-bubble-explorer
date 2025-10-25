@@ -17,6 +17,7 @@ export interface LegendItem {
 /**
  * ColorLegendコンポーネントのプロパティ
  * Requirements: 19.3, 19.4 - カテゴリ別の色分けの凡例を画面に表示する
+ * Requirements: 4.1, 5.1, 5.2 - 凡例アイコンをクリック可能に変更とフィルター状態の視覚的表示
  */
 export interface ColorLegendProps {
   position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left'
@@ -24,6 +25,13 @@ export interface ColorLegendProps {
   showCounts?: boolean
   categories?: LegendItem[]
   className?: string
+  // カテゴリ別フィルタリング機能（複数選択対応）
+  onCategoryClick?: (category: keyof typeof CATEGORY_COLORS) => void
+  selectedCategories?: (keyof typeof CATEGORY_COLORS)[]
+  filteredCount?: number
+  totalCount?: number
+  // インタラクティブ機能の強化
+  enableInteraction?: boolean
 }
 
 /**
@@ -65,6 +73,7 @@ const DEFAULT_LEGEND_ITEMS: LegendItem[] = [
 /**
  * ColorLegendコンポーネント
  * Requirements: 19.3, 19.4 - ColorLegendComponentの作成と表示機能
+ * Requirements: 4.1, 5.1, 5.2 - 凡例アイコンをクリック可能に変更とフィルター状態の視覚的表示
  */
 export const ColorLegend: React.FC<ColorLegendProps> = ({
   position = 'top-right',
@@ -72,30 +81,133 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
   showCounts = false,
   categories = DEFAULT_LEGEND_ITEMS,
   className,
+  onCategoryClick,
+  selectedCategories = [],
+  filteredCount,
+  totalCount,
+  enableInteraction = true,
 }) => {
+  // window.console.log('🔍 [INIT] ColorLegend component initialized')
+
   if (!isVisible) {
+    // window.console.log('🔍 [DEBUG] ColorLegend not visible, returning null')
     return null
   }
 
+  const isClickable = !!onCategoryClick && enableInteraction
+  const isFilterActive = selectedCategories.length > 0
+  const showFilterStatus =
+    isFilterActive && filteredCount !== undefined && totalCount !== undefined
+
+  // デバッグ: ColorLegendの状態を確認
+  // console.log('🔍 [DEBUG] ColorLegend render - isClickable:', isClickable)
+  // console.log('🔍 [DEBUG] ColorLegend render - onCategoryClick exists:', !!onCategoryClick)
+  // console.log('🔍 [DEBUG] ColorLegend render - enableInteraction:', enableInteraction)
+  // console.log('🔍 [DEBUG] ColorLegend render - selectedCategories:', selectedCategories)
+
+  /**
+   * カテゴリクリック時の処理（複数選択対応）
+   */
+  const handleCategoryClick = (category: keyof typeof CATEGORY_COLORS) => {
+    // console.log('🔍 [DEBUG] ColorLegend - handleCategoryClick called with:', category)
+    // console.log('🔍 [DEBUG] ColorLegend - onCategoryClick exists:', !!onCategoryClick)
+    if (onCategoryClick) {
+      // console.log('🔍 [DEBUG] ColorLegend - Calling onCategoryClick with:', category)
+      onCategoryClick(category)
+    }
+  }
+
   return (
-    <LegendContainer position={position} className={className}>
+    <LegendContainer
+      position={position}
+      className={className}
+      isFilterActive={isFilterActive}
+    >
       <LegendTitle>カテゴリ</LegendTitle>
       <LegendList>
-        {categories.map(item => (
-          <LegendItem key={item.category} title={item.label}>
-            <ColorIndicator color={item.color} />
-            <LegendContent>
-              <LegendLabel>
-                {item.icon && <LegendIcon>{item.icon}</LegendIcon>}
-                {item.label}
-              </LegendLabel>
-              {showCounts && item.count !== undefined && (
-                <LegendCount>({item.count})</LegendCount>
-              )}
-            </LegendContent>
-          </LegendItem>
-        ))}
+        {categories.map(item => {
+          const isSelected = selectedCategories.includes(item.category)
+          const isItemClickable = isClickable
+
+          return (
+            <LegendItem
+              key={item.category}
+              title={`${item.label}${isItemClickable ? 'でフィルター' : ''}`}
+              isClickable={isItemClickable}
+              isSelected={isSelected}
+              onClick={
+                isItemClickable
+                  ? () => {
+                      // window.console.log('🔍 [CLICK] LegendItem clicked:', item.category)
+                      handleCategoryClick(item.category)
+                    }
+                  : undefined
+              }
+              role={isItemClickable ? 'button' : undefined}
+              tabIndex={isItemClickable ? 0 : undefined}
+              aria-label={`${item.label}${isSelected ? '（選択中）' : ''}でフィルター`}
+              onKeyDown={
+                isItemClickable
+                  ? e => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        handleCategoryClick(item.category)
+                      }
+                    }
+                  : undefined
+              }
+            >
+              <ColorIndicator
+                color={item.color}
+                isSelected={isSelected}
+                isClickable={isItemClickable}
+              />
+              <LegendContent isVisible={showCounts || isSelected}>
+                <LegendLabel>
+                  {item.icon && <LegendIcon>{item.icon}</LegendIcon>}
+                  {item.label}
+                </LegendLabel>
+                {showCounts && item.count !== undefined && (
+                  <LegendCount>({item.count})</LegendCount>
+                )}
+              </LegendContent>
+            </LegendItem>
+          )
+        })}
       </LegendList>
+
+      {/* フィルター状態の表示 */}
+      {showFilterStatus && (
+        <FilterStatus>
+          <FilterIcon isActive={isFilterActive}>🔍</FilterIcon>
+          <FilterText>
+            {filteredCount}/{totalCount}
+          </FilterText>
+          {selectedCategories.length > 0 && (
+            <FilterCategory>
+              {selectedCategories.length === 1
+                ? categories.find(c => c.category === selectedCategories[0])
+                    ?.label
+                : `${selectedCategories.length}個選択中`}
+            </FilterCategory>
+          )}
+        </FilterStatus>
+      )}
+
+      {/* 全選択解除ボタン */}
+      {isFilterActive && isClickable && (
+        <ClearFilterButton
+          onClick={() => {
+            // 全カテゴリを解除するため、各カテゴリを個別に解除
+            selectedCategories.forEach(category => {
+              onCategoryClick?.(category)
+            })
+          }}
+          aria-label="全てのフィルターを解除"
+        >
+          ×
+        </ClearFilterButton>
+      )}
     </LegendContainer>
   )
 }
@@ -103,7 +215,12 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
 /**
  * スタイル定義
  */
-const LegendContainer = styled.div<{ position: string }>`
+const LegendContainer = styled.div.withConfig({
+  shouldForwardProp: prop => !['position', 'isFilterActive'].includes(prop),
+})<{
+  position: string
+  isFilterActive?: boolean
+}>`
   position: fixed;
   ${({ position }) => {
     switch (position) {
@@ -122,16 +239,23 @@ const LegendContainer = styled.div<{ position: string }>`
 
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(224, 224, 224, 0.3);
+  border: 1px solid
+    ${({ isFilterActive }) =>
+      isFilterActive ? 'rgba(33, 150, 243, 0.5)' : 'rgba(224, 224, 224, 0.3)'};
   border-radius: 8px;
   padding: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   z-index: 1000;
+  transition: all 0.2s ease;
+  position: relative;
 
-  /* コンパクトサイズ */
-  width: auto;
-  min-width: unset;
-  max-width: unset;
+  /* フィルターアクティブ時のスタイル */
+  ${({ isFilterActive }) =>
+    isFilterActive &&
+    `
+    background: rgba(227, 242, 253, 0.9);
+    border-color: rgba(33, 150, 243, 0.6);
+  `}
 
   /* モバイル対応 */
   @media (max-width: 768px) {
@@ -140,15 +264,15 @@ const LegendContainer = styled.div<{ position: string }>`
     ${({ position }) => {
       switch (position) {
         case 'top-left':
-          return 'top: 60px; left: 10px;' /* ヘッダーの下に配置 */
+          return 'top: 60px; left: 10px;'
         case 'top-right':
-          return 'top: 60px; right: 10px;' /* ヘッダーの下に配置 */
+          return 'top: 60px; right: 10px;'
         case 'bottom-left':
-          return 'bottom: 10px; left: 10px;' /* フッターメニューの上に配置 */
+          return 'bottom: 10px; left: 10px;'
         case 'bottom-right':
-          return 'bottom: 10px; right: 10px;' /* フッターメニューの上に配置 */
+          return 'bottom: 10px; right: 10px;'
         default:
-          return 'bottom: 10px; right: 10px;' /* デフォルトを右下に変更 */
+          return 'bottom: 10px; right: 10px;'
       }
     }}
   }
@@ -171,18 +295,59 @@ const LegendList = styled.ul`
   }
 `
 
-const LegendItem = styled.li`
+const LegendItem = styled.li.withConfig({
+  shouldForwardProp: prop => !['isClickable', 'isSelected'].includes(prop),
+})<{
+  isClickable?: boolean
+  isSelected?: boolean
+}>`
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 4px;
   border-radius: 6px;
   position: relative;
-  cursor: help;
+  cursor: ${({ isClickable }) => (isClickable ? 'pointer' : 'help')};
+  transition: all 0.2s ease;
+  min-height: 32px;
+  min-width: 32px;
 
-  &:hover {
-    background: rgba(0, 0, 0, 0.05);
-  }
+  /* 選択状態のスタイル */
+  ${({ isSelected }) =>
+    isSelected &&
+    `
+    background: rgba(33, 150, 243, 0.1);
+    border: 2px solid rgba(33, 150, 243, 0.5);
+    transform: scale(1.1);
+  `}
+
+  /* クリック可能な場合のホバー効果 */
+  ${({ isClickable, isSelected }) =>
+    isClickable &&
+    `
+    &:hover {
+      background: ${isSelected ? 'rgba(33, 150, 243, 0.2)' : 'rgba(0, 0, 0, 0.1)'};
+      transform: ${isSelected ? 'scale(1.15)' : 'scale(1.05)'};
+    }
+    
+    &:active {
+      transform: ${isSelected ? 'scale(1.05)' : 'scale(0.95)'};
+    }
+    
+    &:focus {
+      outline: 2px solid #2196F3;
+      outline-offset: 2px;
+    }
+  `}
+
+  /* 通常のホバー効果（クリック不可の場合） */
+  ${({ isClickable }) =>
+    !isClickable &&
+    `
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+  `}
 
   /* ツールチップ表示 */
   &:hover::after {
@@ -200,16 +365,68 @@ const LegendItem = styled.li`
     z-index: 1001;
     margin-bottom: 4px;
   }
+
+  /* モバイル対応 */
+  @media (max-width: 768px) {
+    min-height: 36px;
+    min-width: 36px;
+
+    ${({ isClickable }) =>
+      isClickable &&
+      `
+      /* タップ領域を拡大 */
+      &::before {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: -4px;
+        right: -4px;
+        bottom: -4px;
+        z-index: -1;
+      }
+    `}
+  }
 `
 
-const ColorIndicator = styled.div<{ color: string }>`
+const ColorIndicator = styled.div.withConfig({
+  shouldForwardProp: prop =>
+    !['color', 'isSelected', 'isClickable'].includes(prop),
+})<{
+  color: string
+  isSelected?: boolean
+  isClickable?: boolean
+}>`
   width: 20px;
   height: 20px;
   border-radius: 50%;
   background-color: ${({ color }) => color};
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 2px solid
+    ${({ isSelected }) =>
+      isSelected ? 'rgba(33, 150, 243, 0.8)' : 'rgba(255, 255, 255, 0.8)'};
+  box-shadow: ${({ isSelected }) =>
+    isSelected
+      ? '0 4px 8px rgba(33, 150, 243, 0.3), 0 0 0 2px rgba(33, 150, 243, 0.2)'
+      : '0 2px 4px rgba(0, 0, 0, 0.1)'};
   flex-shrink: 0;
+  transition: all 0.2s ease;
+
+  /* 選択時の内側の輝き */
+  ${({ isSelected }) =>
+    isSelected &&
+    `
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      right: 2px;
+      bottom: 2px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+    }
+  `}
 
   @media (max-width: 768px) {
     width: 18px;
@@ -217,20 +434,107 @@ const ColorIndicator = styled.div<{ color: string }>`
   }
 `
 
-const LegendContent = styled.div`
-  display: none; /* テキストを非表示にしてアイコンのみ表示 */
+const LegendContent = styled.div.withConfig({
+  shouldForwardProp: prop => !['isVisible'].includes(prop),
+})<{ isVisible?: boolean }>`
+  display: ${({ isVisible }) => (isVisible ? 'flex' : 'none')};
+  flex-direction: column;
+  align-items: center;
+  margin-left: 4px;
+  font-size: 10px;
 `
 
 const LegendLabel = styled.span`
-  display: none; /* テキストを非表示 */
+  color: #333;
+  font-weight: 500;
+  white-space: nowrap;
 `
 
 const LegendIcon = styled.span`
-  display: none; /* アイコンを非表示（色のみで判別） */
+  font-size: 8px;
+  margin-right: 2px;
 `
 
 const LegendCount = styled.span`
-  display: none; /* カウントを非表示 */
+  color: #666;
+  font-size: 9px;
+`
+
+/* フィルター状態表示のスタイル */
+const FilterStatus = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 2px 6px;
+  background: rgba(33, 150, 243, 0.1);
+  border-radius: 4px;
+  font-size: 10px;
+  color: #1976d2;
+`
+
+const FilterIcon = styled.span.withConfig({
+  shouldForwardProp: prop => !['isActive'].includes(prop),
+})<{ isActive: boolean }>`
+  font-size: 10px;
+  opacity: ${({ isActive }) => (isActive ? 1 : 0.6)};
+`
+
+const FilterText = styled.span`
+  font-weight: 500;
+  font-size: 10px;
+`
+
+const FilterCategory = styled.span`
+  font-weight: 600;
+  font-size: 10px;
+  color: #1976d2;
+  margin-left: 4px;
+`
+
+/* フィルター解除ボタンのスタイル */
+const ClearFilterButton = styled.button`
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f44336;
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  z-index: 1001;
+
+  &:hover {
+    background: #d32f2f;
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:focus {
+    outline: 2px solid #f44336;
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 768px) {
+    width: 24px;
+    height: 24px;
+    top: -10px;
+    right: -10px;
+    font-size: 14px;
+  }
 `
 
 /**

@@ -14,7 +14,7 @@ import { MusicDataService } from './services/musicDataService'
 import { BubbleManager, createBubbleConfig } from './services/bubbleManager'
 import { EnhancedBubbleManager } from './services/enhancedBubbleManager'
 import { RoleBasedBubbleManager } from './services/roleBasedBubbleManager'
-import { ColorLegend } from './components/ColorLegend'
+
 import { useRoleBasedBubbles } from './hooks/useRoleBasedBubbles'
 import { BubbleEntity } from './types/bubble'
 import { Song, MusicDatabase } from './types/music'
@@ -38,6 +38,7 @@ import { TagRegistrationDialog } from './components/TagRegistrationDialog'
 
 import { EnhancedTagList } from './components/EnhancedTagList'
 import { UnifiedDialogLayout } from './components/UnifiedDialogLayout'
+import { GenreFilterIntegration } from './components/GenreFilterIntegration'
 // ErrorHandler import removed - using simple error handling
 import {
   announceToScreenReader,
@@ -99,6 +100,9 @@ function App() {
   const [selectedBubble, setSelectedBubble] = useState<BubbleEntity | null>(
     null
   )
+  const [selectedCategories, setSelectedCategories] = useState<
+    (keyof typeof import('@/services/roleBasedBubbleManager').CATEGORY_COLORS)[]
+  >([])
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -131,7 +135,7 @@ function App() {
   // 開発者ツール用の設定更新関数をwindowオブジェクトに追加
   useEffect(() => {
     if (import.meta.env.DEV) {
-      (window as any).updateBubbleSettings = (settings: any) => {
+      ;(window as any).updateBubbleSettings = (settings: any) => {
         if (roleBasedBubbleManagerRef.current) {
           roleBasedBubbleManagerRef.current.updateBubbleSettings(settings)
         }
@@ -249,40 +253,40 @@ function App() {
       }
 
       // 使用方法をコンソールに表示
-      console.log(`
-🫧 シャボン玉設定の変更方法:
+      //       console.log(`
+      // 🫧 シャボン玉設定の変更方法:
 
-1. 開発者ツールのコンソールで以下のコマンドを実行:
-   updateBubbleSettings({ maxBubbles: 5 })
+      // 1. 開発者ツールのコンソールで以下のコマンドを実行:
+      //    updateBubbleSettings({ maxBubbles: 5 })
 
-2. 利用可能な設定:
-   - maxBubbles: シャボン玉の最大数
-   - minSize, maxSize: サイズ範囲
-   - minVelocity, maxVelocity: 速度
-   - minLifespan, maxLifespan: ライフスパン
-   - buoyancyStrength: 浮力の強さ
-   - windStrength: 風の強さ
+      // 2. 利用可能な設定:
+      //    - maxBubbles: シャボン玉の最大数
+      //    - minSize, maxSize: サイズ範囲
+      //    - minVelocity, maxVelocity: 速度
+      //    - minLifespan, maxLifespan: ライフスパン
+      //    - buoyancyStrength: 浮力の強さ
+      //    - windStrength: 風の強さ
 
-3. 現在の統計を確認:
-   getBubbleStats()
+      // 3. 現在の統計を確認:
+      //    getBubbleStats()
 
-4. タグシャボン玉を強制生成:
-   forceGenerateTagBubble()
+      // 4. タグシャボン玉を強制生成:
+      //    forceGenerateTagBubble()
 
-5. データベース状態を確認:
-   checkDatabase()
+      // 5. データベース状態を確認:
+      //    checkDatabase()
 
-6. ログレベルを制御:
-   setLogLevel('none')     // ログを無効化
-   setLogLevel('minimal')  // 最小限のログ
-   setLogLevel('normal')   // 通常のログ（デフォルト）
-   setLogLevel('verbose')  // 全てのログ
+      // 6. ログレベルを制御:
+      //    setLogLevel('none')     // ログを無効化
+      //    setLogLevel('minimal')  // 最小限のログ
+      //    setLogLevel('normal')   // 通常のログ（デフォルト）
+      //    setLogLevel('verbose')  // 全てのログ
 
-7. データベースデバッガーを開く:
-   openDatabaseDebugger()  // データベースの内容を確認
+      // 7. データベースデバッガーを開く:
+      //    openDatabaseDebugger()  // データベースの内容を確認
 
-例: updateBubbleSettings({ maxBubbles: 5, minSize: 60, maxSize: 120 })
-      `)
+      // 例: updateBubbleSettings({ maxBubbles: 5, minSize: 60, maxSize: 120 })
+      //       `)
     }
   }, [])
 
@@ -297,7 +301,7 @@ function App() {
   // Role-based bubble system integration
   // 設定ファイルのmaxBubbles値を使用（レスポンシブ計算は無視）
   const configMaxBubbles = getCurrentBubbleSettings().maxBubbles
-  const { legendItems } = useRoleBasedBubbles(
+  useRoleBasedBubbles(
     musicDatabase,
     canvasSize.width,
     canvasSize.height,
@@ -431,6 +435,9 @@ function App() {
         roleBasedBubbleManagerRef.current = roleBasedBubbleManager
         enhancedBubbleManagerRef.current = enhancedBubbleManager
         bubbleManagerRef.current = roleBasedBubbleManager as BubbleManager // Use role-based manager as primary manager
+
+        // 初期フィルタリング設定を適用
+        roleBasedBubbleManager.setSelectedCategories(selectedCategories)
 
         // Generate initial role-based bubbles (Requirements: 19.1, 19.2)
         const initialBubbles: BubbleEntity[] = []
@@ -609,7 +616,7 @@ function App() {
   useEffect(() => {
     if (!bubbleManagerRef.current || isLoading) return
 
-    let frameCount = 0
+    let _frameCount = 0
     const animate = () => {
       // テスト環境での安全性チェック
       if (typeof window === 'undefined' || !bubbleManagerRef.current) {
@@ -621,17 +628,17 @@ function App() {
         setBubbles([...updatedBubbles])
 
         // デバッグ: 5秒ごとにシャボン玉数をログ出力（パフォーマンス配慮）
-        frameCount++
-        if (frameCount % 300 === 0) {
-          // 60fps * 5秒 = 300フレーム
-          if (import.meta.env.DEV) {
-            console.log('🫧 Animation frame bubble count:', {
-              bubbles: updatedBubbles.length,
-              maxBubbles: bubbleManagerRef.current.getBubbles().length,
-              frameCount,
-            })
-          }
-        }
+        _frameCount++
+        // if (frameCount % 300 === 0) {
+        //   // 60fps * 5秒 = 300フレーム
+        //   // if (import.meta.env.DEV) {
+        //   //   console.log('🫧 Animation frame bubble count:', {
+        //   //     bubbles: updatedBubbles.length,
+        //   //     maxBubbles: bubbleManagerRef.current.getBubbles().length,
+        //   //     _frameCount,
+        //   //   })
+        //   // }
+        // }
 
         animationFrameRef.current = requestAnimationFrame(animate)
       } catch (error) {
@@ -662,6 +669,43 @@ function App() {
       }
     }
   }, [isLoading])
+
+  /**
+   * Handle selected categories change
+   */
+  const handleSelectedCategoriesChange = useCallback(
+    (
+      categories: (keyof typeof import('@/services/roleBasedBubbleManager').CATEGORY_COLORS)[]
+    ) => {
+      setSelectedCategories(categories)
+
+      // BubbleManagerにフィルタリング設定を適用
+      if (roleBasedBubbleManagerRef.current) {
+        roleBasedBubbleManagerRef.current.setSelectedCategories(categories)
+
+        // フィルタリング時に既存のシャボン玉をクリアして新しいシャボン玉を生成
+        roleBasedBubbleManagerRef.current.clearAllBubbles()
+
+        // 新しいシャボン玉を生成
+        const config = getCurrentBubbleSettings()
+        for (let i = 0; i < config.maxBubbles; i++) {
+          try {
+            const bubble = roleBasedBubbleManagerRef.current.generateBubble()
+            if (bubble) {
+              roleBasedBubbleManagerRef.current.addBubble(bubble)
+            }
+          } catch (error) {
+            break // エラーが発生した場合は生成を停止
+          }
+        }
+
+        // 新しいシャボン玉をstateに反映
+        const newBubbles = roleBasedBubbleManagerRef.current.getBubbles()
+        setBubbles([...newBubbles])
+      }
+    },
+    []
+  )
 
   /**
    * Handle bubble click (最適化版)
@@ -1224,14 +1268,26 @@ function App() {
                 backgroundTheme="chestnut"
                 backgroundIntensity="moderate"
                 performanceMode={screenSize.isMobile}
+                enableGenreFiltering={true}
               />
 
-              {/* Color Legend for role-based bubbles (Requirements: 19.3, 19.4) */}
-              <ColorLegend
-                position="bottom-right"
-                isVisible={showColorLegend && bubbles.length > 0}
-                showCounts={true}
-                categories={legendItems}
+              {/* Category Filter Integration (Requirements: 5.1, 5.2, 5.3) */}
+              {(() => {
+                // window.console.log('🔍 [APP] About to render GenreFilterIntegration')
+                // window.console.log('🔍 [APP] showColorLegend:', showColorLegend)
+                // window.console.log('🔍 [APP] bubbles.length:', bubbles.length)
+                // window.console.log('🔍 [APP] isVisible will be:', showColorLegend && bubbles.length > 0)
+                // 最も確実なテスト
+                // window.console.error('🔍 [TEST] This should ALWAYS appear!')
+                return null
+              })()}
+              <GenreFilterIntegration
+                bubbles={bubbles}
+                onSelectedCategoriesChange={handleSelectedCategoriesChange}
+                colorLegendProps={{
+                  position: 'bottom-right',
+                  isVisible: showColorLegend && bubbles.length > 0,
+                }}
               />
             </div>
 

@@ -1171,6 +1171,15 @@ export class BubbleManager {
   getAdvancedAnimationController(): AdvancedAnimationController | null {
     return this.advancedAnimationController
   }
+
+  /**
+   * 選択されたカテゴリを設定（基底クラスでは何もしない）
+   * サブクラスでオーバーライドして実装
+   */
+  setSelectedCategories(_categories: string[]): void {
+    // 基底クラスでは何もしない
+    // RoleBasedBubbleManagerでオーバーライド
+  }
 }
 
 /**

@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { EnvironmentDetector } from '../utils/environmentDetector';
-import type { EnvironmentConfig } from '../types/environment';
+import React, { useState, useEffect, useCallback } from 'react'
+import { EnvironmentDetector } from '../utils/environmentDetector'
+import type { EnvironmentConfig } from '../types/environment'
 
 /**
  * Props for the DebugUI component
  */
 interface DebugUIProps {
   /** Current FPS value to display */
-  fps?: number;
+  fps?: number
   /** Current number of bubbles */
-  bubbleCount?: number;
+  bubbleCount?: number
   /** Callback function when reset button is clicked */
-  onReset?: () => void;
+  onReset?: () => void
   /** Additional CSS class name */
-  className?: string;
+  className?: string
   /** Whether to show detailed environment information */
-  showEnvironmentInfo?: boolean;
+  showEnvironmentInfo?: boolean
 }
 
 /**
@@ -27,67 +27,68 @@ export const DebugUI: React.FC<DebugUIProps> = ({
   bubbleCount = 0,
   onReset,
   className = '',
-  showEnvironmentInfo = false
+  showEnvironmentInfo = false,
 }) => {
-  const [environmentConfig, setEnvironmentConfig] = useState<EnvironmentConfig | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [environmentConfig, setEnvironmentConfig] =
+    useState<EnvironmentConfig | null>(null)
+  const [isVisible, setIsVisible] = useState(false)
 
   /**
    * Initialize environment detection and determine visibility
    */
   useEffect(() => {
-    const detector = EnvironmentDetector.getInstance();
-    const config = detector.getEnvironmentConfig();
-    
-    setEnvironmentConfig(config);
-    setIsVisible(config.showDebugInfo);
+    const detector = EnvironmentDetector.getInstance()
+    const config = detector.getEnvironmentConfig()
+
+    setEnvironmentConfig(config)
+    setIsVisible(config.showDebugInfo)
 
     // Log environment detection result if console logging is enabled
     if (config.enableConsoleLogging) {
-      const fullResult = detector.detectEnvironment();
-      console.log('DebugUI Environment Detection:', {
-        environmentType: fullResult.environmentType,
-        isDevelopment: config.isDevelopment,
-        showDebugInfo: config.showDebugInfo,
-        debugForced: fullResult.debugForced,
-        hostname: fullResult.hostname
-      });
+      // const fullResult = detector.detectEnvironment();
+      // console.log('DebugUI Environment Detection:', {
+      //   environmentType: fullResult.environmentType,
+      //   isDevelopment: config.isDevelopment,
+      //   showDebugInfo: config.showDebugInfo,
+      //   debugForced: fullResult.debugForced,
+      //   hostname: fullResult.hostname
+      // });
     }
-  }, []);
+  }, [])
 
   /**
    * Handle reset button click with logging
    */
   const handleReset = useCallback(() => {
     if (environmentConfig?.enableConsoleLogging) {
-      console.log('DebugUI: Reset button clicked');
+      // console.log('DebugUI: Reset button clicked');
     }
-    
-    onReset?.();
-  }, [onReset, environmentConfig]);
+
+    onReset?.()
+  }, [onReset, environmentConfig])
 
   /**
    * Handle environment refresh
    */
   const handleRefreshEnvironment = useCallback(() => {
-    const detector = EnvironmentDetector.getInstance();
-    const newConfig = detector.refreshEnvironmentDetection();
-    
-    setEnvironmentConfig(detector.getEnvironmentConfig());
-    setIsVisible(newConfig.showDebugInfo);
+    const detector = EnvironmentDetector.getInstance()
+    const newConfig = detector.refreshEnvironmentDetection()
+
+    setEnvironmentConfig(detector.getEnvironmentConfig())
+    setIsVisible(newConfig.showDebugInfo)
 
     if (newConfig.enableConsoleLogging) {
-      console.log('DebugUI: Environment refreshed:', newConfig);
+      // console.log('DebugUI: Environment refreshed:', newConfig);
     }
-  }, []);
+  }, [])
 
   // Don't render anything if not visible
   if (!isVisible || !environmentConfig) {
-    return null;
+    return null
   }
 
   return (
-    <div 
+    <div
       className={`debug-ui ${className}`}
       role="region"
       aria-label="開発者向けデバッグ情報"
@@ -110,7 +111,7 @@ export const DebugUI: React.FC<DebugUIProps> = ({
         {environmentConfig.showFPS && (
           <div className="debug-item fps-display">
             <span className="debug-label">FPS:</span>
-            <span 
+            <span
               className={`debug-value fps-value ${fps < 30 ? 'fps-low' : fps < 50 ? 'fps-medium' : 'fps-high'}`}
               aria-label={`フレームレート: 毎秒${fps}フレーム`}
             >
@@ -122,7 +123,7 @@ export const DebugUI: React.FC<DebugUIProps> = ({
         {/* Bubble Count Display */}
         <div className="debug-item bubble-count">
           <span className="debug-label">Bubbles:</span>
-          <span 
+          <span
             className="debug-value"
             aria-label={`シャボン玉の数: ${bubbleCount}個`}
           >
@@ -155,59 +156,69 @@ export const DebugUI: React.FC<DebugUIProps> = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
 /**
  * Hook for using debug UI functionality
  */
 export const useDebugUI = () => {
-  const [environmentConfig, setEnvironmentConfig] = useState<EnvironmentConfig | null>(null);
+  const [environmentConfig, setEnvironmentConfig] =
+    useState<EnvironmentConfig | null>(null)
 
   useEffect(() => {
-    const detector = EnvironmentDetector.getInstance();
-    const config = detector.getEnvironmentConfig();
-    setEnvironmentConfig(config);
-  }, []);
+    const detector = EnvironmentDetector.getInstance()
+    const config = detector.getEnvironmentConfig()
+    setEnvironmentConfig(config)
+  }, [])
 
   /**
    * Log debug information if console logging is enabled
    */
-  const debugLog = useCallback((message: string, data?: any) => {
-    if (environmentConfig?.enableConsoleLogging) {
-      if (data !== undefined) {
-        console.log(`[DEBUG] ${message}`, data);
-      } else {
-        console.log(`[DEBUG] ${message}`);
+  const debugLog = useCallback(
+    (message: string, data?: any) => {
+      if (environmentConfig?.enableConsoleLogging) {
+        if (data !== undefined) {
+          console.log(`[DEBUG] ${message}`, data)
+        } else {
+          console.log(`[DEBUG] ${message}`)
+        }
       }
-    }
-  }, [environmentConfig]);
+    },
+    [environmentConfig]
+  )
 
   /**
    * Log warning information if console logging is enabled
    */
-  const debugWarn = useCallback((message: string, data?: any) => {
-    if (environmentConfig?.enableConsoleLogging) {
-      if (data !== undefined) {
-        console.warn(`[DEBUG] ${message}`, data);
-      } else {
-        console.warn(`[DEBUG] ${message}`);
+  const debugWarn = useCallback(
+    (message: string, data?: any) => {
+      if (environmentConfig?.enableConsoleLogging) {
+        if (data !== undefined) {
+          console.warn(`[DEBUG] ${message}`, data)
+        } else {
+          console.warn(`[DEBUG] ${message}`)
+        }
       }
-    }
-  }, [environmentConfig]);
+    },
+    [environmentConfig]
+  )
 
   /**
    * Log error information if console logging is enabled
    */
-  const debugError = useCallback((message: string, error?: any) => {
-    if (environmentConfig?.enableConsoleLogging) {
-      if (error !== undefined) {
-        console.error(`[DEBUG] ${message}`, error);
-      } else {
-        console.error(`[DEBUG] ${message}`);
+  const debugError = useCallback(
+    (message: string, error?: any) => {
+      if (environmentConfig?.enableConsoleLogging) {
+        if (error !== undefined) {
+          console.error(`[DEBUG] ${message}`, error)
+        } else {
+          console.error(`[DEBUG] ${message}`)
+        }
       }
-    }
-  }, [environmentConfig]);
+    },
+    [environmentConfig]
+  )
 
   return {
     shouldShowDebugUI: environmentConfig?.showDebugInfo ?? false,
@@ -215,8 +226,8 @@ export const useDebugUI = () => {
     debugLog,
     debugWarn,
     debugError,
-    environmentConfig
-  };
-};
+    environmentConfig,
+  }
+}
 
-export default DebugUI;
+export default DebugUI

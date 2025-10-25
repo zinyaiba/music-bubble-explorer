@@ -7,11 +7,11 @@ import { BubbleManager } from './bubbleManager'
  * Requirements: 19.2, 19.3 - カテゴリ別色分けシステム
  */
 export const CATEGORY_COLORS = {
-  song: '#FFB6C1',      // 楽曲 - ピンク
-  lyricist: '#B6E5D8',  // 作詞家 - ライトブルー
-  composer: '#DDA0DD',  // 作曲家 - ライトパープル
-  arranger: '#F0E68C',  // 編曲家 - ライトイエロー
-  tag: '#98FB98'        // タグ - ライトグリーン
+  song: '#FFB6C1', // 楽曲 - ピンク
+  lyricist: '#B6E5D8', // 作詞家 - ライトブルー
+  composer: '#DDA0DD', // 作曲家 - ライトパープル
+  arranger: '#F0E68C', // 編曲家 - ライトイエロー
+  tag: '#98FB98', // タグ - ライトグリーン
 } as const
 
 /**
@@ -42,35 +42,36 @@ export class RoleBasedBubbleManager extends BubbleManager {
   private personRoleMap: Map<string, PersonRole> = new Map()
   private displayedRoleBubbles: Set<string> = new Set()
   protected roleBasedConfig: any
+  private selectedCategories: (keyof typeof CATEGORY_COLORS)[] = []
 
   constructor(musicDatabase: MusicDatabase, config: any) {
     super(musicDatabase, config)
     this.roleBasedConfig = config
     this.buildPersonRoleMap()
-    
+
     // デバッグ: データベースの状態をログ出力
-    console.log('🫧 RoleBasedBubbleManager initialized with database:', {
-      songs: musicDatabase.songs?.length || 0,
-      people: musicDatabase.people?.length || 0,
-      tags: musicDatabase.tags?.length || 0,
-      maxBubbles: config.maxBubbles
-    })
-    
+    // console.log('🫧 RoleBasedBubbleManager initialized with database:', {
+    //   songs: musicDatabase.songs?.length || 0,
+    //   people: musicDatabase.people?.length || 0,
+    //   tags: musicDatabase.tags?.length || 0,
+    //   maxBubbles: config.maxBubbles
+    // })
+
     // タグの詳細情報をログ出力
-    if (musicDatabase.tags && musicDatabase.tags.length > 0) {
-      console.log('🏷️ Available tags:', musicDatabase.tags.map(tag => `${tag.name} (${tag.songs.length} songs)`))
-      
-      // TagManagerの状態も確認
-      const tagManager = this.getTagManager()
-      const tagStats = tagManager.getTagStats()
-      console.log('🏷️ TagManager stats:', tagStats)
-      
-      // ランダムタグ取得のテスト
-      const testTag = tagManager.getWeightedRandomTag()
-      console.log('🏷️ Test random tag:', testTag ? `${testTag.name} (${testTag.songs.length} songs)` : 'null')
-    } else {
-      console.log('🏷️ No tags found in database')
-    }
+    // if (musicDatabase.tags && musicDatabase.tags.length > 0) {
+    //   console.log('🏷️ Available tags:', musicDatabase.tags.map(tag => `${tag.name} (${tag.songs.length} songs)`))
+    //
+    //   // TagManagerの状態も確認
+    //   const tagManager = this.getTagManager()
+    //   const tagStats = tagManager.getTagStats()
+    //   console.log('🏷️ TagManager stats:', tagStats)
+    //
+    //   // ランダムタグ取得のテスト
+    //   const testTag = tagManager.getWeightedRandomTag()
+    //   console.log('🏷️ Test random tag:', testTag ? `${testTag.name} (${testTag.songs.length} songs)` : 'null')
+    // } else {
+    //   console.log('🏷️ No tags found in database')
+    // }
   }
 
   /**
@@ -98,25 +99,29 @@ export class RoleBasedBubbleManager extends BubbleManager {
       })
     })
 
-    console.log('Person role map built:', {
-      totalPersons: this.personRoleMap.size,
-      multiRolePersons: Array.from(this.personRoleMap.values())
-        .filter(person => person.roles.size > 1).length
-    })
+    // console.log('Person role map built:', {
+    //   totalPersons: this.personRoleMap.size,
+    //   multiRolePersons: Array.from(this.personRoleMap.values())
+    //     .filter(person => person.roles.size > 1).length
+    // })
   }
 
   /**
    * 人物の役割を追加
    */
-  private addPersonRole(personName: string, role: 'lyricist' | 'composer' | 'arranger', songId: string): void {
+  private addPersonRole(
+    personName: string,
+    role: 'lyricist' | 'composer' | 'arranger',
+    songId: string
+  ): void {
     let personRole = this.personRoleMap.get(personName)
-    
+
     if (!personRole) {
       personRole = {
         personName,
         roles: new Set(),
         songs: [],
-        totalRelatedCount: 0
+        totalRelatedCount: 0,
       }
       this.personRoleMap.set(personName, personRole)
     }
@@ -143,7 +148,7 @@ export class RoleBasedBubbleManager extends BubbleManager {
     // 各役割に対して個別のシャボン玉を生成
     personRole.roles.forEach(role => {
       const uniqueId = this.createRoleBasedId(personName, role)
-      
+
       // 既に表示されている場合はスキップ
       if (this.displayedRoleBubbles.has(uniqueId)) {
         return
@@ -163,7 +168,10 @@ export class RoleBasedBubbleManager extends BubbleManager {
   /**
    * 役割別の一意IDを作成
    */
-  private createRoleBasedId(personName: string, role: 'lyricist' | 'composer' | 'arranger'): string {
+  private createRoleBasedId(
+    personName: string,
+    role: 'lyricist' | 'composer' | 'arranger'
+  ): string {
     return `${personName}:${role}`
   }
 
@@ -172,8 +180,8 @@ export class RoleBasedBubbleManager extends BubbleManager {
    * Requirements: 19.2, 19.3 - カテゴリ別色分けシステム
    */
   private createRoleBasedBubble(
-    personName: string, 
-    role: 'lyricist' | 'composer' | 'arranger', 
+    personName: string,
+    role: 'lyricist' | 'composer' | 'arranger',
     _personRole: PersonRole
   ): BubbleEntity | null {
     try {
@@ -186,20 +194,25 @@ export class RoleBasedBubbleManager extends BubbleManager {
 
       // 初期位置と速度を設定
       const margin = size / 2
-      const x = margin + Math.random() * (this.roleBasedConfig.canvasWidth - size)
-      const y = margin + Math.random() * (this.roleBasedConfig.canvasHeight - size)
-      
+      const x =
+        margin + Math.random() * (this.roleBasedConfig.canvasWidth - size)
+      const y =
+        margin + Math.random() * (this.roleBasedConfig.canvasHeight - size)
+
       const initialSpeed = this.roleBasedConfig.maxVelocity * 0.3
       const angle = Math.random() * Math.PI * 2
       const vx = Math.cos(angle) * initialSpeed * (Math.random() * 0.5 + 0.5)
-      const vy = Math.sin(angle) * initialSpeed * (Math.random() * 0.5 + 0.5) - 5
+      const vy =
+        Math.sin(angle) * initialSpeed * (Math.random() * 0.5 + 0.5) - 5
 
       // 役割に応じた色を選択
       const color = CATEGORY_COLORS[role]
 
       // ライフスパンを設定
-      const lifespan = this.roleBasedConfig.minLifespan + 
-        Math.random() * (this.roleBasedConfig.maxLifespan - this.roleBasedConfig.minLifespan)
+      const lifespan =
+        this.roleBasedConfig.minLifespan +
+        Math.random() *
+          (this.roleBasedConfig.maxLifespan - this.roleBasedConfig.minLifespan)
 
       // 役割別の一意IDを設定
       const uniqueId = this.createRoleBasedId(personName, role)
@@ -216,7 +229,7 @@ export class RoleBasedBubbleManager extends BubbleManager {
         color,
         opacity: 1,
         lifespan,
-        relatedCount
+        relatedCount,
       })
 
       // 一意IDを設定（BubbleEntityのidを上書き）
@@ -224,7 +237,7 @@ export class RoleBasedBubbleManager extends BubbleManager {
 
       return bubble
     } catch (error) {
-      console.error('Failed to create role-based bubble:', error)
+      // console.error('Failed to create role-based bubble:', error)
       return null
     }
   }
@@ -232,7 +245,10 @@ export class RoleBasedBubbleManager extends BubbleManager {
   /**
    * 指定された人物と役割に関連する楽曲を取得
    */
-  private getRoleSpecificSongs(personName: string, role: 'lyricist' | 'composer' | 'arranger'): Song[] {
+  private getRoleSpecificSongs(
+    personName: string,
+    role: 'lyricist' | 'composer' | 'arranger'
+  ): Song[] {
     return this.musicDatabase.songs.filter(song => {
       switch (role) {
         case 'lyricist':
@@ -257,7 +273,11 @@ export class RoleBasedBubbleManager extends BubbleManager {
 
     bubbles.forEach(bubble => {
       // 役割別の一意IDをチェック
-      if (bubble.type === 'lyricist' || bubble.type === 'composer' || bubble.type === 'arranger') {
+      if (
+        bubble.type === 'lyricist' ||
+        bubble.type === 'composer' ||
+        bubble.type === 'arranger'
+      ) {
         const uniqueId = this.createRoleBasedId(bubble.name, bubble.type)
         if (!seenIds.has(uniqueId)) {
           seenIds.add(uniqueId)
@@ -282,10 +302,11 @@ export class RoleBasedBubbleManager extends BubbleManager {
   assignCategoryColors(bubbles: BubbleEntity[]): BubbleEntity[] {
     return bubbles.map(bubble => {
       const updatedBubble = bubble.clone()
-      
+
       // カテゴリに応じた色を設定
       if (CATEGORY_COLORS[bubble.type as keyof typeof CATEGORY_COLORS]) {
-        updatedBubble.color = CATEGORY_COLORS[bubble.type as keyof typeof CATEGORY_COLORS]
+        updatedBubble.color =
+          CATEGORY_COLORS[bubble.type as keyof typeof CATEGORY_COLORS]
       }
 
       return updatedBubble
@@ -293,49 +314,118 @@ export class RoleBasedBubbleManager extends BubbleManager {
   }
 
   /**
-   * 改良されたシャボン玉生成（役割別対応）
+   * 選択されたカテゴリを設定
+   */
+  setSelectedCategories(categories: (keyof typeof CATEGORY_COLORS)[]): void {
+    // window.console.log('🔍 [DEBUG] setSelectedCategories called with:', categories)
+    // window.console.log('🔍 [DEBUG] Previous categories:', this.selectedCategories)
+    this.selectedCategories = categories
+    // window.console.log('🔍 [DEBUG] Categories after update:', this.selectedCategories)
+
+    // データベースの人物データを確認
+    // window.console.log('🔍 [DEBUG] PersonRoleMap size:', this.personRoleMap.size)
+    // const roleStats = {
+    //   lyricist: Array.from(this.personRoleMap.values()).filter(p => p.roles.has('lyricist')).length,
+    //   composer: Array.from(this.personRoleMap.values()).filter(p => p.roles.has('composer')).length,
+    //   arranger: Array.from(this.personRoleMap.values()).filter(p => p.roles.has('arranger')).length,
+    // }
+    // window.console.log('🔍 [DEBUG] Role statistics:', roleStats)
+  }
+
+  /**
+   * 改良されたシャボン玉生成（役割別対応 + フィルタリング対応）
    * Requirements: 19.1, 19.2 - 役割別一意シャボン玉生成
    */
   generateBubble(): BubbleEntity {
+    // console.log('🔍 [DEBUG] generateBubble called')
+    // console.log('🔍 [DEBUG] Current selectedCategories:', this.selectedCategories)
+    // console.log('🔍 [DEBUG] selectedCategories.length:', this.selectedCategories.length)
+
     // データベースが空の場合は例外を投げる
     if (!this.musicDatabase.songs || this.musicDatabase.songs.length === 0) {
       throw new Error('Cannot generate bubble: No songs available in database')
     }
 
-    // より均等な分散のためのタイプ選択（タグの確率を上げる）
-    const entityTypes = ['song', 'lyricist', 'composer', 'arranger', 'tag'] as const
-    
+    // フィルタリングが有効な場合は選択されたカテゴリのみから生成
+    if (this.selectedCategories.length > 0) {
+      // console.log('🔍 [DEBUG] Filtering is ACTIVE - generating from selected categories only')
+      // 選択されたカテゴリから直接選択（フォールバック処理なし）
+      const selectedType =
+        this.selectedCategories[
+          Math.floor(Math.random() * this.selectedCategories.length)
+        ]
+
+      // console.log('🔍 [DEBUG] Selected type from filtered categories:', selectedType)
+      // console.log('🔍 [DEBUG] Available categories:', this.selectedCategories)
+
+      try {
+        if (selectedType === 'song') {
+          return this.generateSongBubble()
+        } else if (selectedType === 'tag') {
+          return this.generateTagBubble()
+        } else {
+          // 人物の場合は役割別シャボン玉を生成
+          return this.generatePersonRoleBubble(
+            selectedType as 'lyricist' | 'composer' | 'arranger'
+          )
+        }
+      } catch (error) {
+        console.warn(
+          `Failed to generate ${selectedType} bubble from filtered categories:`,
+          error
+        )
+        // フィルタリング時はフォールバックしない（エラーを投げる）
+        throw new Error(
+          `Cannot generate ${selectedType} bubble from selected categories`
+        )
+      }
+    }
+
+    // フィルタリングが無効な場合の通常の生成処理
+    // console.log('🔍 [DEBUG] Filtering is INACTIVE - using normal generation')
+    const availableTypes = [
+      'song',
+      'lyricist',
+      'composer',
+      'arranger',
+      'tag',
+    ] as const
+
     // タグが存在する場合は確率を調整
-    const hasTagsAvailable = this.musicDatabase.tags && this.musicDatabase.tags.length > 0
-    let selectedType: typeof entityTypes[number]
-    
+    const hasTagsAvailable =
+      this.musicDatabase.tags && this.musicDatabase.tags.length > 0
+    let selectedType: string
+
     if (hasTagsAvailable) {
       // 現在のシャボン玉にタグが含まれているかチェック
       const currentBubbles = this.getBubbles()
       const hasTagBubbles = currentBubbles.some(bubble => bubble.type === 'tag')
-      
+
       if (!hasTagBubbles && Math.random() < 0.5) {
         // タグのシャボン玉がない場合は50%の確率でタグを強制選択
         selectedType = 'tag'
-        console.log('🏷️ Forcing tag bubble generation (no tag bubbles currently displayed)')
+        // console.log('🏷️ Forcing tag bubble generation (no tag bubbles currently displayed)')
       } else {
-        // 通常の均等分散
-        selectedType = entityTypes[Math.floor(Math.random() * entityTypes.length)]
+        // 利用可能なタイプから均等に選択
+        selectedType =
+          availableTypes[Math.floor(Math.random() * availableTypes.length)]
         // ログを制限（開発環境でのみ、10%の確率で表示）
-        if (import.meta.env.DEV && Math.random() < 0.1) {
-          console.log('🫧 Selected bubble type:', selectedType, '(normal distribution)')
-        }
+        // if (import.meta.env.DEV && Math.random() < 0.1) {
+        //   console.log('🫧 Selected bubble type:', selectedType, '(normal generation)')
+        // }
       }
     } else {
-      // タグが利用できない場合：楽曲と人物のみ
-      const availableTypes = ['song', 'lyricist', 'composer', 'arranger'] as const
-      selectedType = availableTypes[Math.floor(Math.random() * availableTypes.length)]
+      // タグが利用できない場合
+      const filteredTypes = availableTypes.filter(type => type !== 'tag')
+      selectedType =
+        filteredTypes[Math.floor(Math.random() * filteredTypes.length)]
       // ログを制限（開発環境でのみ、10%の確率で表示）
-      if (import.meta.env.DEV && Math.random() < 0.1) {
-        console.log('🫧 Selected bubble type:', selectedType, '(no tags available)')
-      }
+      // if (import.meta.env.DEV && Math.random() < 0.1) {
+      //   console.log('🫧 Selected bubble type:', selectedType, '(no tags available)')
+      // }
     }
 
+    // 通常の生成処理（フィルタリング無効時）
     try {
       if (selectedType === 'song') {
         return this.generateSongBubble()
@@ -343,11 +433,16 @@ export class RoleBasedBubbleManager extends BubbleManager {
         return this.generateTagBubble()
       } else {
         // 人物の場合は役割別シャボン玉を生成
-        return this.generatePersonRoleBubble(selectedType)
+        return this.generatePersonRoleBubble(
+          selectedType as 'lyricist' | 'composer' | 'arranger'
+        )
       }
     } catch (error) {
-      console.warn(`Failed to generate ${selectedType} bubble, falling back to song:`, error)
-      // エラーが発生した場合は楽曲にフォールバック
+      console.warn(
+        `Failed to generate ${selectedType} bubble, falling back to song:`,
+        error
+      )
+      // フィルタリングが無効な場合のみ楽曲にフォールバック
       return this.generateSongBubble()
     }
   }
@@ -362,16 +457,22 @@ export class RoleBasedBubbleManager extends BubbleManager {
     }
 
     // 関連楽曲数を計算（作詞家、作曲家、編曲家の合計 + タグ数）
-    const peopleCount = song.lyricists.length + song.composers.length + song.arrangers.length
+    const peopleCount =
+      song.lyricists.length + song.composers.length + song.arrangers.length
     const tagCount = song.tags ? song.tags.length : 0
     const relatedCount = Math.max(1, peopleCount + tagCount) // 最低1にする
-    
+
     // ログを制限（開発環境でのみ、10%の確率で表示）
-    if (import.meta.env.DEV && Math.random() < 0.1) {
-      console.log(`🎵 Song bubble: "${song.title}" - people: ${peopleCount}, tags: ${tagCount}, total: ${relatedCount}`)
-    }
-    
-    return this.createBasicBubble('song', song.title, relatedCount, CATEGORY_COLORS.song)
+    // if (import.meta.env.DEV && Math.random() < 0.1) {
+    //   console.log(`🎵 Song bubble: "${song.title}" - people: ${peopleCount}, tags: ${tagCount}, total: ${relatedCount}`)
+    // }
+
+    return this.createBasicBubble(
+      'song',
+      song.title,
+      relatedCount,
+      CATEGORY_COLORS.song
+    )
   }
 
   /**
@@ -389,36 +490,44 @@ export class RoleBasedBubbleManager extends BubbleManager {
    * タグシャボン玉を生成
    */
   private generateTagBubble(): BubbleEntity {
-    console.log('🏷️ Attempting to generate tag bubble...')
-    
+    // console.log('🏷️ Attempting to generate tag bubble...')
+
     try {
       // まずデータベースから直接タグを確認
-      console.log('🏷️ Database tags:', this.musicDatabase.tags?.length || 0)
-      
+      // console.log('🏷️ Database tags:', this.musicDatabase.tags?.length || 0)
+
       if (!this.musicDatabase.tags || this.musicDatabase.tags.length === 0) {
-        console.log('🏷️ No tags in database, falling back to song')
+        // console.log('🏷️ No tags in database, falling back to song')
         return this.generateSongBubble()
       }
-      
+
       // データベースから直接ランダムタグを選択
-      const randomTag = this.musicDatabase.tags[Math.floor(Math.random() * this.musicDatabase.tags.length)]
-      console.log('🏷️ Selected tag from database:', randomTag.name, 'with', randomTag.songs.length, 'songs')
-      
+      const randomTag =
+        this.musicDatabase.tags[
+          Math.floor(Math.random() * this.musicDatabase.tags.length)
+        ]
+      // console.log('🏷️ Selected tag from database:', randomTag.name, 'with', randomTag.songs.length, 'songs')
+
       const relatedCount = Math.max(1, randomTag.songs.length)
-      
+
       // createBasicBubbleを使わずに直接作成（エラー回避）
       const size = 80 // 固定サイズを使用してエラーを回避
       const margin = size / 2
-      const x = margin + Math.random() * (this.roleBasedConfig.canvasWidth - size)
-      const y = margin + Math.random() * (this.roleBasedConfig.canvasHeight - size)
-      
+      const x =
+        margin + Math.random() * (this.roleBasedConfig.canvasWidth - size)
+      const y =
+        margin + Math.random() * (this.roleBasedConfig.canvasHeight - size)
+
       const initialSpeed = this.roleBasedConfig.maxVelocity * 0.3
       const angle = Math.random() * Math.PI * 2
       const vx = Math.cos(angle) * initialSpeed * (Math.random() * 0.5 + 0.5)
-      const vy = Math.sin(angle) * initialSpeed * (Math.random() * 0.5 + 0.5) - 5
+      const vy =
+        Math.sin(angle) * initialSpeed * (Math.random() * 0.5 + 0.5) - 5
 
-      const lifespan = this.roleBasedConfig.minLifespan + 
-        Math.random() * (this.roleBasedConfig.maxLifespan - this.roleBasedConfig.minLifespan)
+      const lifespan =
+        this.roleBasedConfig.minLifespan +
+        Math.random() *
+          (this.roleBasedConfig.maxLifespan - this.roleBasedConfig.minLifespan)
 
       const bubble = new BubbleEntity({
         type: 'tag',
@@ -431,15 +540,14 @@ export class RoleBasedBubbleManager extends BubbleManager {
         color: CATEGORY_COLORS.tag,
         opacity: 1,
         lifespan,
-        relatedCount
+        relatedCount,
       })
-      
-      console.log('🏷️ Successfully created tag bubble:', bubble.name)
+
+      // console.log('🏷️ Successfully created tag bubble:', bubble.name)
       return bubble
-      
     } catch (error) {
-      console.error('🏷️ Error generating tag bubble:', error)
-      console.log('🏷️ Falling back to song bubble')
+      // console.error('🏷️ Error generating tag bubble:', error)
+      // console.log('🏷️ Falling back to song bubble')
       return this.generateSongBubble()
     }
   }
@@ -447,31 +555,55 @@ export class RoleBasedBubbleManager extends BubbleManager {
   /**
    * 人物役割シャボン玉を生成
    */
-  private generatePersonRoleBubble(role: 'lyricist' | 'composer' | 'arranger'): BubbleEntity {
+  private generatePersonRoleBubble(
+    role: 'lyricist' | 'composer' | 'arranger'
+  ): BubbleEntity {
+    // window.console.log('🔍 [DEBUG] generatePersonRoleBubble called with role:', role)
+
     // 指定された役割を持つ人物をランダム選択
-    const peopleWithRole = Array.from(this.personRoleMap.values())
-      .filter(person => person.roles.has(role))
+    const peopleWithRole = Array.from(this.personRoleMap.values()).filter(
+      person => person.roles.has(role)
+    )
+
+    // window.console.log('🔍 [DEBUG] People with role', role, ':', peopleWithRole.length)
 
     if (peopleWithRole.length === 0) {
-      // 該当する人物がいない場合は楽曲にフォールバック
+      // フィルタリング時は楽曲にフォールバックしない
+      if (this.selectedCategories.length > 0) {
+        throw new Error(`No ${role} found in database for filtering`)
+      }
+      // 通常時のみ楽曲にフォールバック
       return this.generateSongBubble()
     }
 
-    const randomPerson = peopleWithRole[Math.floor(Math.random() * peopleWithRole.length)]
+    const randomPerson =
+      peopleWithRole[Math.floor(Math.random() * peopleWithRole.length)]
     const uniqueId = this.createRoleBasedId(randomPerson.personName, role)
 
     // 既に表示されている場合は別の人物を選択
     if (this.displayedRoleBubbles.has(uniqueId)) {
-      const availablePeople = peopleWithRole.filter(person => 
-        !this.displayedRoleBubbles.has(this.createRoleBasedId(person.personName, role))
+      const availablePeople = peopleWithRole.filter(
+        person =>
+          !this.displayedRoleBubbles.has(
+            this.createRoleBasedId(person.personName, role)
+          )
       )
-      
+
+      // window.console.log('🔍 [DEBUG] Available people after filtering displayed:', availablePeople.length)
+
       if (availablePeople.length === 0) {
-        // 全ての人物が表示済みの場合は楽曲にフォールバック
+        // フィルタリング時は楽曲にフォールバックしない
+        if (this.selectedCategories.length > 0) {
+          // 重複を許可して生成
+          // window.console.log('🔍 [DEBUG] All people displayed, allowing duplicates for filtering')
+          return this.createRoleBasedBubbleFromPerson(randomPerson, role)
+        }
+        // 通常時のみ楽曲にフォールバック
         return this.generateSongBubble()
       }
 
-      const availablePerson = availablePeople[Math.floor(Math.random() * availablePeople.length)]
+      const availablePerson =
+        availablePeople[Math.floor(Math.random() * availablePeople.length)]
       return this.createRoleBasedBubbleFromPerson(availablePerson, role)
     }
 
@@ -481,18 +613,29 @@ export class RoleBasedBubbleManager extends BubbleManager {
   /**
    * PersonRoleからシャボン玉を作成
    */
-  private createRoleBasedBubbleFromPerson(personRole: PersonRole, role: 'lyricist' | 'composer' | 'arranger'): BubbleEntity {
-    const roleSpecificSongs = this.getRoleSpecificSongs(personRole.personName, role)
+  private createRoleBasedBubbleFromPerson(
+    personRole: PersonRole,
+    role: 'lyricist' | 'composer' | 'arranger'
+  ): BubbleEntity {
+    const roleSpecificSongs = this.getRoleSpecificSongs(
+      personRole.personName,
+      role
+    )
     const relatedCount = Math.max(1, roleSpecificSongs.length) // 最低1にする
     const color = CATEGORY_COLORS[role]
 
     // ログを制限（開発環境でのみ、10%の確率で表示）
-    if (import.meta.env.DEV && Math.random() < 0.1) {
-      console.log(`👤 Person bubble: "${personRole.personName}" as ${role} - songs: ${roleSpecificSongs.length}`)
-    }
+    // if (import.meta.env.DEV && Math.random() < 0.1) {
+    //   console.log(`👤 Person bubble: "${personRole.personName}" as ${role} - songs: ${roleSpecificSongs.length}`)
+    // }
 
-    const bubble = this.createBasicBubble(role, personRole.personName, relatedCount, color)
-    
+    const bubble = this.createBasicBubble(
+      role,
+      personRole.personName,
+      relatedCount,
+      color
+    )
+
     // 役割別の一意IDを設定
     const uniqueId = this.createRoleBasedId(personRole.personName, role)
     bubble.id = uniqueId
@@ -504,34 +647,42 @@ export class RoleBasedBubbleManager extends BubbleManager {
   /**
    * 基本的なシャボン玉を作成
    */
-  private createBasicBubble(type: BubbleType, name: string, relatedCount: number, color: string): BubbleEntity {
+  private createBasicBubble(
+    type: BubbleType,
+    name: string,
+    relatedCount: number,
+    color: string
+  ): BubbleEntity {
     // サイズ計算のデバッグログを制限
     let size: number
     if (type === 'tag') {
       size = this.getTagManager().calculateTagBubbleSize(name)
       // タグの場合は常にログ出力（重要な情報のため）
-      if (import.meta.env.DEV) {
-        console.log(`🏷️ Tag bubble size: ${name} -> ${size}px (relatedCount: ${relatedCount})`)
-      }
+      // if (import.meta.env.DEV) {
+      //   console.log(`🏷️ Tag bubble size: ${name} -> ${size}px (relatedCount: ${relatedCount})`)
+      // }
     } else {
       size = this.calculateBubbleSize(relatedCount)
       // 他のタイプは10%の確率でのみログ出力
-      if (import.meta.env.DEV && Math.random() < 0.1) {
-        console.log(`🫧 ${type} bubble size: ${name} -> ${size}px (relatedCount: ${relatedCount})`)
-      }
+      // if (import.meta.env.DEV && Math.random() < 0.1) {
+      //   console.log(`🫧 ${type} bubble size: ${name} -> ${size}px (relatedCount: ${relatedCount})`)
+      // }
     }
 
     const margin = size / 2
     const x = margin + Math.random() * (this.roleBasedConfig.canvasWidth - size)
-    const y = margin + Math.random() * (this.roleBasedConfig.canvasHeight - size)
-    
+    const y =
+      margin + Math.random() * (this.roleBasedConfig.canvasHeight - size)
+
     const initialSpeed = this.roleBasedConfig.maxVelocity * 0.3
     const angle = Math.random() * Math.PI * 2
     const vx = Math.cos(angle) * initialSpeed * (Math.random() * 0.5 + 0.5)
     const vy = Math.sin(angle) * initialSpeed * (Math.random() * 0.5 + 0.5) - 5
 
-    const lifespan = this.roleBasedConfig.minLifespan + 
-      Math.random() * (this.roleBasedConfig.maxLifespan - this.roleBasedConfig.minLifespan)
+    const lifespan =
+      this.roleBasedConfig.minLifespan +
+      Math.random() *
+        (this.roleBasedConfig.maxLifespan - this.roleBasedConfig.minLifespan)
 
     return new BubbleEntity({
       type,
@@ -544,7 +695,7 @@ export class RoleBasedBubbleManager extends BubbleManager {
       color,
       opacity: 1,
       lifespan,
-      relatedCount
+      relatedCount,
     })
   }
 
@@ -554,7 +705,7 @@ export class RoleBasedBubbleManager extends BubbleManager {
   removeBubble(id: string): void {
     // 表示済みリストから削除
     this.displayedRoleBubbles.delete(id)
-    
+
     // 親クラスの削除処理を呼び出し
     super.removeBubble(id)
   }
@@ -565,10 +716,10 @@ export class RoleBasedBubbleManager extends BubbleManager {
   updateMusicDatabase(newMusicDatabase: MusicDatabase): void {
     // 親クラスの更新処理を呼び出し
     super.updateMusicDatabase(newMusicDatabase)
-    
+
     // 役割マップを再構築
     this.buildPersonRoleMap()
-    
+
     // 表示済みリストをクリア
     this.displayedRoleBubbles.clear()
   }
@@ -578,15 +729,16 @@ export class RoleBasedBubbleManager extends BubbleManager {
    */
   getRoleBasedStats() {
     const baseStats = this.getStats()
-    
-    const multiRolePersons = Array.from(this.personRoleMap.values())
-      .filter(person => person.roles.size > 1)
+
+    const multiRolePersons = Array.from(this.personRoleMap.values()).filter(
+      person => person.roles.size > 1
+    )
 
     const roleDistribution = {
       lyricistOnly: 0,
       composerOnly: 0,
       arrangerOnly: 0,
-      multiRole: multiRolePersons.length
+      multiRole: multiRolePersons.length,
     }
 
     this.personRoleMap.forEach(person => {
@@ -614,8 +766,8 @@ export class RoleBasedBubbleManager extends BubbleManager {
       multiRolePersons: multiRolePersons.map(person => ({
         name: person.personName,
         roles: Array.from(person.roles),
-        songCount: person.songs.length
-      }))
+        songCount: person.songs.length,
+      })),
     }
   }
 
@@ -648,16 +800,17 @@ export class RoleBasedBubbleManager extends BubbleManager {
   updateFrame(): BubbleEntity[] {
     try {
       const updatedBubbles = super.updateFrame()
-      
+
       // 役割別シャボン玉の制限を厳格に適用
       if (updatedBubbles.length > this.roleBasedConfig.maxBubbles) {
         // ログを制限（重要な情報だが頻繁すぎるため）
-        if (import.meta.env.DEV && Math.random() < 0.2) {
-          console.log(`🫧 Role-based bubble count exceeded: ${updatedBubbles.length} > ${this.roleBasedConfig.maxBubbles}`)
-        }
-        
+        // if (import.meta.env.DEV && Math.random() < 0.2) {
+        //   console.log(`🫧 Role-based bubble count exceeded: ${updatedBubbles.length} > ${this.roleBasedConfig.maxBubbles}`)
+        // }
+
         // 超過分を削除（古いものから）
-        const excessCount = updatedBubbles.length - this.roleBasedConfig.maxBubbles
+        const excessCount =
+          updatedBubbles.length - this.roleBasedConfig.maxBubbles
         for (let i = 0; i < excessCount; i++) {
           const bubbleToRemove = updatedBubbles.shift()
           if (bubbleToRemove) {
@@ -669,11 +822,14 @@ export class RoleBasedBubbleManager extends BubbleManager {
           }
         }
       }
-      
+
       return updatedBubbles.slice(0, this.roleBasedConfig.maxBubbles)
     } catch (error) {
       // エラーが発生した場合は親クラスの結果をそのまま返す
-      console.warn('Error in role-based updateFrame, falling back to parent:', error)
+      console.warn(
+        'Error in role-based updateFrame, falling back to parent:',
+        error
+      )
       return super.updateFrame()
     }
   }

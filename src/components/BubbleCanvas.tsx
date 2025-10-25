@@ -6,9 +6,10 @@ import type { EnhancedBubble } from '@/types/enhancedBubble'
 import { CanvasErrorBoundary } from './ErrorBoundary'
 import { CanvasRenderingFallback } from './FallbackComponents'
 import { GPUAccelerationHelper } from '@/utils/animationOptimizer'
-import { ImprovedBubbleTextRenderer } from '@/utils/improvedTextRenderer'
+
 import { EnhancedBubbleManager } from '@/services/enhancedBubbleManager'
 import { EnhancedBubbleBackground } from './EnhancedBubbleBackground'
+import { GenreService } from '@/services/genreService'
 import './EnhancedBubbleBackground.css'
 
 interface BubbleCanvasProps {
@@ -21,6 +22,9 @@ interface BubbleCanvasProps {
   backgroundTheme?: 'chestnut' | 'default' // Background theme selection
   backgroundIntensity?: 'subtle' | 'moderate' | 'vibrant' // Background intensity
   performanceMode?: boolean // Enable performance optimizations
+  // ジャンルフィルタリング機能の追加
+  selectedGenres?: string[] // フィルタリング対象のジャンル
+  enableGenreFiltering?: boolean // ジャンルフィルタリング機能の有効/無効
 }
 
 /**
@@ -68,12 +72,17 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
     backgroundTheme = 'chestnut',
     backgroundIntensity = 'moderate',
     performanceMode = false,
+    selectedGenres = [],
+    enableGenreFiltering = false,
   }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [, setIsAnimating] = useState(true)
     const [hasCanvasError, setHasCanvasError] = useState(false)
     const [canvasErrorMessage, setCanvasErrorMessage] = useState<string>('')
     const [selectedBubbleIndex, setSelectedBubbleIndex] = useState<number>(-1)
+    const [filteringAnimation, setFilteringAnimation] = useState<
+      Map<string, number>
+    >(new Map())
 
     // パフォーマンス最適化: 可視範囲の計算をメモ化
     const visibleBounds = useMemo(
@@ -81,11 +90,39 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
       [width, height]
     )
 
+    // ジャンルフィルタリング: 選択されたジャンルに基づいてシャボン玉をフィルタリング
+    const genreFilteredBubbles = useMemo(() => {
+      if (!enableGenreFiltering || selectedGenres.length === 0) {
+        return bubbles
+      }
+
+      const genreService = GenreService.getInstance()
+      return genreService.filterBubblesByGenres(bubbles, selectedGenres)
+    }, [bubbles, selectedGenres, enableGenreFiltering])
+
     // パフォーマンス最適化: 可視範囲内のシャボン玉のみをフィルタリング
     const visibleBubbles = useMemo(
-      () => bubbles.filter(bubble => isBubbleVisible(bubble, visibleBounds)),
-      [bubbles, visibleBounds]
+      () =>
+        genreFilteredBubbles.filter(bubble =>
+          isBubbleVisible(bubble, visibleBounds)
+        ),
+      [genreFilteredBubbles, visibleBounds]
     )
+
+    // ジャンルフィルタリングアニメーション効果（簡素化）
+    useEffect(() => {
+      if (!enableGenreFiltering) return
+
+      const newAnimationMap = new Map<string, number>()
+
+      bubbles.forEach(bubble => {
+        const isVisible = genreFilteredBubbles.includes(bubble)
+        // アニメーションを簡素化：即座に切り替え
+        newAnimationMap.set(bubble.id, isVisible ? 1 : 0)
+      })
+
+      setFilteringAnimation(newAnimationMap)
+    }, [genreFilteredBubbles, bubbles, enableGenreFiltering])
 
     // 背景描画は EnhancedBubbleBackground コンポーネントに移行
     // Canvas描画最適化: 透明な背景を使用してシャボン玉の視認性を維持
@@ -101,9 +138,10 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
     )
 
     /**
-     * シャボン玉を描画する関数（改善版 - GPU加速対応 + Enhanced Bubble支援）
+     * シャボン玉を描画する関数（改善版 - GPU加速対応 + Enhanced Bubble支援 + ジャンルフィルタリング）
      * Requirements: 7.3, 7.4 - GPU加速と回転効果
      * Requirements: 1.1 - Enhanced bubble visual distinction
+     * Requirements: 4.2, 4.4 - ジャンルベースのシャボン玉表示制御とアニメーション付きフィルタリング効果
      */
     const drawBubble = useCallback(
       (
@@ -136,24 +174,25 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         // Fallback to standard bubble rendering
         const { x, y, color } = bubble
 
-        // アニメーション適用後のサイズ、透明度、回転角度を取得
+        // アニメーション適用後のサイズ、透明度を取得
         const displaySize = bubble.getDisplaySize()
-        const displayOpacity = bubble.getDisplayOpacity()
-        const rotation = bubble.getRotation?.() || 0 // 回転角度（新機能）
+        let displayOpacity = bubble.getDisplayOpacity()
         const radius = displaySize / 2
+
+        // ジャンルフィルタリングの適用（アニメーション簡素化）
+        if (enableGenreFiltering) {
+          const filterOpacity = filteringAnimation.get(bubble.id) ?? 1
+          if (filterOpacity < 0.1) {
+            return // 非表示のバブルは描画をスキップ
+          }
+          displayOpacity *= filterOpacity
+        }
 
         // Canvas描画最適化: 透明度が非常に低い場合はスキップ
         if (displayOpacity < 0.01) return
 
-        // GPU加速のためのtransform3d効果をCanvasで模擬
-        ctx.save() // 状態を保存
-
-        // 回転効果の適用（Requirements: 7.3）
-        if (rotation !== 0) {
-          ctx.translate(x, y)
-          ctx.rotate((rotation * Math.PI) / 180) // 度数法からラジアンに変換
-          ctx.translate(-x, -y)
-        }
+        // 状態を保存（回転効果は無効化してパフォーマンス向上）
+        ctx.save()
 
         // 透明度を設定
         ctx.globalAlpha = displayOpacity
@@ -212,48 +251,30 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
           ctx.fill()
         }
 
-        // 改善されたテキスト描画システム（Requirements: 10.5 - シャボン玉文字表示の改善）
+        // 見やすいテキスト描画（コントラスト改善）
         if (displaySize > 35) {
-          // より小さなバブルでもテキストを表示
-          ctx.globalAlpha = displayOpacity * 0.9 // より濃い透明度で視認性向上
+          ctx.globalAlpha = displayOpacity * 0.9
 
-          // タグの場合は#プレフィックスを追加（Requirements: 6.3）
+          // タグの場合は#プレフィックスを追加
           const displayName =
             bubble.type === 'tag' ? `#${bubble.name}` : bubble.name
 
-          // 複数行対応の改善されたテキストレンダリングシステムを使用
-          const multiLineTextMetrics =
-            ImprovedBubbleTextRenderer.calculateMultiLineTextMetrics(
-              ctx,
-              displayName,
-              displaySize,
-              color,
-              bubble.type,
-              {
-                minFontSize: 10, // 最小フォントサイズを上げて読みやすく
-                maxFontSize: 28, // さらに大きなフォントサイズを許可
-                maxTextWidth: 1.4, // より多くのはみ出しを許可
-                ellipsisThreshold: 20, // より多くの文字を表示
-                allowOverflow: true, // はみ出しを許可
-                maxCharacterCount: 50, // 大幅に文字数を増加
-                overflowTolerance: 0.4, // 40%のはみ出しを許可
-                prioritizeReadability: true, // 読みやすさを優先
-                useDynamicSizing: true, // 動的フォントサイズ調整を有効化
-                dynamicFontConfig: {
-                  readabilityPriority: 0.95, // 読みやすさを最優先
-                  scaleFactor: 1.2, // 全体的に大きめに
-                },
-              }
-            )
+          // フォントサイズを計算
+          const fontSize = Math.max(10, Math.min(20, displaySize * 0.25))
+          ctx.font = `bold ${fontSize}px Arial, sans-serif`
+          ctx.textAlign = 'center'
+          ctx.textBaseline = 'middle'
 
-          // 複数行対応のテキスト描画
-          ImprovedBubbleTextRenderer.renderMultiLineText(
-            ctx,
-            multiLineTextMetrics,
-            x,
-            y,
-            bubble.type
-          )
+          // 強い影を描画（コントラスト向上）
+          // ctx.fillStyle = 'rgba(0, 0, 0, 0.0)'
+          // ctx.fillText(displayName, x + 2, y + 2)
+          // ctx.fillText(displayName, x + 1, y + 1)
+          // ctx.fillText(displayName, x - 1, y + 1)
+          // ctx.fillText(displayName, x + 1, y - 1)
+
+          // メインテキストを描画（濃い色で視認性向上）
+          ctx.fillStyle = '#333333'
+          ctx.fillText(displayName, x, y)
         }
 
         // キーボード選択時のハイライト表示
@@ -270,10 +291,15 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         // 透明度をリセット
         ctx.globalAlpha = 1
 
-        // 状態を復元（回転効果のリセット）
+        // 状態を復元
         ctx.restore()
       },
-      []
+      [
+        enableGenreFiltering,
+        filteringAnimation,
+        isEnhancedBubble,
+        enhancedBubbleManager,
+      ]
     )
 
     /**
@@ -458,6 +484,8 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
       drawBubble,
       bubbles.length,
       hasCanvasError,
+      selectedGenres,
+      enableGenreFiltering,
     ])
 
     // アニメーションループは親コンポーネントで管理されるため削除
@@ -780,6 +808,9 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
       prevProps.backgroundTheme === nextProps.backgroundTheme &&
       prevProps.backgroundIntensity === nextProps.backgroundIntensity &&
       prevProps.performanceMode === nextProps.performanceMode &&
+      JSON.stringify(prevProps.selectedGenres) ===
+        JSON.stringify(nextProps.selectedGenres) &&
+      prevProps.enableGenreFiltering === nextProps.enableGenreFiltering &&
       // シャボン玉の位置やサイズが大きく変わった場合のみ再描画
       prevProps.bubbles.every((bubble, index) => {
         const nextBubble = nextProps.bubbles[index]
