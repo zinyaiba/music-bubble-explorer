@@ -57,6 +57,8 @@ import { getCurrentBubbleSettings } from './config/bubbleSettings'
 import './styles/mobilePerformance.css'
 // Import mobile-first CSS
 import './styles/mobileFirst.css'
+// Import Safari header fix
+import { initSafariHeaderFix } from './utils/safariHeaderFix'
 
 /**
  * パフォーマンス最適化された操作説明コンポーネント
@@ -333,6 +335,9 @@ function App() {
     // モバイル最適化の初期化
     const mobileConfig = MobileOptimizer.initialize()
     debugLogger.info('Mobile optimization initialized', mobileConfig)
+
+    // Safari専用ヘッダー修正
+    initSafariHeaderFix()
 
     // 共有データサービスの初期化
     const initializeSharedDataService = async () => {

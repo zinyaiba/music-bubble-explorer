@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect } from 'react'
 import styled from 'styled-components'
 import { useResponsive } from '@/hooks/useResponsive'
 import { initSafariViewportFix } from '@/utils/safariViewportFix'
-import { initSafariEmergencyFix } from '@/utils/safariEmergencyFix'
+import { initSafariHeaderFix } from '@/utils/safariHeaderFix'
 
 interface MobileFirstLayoutProps {
   children: ReactNode
@@ -21,25 +21,13 @@ export const MobileFirstLayout: React.FC<MobileFirstLayoutProps> = React.memo(
 
     // Safari対応の初期化
     useEffect(() => {
-      // Safari検出
-      const userAgent = navigator.userAgent.toLowerCase()
-      const isSafari =
-        (userAgent.includes('safari') &&
-          !userAgent.includes('chrome') &&
-          !userAgent.includes('edg')) ||
-        /iphone|ipad|ipod/.test(userAgent)
+      // 基本的なViewport対応
+      initSafariViewportFix()
 
-      if (isSafari) {
-        console.log('🍎 Safari detected, applying Safari-specific fixes')
-        initSafariViewportFix()
-        initSafariEmergencyFix()
-      } else {
-        console.log(
-          '🌐 Non-Safari browser detected, skipping Safari-specific fixes'
-        )
-        // Safari以外では基本的なViewport対応のみ
-        initSafariViewportFix()
-      }
+      // Safari専用のヘッダー修正
+      initSafariHeaderFix()
+
+      console.log('🍎 Safari fixes initialized')
     }, [])
 
     return (
