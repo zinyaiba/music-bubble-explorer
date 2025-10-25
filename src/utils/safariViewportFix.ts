@@ -9,8 +9,8 @@ function updateViewportHeight() {
   // 現在のビューポート高さを取得
   const currentHeight = window.innerHeight
 
-  // 高さが変わった場合のみ更新
-  if (Math.abs(currentHeight - viewportHeight) > 50) {
+  // 高さが変わった場合のみ更新（閾値を小さくしてより敏感に反応）
+  if (Math.abs(currentHeight - viewportHeight) > 10) {
     viewportHeight = currentHeight
 
     // CSS変数として設定
@@ -22,6 +22,21 @@ function updateViewportHeight() {
       '--viewport-height',
       `${viewportHeight}px`
     )
+
+    // Safari専用の追加変数
+    document.documentElement.style.setProperty(
+      '--safari-viewport-height',
+      `${viewportHeight}px`
+    )
+
+    // デバッグ用ログ（開発環境のみ）
+    if (import.meta.env.DEV) {
+      console.log('🍎 Safari viewport updated:', {
+        height: viewportHeight,
+        vh: `${viewportHeight * 0.01}px`,
+        userAgent: navigator.userAgent.includes('Safari')
+      })
+    }
   }
 }
 
@@ -39,47 +54,67 @@ function isIOSSafari(): boolean {
 
 // 初期化
 export function initSafariViewportFix(): void {
-  if (!isSafari() && !isIOSSafari()) {
-    return // Safari以外では何もしない
-  }
-
-  // 初期設定
+  // 初期設定（Safari以外でも基本的な設定は行う）
   updateViewportHeight()
 
-  // リサイズイベントリスナー
-  let resizeTimer: number
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimer)
-    resizeTimer = window.setTimeout(updateViewportHeight, 100)
-  })
+  // Safari/iOS Safari専用の追加対応
+  if (isSafari() || isIOSSafari()) {
+    console.log('🍎 Safari viewport fix initialized')
 
-  // オリエンテーション変更対応
-  window.addEventListener('orientationchange', () => {
-    setTimeout(updateViewportHeight, 500)
-  })
+    // より頻繁な更新でSafariのアドレスバー変化に対応
+    let resizeTimer: number
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer)
+      resizeTimer = window.setTimeout(updateViewportHeight, 50) // より早く反応
+    })
 
-  // スクロールイベント（Safariのアドレスバー対応）
-  let scrollTimer: number
-  window.addEventListener(
-    'scroll',
-    () => {
-      clearTimeout(scrollTimer)
-      scrollTimer = window.setTimeout(updateViewportHeight, 100)
-    },
-    { passive: true }
-  )
+    // オリエンテーション変更対応（複数回実行で確実に）
+    window.addEventListener('orientationchange', () => {
+      setTimeout(updateViewportHeight, 100)
+      setTimeout(updateViewportHeight, 300)
+      setTimeout(updateViewportHeight, 600)
+    })
 
-  // ページ表示時の調整
-  window.addEventListener('pageshow', updateViewportHeight)
+    // スクロールイベント（Safariのアドレスバー対応）
+    let scrollTimer: number
+    window.addEventListener(
+      'scroll',
+      () => {
+        clearTimeout(scrollTimer)
+        scrollTimer = window.setTimeout(updateViewportHeight, 50)
+      },
+      { passive: true }
+    )
 
-  // フォーカス変更時の調整（キーボード表示対応）
-  window.addEventListener('focusin', () => {
-    setTimeout(updateViewportHeight, 300)
-  })
+    // ページ表示時の調整（複数回実行）
+    window.addEventListener('pageshow', () => {
+      updateViewportHeight()
+      setTimeout(updateViewportHeight, 100)
+    })
 
-  window.addEventListener('focusout', () => {
-    setTimeout(updateViewportHeight, 300)
-  })
+    // フォーカス変更時の調整（キーボード表示対応）
+    window.addEventListener('focusin', () => {
+      setTimeout(updateViewportHeight, 100)
+      setTimeout(updateViewportHeight, 300)
+    })
+
+    window.addEventListener('focusout', () => {
+      setTimeout(updateViewportHeight, 100)
+      setTimeout(updateViewportHeight, 300)
+    })
+
+    // ビジビリティ変更時の調整（タブ切り替え対応）
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        setTimeout(updateViewportHeight, 100)
+      }
+    })
+
+    // タッチ開始時の調整（Safari特有の問題対応）
+    window.addEventListener('touchstart', () => {
+      setTimeout(updateViewportHeight, 50)
+    }, { passive: true })
+  }
 }
 
 // セーフエリア取得

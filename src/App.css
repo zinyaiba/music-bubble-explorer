@@ -1,5 +1,4 @@
-/* Import PWA styles */
-@import './styles/pwa.css';
+/* PWA styles removed */
 /* Import enhanced responsive styles */
 @import './styles/responsive-enhanced.css';
 /* Import improved glassmorphism styles */
@@ -404,6 +403,40 @@
   line-height: 1.5;
 }
 
+/* タイトル行は中央寄せ */
+.instructions .instructions-title {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* 2行目以降は左寄せ */
+.instructions .instructions-item {
+  text-align: left;
+  margin-bottom: 0.25rem;
+}
+
+/* Xプロフィールリンクのスタイル */
+.instructions .twitter-link {
+  color: var(--bubble-pink, #ffb6c1);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.instructions .twitter-link:hover {
+  color: var(--bubble-rose, #ff69b4);
+  border-bottom: 1px solid var(--bubble-rose, #ff69b4);
+  text-shadow: 0 1px 2px rgba(255, 105, 180, 0.3);
+}
+
+.instructions .twitter-link:focus {
+  outline: 2px solid var(--bubble-pink, #ffb6c1);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* Loading state */
 .loading-container {
   display: flex;
@@ -547,6 +580,18 @@
   font-weight: 500;
   text-align: center;
   line-height: 1.6;
+}
+
+/* モバイル版でもタイトル行は中央寄せ、その他は左寄せ */
+.instructions .instructions-title {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.instructions .instructions-item {
+  text-align: left;
+  margin-bottom: 0.25rem;
 }
 
 /* Tablet Styles (768px+) */
@@ -1199,8 +1244,12 @@ ebase Test Modal Styles */
 
   .app-info {
     /* ヘルプメッセージ領域の調整 */
-    margin: 8px 0 !important;
-    padding: 12px !important;
+    margin: 0px 0 !important;
+    /* padding: 12px !important; */
+    padding-top: 0px !important;
+    padding-right: 12px !important;
+    padding-left: 12px !important;
+    padding-bottom: 0px !important;
     width: 100% !important;
     display: block !important;
     visibility: visible !important;
@@ -1309,6 +1358,34 @@ ebase Test Modal Styles */
     font-size: 10px !important;
     line-height: 1.5 !important;
     color: #333 !important;
+  }
+
+  /* 小さなモバイルでもタイトル行は中央寄せ、その他は左寄せ */
+  .instructions .instructions-title {
+    text-align: center !important;
+    font-weight: 600 !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .instructions .instructions-item {
+    text-align: left !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  /* 小さなモバイルでのXプロフィールリンクスタイル */
+  .instructions .twitter-link {
+    color: var(--bubble-pink, #ffb6c1) !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    border-bottom: 1px solid transparent !important;
+  }
+
+  .instructions .twitter-link:hover,
+  .instructions .twitter-link:active {
+    color: var(--bubble-rose, #ff69b4) !important;
+    border-bottom: 1px solid var(--bubble-rose, #ff69b4) !important;
+    text-shadow: 0 1px 2px rgba(255, 105, 180, 0.3) !important;
   }
 
   /* データローディングエラーバウンダリーも強制表示 */

@@ -244,7 +244,7 @@ const LegendContainer = styled.div.withConfig({
   ${({ isFilterActive }) =>
     isFilterActive &&
     `
-    background: rgba(252, 216, 241, 0.97);
+    background: rgba(255, 241, 253, 0.97);
     border-color: rgba(255, 254, 255, 0.65);
   `}
 

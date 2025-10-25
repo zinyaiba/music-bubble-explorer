@@ -71,6 +71,27 @@ const HeaderSection = styled.header`
     /* Safari対応：セーフエリア考慮 */
     padding-top: env(safe-area-inset-top, 0px);
     min-height: calc(85px + env(safe-area-inset-top, 0px));
+    
+    /* Safari専用の位置固定強化 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999999;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* Safari専用の追加対応 */
+  @supports (-webkit-touch-callout: none) {
+    @media (max-width: 900px) {
+      /* Safari検出時の追加スタイル */
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
   }
 `
 
@@ -119,6 +140,27 @@ const MainSection = styled.main`
     /* スクロールを強制的に有効にする */
     overflow-y: scroll !important;
     overflow-x: hidden !important;
+    
+    /* Safari専用の追加対応 */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  /* Safari専用の追加対応 */
+  @supports (-webkit-touch-callout: none) {
+    @media (max-width: 900px) {
+      /* Safari検出時の追加スタイル */
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      
+      /* Safari専用のビューポート対応 */
+      height: calc(
+        var(--safari-viewport-height, 100vh) - 85px - 88px -
+          env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+      );
+    }
   }
 
   /* 今風のガラスモーフィズムスクロールバー */

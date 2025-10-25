@@ -65,6 +65,26 @@ src/
 - **songs**: 楽曲情報（タイトル、作詞家、作曲家、編曲家）
 - **people**: 人物情報（名前、役割、関連楽曲）
 
+## デプロイ
+
+### GitHub Pages
+
+このプロジェクトはGitHub Pagesに自動デプロイされます。
+
+#### 自動デプロイ
+- `main` ブランチにプッシュすると自動的にビルド・デプロイされます
+- GitHub Actionsワークフローが実行されます
+
+#### 手動デプロイ
+```bash
+npm run deploy
+```
+
+#### GitHub Pages設定
+1. GitHubリポジトリの Settings > Pages に移動
+2. Source を "GitHub Actions" に設定
+3. デプロイ完了後、`https://[username].github.io/music-bubble-explorer/` でアクセス可能
+
 ## 要件
 
 このアプリケーションは以下の要件を満たします：

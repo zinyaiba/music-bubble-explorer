@@ -89,6 +89,35 @@ const HeaderContainer = styled.header<{ $theme: any }>`
   @media (max-width: 900px) {
     backdrop-filter: ${props => props.$theme.effects.blur.light};
     -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
+    
+    /* Safari専用の位置固定強化 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999999;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    
+    /* Safari専用のセーフエリア対応 */
+    padding-top: env(safe-area-inset-top, 0px);
+    min-height: calc(85px + env(safe-area-inset-top, 0px));
+  }
+
+  /* Safari専用の追加対応 */
+  @supports (-webkit-touch-callout: none) {
+    @media (max-width: 900px) {
+      /* Safari検出時の追加スタイル */
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      
+      /* Safari専用のビューポート対応 */
+      height: calc(85px + env(safe-area-inset-top, 0px));
+      min-height: calc(85px + env(safe-area-inset-top, 0px));
+    }
   }
 
   /* 高コントラストモード対応 */

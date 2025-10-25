@@ -46,7 +46,7 @@ import {
 } from './utils/accessibility'
 import { initializeResponsiveSystem } from './utils/responsiveUtils'
 import { MobileOptimizer } from './utils/mobileOptimization'
-import { PWAInstallButton, PWAUpdateBanner } from './components/PWAComponents'
+// PWAコンポーネントは削除
 
 import { DebugLogger } from './utils/debugLogger'
 import { enableConsoleDebug } from './utils/debugStorage'
@@ -64,31 +64,35 @@ import './styles/mobileFirst.css'
 const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
   ({ isTouchDevice }) => (
     <div className="instructions" role="region" aria-label="操作説明">
-      <p>
-        <span aria-hidden="true">🌰</span>
-        シャボン玉を{isTouchDevice ? 'タップ' : 'クリック'}
-        して栗林みな実さんの楽曲を探検しよう！
-        <span aria-hidden="true">🌰</span>
+      <p className="instructions-title">
+        🌰🌰マロンバブルの使い方🌰🌰  
       </p>
-      <p>
-        <span aria-hidden="true">🌰</span>
-        メニューから楽曲にタグ付けをしてね！
-        <span aria-hidden="true">🌰</span>
+      <p className="instructions-item">
+        ➕「タグ登録」から自由にタグを作ってみよう！
       </p>
-      <p>
-        <span aria-hidden="true">🌰</span>
-        たくさん知ってほしいからよぉ
-        <span aria-hidden="true">🌰</span>
+      <p className="instructions-item">
+        🏷️「タグ一覧」でみんなが登録したタグがみれるよ
       </p>
-      <p>
-        <span aria-hidden="true">🌰</span>
-        ■使い方
-        <span aria-hidden="true">🌰</span>
+      <p className="instructions-item">
+        🫧登録した情報はシャボン玉になって登場するよ
       </p>
-      <p>
-        <span aria-hidden="true">🌰</span>
-        「タグ登録」からタグを登録してみよう
-        <span aria-hidden="true">🌰</span>
+      <p className="instructions-item">
+        ❣️タグであなたの「推しポイント」を紹介してみよう
+      </p>
+      <p className="instructions-item">
+        💡これからのアップデートもお楽しみに！
+      </p>
+      <p className="instructions-item">
+        ✉️改善要望・不具合については
+        <a 
+          href="https://x.com/kentaro_uechan" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="twitter-link"
+        >
+          「@kentaro_uechan」
+        </a>
+        へ
       </p>
       <div className="sr-only">
         シャボン玉をクリックまたはタップすると、楽曲の詳細情報や関連する作詞家、作曲家、編曲家の情報を表示できます。
@@ -1379,9 +1383,7 @@ function App() {
             />
           </UnifiedDialogLayout>
 
-          {/* PWA Components */}
-          <PWAInstallButton />
-          <PWAUpdateBanner />
+          {/* PWA Components removed */}
 
           {/* Live region for screen reader announcements */}
           <div
