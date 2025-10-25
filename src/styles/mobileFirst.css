@@ -1089,7 +1089,7 @@ body {
   --safe-area-inset-right: env(safe-area-inset-right, 0px);
 }
 
-/* Safari専用スタイル */
+/* Safari専用スタイル - 最強レベルの対策 */
 @supports (-webkit-touch-callout: none) {
   /* Safari検出用のサポートクエリ */
 
@@ -1104,21 +1104,34 @@ body {
       height: var(--safari-viewport-height, var(--viewport-height, 100vh));
     }
 
-    /* ヘッダーの動的調整 - Safari専用強化 */
+    /* ヘッダーの動的調整 - Safari専用最強化 */
     header[role='banner'],
     .mobile-first-header,
     *[class*='Header'] {
-      top: 0 !important;
-      padding-top: var(--safe-area-inset-top) !important;
-      min-height: calc(50px + var(--safe-area-inset-top)) !important;
-      /* Safari専用の位置固定強化 */
+      display: flex !important;
       position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100% !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      z-index: 2147483647 !important; /* 最大値 */
+      padding-top: var(--safe-area-inset-top) !important;
+      min-height: calc(85px + var(--safe-area-inset-top)) !important;
+      /* Safari専用の位置固定強化 */
       transform: translate3d(0, 0, 0) !important;
       -webkit-transform: translate3d(0, 0, 0) !important;
       backface-visibility: hidden !important;
       -webkit-backface-visibility: hidden !important;
-      /* Safari専用のz-index強化 */
-      z-index: 999999 !important;
+      /* Safari専用の背景強化 */
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(15px) !important;
+      -webkit-backdrop-filter: blur(15px) !important;
+      /* Safari専用の強制表示 */
+      contain: none !important;
+      isolation: auto !important;
+      will-change: transform !important;
     }
 
     /* メインエリアの動的調整 - Safari専用強化 */
@@ -1126,8 +1139,8 @@ body {
       top: calc(85px + var(--safe-area-inset-top)) !important;
       bottom: calc(88px + var(--safe-area-inset-bottom)) !important;
       height: calc(
-        var(--safari-viewport-height, var(--viewport-height, 100vh)) - 85px - 88px -
-          var(--safe-area-inset-top) - var(--safe-area-inset-bottom)
+        var(--safari-viewport-height, var(--viewport-height, 100vh)) - 85px -
+          88px - var(--safe-area-inset-top) - var(--safe-area-inset-bottom)
       ) !important;
       /* Safari専用のスクロール最適化 */
       -webkit-overflow-scrolling: touch !important;
@@ -1146,7 +1159,38 @@ body {
       -webkit-transform: translate3d(0, 0, 0) !important;
       backface-visibility: hidden !important;
       -webkit-backface-visibility: hidden !important;
-      z-index: 999998 !important;
+      z-index: 2147483646 !important; /* ヘッダーより1つ下 */
+    }
+  }
+}
+
+/* Safari専用 - 追加の緊急対策 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  @media (max-width: 900px) {
+    /* Safari専用セレクター */
+    header,
+    [role='banner'],
+    .mobile-first-header,
+    *[class*='Header'] {
+      display: flex !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100vw !important;
+      height: auto !important;
+      min-height: 85px !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      z-index: 2147483647 !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(15px) !important;
+      -webkit-backdrop-filter: blur(15px) !important;
+      transform: translateZ(0) !important;
+      -webkit-transform: translateZ(0) !important;
+      will-change: transform !important;
+      contain: none !important;
+      isolation: auto !important;
     }
   }
 }

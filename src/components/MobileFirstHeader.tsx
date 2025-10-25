@@ -16,6 +16,71 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
     const screenSize = useResponsive()
     const theme = useGlassmorphismTheme()
 
+    // Safari専用の対策
+    React.useEffect(() => {
+      const userAgent = navigator.userAgent.toLowerCase()
+      const isSafari =
+        userAgent.includes('safari') && !userAgent.includes('chrome')
+      const isIOSSafari =
+        /iphone|ipad|ipod/.test(userAgent) && userAgent.includes('safari')
+
+      if ((isSafari || isIOSSafari) && screenSize.isMobile) {
+        console.log('🍎 Safari header component - applying emergency fixes')
+
+        const applyEmergencyFix = () => {
+          const headerElement = document.querySelector(
+            'header[role="banner"]'
+          ) as HTMLElement
+          if (headerElement) {
+            headerElement.style.setProperty('display', 'flex', 'important')
+            headerElement.style.setProperty('position', 'fixed', 'important')
+            headerElement.style.setProperty('top', '0', 'important')
+            headerElement.style.setProperty('left', '0', 'important')
+            headerElement.style.setProperty('right', '0', 'important')
+            headerElement.style.setProperty('width', '100%', 'important')
+            headerElement.style.setProperty(
+              'z-index',
+              '2147483647',
+              'important'
+            )
+            headerElement.style.setProperty(
+              'visibility',
+              'visible',
+              'important'
+            )
+            headerElement.style.setProperty('opacity', '1', 'important')
+            headerElement.style.setProperty(
+              'background',
+              'rgba(255, 255, 255, 0.95)',
+              'important'
+            )
+            headerElement.style.setProperty(
+              'backdrop-filter',
+              'blur(15px)',
+              'important'
+            )
+            headerElement.style.setProperty(
+              '-webkit-backdrop-filter',
+              'blur(15px)',
+              'important'
+            )
+            headerElement.style.setProperty('min-height', '85px', 'important')
+          }
+        }
+
+        // 複数回実行で確実に
+        applyEmergencyFix()
+        setTimeout(applyEmergencyFix, 100)
+        setTimeout(applyEmergencyFix, 500)
+        setTimeout(applyEmergencyFix, 1000)
+
+        // 定期的にチェック
+        const interval = setInterval(applyEmergencyFix, 3000)
+
+        return () => clearInterval(interval)
+      }
+    }, [screenSize.isMobile])
+
     return (
       <HeaderContainer $theme={theme}>
         <HeaderContent>
@@ -89,7 +154,7 @@ const HeaderContainer = styled.header<{ $theme: any }>`
   @media (max-width: 900px) {
     backdrop-filter: ${props => props.$theme.effects.blur.light};
     -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
-    
+
     /* Safari専用の位置固定強化 */
     position: fixed;
     top: 0;
@@ -100,7 +165,7 @@ const HeaderContainer = styled.header<{ $theme: any }>`
     -webkit-transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
-    
+
     /* Safari専用のセーフエリア対応 */
     padding-top: env(safe-area-inset-top, 0px);
     min-height: calc(85px + env(safe-area-inset-top, 0px));
@@ -113,7 +178,7 @@ const HeaderContainer = styled.header<{ $theme: any }>`
       -webkit-user-select: none;
       user-select: none;
       -webkit-touch-callout: none;
-      
+
       /* Safari専用のビューポート対応 */
       height: calc(85px + env(safe-area-inset-top, 0px));
       min-height: calc(85px + env(safe-area-inset-top, 0px));

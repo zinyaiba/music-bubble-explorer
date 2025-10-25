@@ -21,6 +21,45 @@ export const MobileFirstLayout: React.FC<MobileFirstLayoutProps> = React.memo(
     // Safari対応の初期化
     useEffect(() => {
       initSafariViewportFix()
+
+      // Safari専用の追加対策
+      const userAgent = navigator.userAgent.toLowerCase()
+      const isSafari =
+        userAgent.includes('safari') && !userAgent.includes('chrome')
+      const isIOSSafari =
+        /iphone|ipad|ipod/.test(userAgent) && userAgent.includes('safari')
+
+      if (isSafari || isIOSSafari) {
+        console.log(
+          '🍎 Safari detected in MobileFirstLayout, applying additional fixes'
+        )
+
+        // Safari専用のヘッダー強制表示
+        const forceSafariHeader = () => {
+          const headers = document.querySelectorAll(
+            'header, [role="banner"], .mobile-first-header'
+          )
+          headers.forEach(header => {
+            const element = header as HTMLElement
+            if (element && window.innerWidth <= 900) {
+              element.style.setProperty('display', 'flex', 'important')
+              element.style.setProperty('position', 'fixed', 'important')
+              element.style.setProperty('top', '0', 'important')
+              element.style.setProperty('z-index', '2147483647', 'important')
+              element.style.setProperty('visibility', 'visible', 'important')
+              element.style.setProperty('opacity', '1', 'important')
+            }
+          })
+        }
+
+        // 即座に実行
+        forceSafariHeader()
+
+        // 少し遅れて再実行
+        setTimeout(forceSafariHeader, 100)
+        setTimeout(forceSafariHeader, 500)
+        setTimeout(forceSafariHeader, 1000)
+      }
     }, [])
 
     return (
@@ -71,7 +110,7 @@ const HeaderSection = styled.header`
     /* Safari対応：セーフエリア考慮 */
     padding-top: env(safe-area-inset-top, 0px);
     min-height: calc(85px + env(safe-area-inset-top, 0px));
-    
+
     /* Safari専用の位置固定強化 */
     position: fixed;
     top: 0;
@@ -140,7 +179,7 @@ const MainSection = styled.main`
     /* スクロールを強制的に有効にする */
     overflow-y: scroll !important;
     overflow-x: hidden !important;
-    
+
     /* Safari専用の追加対応 */
     transform: translate3d(0, 0, 0);
     -webkit-transform: translate3d(0, 0, 0);
@@ -154,11 +193,14 @@ const MainSection = styled.main`
       /* Safari検出時の追加スタイル */
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
-      
+
       /* Safari専用のビューポート対応 */
       height: calc(
-        var(--safari-viewport-height, 100vh) - 85px - 88px -
-          env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)
+        var(--safari-viewport-height, 100vh) - 85px -
+          88px - env(safe-area-inset-top, 0px) - env(
+            safe-area-inset-bottom,
+            0px
+          )
       );
     }
   }
