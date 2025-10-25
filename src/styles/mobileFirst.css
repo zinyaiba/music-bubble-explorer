@@ -1164,14 +1164,15 @@ body {
   }
 }
 
-/* Safari専用 - 追加の緊急対策 */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
+/* 削除 - device-pixel-ratioはChromeやEdgeでも適用されるため危険 */
+
+/* Safari専用 - 最終手段の全称セレクター */
+@supports (-webkit-appearance: none) {
   @media (max-width: 900px) {
-    /* Safari専用セレクター */
-    header,
-    [role='banner'],
-    .mobile-first-header,
-    *[class*='Header'] {
+    /* Safari専用 - styled-componentsで生成される要素も含む */
+    *[class*='sc-'] header,
+    *[class*='sc-'][class*='Header'],
+    *[class*='sc-'][class*='header'] {
       display: flex !important;
       position: fixed !important;
       top: 0 !important;
@@ -1188,12 +1189,11 @@ body {
       -webkit-backdrop-filter: blur(15px) !important;
       transform: translateZ(0) !important;
       -webkit-transform: translateZ(0) !important;
-      will-change: transform !important;
-      contain: none !important;
-      isolation: auto !important;
     }
   }
 }
+
+/* 削除 - 全ブラウザ対象は危険 */
 
 /* iOS Safari専用の追加調整 */
 @supports (-webkit-appearance: none) and (not (contain: paint)) {

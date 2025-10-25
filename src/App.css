@@ -1,6 +1,8 @@
 /* PWA styles removed */
 /* Import enhanced responsive styles */
 @import './styles/responsive-enhanced.css';
+/* Import Safari emergency fixes */
+@import './styles/safariEmergency.css';
 /* Import improved glassmorphism styles */
 @import './styles/improved-glassmorphism.css';
 

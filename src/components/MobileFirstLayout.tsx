@@ -2,6 +2,7 @@ import React, { ReactNode, useEffect } from 'react'
 import styled from 'styled-components'
 import { useResponsive } from '@/hooks/useResponsive'
 import { initSafariViewportFix } from '@/utils/safariViewportFix'
+import { initSafariEmergencyFix } from '@/utils/safariEmergencyFix'
 
 interface MobileFirstLayoutProps {
   children: ReactNode
@@ -20,45 +21,24 @@ export const MobileFirstLayout: React.FC<MobileFirstLayoutProps> = React.memo(
 
     // Safari対応の初期化
     useEffect(() => {
-      initSafariViewportFix()
-
-      // Safari専用の追加対策
+      // Safari検出
       const userAgent = navigator.userAgent.toLowerCase()
       const isSafari =
-        userAgent.includes('safari') && !userAgent.includes('chrome')
-      const isIOSSafari =
-        /iphone|ipad|ipod/.test(userAgent) && userAgent.includes('safari')
+        (userAgent.includes('safari') &&
+          !userAgent.includes('chrome') &&
+          !userAgent.includes('edg')) ||
+        /iphone|ipad|ipod/.test(userAgent)
 
-      if (isSafari || isIOSSafari) {
+      if (isSafari) {
+        console.log('🍎 Safari detected, applying Safari-specific fixes')
+        initSafariViewportFix()
+        initSafariEmergencyFix()
+      } else {
         console.log(
-          '🍎 Safari detected in MobileFirstLayout, applying additional fixes'
+          '🌐 Non-Safari browser detected, skipping Safari-specific fixes'
         )
-
-        // Safari専用のヘッダー強制表示
-        const forceSafariHeader = () => {
-          const headers = document.querySelectorAll(
-            'header, [role="banner"], .mobile-first-header'
-          )
-          headers.forEach(header => {
-            const element = header as HTMLElement
-            if (element && window.innerWidth <= 900) {
-              element.style.setProperty('display', 'flex', 'important')
-              element.style.setProperty('position', 'fixed', 'important')
-              element.style.setProperty('top', '0', 'important')
-              element.style.setProperty('z-index', '2147483647', 'important')
-              element.style.setProperty('visibility', 'visible', 'important')
-              element.style.setProperty('opacity', '1', 'important')
-            }
-          })
-        }
-
-        // 即座に実行
-        forceSafariHeader()
-
-        // 少し遅れて再実行
-        setTimeout(forceSafariHeader, 100)
-        setTimeout(forceSafariHeader, 500)
-        setTimeout(forceSafariHeader, 1000)
+        // Safari以外では基本的なViewport対応のみ
+        initSafariViewportFix()
       }
     }, [])
 

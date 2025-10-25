@@ -1,0 +1,69 @@
+/* Safari緊急対策CSS - Safari専用のみ適用 */
+
+/* Safari専用 - touch-callout検出でSafariのみに適用 */
+@supports (-webkit-touch-callout: none) {
+  @media (max-width: 900px) {
+    /* Safari/iOS Safari専用 - 全ての可能なヘッダー要素を強制表示 */
+    header,
+    [role='banner'],
+    *[class*='Header'],
+    *[class*='header'],
+    div[class*='Header'],
+    div[class*='header'] {
+      display: flex !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100vw !important;
+      z-index: 2147483647 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(15px) !important;
+      -webkit-backdrop-filter: blur(15px) !important;
+      min-height: 85px !important;
+      transform: translate3d(0, 0, 0) !important;
+      -webkit-transform: translate3d(0, 0, 0) !important;
+      backface-visibility: hidden !important;
+      -webkit-backface-visibility: hidden !important;
+      contain: none !important;
+      isolation: auto !important;
+      will-change: transform !important;
+    }
+  }
+}
+
+/* Safari専用 - 追加の検出方法（iOS Safari用） */
+@supports (-webkit-touch-callout: none) and
+  (not (background: -webkit-named-image(i))) {
+  @media (max-width: 900px) {
+    /* iOS Safari専用 */
+    header,
+    [role='banner'],
+    *[class*='Header'],
+    *[class*='header'] {
+      display: flex !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      width: 100vw !important;
+      z-index: 2147483647 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(15px) !important;
+      -webkit-backdrop-filter: blur(15px) !important;
+      min-height: 85px !important;
+    }
+  }
+}
+
+/* 削除 - 上記で既に定義済み */
+
+/* 削除 - device-pixel-ratioはChromeやEdgeでも適用されるため */
+
+/* 削除 - 全ブラウザ対象は危険 */
+
+/* 削除 - 全要素対象は危険 */
