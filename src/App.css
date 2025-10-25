@@ -46,18 +46,18 @@
   --app-glass-background: var(--glass-background);
   --app-glass-surface: var(--glass-medium);
   --app-glass-accent: var(--glass-primary-400);
-  
+
   /* ===== LEGACY COMPATIBILITY MAINTAINED ===== */
   /* 既存のテーマ変数を新しいガラスモーフィズムシステムにマッピング */
   --background-gradient: var(--glass-background);
   --bubble-pink: var(--glass-primary-400);
   --bubble-rose: var(--glass-primary-500);
-  --bubble-lavender: #dda0dd;  /* 既存色を維持 */
+  --bubble-lavender: #dda0dd; /* 既存色を維持 */
   --bubble-peach: var(--glass-primary-200);
-  --bubble-mint: #98fb98;      /* 既存色を維持 */
-  --bubble-sky: #87ceeb;       /* 既存色を維持 */
+  --bubble-mint: #98fb98; /* 既存色を維持 */
+  --bubble-sky: #87ceeb; /* 既存色を維持 */
   --bubble-cream: var(--glass-neutral-50);
-  --bubble-coral: #ff7f50;     /* 既存色を維持 */
+  --bubble-coral: #ff7f50; /* 既存色を維持 */
   --text-primary: var(--glass-text-primary);
   --text-secondary: var(--glass-text-secondary);
   --modal-background: var(--glass-strong);
@@ -65,8 +65,8 @@
   --shadow-medium: var(--glass-shadow-medium);
   --shadow-strong: var(--glass-shadow-strong);
   --border-cute: var(--glass-primary-300);
-  --accent-sparkle: #ffd700;   /* 既存色を維持 */
-  
+  --accent-sparkle: #ffd700; /* 既存色を維持 */
+
   /* ===== APP-SPECIFIC GLASSMORPHISM ENHANCEMENTS ===== */
   /* アプリ固有のガラスモーフィズム強化 */
   --app-header-glass: var(--glass-strong);
@@ -85,7 +85,17 @@
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
   background: var(--app-glass-background);
-  font-family: var(--font-family-primary, 'M PLUS Rounded 1c', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'Comic Sans MS', 'Arial', cursive, sans-serif);
+  font-family: var(
+    --font-family-primary,
+    'M PLUS Rounded 1c',
+    'Hiragino Sans',
+    'Hiragino Kaku Gothic ProN',
+    'Noto Sans JP',
+    'Comic Sans MS',
+    'Arial',
+    cursive,
+    sans-serif
+  );
   position: relative;
   overflow-x: hidden;
   /* ガラスモーフィズム用のパフォーマンス最適化 */
@@ -93,11 +103,15 @@
   contain: layout style paint;
 }
 
-/* モバイルでのヘッダーとフッターメニュー対応 */
+/* Safari対応：ヘッダー見切れ防止 */
 @media (max-width: 768px) {
   .App {
     /* パディングはMobileFirstLayoutで管理するため削除 */
     padding: 0;
+    /* Safari対応：動的ビューポート高さ */
+    min-height: 100vh;
+    min-height: 100dvh; /* Safari対応 */
+    height: auto;
   }
 }
 
@@ -145,6 +159,9 @@
   /* ガラスモーフィズム強化 */
   border: var(--glass-border-glass);
   border-top: none;
+
+  /* Safari対応：セーフエリア考慮 */
+  padding-top: max(var(--glass-space-8), env(safe-area-inset-top, 0px));
 }
 
 .header-content {
@@ -345,7 +362,7 @@
   /* テキスト量に応じて高さが伸びるように */
   height: auto;
   min-height: auto;
-  
+
   /* モバイルでの間隔調整 */
   @media (max-width: 900px) {
     gap: 0.25rem;
@@ -1015,13 +1032,13 @@ ebase Test Modal Styles */
     position: relative !important;
     z-index: 1 !important;
   }
-
-
 }
 
 /* モバイル表示の確保 */
 @media (max-width: 900px) {
-  body, html, #root {
+  body,
+  html,
+  #root {
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -1057,7 +1074,7 @@ ebase Test Modal Styles */
   .bubble-container {
     width: 100% !important;
     max-width: 100% !important;
-    min-height: 35vh !important;
+    min-height: 25vh !important;
     height: auto !important;
     margin: 0 !important;
     padding: 4px !important;
@@ -1125,8 +1142,8 @@ ebase Test Modal Styles */
   .bubble-container {
     width: 100% !important;
     max-width: 100% !important;
-    /* シャボン玉領域をもっと縦に長く */
-    min-height: 40vh !important;
+    /* シャボン玉領域の縦幅を縮める */
+    min-height: 30vh !important;
     height: auto !important;
     margin: 0 !important;
     padding: 8px !important;
@@ -1144,7 +1161,7 @@ ebase Test Modal Styles */
     width: 100% !important;
     height: 100% !important;
     min-width: 280px !important;
-    min-height: 480px !important;
+    min-height: 200px !important;
     display: block !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -1159,7 +1176,7 @@ ebase Test Modal Styles */
     scroll-behavior: smooth !important;
     /* より確実な位置とサイズ設定 */
     position: fixed !important;
-    top: 70px !important;
+    top: 85px !important;
     left: 0 !important;
     right: 0 !important;
     bottom: 88px !important;
@@ -1295,8 +1312,8 @@ ebase Test Modal Styles */
   }
 
   /* データローディングエラーバウンダリーも強制表示 */
-  div[class*="DataLoadingErrorBoundary"],
-  div[class*="ErrorBoundary"] {
+  div[class*='DataLoadingErrorBoundary'],
+  div[class*='ErrorBoundary'] {
     display: block !important;
     width: 100% !important;
     visibility: visible !important;

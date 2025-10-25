@@ -778,7 +778,7 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
               width: '100%',
               height: '100%',
               minWidth: screenSize.isMobile ? '280px' : '400px',
-              minHeight: screenSize.isMobile ? '480px' : '300px',
+              minHeight: screenSize.isMobile ? '200px' : '300px',
               visibility: 'visible',
               opacity: 1,
               // ガラスモーフィズム効果を適用

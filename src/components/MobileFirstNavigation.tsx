@@ -323,56 +323,55 @@ const HeaderNavigation = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  
+
   /* 余白とレイアウトの最適化 */
   padding: 4px 0;
 `
 
-const HeaderNavButton = styled.button<{ 
-  $isActive: boolean; 
-  $color: string; 
-  $theme: any 
+const HeaderNavButton = styled.button<{
+  $isActive: boolean
+  $color: string
+  $theme: any
 }>`
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  
+
   /* ガラスモーフィズム効果 */
-  background: ${props => 
-    props.$isActive 
-      ? props.$theme.colors.glass.strong 
-      : props.$theme.colors.glass.medium
-  };
+  background: ${props =>
+    props.$isActive
+      ? props.$theme.colors.glass.strong
+      : props.$theme.colors.glass.medium};
   backdrop-filter: ${props => props.$theme.effects.blur.medium};
   -webkit-backdrop-filter: ${props => props.$theme.effects.blur.medium};
-  
+
   /* 境界線 */
-  border: ${props => 
-    props.$isActive 
-      ? props.$theme.effects.borders.accent 
-      : props.$theme.effects.borders.glass
-  };
-  
+  border: ${props =>
+    props.$isActive
+      ? props.$theme.effects.borders.accent
+      : props.$theme.effects.borders.glass};
+
   /* テキスト色 */
-  color: ${props => 
-    props.$isActive 
-      ? props.$theme.colors.accent 
-      : props.$theme.colors.text.onGlass
-  };
-  
+  color: ${props =>
+    props.$isActive
+      ? props.$theme.colors.accent
+      : props.$theme.colors.text.onGlass};
+
   font-size: 20px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   /* パフォーマンス最適化 */
   will-change: transform, box-shadow, background;
   transform: translateZ(0);
-  
+
   /* アクティブ状態の視覚的強調 */
-  ${props => props.$isActive && `
+  ${props =>
+    props.$isActive &&
+    `
     box-shadow: ${props.$theme.effects.shadows.colored};
     font-weight: bold;
   `}
@@ -384,29 +383,29 @@ const HeaderNavButton = styled.button<{
     background: ${props => props.$theme.colors.glass.strong};
     border: ${props => props.$theme.effects.borders.accent};
   }
-  
+
   &:active {
     transform: translateY(-1px) translateZ(0);
     transition: all 0.1s ease;
   }
-  
+
   /* フォーカス状態 */
   &:focus {
     outline: 2px solid ${props => props.$theme.colors.accent};
     outline-offset: 2px;
   }
-  
+
   /* モバイル対応 */
   @media (max-width: 900px) {
     width: 44px;
     height: 44px;
     font-size: 18px;
   }
-  
+
   /* モーション軽減対応 */
   @media (prefers-reduced-motion: reduce) {
     transition: none;
-    
+
     &:hover {
       transform: none;
     }
@@ -419,80 +418,90 @@ const MobileNavigation = styled.div<{ $theme: any }>`
   left: 0 !important;
   right: 0 !important;
   width: 100vw !important;
-  
+
   /* ガラスモーフィズム効果 */
   background: ${props => props.$theme.colors.glass.strong} !important;
   backdrop-filter: ${props => props.$theme.effects.blur.strong} !important;
-  -webkit-backdrop-filter: ${props => props.$theme.effects.blur.strong} !important;
-  
+  -webkit-backdrop-filter: ${props =>
+    props.$theme.effects.blur.strong} !important;
+
   /* 境界線とシャドウ */
   border-top: ${props => props.$theme.effects.borders.accent} !important;
   box-shadow: ${props => props.$theme.effects.shadows.strong} !important;
-  
-  padding: 20px 32px 24px !important;
+
+  padding: 16px 20px 20px !important; /* パディングを調整 */
   z-index: 9999 !important;
   display: flex !important;
-  justify-content: space-between !important;
+  justify-content: space-around !important; /* space-betweenからspace-aroundに変更 */
   align-items: center !important;
   min-height: 88px !important;
-  gap: 5px !important;
+  gap: 4px !important; /* ギャップを狭める */
 
   /* パフォーマンス最適化 */
   transform: translateZ(0) !important;
   will-change: backdrop-filter !important;
 
   @supports (padding-bottom: env(safe-area-inset-bottom)) {
-    padding-bottom: calc(24px + env(safe-area-inset-bottom)) !important;
+    padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important;
     min-height: calc(88px + env(safe-area-inset-bottom)) !important;
   }
-  
+
   /* 高コントラストモード対応 */
   @media (prefers-contrast: high) {
     background: ${props => props.$theme.colors.surface} !important;
     border-top: 2px solid ${props => props.$theme.colors.neutral[400]} !important;
   }
+
+  /* 小さな画面での追加調整 */
+  @media (max-width: 360px) {
+    padding: 12px 16px 16px !important;
+    gap: 2px !important;
+  }
 `
 
-const MobileNavButton = styled.button<{ 
-  $isActive: boolean; 
-  $color: string; 
-  $theme: any 
+const MobileNavButton = styled.button<{
+  $isActive: boolean
+  $color: string
+  $theme: any
 }>`
   /* ガラスモーフィズム効果 */
   background: ${props =>
-    props.$isActive 
-      ? props.$theme.colors.glass.strong 
-      : props.$theme.colors.glass.medium
-  };
+    props.$isActive
+      ? props.$theme.colors.glass.strong
+      : props.$theme.colors.glass.medium};
   backdrop-filter: ${props => props.$theme.effects.blur.light};
   -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
-  
+
   /* 境界線 */
-  border: ${props => 
-    props.$isActive 
-      ? props.$theme.effects.borders.accent 
-      : props.$theme.effects.borders.glass
-  };
-  
-  padding: 14px 10px;
+  border: ${props =>
+    props.$isActive
+      ? props.$theme.effects.borders.accent
+      : props.$theme.effects.borders.glass};
+
+  padding: 12px 6px; /* パディングを調整 */
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 6px; /* アイコンとテキストの間隔を狭める */
   min-height: 68px;
-  min-width: 68px;
+  min-width: 64px; /* 最小幅を少し狭める */
   border-radius: 20px;
   flex: 1;
-  max-width: 85px;
-  
+  max-width: 80px; /* 最大幅を狭める */
+
   /* パフォーマンス最適化 */
   will-change: transform, background, box-shadow;
   transform: translateZ(0);
-  
+
+  /* テキストオーバーフロー対応 */
+  overflow: hidden;
+
   /* アクティブ状態の視覚的強調 */
-  ${props => props.$isActive && `
+  ${props =>
+    props.$isActive &&
+    `
     box-shadow: ${props.$theme.effects.shadows.colored};
   `}
 
@@ -503,26 +512,26 @@ const MobileNavButton = styled.button<{
     box-shadow: ${props => props.$theme.effects.shadows.medium};
     border: ${props => props.$theme.effects.borders.accent};
   }
-  
+
   &:active {
     transform: scale(0.95) translateZ(0);
     transition: all 0.1s ease;
   }
-  
+
   /* フォーカス状態 */
   &:focus {
     outline: 2px solid ${props => props.$theme.colors.accent};
     outline-offset: 2px;
   }
-  
+
   /* モーション軽減対応 */
   @media (prefers-reduced-motion: reduce) {
     transition: none;
-    
+
     &:hover {
       transform: none;
     }
-    
+
     &:active {
       transform: none;
     }
@@ -532,41 +541,49 @@ const MobileNavButton = styled.button<{
 const MobileButtonIcon = styled.span<{ $isActive: boolean }>`
   font-size: ${props => (props.$isActive ? '20px' : '19px')};
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  
+
   /* アイコンの視覚的強調 */
-  filter: ${props => 
-    props.$isActive 
-      ? 'drop-shadow(0 2px 4px rgba(224, 102, 102, 0.3))' 
-      : 'none'
-  };
-  
+  filter: ${props =>
+    props.$isActive
+      ? 'drop-shadow(0 2px 4px rgba(224, 102, 102, 0.3))'
+      : 'none'};
+
   /* モーション軽減対応 */
   @media (prefers-reduced-motion: reduce) {
     transition: none;
   }
 `
 
-const MobileButtonText = styled.span<{ 
-  $isActive: boolean; 
-  $theme: any 
+const MobileButtonText = styled.span<{
+  $isActive: boolean
+  $theme: any
 }>`
   font-family: ${props => props.$theme.typography.fontFamily};
-  font-size: ${props => (props.$isActive ? '13px' : '12px')};
-  font-weight: ${props => 
-    props.$isActive 
-      ? props.$theme.typography.fontWeights.bold 
-      : props.$theme.typography.fontWeights.medium
-  };
-  color: ${props => 
-    props.$isActive 
-      ? props.$theme.colors.text.primary 
-      : props.$theme.colors.text.secondary
-  };
+  font-size: ${props => (props.$isActive ? '11px' : '10px')};
+  font-weight: ${props =>
+    props.$isActive
+      ? props.$theme.typography.fontWeights.bold
+      : props.$theme.typography.fontWeights.medium};
+  color: ${props =>
+    props.$isActive
+      ? props.$theme.colors.text.primary
+      : props.$theme.colors.text.secondary};
   text-align: center;
-  line-height: 1.2;
-  letter-spacing: 0.01em;
+  line-height: 1.1;
+  letter-spacing: -0.02em; /* 文字間隔を狭める */
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  
+
+  /* 改行防止 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+
+  /* Android対応：より確実な改行防止 */
+  word-break: keep-all;
+  word-wrap: normal;
+  hyphens: none;
+
   /* モーション軽減対応 */
   @media (prefers-reduced-motion: reduce) {
     transition: none;

@@ -132,9 +132,9 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
               onClick={
                 isItemClickable
                   ? () => {
-                    // window.console.log('🔍 [CLICK] LegendItem clicked:', item.category)
-                    handleCategoryClick(item.category)
-                  }
+                      // window.console.log('🔍 [CLICK] LegendItem clicked:', item.category)
+                      handleCategoryClick(item.category)
+                    }
                   : undefined
               }
               role={isItemClickable ? 'button' : undefined}
@@ -143,11 +143,11 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
               onKeyDown={
                 isItemClickable
                   ? e => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault()
-                      handleCategoryClick(item.category)
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        handleCategoryClick(item.category)
+                      }
                     }
-                  }
                   : undefined
               }
             >
@@ -157,12 +157,10 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
                 isClickable={isItemClickable}
               />
               <LegendContent isVisible={showCounts}>
-                <LegendLabel isSelected={isSelected}>
-                  {item.label}
-                </LegendLabel>
-                {showCounts && item.count !== undefined && (
+                <LegendLabel isSelected={isSelected}>{item.label}</LegendLabel>
+                {/* {showCounts && item.count !== undefined && (
                   <LegendCount>({item.count})</LegendCount>
-                )}
+                )} */}
               </LegendContent>
             </LegendItem>
           )
@@ -180,7 +178,7 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
             <FilterCategory>
               {selectedCategories.length === 1
                 ? categories.find(c => c.category === selectedCategories[0])
-                  ?.label
+                    ?.label
                 : `${selectedCategories.length}個選択中`}
             </FilterCategory>
           )}
@@ -210,7 +208,7 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
  */
 const LegendContainer = styled.div.withConfig({
   shouldForwardProp: prop => !['position', 'isFilterActive'].includes(prop),
-}) <{
+})<{
   position: string
   isFilterActive?: boolean
 }>`
@@ -234,7 +232,7 @@ const LegendContainer = styled.div.withConfig({
   backdrop-filter: blur(8px);
   border: 1px solid
     ${({ isFilterActive }) =>
-    isFilterActive ? 'rgba(33, 150, 243, 0.5)' : 'rgba(224, 224, 224, 0.3)'};
+      isFilterActive ? 'rgba(33, 150, 243, 0.5)' : 'rgba(224, 224, 224, 0.3)'};
   border-radius: 8px;
   padding: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -246,8 +244,8 @@ const LegendContainer = styled.div.withConfig({
   ${({ isFilterActive }) =>
     isFilterActive &&
     `
-    background: rgba(227, 242, 253, 0.9);
-    border-color: rgba(33, 150, 243, 0.6);
+    background: rgba(252, 216, 241, 0.97);
+    border-color: rgba(255, 254, 255, 0.65);
   `}
 
   /* モバイル対応 */
@@ -255,19 +253,19 @@ const LegendContainer = styled.div.withConfig({
     padding: 6px;
 
     ${({ position }) => {
-    switch (position) {
-      case 'top-left':
-        return 'top: 60px; left: 10px;'
-      case 'top-right':
-        return 'top: 60px; right: 10px;'
-      case 'bottom-left':
-        return 'bottom: 10px; left: 10px;'
-      case 'bottom-right':
-        return 'bottom: 10px; right: 8px;'
-      default:
-        return 'bottom: 10px; right: 10px;'
-    }
-  }}
+      switch (position) {
+        case 'top-left':
+          return 'top: 60px; left: 10px;'
+        case 'top-right':
+          return 'top: 60px; right: 10px;'
+        case 'bottom-left':
+          return 'bottom: 10px; left: 10px;'
+        case 'bottom-right':
+          return 'bottom: 10px; right: 8px;'
+        default:
+          return 'bottom: 10px; right: 10px;'
+      }
+    }}
   }
 `
 
@@ -290,7 +288,7 @@ const LegendList = styled.ul`
 
 const LegendItem = styled.li.withConfig({
   shouldForwardProp: prop => !['isClickable', 'isSelected'].includes(prop),
-}) <{
+})<{
   isClickable?: boolean
   isSelected?: boolean
 }>`
@@ -342,8 +340,8 @@ const LegendItem = styled.li.withConfig({
     min-width: 36px;
 
     ${({ isClickable }) =>
-    isClickable &&
-    `
+      isClickable &&
+      `
       /* タップ領域を拡大 */
       &::before {
         content: '';
@@ -361,7 +359,7 @@ const LegendItem = styled.li.withConfig({
 const ColorIndicator = styled.div.withConfig({
   shouldForwardProp: prop =>
     !['color', 'isSelected', 'isClickable'].includes(prop),
-}) <{
+})<{
   color: string
   isSelected?: boolean
   isClickable?: boolean
@@ -375,8 +373,6 @@ const ColorIndicator = styled.div.withConfig({
   flex-shrink: 0;
   transition: all 0.2s ease;
 
-
-
   @media (max-width: 768px) {
     width: 18px;
     height: 18px;
@@ -385,7 +381,7 @@ const ColorIndicator = styled.div.withConfig({
 
 const LegendContent = styled.div.withConfig({
   shouldForwardProp: prop => !['isVisible'].includes(prop),
-}) <{ isVisible?: boolean }>`
+})<{ isVisible?: boolean }>`
   display: ${({ isVisible }) => (isVisible ? 'flex' : 'none')};
   flex-direction: column;
   align-items: center;
@@ -395,18 +391,11 @@ const LegendContent = styled.div.withConfig({
 
 const LegendLabel = styled.span.withConfig({
   shouldForwardProp: prop => !['isSelected'].includes(prop),
-}) <{ isSelected?: boolean }>`
-  color: ${({ isSelected }) => isSelected ? '#e91e63' : '#333'};
-  font-weight: ${({ isSelected }) => isSelected ? '600' : '500'};
+})<{ isSelected?: boolean }>`
+  color: ${({ isSelected }) => (isSelected ? '#e91e63' : '#333')};
+  font-weight: ${({ isSelected }) => (isSelected ? '600' : '500')};
   white-space: nowrap;
   transition: all 0.2s ease;
-`
-
-
-
-const LegendCount = styled.span`
-  color: #666;
-  font-size: 9px;
 `
 
 /* フィルター状態表示のスタイル */
@@ -425,7 +414,7 @@ const FilterStatus = styled.div`
 
 const FilterIcon = styled.span.withConfig({
   shouldForwardProp: prop => !['isActive'].includes(prop),
-}) <{ isActive: boolean }>`
+})<{ isActive: boolean }>`
   font-size: 10px;
   opacity: ${({ isActive }) => (isActive ? 1 : 0.6)};
 `

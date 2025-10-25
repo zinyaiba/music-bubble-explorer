@@ -1,6 +1,7 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import styled from 'styled-components'
 import { useResponsive } from '@/hooks/useResponsive'
+import { initSafariViewportFix } from '@/utils/safariViewportFix'
 
 interface MobileFirstLayoutProps {
   children: ReactNode
@@ -16,6 +17,11 @@ interface MobileFirstLayoutProps {
 export const MobileFirstLayout: React.FC<MobileFirstLayoutProps> = React.memo(
   ({ children, header, navigation, className }) => {
     const screenSize = useResponsive()
+
+    // Safari対応の初期化
+    useEffect(() => {
+      initSafariViewportFix()
+    }, [])
 
     return (
       <LayoutContainer className={className}>
@@ -42,7 +48,8 @@ const LayoutContainer = styled.div`
   display: flex;
   flex-direction: column;
   background: var(--background-gradient);
-  font-family: 'Comic Sans MS', 'Arial', cursive, sans-serif;
+  font-family:
+    'M PLUS Rounded 1c', 'Comic Sans MS', 'Arial', cursive, sans-serif;
   overflow-x: hidden;
 
   /* スマホでのセーフエリア対応を強化 */
@@ -60,7 +67,10 @@ const HeaderSection = styled.header`
   z-index: 1000;
 
   @media (max-width: 900px) {
-    height: 70px; /* モバイルでも適切なサイズに */
+    height: 85px; /* モバイルでヘッダーを少し高くしてシャボン玉領域を縮める */
+    /* Safari対応：セーフエリア考慮 */
+    padding-top: env(safe-area-inset-top, 0px);
+    min-height: calc(85px + env(safe-area-inset-top, 0px));
   }
 `
 
@@ -88,12 +98,16 @@ const MainSection = styled.main`
     gap: 6px; /* モバイルでは更に間隔を狭める */
     max-width: 100%;
     margin: 0;
-    /* フッターメニューを考慮した高さ制限 - より確実な設定 */
+    /* Safari対応：動的ビューポート高さとセーフエリア考慮 */
     position: fixed;
-    top: 70px; /* ヘッダー高さ */
+    top: calc(
+      85px + env(safe-area-inset-top, 0px)
+    ); /* ヘッダー高さ + セーフエリア */
     left: 0;
     right: 0;
-    bottom: 88px; /* フッターメニュー高さ */
+    bottom: calc(
+      88px + env(safe-area-inset-bottom, 0px)
+    ); /* フッターメニュー高さ + セーフエリア */
     height: auto;
     max-height: none;
     min-height: auto;
