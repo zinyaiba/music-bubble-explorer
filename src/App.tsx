@@ -3,6 +3,7 @@ import './App.css'
 import './styles/errorStyles.css'
 
 import { ThemeProvider } from './components/ThemeProvider'
+import { GlassmorphismThemeProvider } from './components/GlassmorphismThemeProvider'
 import { MobileFirstLayout } from './components/MobileFirstLayout'
 import { MobileFirstHeader } from './components/MobileFirstHeader'
 import { MobileFirstNavigation } from './components/MobileFirstNavigation'
@@ -34,7 +35,7 @@ import {
 } from './components/FallbackComponents'
 import { SongRegistrationForm } from './components/SongRegistrationForm'
 import { SongManagement } from './components/SongManagement'
-import { TagRegistrationDialog } from './components/TagRegistrationDialog'
+import { TagRegistrationScreen } from './components/TagRegistrationScreen'
 
 import { EnhancedTagList } from './components/EnhancedTagList'
 import { UnifiedDialogLayout } from './components/UnifiedDialogLayout'
@@ -77,13 +78,13 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
         🏷️「タグ一覧」でみんなが登録したタグがみれるよ
       </p>
       <p className="instructions-item">
-        🫧登録した情報はシャボン玉になって登場するよ
+        🫧 登録した情報はシャボン玉になって登場するよ
       </p>
       <p className="instructions-item">
-        ❣️タグであなたの「推しポイント」を紹介してみよう
+        ❣️ タグであなたの「推しポイント」を紹介してみよう
       </p>
       <p className="instructions-item">
-        💡これからのアップデートもお楽しみに！
+        💡 これからのアップデートもお楽しみに！
       </p>
       <p className="instructions-item">
         ✉️改善要望・不具合については
@@ -1218,7 +1219,9 @@ function App() {
     return (
       <ErrorBoundary>
         <ThemeProvider>
-          <div className="App">{fallbackComponent}</div>
+          <GlassmorphismThemeProvider>
+            <div className="App">{fallbackComponent}</div>
+          </GlassmorphismThemeProvider>
         </ThemeProvider>
       </ErrorBoundary>
     )
@@ -1227,174 +1230,168 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
-        <MobileFirstLayout
-          className="App mobile-first-container improved-background"
-          header={
-            <MobileFirstHeader>
-              {/* デスクトップではヘッダーにナビゲーションを表示 */}
-              <MobileFirstNavigation
-                currentView={currentView}
-                onViewChange={handleViewChange}
-                showRegistrationForm={showRegistrationForm}
-                showSongManagement={showSongManagement}
-                showTagList={showTagList}
-                showTagRegistration={showTagRegistration}
-                onToggleRegistrationForm={handleToggleRegistrationForm}
-                onToggleSongManagement={handleToggleSongManagement}
-                onToggleTagList={handleToggleTagList}
-                onToggleTagRegistration={handleToggleTagRegistration}
-              />
-            </MobileFirstHeader>
-          }
-          navigation={
-            /* モバイルでのみ最下部にナビゲーションを表示 */
-            screenSize.isMobile ? (
-              <MobileFirstNavigation
-                currentView={currentView}
-                onViewChange={handleViewChange}
-                showRegistrationForm={showRegistrationForm}
-                showSongManagement={showSongManagement}
-                showTagList={showTagList}
-                showTagRegistration={showTagRegistration}
-                onToggleRegistrationForm={handleToggleRegistrationForm}
-                onToggleSongManagement={handleToggleSongManagement}
-                onToggleTagList={handleToggleTagList}
-                onToggleTagRegistration={handleToggleTagRegistration}
-              />
-            ) : null
-          }
-        >
-          {/* エラー状態の軽微な警告表示 */}
-          {retryCount > 0 && (
-            <InlineErrorDisplay
-              message={`復旧を${retryCount}回試行しました。問題が続く場合はページを再読み込みしてください。`}
-              onDismiss={handleClearError}
-            />
-          )}
-
-          <DataLoadingErrorBoundary>
-            <div className="bubble-container mobile-first-bubble-area bubble-area-maximized">
-              <BubbleCanvas
-                width={canvasSize.width}
-                height={canvasSize.height}
-                bubbles={bubbles}
-                onBubbleClick={handleBubbleClick}
-                className="main-canvas"
-                enhancedBubbleManager={
-                  enhancedBubbleManagerRef.current || undefined
-                }
-                backgroundTheme="chestnut"
-                backgroundIntensity="moderate"
-                performanceMode={screenSize.isMobile}
-                enableGenreFiltering={true}
-              />
-
-              {/* Category Filter Integration (Requirements: 5.1, 5.2, 5.3) */}
-              {(() => {
-                // window.console.log('🔍 [APP] About to render GenreFilterIntegration')
-                // window.console.log('🔍 [APP] showColorLegend:', showColorLegend)
-                // window.console.log('🔍 [APP] bubbles.length:', bubbles.length)
-                // window.console.log('🔍 [APP] isVisible will be:', showColorLegend && bubbles.length > 0)
-                // 最も確実なテスト
-                // window.console.error('🔍 [TEST] This should ALWAYS appear!')
-                return null
-              })()}
-              <GenreFilterIntegration
-                bubbles={bubbles}
-                onSelectedCategoriesChange={handleSelectedCategoriesChange}
-                colorLegendProps={{
-                  position: 'bottom-right',
-                  isVisible: showColorLegend && bubbles.length > 0,
-                }}
-              />
-            </div>
-
-            <div
-              className="app-info"
-              role="complementary"
-              aria-label="アプリケーション情報"
-            >
-              <AppInstructions isTouchDevice={screenSize.isTouchDevice} />
-            </div>
-          </DataLoadingErrorBoundary>
-
-          <DetailModal
-            selectedBubble={selectedBubble}
-            onClose={handleModalClose}
-          />
-
-          <DatabaseDebugger
-            isVisible={showDatabaseDebugger}
-            onClose={handleDatabaseDebuggerClose}
-          />
-
-          <UnifiedDialogLayout
-            isVisible={showRegistrationForm}
-            onClose={handleRegistrationFormClose}
-            title="🎵 楽曲登録"
-            className="song-registration-dialog"
-            size="standard"
-            mobileOptimized={true}
+        <GlassmorphismThemeProvider>
+          <MobileFirstLayout
+            className="App mobile-first-container improved-background"
+            header={
+              <MobileFirstHeader>
+                {/* デスクトップではヘッダーにナビゲーションを表示 */}
+                <MobileFirstNavigation
+                  currentView={currentView}
+                  onViewChange={handleViewChange}
+                  showRegistrationForm={showRegistrationForm}
+                  showSongManagement={showSongManagement}
+                  showTagList={showTagList}
+                  showTagRegistration={showTagRegistration}
+                  onToggleRegistrationForm={handleToggleRegistrationForm}
+                  onToggleSongManagement={handleToggleSongManagement}
+                  onToggleTagList={handleToggleTagList}
+                  onToggleTagRegistration={handleToggleTagRegistration}
+                />
+              </MobileFirstHeader>
+            }
+            navigation={
+              /* モバイルでのみ最下部にナビゲーションを表示 */
+              screenSize.isMobile ? (
+                <MobileFirstNavigation
+                  currentView={currentView}
+                  onViewChange={handleViewChange}
+                  showRegistrationForm={showRegistrationForm}
+                  showSongManagement={showSongManagement}
+                  showTagList={showTagList}
+                  showTagRegistration={showTagRegistration}
+                  onToggleRegistrationForm={handleToggleRegistrationForm}
+                  onToggleSongManagement={handleToggleSongManagement}
+                  onToggleTagList={handleToggleTagList}
+                  onToggleTagRegistration={handleToggleTagRegistration}
+                />
+              ) : null
+            }
           >
-            <SongRegistrationForm
-              isVisible={true}
+            {/* エラー状態の軽微な警告表示 */}
+            {retryCount > 0 && (
+              <InlineErrorDisplay
+                message={`復旧を${retryCount}回試行しました。問題が続く場合はページを再読み込みしてください。`}
+                onDismiss={handleClearError}
+              />
+            )}
+
+            <DataLoadingErrorBoundary>
+              <div className="bubble-container mobile-first-bubble-area bubble-area-maximized">
+                <BubbleCanvas
+                  width={canvasSize.width}
+                  height={canvasSize.height}
+                  bubbles={bubbles}
+                  onBubbleClick={handleBubbleClick}
+                  className="main-canvas"
+                  enhancedBubbleManager={
+                    enhancedBubbleManagerRef.current || undefined
+                  }
+                  backgroundTheme="chestnut"
+                  backgroundIntensity="moderate"
+                  performanceMode={screenSize.isMobile}
+                  enableGenreFiltering={true}
+                  enableCollisionDetection={true} // モバイル・デスクトップ両方で有効
+                />
+
+                {/* Category Filter Integration (Requirements: 5.1, 5.2, 5.3) */}
+                {(() => {
+                  // window.console.log('🔍 [APP] About to render GenreFilterIntegration')
+                  // window.console.log('🔍 [APP] showColorLegend:', showColorLegend)
+                  // window.console.log('🔍 [APP] bubbles.length:', bubbles.length)
+                  // window.console.log('🔍 [APP] isVisible will be:', showColorLegend && bubbles.length > 0)
+                  // 最も確実なテスト
+                  // window.console.error('🔍 [TEST] This should ALWAYS appear!')
+                  return null
+                })()}
+                <GenreFilterIntegration
+                  bubbles={bubbles}
+                  onSelectedCategoriesChange={handleSelectedCategoriesChange}
+                  colorLegendProps={{
+                    position: 'bottom-right',
+                    isVisible: showColorLegend && bubbles.length > 0,
+                  }}
+                />
+              </div>
+
+              <div
+                className="app-info"
+                role="complementary"
+                aria-label="アプリケーション情報"
+              >
+                <AppInstructions isTouchDevice={screenSize.isTouchDevice} />
+              </div>
+            </DataLoadingErrorBoundary>
+
+            <DetailModal
+              selectedBubble={selectedBubble}
+              onClose={handleModalClose}
+            />
+
+            <DatabaseDebugger
+              isVisible={showDatabaseDebugger}
+              onClose={handleDatabaseDebuggerClose}
+            />
+
+            <UnifiedDialogLayout
+              isVisible={showRegistrationForm}
               onClose={handleRegistrationFormClose}
-              onSongAdded={handleSongAdded}
-            />
-          </UnifiedDialogLayout>
+              title="🎵 楽曲登録"
+              className="song-registration-dialog"
+              size="standard"
+              mobileOptimized={true}
+            >
+              <SongRegistrationForm
+                isVisible={true}
+                onClose={handleRegistrationFormClose}
+                onSongAdded={handleSongAdded}
+              />
+            </UnifiedDialogLayout>
 
-          <UnifiedDialogLayout
-            isVisible={showSongManagement}
-            onClose={handleSongManagementClose}
-            title="📝 楽曲編集"
-            className="song-management-dialog"
-            size="large"
-            mobileOptimized={true}
-          >
-            <SongManagement
-              isVisible={true}
+            <UnifiedDialogLayout
+              isVisible={showSongManagement}
               onClose={handleSongManagementClose}
-              onSongUpdated={handleSongUpdated}
-              onSongDeleted={handleSongDeleted}
-            />
-          </UnifiedDialogLayout>
+              title="📝 楽曲編集"
+              className="song-management-dialog"
+              size="large"
+              mobileOptimized={true}
+            >
+              <SongManagement
+                isVisible={true}
+                onClose={handleSongManagementClose}
+                onSongUpdated={handleSongUpdated}
+                onSongDeleted={handleSongDeleted}
+              />
+            </UnifiedDialogLayout>
 
-          <UnifiedDialogLayout
-            isVisible={showTagList}
-            onClose={handleTagListClose}
-            title="🏷️ タグ一覧"
-            className="tag-list-dialog"
-            size="standard"
-            mobileOptimized={true}
-          >
-            <EnhancedTagList isVisible={true} onClose={handleTagListClose} />
-          </UnifiedDialogLayout>
+            <UnifiedDialogLayout
+              isVisible={showTagList}
+              onClose={handleTagListClose}
+              title="🏷️ タグ一覧"
+              className="tag-list-dialog"
+              size="standard"
+              mobileOptimized={true}
+            >
+              <EnhancedTagList isVisible={true} onClose={handleTagListClose} />
+            </UnifiedDialogLayout>
 
-          <UnifiedDialogLayout
-            isVisible={showTagRegistration}
-            onClose={handleTagRegistrationClose}
-            title="🏷️➕ タグ登録"
-            className="tag-registration-dialog"
-            size="standard"
-            mobileOptimized={true}
-          >
-            <TagRegistrationDialog
-              isVisible={true}
+            <TagRegistrationScreen
+              isVisible={showTagRegistration}
               onClose={handleTagRegistrationClose}
               onTagsRegistered={handleTagsRegistered}
             />
-          </UnifiedDialogLayout>
 
-          {/* PWA Components removed */}
+            {/* PWA Components removed */}
 
-          {/* Live region for screen reader announcements */}
-          <div
-            id="live-region"
-            className="live-region"
-            aria-live="polite"
-            aria-atomic="true"
-          />
-        </MobileFirstLayout>
+            {/* Live region for screen reader announcements */}
+            <div
+              id="live-region"
+              className="live-region"
+              aria-live="polite"
+              aria-atomic="true"
+            />
+          </MobileFirstLayout>
+        </GlassmorphismThemeProvider>
       </ThemeProvider>
     </ErrorBoundary>
   )

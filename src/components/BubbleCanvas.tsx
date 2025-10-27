@@ -11,6 +11,10 @@ import { EnhancedBubbleManager } from '@/services/enhancedBubbleManager'
 import { EnhancedBubbleBackground } from './EnhancedBubbleBackground'
 import { GenreService } from '@/services/genreService'
 import { useResponsive } from '@/hooks/useResponsive'
+import {
+  defaultCollisionDetector,
+  mobileCollisionDetector,
+} from '@/utils/bubbleCollisionDetector'
 import './EnhancedBubbleBackground.css'
 
 interface BubbleCanvasProps {
@@ -26,6 +30,8 @@ interface BubbleCanvasProps {
   // ジャンルフィルタリング機能の追加
   selectedGenres?: string[] // フィルタリング対象のジャンル
   enableGenreFiltering?: boolean // ジャンルフィルタリング機能の有効/無効
+  // 衝突検出機能の追加
+  enableCollisionDetection?: boolean // シャボン玉の重なり防止機能の有効/無効
 }
 
 /**
@@ -75,6 +81,7 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
     performanceMode = false,
     selectedGenres = [],
     enableGenreFiltering = false,
+    enableCollisionDetection = false,
   }) => {
     const screenSize = useResponsive()
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -102,13 +109,39 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
       return genreService.filterBubblesByGenres(bubbles, selectedGenres)
     }, [bubbles, selectedGenres, enableGenreFiltering])
 
+    // 衝突検出: シャボン玉の重なりを防ぐ位置調整
+    const collisionAdjustedBubbles = useMemo(() => {
+      if (!enableCollisionDetection) {
+        return genreFilteredBubbles
+      }
+
+      // モバイルとデスクトップで異なる制限を適用
+      const maxBubbles = performanceMode ? 50 : 100 // モバイル50個、デスクトップ100個まで
+      if (genreFilteredBubbles.length > maxBubbles) {
+        return genreFilteredBubbles
+      }
+
+      // モバイルでは軽量な検出器を使用
+      const detector = performanceMode
+        ? mobileCollisionDetector
+        : defaultCollisionDetector
+
+      return detector.adjustBubblePositions(genreFilteredBubbles, width, height)
+    }, [
+      genreFilteredBubbles,
+      enableCollisionDetection,
+      performanceMode,
+      width,
+      height,
+    ])
+
     // パフォーマンス最適化: 可視範囲内のシャボン玉のみをフィルタリング
     const visibleBubbles = useMemo(
       () =>
-        genreFilteredBubbles.filter(bubble =>
+        collisionAdjustedBubbles.filter(bubble =>
           isBubbleVisible(bubble, visibleBounds)
         ),
-      [genreFilteredBubbles, visibleBounds]
+      [collisionAdjustedBubbles, visibleBounds]
     )
 
     // ジャンルフィルタリングアニメーション効果（簡素化）
@@ -118,13 +151,13 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
       const newAnimationMap = new Map<string, number>()
 
       bubbles.forEach(bubble => {
-        const isVisible = genreFilteredBubbles.includes(bubble)
+        const isVisible = collisionAdjustedBubbles.includes(bubble)
         // アニメーションを簡素化：即座に切り替え
         newAnimationMap.set(bubble.id, isVisible ? 1 : 0)
       })
 
       setFilteringAnimation(newAnimationMap)
-    }, [genreFilteredBubbles, bubbles, enableGenreFiltering])
+    }, [collisionAdjustedBubbles, bubbles, enableGenreFiltering])
 
     // 背景描画は EnhancedBubbleBackground コンポーネントに移行
     // Canvas描画最適化: 透明な背景を使用してシャボン玉の視認性を維持
@@ -209,12 +242,12 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
           radius
         )
 
-        // ガラスモーフィズムのグラデーション設定
-        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)') // 中心は透明な白
-        gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.4)') // 内側のガラス効果
+        // ガラスモーフィズムのグラデーション設定（鮮やかな白系）
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)') // 中心は鮮やかな白
+        gradient.addColorStop(0.2, 'rgba(255, 255, 255, 0.6)') // 内側のガラス効果
         gradient.addColorStop(0.4, `${color}60`) // メインカラー（透明度60%）
         gradient.addColorStop(0.8, `${color}40`) // 外側のメインカラー（透明度40%）
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0.1)') // 外側は薄い影
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0.2)') // 外側も白系に変更
 
         // Canvas描画最適化: パスの再利用
         ctx.beginPath()
@@ -224,9 +257,14 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         ctx.fillStyle = gradient
         ctx.fill()
 
-        // ガラスモーフィズムの境界線（非常に薄く）
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)'
-        ctx.lineWidth = 1
+        // ガラスモーフィズムの境界線（鮮やかな白系）
+        ctx.strokeStyle = 'rgba(250, 212, 255, 0.9)'
+        ctx.lineWidth = 1.5
+        ctx.stroke()
+
+        // 外側の白いグロー効果（鮮やかさを向上）
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)'
+        ctx.lineWidth = 3
         ctx.stroke()
 
         // ガラスモーフィズムのハイライト効果
@@ -239,8 +277,8 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
             y - radius * 0.4,
             radius * 0.5
           )
-          highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.6)')
-          highlightGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)')
+          highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)')
+          highlightGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.4)')
           highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
 
           ctx.beginPath()

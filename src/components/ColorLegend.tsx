@@ -184,21 +184,6 @@ export const ColorLegend: React.FC<ColorLegendProps> = ({
           )}
         </FilterStatus>
       )}
-
-      {/* 全選択解除ボタン */}
-      {isFilterActive && isClickable && (
-        <ClearFilterButton
-          onClick={() => {
-            // 全カテゴリを解除するため、各カテゴリを個別に解除
-            selectedCategories.forEach(category => {
-              onCategoryClick?.(category)
-            })
-          }}
-          aria-label="全てのフィルターを解除"
-        >
-          ×
-        </ClearFilterButton>
-      )}
     </LegendContainer>
   )
 }
@@ -230,9 +215,7 @@ const LegendContainer = styled.div.withConfig({
 
   background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
-  border: 1px solid
-    ${({ isFilterActive }) =>
-      isFilterActive ? 'rgba(33, 150, 243, 0.5)' : 'rgba(224, 224, 224, 0.3)'};
+  border: 1px solid rgba(224, 224, 224, 0.3);
   border-radius: 8px;
   padding: 8px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
@@ -245,7 +228,6 @@ const LegendContainer = styled.div.withConfig({
     isFilterActive &&
     `
     background: rgba(255, 241, 253, 0.97);
-    border-color: rgba(255, 254, 255, 0.65);
   `}
 
   /* モバイル対応 */
@@ -305,6 +287,18 @@ const LegendItem = styled.li.withConfig({
 
   /* 選択状態のスタイル - 背景色のみ */
   background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+
+  /* 選択状態でも枠線を表示しない */
+  ${({ isSelected }) =>
+    isSelected &&
+    `
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+  `}
 
   /* クリック可能な場合のホバー効果 */
   ${({ isClickable }) =>
@@ -319,7 +313,9 @@ const LegendItem = styled.li.withConfig({
     }
     
     &:focus {
-      outline: none;
+      outline: none !important;
+      border: none !important;
+      box-shadow: none !important;
     }
   `}
 
@@ -368,10 +364,17 @@ const ColorIndicator = styled.div.withConfig({
   height: 20px;
   border-radius: 50%;
   background-color: ${({ color }) => color};
-  border: 2px solid rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
   transition: all 0.2s ease;
+
+  /* 選択状態でも枠線を変更しない */
+  ${({ isSelected }) =>
+    isSelected &&
+    `
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  `}
 
   @media (max-width: 768px) {
     width: 18px;
@@ -429,50 +432,6 @@ const FilterCategory = styled.span`
   font-size: 10px;
   color: #1976d2;
   margin-left: 4px;
-`
-
-/* フィルター解除ボタンのスタイル */
-const ClearFilterButton = styled.button`
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #f44336;
-  color: white;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
-  z-index: 1001;
-
-  &:hover {
-    background: #d32f2f;
-    transform: scale(1.1);
-  }
-
-  &:active {
-    transform: scale(0.95);
-  }
-
-  &:focus {
-    outline: 2px solid #f44336;
-    outline-offset: 2px;
-  }
-
-  @media (max-width: 768px) {
-    width: 24px;
-    height: 24px;
-    top: -10px;
-    right: -10px;
-    font-size: 14px;
-  }
 `
 
 /**
