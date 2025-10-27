@@ -291,40 +291,48 @@ const LegendItem = styled.li.withConfig({
   outline: none !important;
   box-shadow: none !important;
 
-  /* 選択状態でも枠線を表示しない */
+  /* WebKitベースブラウザでのタッチハイライトを無効化 */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+
+  /* 選択状態でも枠線と背景色を表示しない */
   ${({ isSelected }) =>
     isSelected &&
     `
     border: none !important;
     outline: none !important;
     box-shadow: none !important;
+    background: transparent !important;
   `}
 
-  /* クリック可能な場合のホバー効果 */
+  /* クリック可能な場合のホバー効果 - 背景色変更を無効化 */
   ${({ isClickable }) =>
     isClickable &&
     `
     &:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: transparent !important;
     }
     
     &:active {
-      background: rgba(0, 0, 0, 0.1);
+      background: transparent !important;
     }
     
     &:focus {
       outline: none !important;
       border: none !important;
       box-shadow: none !important;
+      background: transparent !important;
     }
   `}
 
-  /* 通常のホバー効果（クリック不可の場合） */
+  /* 通常のホバー効果（クリック不可の場合） - 背景色変更を無効化 */
   ${({ isClickable }) =>
     !isClickable &&
     `
     &:hover {
-      background: rgba(0, 0, 0, 0.05);
+      background: transparent !important;
     }
   `}
 
@@ -334,6 +342,42 @@ const LegendItem = styled.li.withConfig({
   @media (max-width: 768px) {
     min-height: 36px;
     min-width: 36px;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+
+    /* モバイルタッチ時の枠線と背景色を無効化 */
+    &:focus,
+    &:active,
+    &:hover,
+    &:focus-visible,
+    &:focus-within {
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+    }
+
+    /* 選択状態でもモバイルで枠線と背景色を表示しない */
+    ${({ isSelected }) =>
+      isSelected &&
+      `
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      background: transparent !important;
+      
+      &:focus,
+      &:active,
+      &:hover,
+      &:focus-visible,
+      &:focus-within {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
+      }
+    `}
 
     ${({ isClickable }) =>
       isClickable &&
@@ -347,6 +391,21 @@ const LegendItem = styled.li.withConfig({
         right: -4px;
         bottom: -4px;
         z-index: -1;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+      }
+      
+      /* モバイルでのタッチ時の枠線と背景色を無効化 */
+      &:focus,
+      &:active,
+      &:hover,
+      &:focus-visible,
+      &:focus-within {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        background: transparent !important;
       }
     `}
   }
@@ -379,6 +438,14 @@ const ColorIndicator = styled.div.withConfig({
   @media (max-width: 768px) {
     width: 18px;
     height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.8) !important;
+
+    /* モバイルでの選択状態でも枠線を変更しない */
+    ${({ isSelected }) =>
+      isSelected &&
+      `
+      border: 2px solid rgba(255, 255, 255, 0.8) !important;
+    `}
   }
 `
 
