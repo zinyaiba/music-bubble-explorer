@@ -28,10 +28,19 @@ export function fixSafariHeader(): void {
   const style = document.createElement('style')
   style.id = 'safari-header-offset'
   style.textContent = `
+    /* Safari専用：ヘッダーを100px下げて、z-indexを0に固定 */
     header,
     [role="banner"] {
       top: 100px !important;
       position: fixed !important;
+      z-index: 0 !important;
+    }
+    
+    /* CSS変数を使用している要素も強制的に0に */
+    header[style*="--glass-z-fixed"],
+    [role="banner"][style*="--glass-z-fixed"],
+    .sc-JuYTaK,
+    .sc-gZEZvl {
       z-index: 0 !important;
     }
   `
