@@ -114,8 +114,11 @@ const ScrollableContainer = styled.div<{ $isMobile: boolean }>`
     
     /* Safari対応 */
     height: calc(
-      var(--safari-viewport-height, 100vh) - 88px - env(safe-area-inset-bottom, 0px)
+      100vh - 88px - env(safe-area-inset-bottom, 0px)
     );
+    
+    /* レイアウト安定化との競合を防ぐ */
+    z-index: 1;
   `}
 
   /* ガラスモーフィズムスクロールバー */

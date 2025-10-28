@@ -2,7 +2,9 @@ import React, { ReactNode, useEffect } from 'react'
 import styled from 'styled-components'
 import { useResponsive } from '@/hooks/useResponsive'
 import { initSafariHeaderFix } from '@/utils/safariHeaderFix'
+// import { getLayoutManager } from '@/utils/ResponsiveLayoutManager' // 一時的に無効化
 import ScrollableMainSection from './ScrollableMainSection'
+// import '@/styles/layout-stability.css' // 一時的に無効化
 
 interface MobileFirstLayoutProps {
   children: ReactNode
@@ -76,6 +78,13 @@ const NavigationSection = styled.div`
   left: 0;
   right: 0;
   z-index: 9999;
+
+  /* フッタの安定性を確保 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+
+  /* セーフエリア対応 */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 `
 
 export default MobileFirstLayout

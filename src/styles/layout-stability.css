@@ -1,0 +1,276 @@
+/**
+ * レイアウト安定化のためのCSS
+ * ResponsiveLayoutManagerと連携してレイアウトちらつきを防止
+ */
+
+/* レイアウト初期化中の状態 */
+body.layout-initializing {
+  /* 初期化中は一時的に透明度を下げる */
+  opacity: 0.95;
+  transition: opacity 0.1s ease-out;
+}
+
+body.layout-initializing * {
+  /* アニメーションを一時的に無効化（レイアウトに影響しないよう制限） */
+  animation-duration: 0s !important;
+  transition-duration: 0s !important;
+}
+
+/* 既存のレイアウトを保護 */
+body.layout-initializing [class*='NavigationSection'],
+body.layout-initializing [class*='ScrollableContainer'] {
+  /* 重要なレイアウト要素は初期化の影響を受けないようにする */
+  animation-duration: inherit !important;
+  transition-duration: inherit !important;
+}
+
+/* デバイス種別に応じたスタイル */
+body.device-mobile {
+  --layout-type: 'mobile';
+}
+
+body.device-tablet {
+  --layout-type: 'tablet';
+}
+
+body.device-desktop {
+  --layout-type: 'desktop';
+}
+
+/* オリエンテーションに応じたスタイル */
+body.orientation-portrait {
+  --orientation: 'portrait';
+}
+
+body.orientation-landscape {
+  --orientation: 'landscape';
+}
+
+/* タッチデバイス対応 */
+body.touch-capable {
+  --touch-enabled: true;
+}
+
+body:not(.touch-capable) {
+  --touch-enabled: false;
+}
+
+/* レイアウト安定化のためのユーティリティクラス */
+.layout-stable {
+  /* レイアウトが安定している要素 */
+  transition: all 0.3s ease-out;
+}
+
+.layout-unstable {
+  /* レイアウトが不安定な要素 */
+  transition: none;
+}
+
+/* レスポンシブレイアウトの基本設定 */
+.responsive-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* フッタナビゲーションの保護 */
+[class*='NavigationSection'],
+[class*='MobileNavigation'] {
+  /* フッタが確実に表示されるよう保護 */
+  position: fixed !important;
+  bottom: 0 !important;
+  z-index: 9999 !important;
+
+  /* レイアウト初期化の影響を受けないようにする */
+  opacity: 1 !important;
+  transform: translateZ(0) !important;
+
+  /* 確実な表示を保証 */
+  visibility: visible !important;
+  display: flex !important;
+}
+
+/* メインコンテンツとフッタの適切な分離 */
+body.device-mobile [class*='ScrollableContainer'] {
+  /* フッタとの重複を完全に防ぐ */
+  bottom: 0 !important;
+  padding-bottom: calc(108px + env(safe-area-inset-bottom, 0px)) !important;
+  box-sizing: border-box !important;
+}
+
+/* 追加の安全策：フッタエリアの確保 */
+body.device-mobile::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(88px + env(safe-area-inset-bottom, 0px));
+  pointer-events: none;
+  z-index: 9998;
+  background: transparent;
+}
+
+/* モバイル専用スタイル */
+@media (max-width: 900px) {
+  body.device-mobile .desktop-only {
+    display: none !important;
+  }
+
+  body.device-mobile .mobile-optimized {
+    display: block;
+  }
+}
+
+/* タブレット専用スタイル */
+@media (min-width: 901px) and (max-width: 1024px) {
+  body.device-tablet .mobile-only {
+    display: none !important;
+  }
+
+  body.device-tablet .desktop-only {
+    display: none !important;
+  }
+}
+
+/* デスクトップ専用スタイル */
+@media (min-width: 1025px) {
+  body.device-desktop .mobile-only {
+    display: none !important;
+  }
+
+  body.device-desktop .tablet-only {
+    display: none !important;
+  }
+}
+
+/* オリエンテーション変更時のスムーズな遷移 */
+body.orientation-landscape {
+  /* ランドスケープ時の調整 */
+}
+
+body.orientation-portrait {
+  /* ポートレート時の調整 */
+}
+
+/* レイアウト復旧中の表示 */
+.layout-recovering {
+  position: relative;
+}
+
+.layout-recovering::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(1px);
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  animation: layout-recovery-pulse 1s ease-in-out infinite;
+}
+
+@keyframes layout-recovery-pulse {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Safari特有の問題への対応 */
+@supports (-webkit-appearance: none) {
+  /* Safari専用のレイアウト修正 */
+  body.device-mobile {
+    /* Safariでのビューポート問題を修正 */
+    min-height: -webkit-fill-available;
+  }
+
+  .responsive-container {
+    /* Safariでの高さ計算問題を修正 */
+    height: -webkit-fill-available;
+  }
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  .layout-recovering::before {
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: none;
+  }
+}
+
+/* 動きを減らす設定への対応 */
+@media (prefers-reduced-motion: reduce) {
+  body.layout-initializing,
+  .layout-stable,
+  .layout-recovering::before {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* デバッグ用のスタイル（開発時のみ） */
+.layout-debug {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+.layout-debug::before {
+  content: 'Layout: ' var(--layout-type) ' | ' var(--orientation);
+}
+
+/* レイアウト状態の視覚的インジケーター */
+.layout-status-indicator {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.7;
+  transition: all 0.3s ease;
+}
+
+body.layout-initializing .layout-status-indicator {
+  background: orange;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+body:not(.layout-initializing) .layout-status-indicator {
+  background: green;
+}
+
+.layout-recovering .layout-status-indicator {
+  background: red;
+  animation: pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}

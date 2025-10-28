@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-interface ScreenSize {
+export interface ScreenSize {
   width: number
   height: number
   isMobileSmall: boolean
@@ -34,7 +34,7 @@ export const useResponsive = (): ScreenSize => {
 
     const width = window.innerWidth
     const height = window.innerHeight
-    
+
     return {
       width,
       height,
@@ -52,7 +52,7 @@ export const useResponsive = (): ScreenSize => {
     const updateScreenSize = () => {
       const width = window.innerWidth
       const height = window.innerHeight
-      
+
       setScreenSize({
         width,
         height,
@@ -97,7 +97,7 @@ export const calculateOptimalBubbleCount = (
   screenSize: ScreenSize
 ): number => {
   const canvasArea = canvasWidth * canvasHeight
-  
+
   if (screenSize.isDesktopLarge) {
     return Math.min(25, Math.max(15, Math.floor(canvasArea / 25000)))
   } else if (screenSize.isDesktop) {
@@ -119,10 +119,10 @@ export const calculateOptimalCanvasSize = (
   screenSize: ScreenSize
 ): { width: number; height: number } => {
   const viewportHeight = window.innerHeight
-  
+
   let width: number
   let height: number
-  
+
   if (screenSize.isDesktopLarge) {
     width = Math.min(1200, containerRect.width - 40)
     height = Math.min(800, viewportHeight - 250)
@@ -139,15 +139,15 @@ export const calculateOptimalCanvasSize = (
     width = Math.min(320, containerRect.width - 16)
     height = Math.min(400, viewportHeight - 160)
   }
-  
+
   // Ensure minimum dimensions
   width = Math.max(280, width)
   height = Math.max(250, height)
-  
+
   // Adjust for landscape orientation on mobile
   if (screenSize.isMobile && screenSize.isLandscape) {
     height = Math.min(height, viewportHeight - 120)
   }
-  
+
   return { width, height }
 }
