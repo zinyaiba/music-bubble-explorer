@@ -7,6 +7,14 @@ export default defineConfig({
   plugins: [react()],
   // GitHub Pages base URL - ensure this matches your repository name
   base: process.env.NODE_ENV === 'production' ? '/music-bubble-explorer/' : '/',
+  server: {
+    fs: {
+      strict: false,
+    },
+    hmr: {
+      overlay: false,
+    },
+  },
   define: {
     // Ensure environment variables are properly handled
     'process.env.NODE_ENV': JSON.stringify(
@@ -89,5 +97,6 @@ export default defineConfig({
       '@/data': path.resolve(__dirname, './src/data'),
       '@/utils': path.resolve(__dirname, './src/utils'),
     },
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
   },
 })
