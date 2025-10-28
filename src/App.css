@@ -556,8 +556,11 @@
   backdrop-filter: blur(10px);
   border: 2px solid var(--border-cute);
   position: relative;
-  width: 100% !important;
-  height: 100% !important;
+  /* アスペクト比を保持するため、固定サイズではなく最大サイズを指定 */
+  max-width: 100%;
+  max-height: 100%;
+  /* アスペクト比を保持 */
+  object-fit: contain;
 }
 
 .instructions {

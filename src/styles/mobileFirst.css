@@ -116,7 +116,7 @@ body {
   }
 }
 
-/* Glassmorphism Mobile-First Header Styles */
+/* Glassmorphism Mobile-First Header Styles - Updated for Scrollable Layout */
 .mobile-first-header {
   height: var(--glass-header-height-mobile);
   background: var(--glass-strong) !important;
@@ -126,10 +126,8 @@ body {
   display: flex !important;
   align-items: center !important;
   padding: 0 var(--glass-spacing-mobile-md) !important;
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
+  /* 固定表示を解除し、スクロール対象に変更 */
+  position: relative !important;
   width: 100% !important;
   z-index: var(--glass-z-fixed) !important;
   visibility: visible !important;
@@ -145,10 +143,10 @@ body {
   ) !important;
 }
 
-/* Glassmorphism Bubble Area Maximization */
+/* Glassmorphism Bubble Area Maximization - Updated for Scrollable Layout */
 .mobile-first-bubble-area {
   flex: 1;
-  height: var(--glass-bubble-area-mobile);
+  /* 高さ計算を削除し、flexで自動調整 */
   padding: var(--glass-spacing-mobile-xs);
   display: flex;
   flex-direction: column;
@@ -497,13 +495,18 @@ body {
   height: 100%;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bubble-area-maximized .bubble-canvas {
-  width: 100% !important;
-  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(255, 105, 180, 0.2);
+  /* アスペクト比を保持 */
+  object-fit: contain;
 }
 
 /* Mobile-Specific Canvas Optimizations */
@@ -685,18 +688,15 @@ body {
   }
 }
 
-/* ヘッダーの強制表示 - Safari対応強化 */
+/* ヘッダーの強制表示 - Safari対応強化 - Updated for Scrollable Layout */
 @media (max-width: 900px) {
-  /* 全てのヘッダー要素を強制表示 */
+  /* 全てのヘッダー要素を強制表示（スクロール対象として） */
   header[role='banner'],
   .mobile-first-header,
   *[class*='Header'] {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    right: 0 !important;
+    position: relative !important;
     width: 100% !important;
-    z-index: 10001 !important;
+    z-index: var(--glass-z-fixed) !important;
     display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -1104,19 +1104,16 @@ body {
       height: var(--safari-viewport-height, var(--viewport-height, 100vh));
     }
 
-    /* ヘッダーの動的調整 - Safari専用最強化 */
+    /* ヘッダーの動的調整 - Safari専用最強化 - Updated for Scrollable Layout */
     header[role='banner'],
     .mobile-first-header,
     *[class*='Header'] {
       display: flex !important;
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
+      position: relative !important;
       width: 100% !important;
       visibility: visible !important;
       opacity: 1 !important;
-      z-index: 2147483647 !important; /* 最大値 */
+      z-index: var(--glass-z-fixed) !important;
       padding-top: var(--safe-area-inset-top) !important;
       min-height: calc(85px + var(--safe-area-inset-top)) !important;
       /* Safari専用の位置固定強化 */
@@ -1134,13 +1131,16 @@ body {
       will-change: transform !important;
     }
 
-    /* メインエリアの動的調整 - Safari専用強化 */
+    /* メインエリアの動的調整 - Safari専用強化 - Updated for Scrollable Layout */
     main {
-      top: calc(85px + var(--safe-area-inset-top)) !important;
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
       bottom: calc(88px + var(--safe-area-inset-bottom)) !important;
       height: calc(
-        var(--safari-viewport-height, var(--viewport-height, 100vh)) - 85px -
-          88px - var(--safe-area-inset-top) - var(--safe-area-inset-bottom)
+        var(--safari-viewport-height, var(--viewport-height, 100vh)) - 88px -
+          var(--safe-area-inset-bottom)
       ) !important;
       /* Safari専用のスクロール最適化 */
       -webkit-overflow-scrolling: touch !important;
@@ -1169,21 +1169,18 @@ body {
 /* Safari専用 - 最終手段の全称セレクター */
 @supports (-webkit-appearance: none) {
   @media (max-width: 900px) {
-    /* Safari専用 - styled-componentsで生成される要素も含む */
+    /* Safari専用 - styled-componentsで生成される要素も含む - Updated for Scrollable Layout */
     *[class*='sc-'] header,
     *[class*='sc-'][class*='Header'],
     *[class*='sc-'][class*='header'] {
       display: flex !important;
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      width: 100vw !important;
+      position: relative !important;
+      width: 100% !important;
       height: auto !important;
       min-height: 85px !important;
       visibility: visible !important;
       opacity: 1 !important;
-      z-index: 2147483647 !important;
+      z-index: var(--glass-z-fixed) !important;
       background: rgba(255, 255, 255, 0.95) !important;
       backdrop-filter: blur(15px) !important;
       -webkit-backdrop-filter: blur(15px) !important;

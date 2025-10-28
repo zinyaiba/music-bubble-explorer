@@ -32,6 +32,10 @@ interface BubbleCanvasProps {
   enableGenreFiltering?: boolean // ジャンルフィルタリング機能の有効/無効
   // 衝突検出機能の追加
   enableCollisionDetection?: boolean // シャボン玉の重なり防止機能の有効/無効
+  // モバイル高さ調整機能の追加
+  mobileHeightRatio?: number // モバイルでの高さ比率（0.5-2.0、デフォルト1.0）
+  maxMobileHeight?: number // モバイルでの最大高さ（px）
+  minMobileHeight?: number // モバイルでの最小高さ（px）
 }
 
 /**
@@ -82,6 +86,9 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
     selectedGenres = [],
     enableGenreFiltering = false,
     enableCollisionDetection = false,
+    mobileHeightRatio = 1.0,
+    maxMobileHeight = 800,
+    minMobileHeight = 300,
   }) => {
     const screenSize = useResponsive()
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -93,10 +100,46 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
       Map<string, number>
     >(new Map())
 
-    // パフォーマンス最適化: 可視範囲の計算をメモ化
+    // モバイル環境での調整された高さを計算
+    const adjustedDimensions = useMemo(() => {
+      if (!screenSize.isMobile) {
+        return { width, height }
+      }
+
+      // モバイルでの高さ調整
+      let adjustedHeight = height * mobileHeightRatio
+
+      // 最大・最小高さの制限を適用
+      adjustedHeight = Math.max(
+        minMobileHeight,
+        Math.min(maxMobileHeight, adjustedHeight)
+      )
+
+      // アスペクト比を保持して幅を調整
+      const aspectRatio = width / height
+      const adjustedWidth = adjustedHeight * aspectRatio
+
+      return {
+        width: adjustedWidth,
+        height: adjustedHeight,
+      }
+    }, [
+      width,
+      height,
+      screenSize.isMobile,
+      mobileHeightRatio,
+      maxMobileHeight,
+      minMobileHeight,
+    ])
+
+    // パフォーマンス最適化: 可視範囲の計算をメモ化（調整された寸法を使用）
     const visibleBounds = useMemo(
-      () => calculateVisibleBounds(width, height),
-      [width, height]
+      () =>
+        calculateVisibleBounds(
+          adjustedDimensions.width,
+          adjustedDimensions.height
+        ),
+      [adjustedDimensions.width, adjustedDimensions.height]
     )
 
     // ジャンルフィルタリング: 選択されたジャンルに基づいてシャボン玉をフィルタリング
@@ -194,12 +237,19 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
 
           // Add selection highlight if needed
           if (isSelected) {
-            const radius = bubble.getDisplaySize() / 2
+            // 座標をスケール（モバイルでの寸法調整に対応）
+            const scaleX = adjustedDimensions.width / width
+            const scaleY = adjustedDimensions.height / height
+            const scaledX = bubble.x * scaleX
+            const scaledY = bubble.y * scaleY
+            const radius =
+              (bubble.getDisplaySize() * Math.min(scaleX, scaleY)) / 2
+
             ctx.strokeStyle = '#FF6B6B'
             ctx.lineWidth = 3
             ctx.setLineDash([5, 5])
             ctx.beginPath()
-            ctx.arc(bubble.x, bubble.y, radius + 5, 0, Math.PI * 2)
+            ctx.arc(scaledX, scaledY, radius + 5, 0, Math.PI * 2)
             ctx.stroke()
             ctx.setLineDash([]) // リセット
           }
@@ -207,10 +257,16 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         }
 
         // Fallback to standard bubble rendering
-        const { x, y, color } = bubble
+        const { x: originalX, y: originalY, color } = bubble
+
+        // 座標をスケール（モバイルでの寸法調整に対応）
+        const scaleX = adjustedDimensions.width / width
+        const scaleY = adjustedDimensions.height / height
+        const x = originalX * scaleX
+        const y = originalY * scaleY
 
         // アニメーション適用後のサイズ、透明度を取得
-        const displaySize = bubble.getDisplaySize()
+        const displaySize = bubble.getDisplaySize() * Math.min(scaleX, scaleY) // サイズもスケール
         let displayOpacity = bubble.getDisplayOpacity()
         const radius = displaySize / 2
 
@@ -368,6 +424,9 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         filteringAnimation,
         isEnhancedBubble,
         enhancedBubbleManager,
+        adjustedDimensions,
+        width,
+        height,
       ]
     )
 
@@ -513,7 +572,7 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         }
 
         // Canvas描画最適化: 透明背景でクリア（背景は別コンポーネントで処理）
-        ctx.clearRect(0, 0, width, height)
+        ctx.clearRect(0, 0, adjustedDimensions.width, adjustedDimensions.height)
 
         // 仮想化: 可視範囲内のシャボン玉のみを描画
         visibleBubbles.forEach((bubble, index) => {
@@ -547,8 +606,8 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         setHasCanvasError(true)
       }
     }, [
-      width,
-      height,
+      adjustedDimensions.width,
+      adjustedDimensions.height,
       visibleBubbles,
       drawBubble,
       bubbles.length,
@@ -610,16 +669,38 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         const coords = getEventCoordinates(event)
         if (!coords) return
 
+        // 座標をスケール（モバイルでの寸法調整に対応）
+        const scaleX = adjustedDimensions.width / width
+        const scaleY = adjustedDimensions.height / height
+
         // パフォーマンス最適化: 可視範囲内のシャボン玉のみをチェック
         for (let i = visibleBubbles.length - 1; i >= 0; i--) {
           const bubble = visibleBubbles[i]
-          if (bubble.containsPoint(coords.x, coords.y)) {
+          // スケールされた座標でクリック判定
+          const scaledBubbleX = bubble.x * scaleX
+          const scaledBubbleY = bubble.y * scaleY
+          const scaledRadius =
+            (bubble.getDisplaySize() * Math.min(scaleX, scaleY)) / 2
+
+          const distance = Math.sqrt(
+            Math.pow(coords.x - scaledBubbleX, 2) +
+              Math.pow(coords.y - scaledBubbleY, 2)
+          )
+
+          if (distance <= scaledRadius) {
             onBubbleClick(bubble)
             break
           }
         }
       },
-      [visibleBubbles, onBubbleClick, getEventCoordinates]
+      [
+        visibleBubbles,
+        onBubbleClick,
+        getEventCoordinates,
+        adjustedDimensions,
+        width,
+        height,
+      ]
     )
 
     /**
@@ -634,13 +715,22 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         const coords = getEventCoordinates(event)
         if (!coords) return
 
+        // 座標をスケール（モバイルでの寸法調整に対応）
+        const scaleX = adjustedDimensions.width / width
+        const scaleY = adjustedDimensions.height / height
+
         // パフォーマンス最適化: 可視範囲内のシャボン玉のみをチェック
         for (let i = visibleBubbles.length - 1; i >= 0; i--) {
           const bubble = visibleBubbles[i]
+          // スケールされた座標でタッチ判定
+          const scaledBubbleX = bubble.x * scaleX
+          const scaledBubbleY = bubble.y * scaleY
+          const scaledSize = bubble.getDisplaySize() * Math.min(scaleX, scaleY)
           // タッチ操作では少し大きめの判定エリアを使用
-          const touchRadius = Math.max(bubble.getDisplaySize() / 2, 20)
+          const touchRadius = Math.max(scaledSize / 2, 20)
           const distance = Math.sqrt(
-            Math.pow(coords.x - bubble.x, 2) + Math.pow(coords.y - bubble.y, 2)
+            Math.pow(coords.x - scaledBubbleX, 2) +
+              Math.pow(coords.y - scaledBubbleY, 2)
           )
 
           if (distance <= touchRadius) {
@@ -649,7 +739,14 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
           }
         }
       },
-      [visibleBubbles, onBubbleClick, getEventCoordinates]
+      [
+        visibleBubbles,
+        onBubbleClick,
+        getEventCoordinates,
+        adjustedDimensions,
+        width,
+        height,
+      ]
     )
 
     /**
@@ -689,11 +786,26 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         const coords = getEventCoordinates(event)
         if (!coords) return
 
+        // 座標をスケール（モバイルでの寸法調整に対応）
+        const scaleX = adjustedDimensions.width / width
+        const scaleY = adjustedDimensions.height / height
+
         // パフォーマンス最適化: 可視範囲内のシャボン玉のみをチェック
         let isHovering = false
         for (let i = visibleBubbles.length - 1; i >= 0; i--) {
           const bubble = visibleBubbles[i]
-          if (bubble.containsPoint(coords.x, coords.y)) {
+          // スケールされた座標でホバー判定
+          const scaledBubbleX = bubble.x * scaleX
+          const scaledBubbleY = bubble.y * scaleY
+          const scaledRadius =
+            (bubble.getDisplaySize() * Math.min(scaleX, scaleY)) / 2
+
+          const distance = Math.sqrt(
+            Math.pow(coords.x - scaledBubbleX, 2) +
+              Math.pow(coords.y - scaledBubbleY, 2)
+          )
+
+          if (distance <= scaledRadius) {
             isHovering = true
             break
           }
@@ -705,7 +817,7 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
           canvas.style.cursor = isHovering ? 'pointer' : 'default'
         }
       },
-      [visibleBubbles, getEventCoordinates]
+      [visibleBubbles, getEventCoordinates, adjustedDimensions, width, height]
     )
 
     /**
@@ -788,8 +900,8 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
         <div className={className} style={{ position: 'relative' }}>
           {/* Enhanced Background Layer - 栗モチーフ背景 */}
           <EnhancedBubbleBackground
-            width={width}
-            height={height}
+            width={adjustedDimensions.width}
+            height={adjustedDimensions.height}
             theme={backgroundTheme}
             intensity={backgroundIntensity}
             performanceMode={performanceMode}
@@ -798,8 +910,8 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
 
           <canvas
             ref={canvasRef}
-            width={width}
-            height={height}
+            width={adjustedDimensions.width}
+            height={adjustedDimensions.height}
             onClick={handleCanvasClick}
             onMouseMove={handleMouseMove}
             onTouchStart={handleTouchStart}
@@ -813,12 +925,17 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
             className="bubble-canvas gpu-accelerated animation-optimized flicker-prevention stable-rendering mobile-touch-optimized bubble-canvas-improved"
             style={{
               display: 'block',
-              width: '100%',
-              height: '100%',
+              width: `${adjustedDimensions.width}px`,
+              height: `${adjustedDimensions.height}px`,
+              maxWidth: '100%',
+              maxHeight: '100%',
               minWidth: screenSize.isMobile ? '280px' : '400px',
               minHeight: screenSize.isMobile ? '200px' : '300px',
               visibility: 'visible',
               opacity: 1,
+              // アスペクト比を保持
+              aspectRatio: `${adjustedDimensions.width} / ${adjustedDimensions.height}`,
+              objectFit: 'contain',
               // ガラスモーフィズム効果を適用
               background: 'rgba(255, 255, 255, 0.15)',
               backdropFilter: 'blur(12px)',
