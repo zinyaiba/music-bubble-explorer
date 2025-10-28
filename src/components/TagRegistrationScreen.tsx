@@ -75,7 +75,7 @@ const ScreenContainer = styled.div<{
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: 10000; /* z-indexを高く設定 */
 
   /* Glassmorphism background overlay */
   background: ${props => props.$theme.colors.glass.medium};
@@ -85,6 +85,7 @@ const ScreenContainer = styled.div<{
   /* Visibility and animation */
   opacity: ${props => (props.$isVisible ? 1 : 0)};
   visibility: ${props => (props.$isVisible ? 'visible' : 'hidden')};
+  pointer-events: ${props => (props.$isVisible ? 'auto' : 'none')};
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   /* Layout */

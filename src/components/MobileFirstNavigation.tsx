@@ -190,26 +190,19 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
       const handleOpenTagRegistration = useCallback(() => {
         if (!onToggleTagRegistration) return
 
-        console.log('🏷️➕ Opening tag registration...')
-
         // 他のダイアログを閉じる
         if (showRegistrationForm) {
-          console.log('Closing registration form...')
           onToggleRegistrationForm()
         }
         if (showSongManagement) {
-          console.log('Closing song management...')
           onToggleSongManagement()
         }
         if (showTagList && onToggleTagList) {
-          console.log('Closing tag list...')
           onToggleTagList()
         }
 
         // タグ登録画面を開く
-        console.log('Current showTagRegistration:', showTagRegistration)
         if (!showTagRegistration) {
-          console.log('Toggling tag registration...')
           onToggleTagRegistration()
         }
 

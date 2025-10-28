@@ -1,0 +1,454 @@
+/**
+ * Glassmorphism Performance Optimizations
+ * GPU加速とレイヤー分離による描画最適化
+ */
+
+/* ===== GPU ACCELERATION UTILITIES ===== */
+.glass-gpu-accelerated {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
+}
+
+.glass-gpu-layer {
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.glass-gpu-backdrop {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  isolation: isolate;
+  will-change: backdrop-filter;
+}
+
+/* ===== OPTIMIZED BACKDROP FILTER CLASSES ===== */
+.glass-backdrop-optimized {
+  /* 最適化されたbackdrop-filter */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* GPU加速とレイヤー分離 */
+  transform: translate3d(0, 0, 0);
+  isolation: isolate;
+  contain: layout style paint;
+
+  /* パフォーマンス最適化 */
+  will-change: backdrop-filter;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.glass-backdrop-light {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transform: translateZ(0);
+  will-change: backdrop-filter;
+}
+
+.glass-backdrop-medium {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transform: translate3d(0, 0, 0);
+  isolation: isolate;
+  will-change: backdrop-filter;
+}
+
+.glass-backdrop-strong {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transform: translate3d(0, 0, 0);
+  isolation: isolate;
+  contain: layout style paint;
+  will-change: backdrop-filter;
+}
+
+/* ===== CONTAINMENT OPTIMIZATIONS ===== */
+.glass-contain-layout {
+  contain: layout;
+}
+
+.glass-contain-style {
+  contain: style;
+}
+
+.glass-contain-paint {
+  contain: paint;
+}
+
+.glass-contain-size {
+  contain: size;
+}
+
+.glass-contain-strict {
+  contain: layout style paint size;
+}
+
+.glass-contain-content {
+  contain: layout style paint;
+}
+
+/* ===== LAYER SEPARATION UTILITIES ===== */
+.glass-layer-base {
+  z-index: 0;
+  isolation: auto;
+}
+
+.glass-layer-elevated {
+  z-index: 10;
+  isolation: isolate;
+  transform: translateZ(0);
+}
+
+.glass-layer-modal {
+  z-index: 1000;
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  contain: layout style paint;
+}
+
+.glass-layer-overlay {
+  z-index: 1001;
+  isolation: isolate;
+  transform: translate3d(0, 0, 0);
+  contain: layout style paint size;
+}
+
+/* ===== WILL-CHANGE OPTIMIZATIONS ===== */
+.glass-will-change-transform {
+  will-change: transform;
+}
+
+.glass-will-change-opacity {
+  will-change: opacity;
+}
+
+.glass-will-change-backdrop {
+  will-change: backdrop-filter;
+}
+
+.glass-will-change-auto {
+  will-change: auto;
+}
+
+.glass-will-change-interactive {
+  will-change: transform, box-shadow;
+}
+
+.glass-will-change-animation {
+  will-change: transform, opacity, backdrop-filter;
+}
+
+/* ===== PERFORMANCE-OPTIMIZED COMPONENT CLASSES ===== */
+
+/* 最適化されたガラスカード */
+.glass-card-optimized {
+  /* 基本スタイル */
+  background: var(--glass-medium);
+  border: var(--glass-border-glass);
+  border-radius: var(--glass-radius-lg);
+  box-shadow: var(--glass-shadow-medium);
+
+  /* パフォーマンス最適化 */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  isolation: isolate;
+  contain: layout style paint;
+  will-change: auto;
+
+  /* トランジション */
+  transition:
+    transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    box-shadow 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.glass-card-optimized:hover {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: var(--glass-shadow-strong);
+  will-change: transform, box-shadow;
+}
+
+.glass-card-optimized:not(:hover) {
+  will-change: auto;
+}
+
+/* 最適化されたガラスボタン */
+.glass-button-optimized {
+  /* 基本スタイル */
+  background: var(--glass-medium);
+  border: var(--glass-border-glass);
+  border-radius: var(--glass-radius-lg);
+  padding: var(--glass-space-3) var(--glass-space-6);
+
+  /* パフォーマンス最適化 */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  contain: layout style;
+  will-change: auto;
+
+  /* トランジション */
+  transition:
+    transform 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    background 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.glass-button-optimized:hover {
+  background: var(--glass-strong);
+  transform: translateY(-1px);
+  will-change: transform;
+}
+
+.glass-button-optimized:active {
+  transform: translateY(0);
+  transition-duration: 0.05s;
+}
+
+.glass-button-optimized:not(:hover):not(:active) {
+  will-change: auto;
+}
+
+/* 最適化されたガラス入力フィールド */
+.glass-input-optimized {
+  /* 基本スタイル */
+  background: var(--glass-light);
+  border: var(--glass-border-subtle);
+  border-radius: var(--glass-radius-md);
+  padding: var(--glass-space-3) var(--glass-space-4);
+
+  /* パフォーマンス最適化 */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transform: translateZ(0);
+  contain: layout style;
+  will-change: auto;
+
+  /* トランジション */
+  transition:
+    border-color 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    background 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.glass-input-optimized:focus {
+  border-color: var(--glass-accent);
+  background: var(--glass-medium);
+  will-change: backdrop-filter;
+}
+
+.glass-input-optimized:not(:focus) {
+  will-change: auto;
+}
+
+/* 最適化されたガラスモーダル */
+.glass-modal-optimized {
+  /* 基本スタイル */
+  background: var(--glass-strong);
+  border: var(--glass-border-glass);
+  border-radius: var(--glass-radius-2xl);
+  box-shadow: var(--glass-shadow-strong);
+
+  /* パフォーマンス最適化 */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  isolation: isolate;
+  contain: layout style paint size;
+  will-change: auto;
+}
+
+/* ===== VISIBILITY-BASED OPTIMIZATIONS ===== */
+.glass-hidden {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  will-change: auto !important;
+}
+
+.glass-offscreen {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transform: translate3d(-9999px, 0, 0) !important;
+  will-change: auto !important;
+}
+
+/* ===== ANIMATION OPTIMIZATIONS ===== */
+.glass-animating {
+  will-change: transform, opacity, backdrop-filter;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  isolation: isolate;
+}
+
+.glass-animation-paused {
+  animation-play-state: paused !important;
+  will-change: auto !important;
+}
+
+.glass-animation-running {
+  animation-play-state: running !important;
+  will-change: transform, opacity !important;
+}
+
+/* ===== REDUCED MOTION SUPPORT ===== */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card-optimized,
+  .glass-button-optimized,
+  .glass-input-optimized {
+    transition: none !important;
+    will-change: auto !important;
+  }
+
+  .glass-card-optimized:hover,
+  .glass-button-optimized:hover {
+    transform: none !important;
+  }
+
+  .glass-animating {
+    animation: none !important;
+    will-change: auto !important;
+  }
+}
+
+/* ===== HIGH CONTRAST MODE SUPPORT ===== */
+@media (prefers-contrast: high) {
+  .glass-card-optimized,
+  .glass-button-optimized,
+  .glass-input-optimized,
+  .glass-modal-optimized {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--glass-surface) !important;
+    border: 2px solid var(--glass-neutral-400) !important;
+  }
+}
+
+/* ===== MOBILE OPTIMIZATIONS ===== */
+@media (max-width: 768px) {
+  .glass-card-optimized:hover {
+    transform: none;
+  }
+
+  .glass-card-optimized:active {
+    transform: scale(0.98);
+    transition-duration: 0.1s;
+  }
+
+  .glass-button-optimized:hover {
+    transform: none;
+  }
+
+  .glass-button-optimized:active {
+    transform: scale(0.95);
+    transition-duration: 0.1s;
+  }
+
+  /* モバイルでのbackdrop-filter最適化 */
+  .glass-backdrop-strong {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+/* ===== LOW-END DEVICE OPTIMIZATIONS ===== */
+@media (max-width: 480px) and (max-height: 800px) {
+  .glass-backdrop-optimized,
+  .glass-backdrop-strong {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  .glass-contain-strict {
+    contain: layout style !important;
+  }
+}
+
+/* ===== PRINT OPTIMIZATIONS ===== */
+@media print {
+  .glass-card-optimized,
+  .glass-button-optimized,
+  .glass-input-optimized,
+  .glass-modal-optimized {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: none !important;
+    will-change: auto !important;
+  }
+}
+
+/* ===== DEBUGGING UTILITIES ===== */
+.glass-debug-performance {
+  position: relative;
+}
+
+.glass-debug-performance::after {
+  content: 'GPU: ' attr(data-gpu) ' | Layer: ' attr(data-layer) ' | Backdrop: '
+    attr(data-backdrop);
+  position: absolute;
+  top: -20px;
+  left: 0;
+  font-size: 10px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ===== FALLBACK FOR UNSUPPORTED BROWSERS ===== */
+@supports not (backdrop-filter: blur(10px)) {
+  .glass-card-optimized,
+  .glass-button-optimized,
+  .glass-input-optimized,
+  .glass-modal-optimized,
+  .glass-backdrop-optimized,
+  .glass-backdrop-light,
+  .glass-backdrop-medium,
+  .glass-backdrop-strong {
+    background: var(--glass-surface) !important;
+    border: 1px solid var(--glass-neutral-200) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* ===== BROWSER-SPECIFIC OPTIMIZATIONS ===== */
+
+/* Safari最適化 */
+@supports (-webkit-backdrop-filter: blur(10px)) {
+  .glass-backdrop-optimized {
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+}
+
+/* Firefox最適化 */
+@-moz-document url-prefix() {
+  .glass-backdrop-optimized {
+    background: var(--glass-strong);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Edge最適化 */
+@supports (-ms-backdrop-filter: blur(10px)) {
+  .glass-backdrop-optimized {
+    -ms-backdrop-filter: blur(12px);
+  }
+}

@@ -1,0 +1,472 @@
+/**
+ * Glassmorphism Accessibility Styles
+ * WCAG 2.1 AA基準の遵守とアクセシビリティ対応
+ */
+
+/* ===== FOCUS MANAGEMENT ===== */
+
+/* キーボードナビゲーション時のフォーカス表示 */
+.keyboard-navigation *:focus,
+.keyboard-navigation .glass-card:focus,
+.keyboard-navigation .glass-button:focus,
+.keyboard-navigation .glass-input:focus {
+  outline: 3px solid #0066cc !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px rgba(0, 102, 204, 0.2) !important;
+}
+
+/* フォーカス可視性の強化 */
+.focus-visible {
+  outline: 3px solid #0066cc !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px rgba(0, 102, 204, 0.2) !important;
+}
+
+/* インタラクティブ要素のフォーカス状態 */
+.glass-card-interactive:focus,
+.glass-button:focus,
+.glass-input:focus {
+  outline: 3px solid #0066cc;
+  outline-offset: 2px;
+  box-shadow:
+    var(--glass-shadow-medium),
+    0 0 0 5px rgba(0, 102, 204, 0.2);
+}
+
+/* フォーカストラップ内の要素 */
+.focus-trap *:focus {
+  outline: 3px solid #0066cc;
+  outline-offset: 2px;
+}
+
+/* ===== HIGH CONTRAST MODE SUPPORT ===== */
+
+/* ハイコントラストモード */
+@media (prefers-contrast: high) {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-modal {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 2px solid #000000 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .glass-button:hover,
+  .glass-card-interactive:hover {
+    background: #f0f0f0 !important;
+    color: #000000 !important;
+  }
+
+  .glass-button:focus,
+  .glass-card:focus,
+  .glass-input:focus {
+    outline: 4px solid #000000 !important;
+    outline-offset: 2px !important;
+  }
+
+  /* テキストコントラストの強化 */
+  .glass-text-primary,
+  .glass-text-secondary,
+  .glass-text-on-glass {
+    color: #000000 !important;
+  }
+}
+
+/* 手動ハイコントラストモード */
+.high-contrast-mode {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.high-contrast-mode .glass-text-primary,
+.high-contrast-mode .glass-text-secondary,
+.high-contrast-mode .glass-text-on-glass {
+  color: #000000 !important;
+}
+
+/* ===== REDUCED MOTION SUPPORT ===== */
+
+/* モーション軽減設定 */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-modal,
+  .glass-card-interactive {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .glass-card-interactive:hover,
+  .glass-button:hover {
+    transform: none !important;
+  }
+
+  /* アニメーション要素の無効化 */
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 手動モーション軽減モード */
+.reduced-motion {
+  transition: none !important;
+  animation: none !important;
+  transform: none !important;
+}
+
+.reduced-motion:hover {
+  transform: none !important;
+}
+
+/* ===== SCREEN READER SUPPORT ===== */
+
+/* スクリーンリーダー専用テキスト */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* フォーカス時に表示されるスクリーンリーダーテキスト */
+.sr-only:focus {
+  position: static !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0.5rem !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+  background: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  border-radius: 4px !important;
+  z-index: 9999 !important;
+}
+
+/* ライブリージョン */
+.live-region {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ===== KEYBOARD NAVIGATION ENHANCEMENTS ===== */
+
+/* キーボードナビゲーション可能要素 */
+.glass-keyboard-focusable {
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.glass-keyboard-focusable:focus {
+  outline: 3px solid #0066cc;
+  outline-offset: 2px;
+}
+
+/* タブ順序の視覚的インジケーター（デバッグ用） */
+.debug-tab-order::before {
+  content: attr(tabindex);
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  background: #ff0000;
+  color: #ffffff;
+  padding: 2px 4px;
+  font-size: 10px;
+  border-radius: 2px;
+  z-index: 9999;
+}
+
+/* ===== COLOR CONTRAST ENHANCEMENTS ===== */
+
+/* 最小コントラスト比の確保 */
+.glass-high-contrast {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #1a1a1a !important;
+  border: 1px solid #666666 !important;
+}
+
+.glass-high-contrast .glass-text-primary {
+  color: #1a1a1a !important;
+}
+
+.glass-high-contrast .glass-text-secondary {
+  color: #333333 !important;
+}
+
+/* エラー状態のコントラスト強化 */
+.glass-error {
+  background: rgba(255, 235, 235, 0.95) !important;
+  color: #cc0000 !important;
+  border: 2px solid #cc0000 !important;
+}
+
+/* 成功状態のコントラスト強化 */
+.glass-success {
+  background: rgba(235, 255, 235, 0.95) !important;
+  color: #006600 !important;
+  border: 2px solid #006600 !important;
+}
+
+/* 警告状態のコントラスト強化 */
+.glass-warning {
+  background: rgba(255, 250, 235, 0.95) !important;
+  color: #cc6600 !important;
+  border: 2px solid #cc6600 !important;
+}
+
+/* ===== TOUCH TARGET ENHANCEMENTS ===== */
+
+/* タッチターゲットサイズの確保（最小44px） */
+.glass-button,
+.glass-card-interactive {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* モバイルでのタッチターゲット拡張 */
+@media (max-width: 768px) {
+  .glass-button,
+  .glass-card-interactive {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 12px 16px;
+  }
+}
+
+/* ===== SEMANTIC ENHANCEMENTS ===== */
+
+/* ランドマーク要素の強調 */
+[role='main'],
+[role='navigation'],
+[role='banner'],
+[role='contentinfo'] {
+  position: relative;
+}
+
+/* ダイアログ要素の強調 */
+[role='dialog'],
+[role='alertdialog'] {
+  position: relative;
+}
+
+[role='dialog']::before,
+[role='alertdialog']::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 2px solid transparent;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* ===== ERROR AND STATUS MESSAGING ===== */
+
+/* エラーメッセージの視覚的強調 */
+.glass-error-message {
+  background: rgba(255, 235, 235, 0.95);
+  color: #cc0000;
+  border: 2px solid #cc0000;
+  border-radius: var(--glass-radius-md);
+  padding: var(--glass-space-3);
+  margin: var(--glass-space-2) 0;
+}
+
+.glass-error-message::before {
+  content: '⚠ ';
+  font-weight: bold;
+}
+
+/* 成功メッセージの視覚的強調 */
+.glass-success-message {
+  background: rgba(235, 255, 235, 0.95);
+  color: #006600;
+  border: 2px solid #006600;
+  border-radius: var(--glass-radius-md);
+  padding: var(--glass-space-3);
+  margin: var(--glass-space-2) 0;
+}
+
+.glass-success-message::before {
+  content: '✓ ';
+  font-weight: bold;
+}
+
+/* 情報メッセージの視覚的強調 */
+.glass-info-message {
+  background: rgba(235, 245, 255, 0.95);
+  color: #0066cc;
+  border: 2px solid #0066cc;
+  border-radius: var(--glass-radius-md);
+  padding: var(--glass-space-3);
+  margin: var(--glass-space-2) 0;
+}
+
+.glass-info-message::before {
+  content: 'ℹ ';
+  font-weight: bold;
+}
+
+/* ===== LOADING AND PROGRESS INDICATORS ===== */
+
+/* ローディング状態のアクセシビリティ */
+.glass-loading {
+  position: relative;
+}
+
+.glass-loading::after {
+  content: 'Loading...';
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.glass-loading[aria-busy='true'] {
+  cursor: wait;
+}
+
+/* プログレスバーのアクセシビリティ */
+.glass-progress {
+  background: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--glass-radius-sm);
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.glass-progress-bar {
+  background: var(--glass-accent);
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+/* ===== PRINT ACCESSIBILITY ===== */
+
+@media print {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-modal {
+    background: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .sr-only {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    clip: auto !important;
+  }
+
+  /* フォーカス表示を印刷時に無効化 */
+  *:focus {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* ===== DEBUGGING UTILITIES ===== */
+
+/* アクセシビリティデバッグモード */
+.debug-accessibility [role] {
+  outline: 2px dashed #ff0000;
+  position: relative;
+}
+
+.debug-accessibility [role]::before {
+  content: 'Role: ' attr(role);
+  position: absolute;
+  top: -20px;
+  left: 0;
+  background: #ff0000;
+  color: #ffffff;
+  padding: 2px 4px;
+  font-size: 10px;
+  border-radius: 2px;
+  z-index: 9999;
+}
+
+.debug-accessibility [aria-label]::after {
+  content: 'Label: ' attr(aria-label);
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  background: #0066cc;
+  color: #ffffff;
+  padding: 2px 4px;
+  font-size: 10px;
+  border-radius: 2px;
+  z-index: 9999;
+}
+
+/* ===== RESPONSIVE ACCESSIBILITY ===== */
+
+/* 小画面でのアクセシビリティ調整 */
+@media (max-width: 480px) {
+  .glass-button,
+  .glass-card-interactive {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  .glass-input {
+    min-height: 44px;
+    font-size: 16px; /* iOS zoom prevention */
+  }
+
+  /* フォーカス表示の調整 */
+  *:focus {
+    outline-width: 2px;
+    outline-offset: 1px;
+  }
+}
+
+/* 大画面でのアクセシビリティ調整 */
+@media (min-width: 1200px) {
+  .glass-button,
+  .glass-card-interactive {
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  /* フォーカス表示の強化 */
+  *:focus {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+}

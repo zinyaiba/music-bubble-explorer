@@ -87,7 +87,7 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
         💡 これからのアップデートもお楽しみに！
       </p>
       <p className="instructions-item">
-        ✉️改善要望・不具合については
+        ✉️ 改善要望・不具合については
         <a
           href="https://x.com/kentaro_uechan"
           target="_blank"
@@ -860,10 +860,7 @@ function App() {
    * Handle tag registration toggle with accessibility announcements
    */
   const handleToggleTagRegistration = useCallback(() => {
-    console.log('🏷️➕ App: handleToggleTagRegistration called')
-
     const newState = !showTagRegistration
-    console.log('🏷️➕ App: Setting showTagRegistration to:', newState)
 
     setShowTagRegistration(newState)
     setCurrentView(newState ? 'tag-registration' : 'main')

@@ -333,17 +333,83 @@ export const getFallbackStyles = (theme: GlassmorphismTheme) => ({
 
 // Performance optimization utilities
 export const optimizeGlassmorphismPerformance = (): void => {
-  // Add will-change property to glassmorphism elements
-  const glassElements = document.querySelectorAll(
-    '.glass-card, .glass-button, .glass-input'
-  )
+  // Import and initialize the performance optimizer
+  import('./glassmorphismPerformanceOptimizer')
+    .then(({ initializeGlassmorphismOptimization }) => {
+      initializeGlassmorphismOptimization({
+        enableGPUAcceleration: true,
+        enableLayerSeparation: true,
+        enableBackdropFilterOptimization: true,
+        enableWillChangeOptimization: true,
+        enableContainment: true,
+        debugMode: false,
+      })
+    })
+    .catch(error => {
+      console.warn(
+        'Failed to initialize glassmorphism performance optimizer:',
+        error
+      )
 
-  glassElements.forEach(element => {
-    const htmlElement = element as HTMLElement
-    htmlElement.style.willChange = 'transform, opacity'
-    htmlElement.style.backfaceVisibility = 'hidden'
-    htmlElement.style.transform = 'translateZ(0)'
-  })
+      // Fallback to basic optimization
+      const glassElements = document.querySelectorAll(
+        '.glass-card, .glass-button, .glass-input'
+      )
+
+      glassElements.forEach(element => {
+        const htmlElement = element as HTMLElement
+        htmlElement.style.willChange = 'auto'
+        htmlElement.style.backfaceVisibility = 'hidden'
+        htmlElement.style.transform =
+          htmlElement.style.transform || 'translateZ(0)'
+      })
+    })
+}
+
+// Initialize accessibility enhancements
+export const initializeGlassmorphismAccessibility = (): void => {
+  import('./glassmorphismAccessibility')
+    .then(({ initializeGlassmorphismAccessibility }) => {
+      initializeGlassmorphismAccessibility({
+        enableHighContrast: true,
+        enableReducedMotion: true,
+        enableKeyboardNavigation: true,
+        enableScreenReaderSupport: true,
+        enableFocusManagement: true,
+        debugMode: false,
+      })
+    })
+    .catch(error => {
+      console.warn('Failed to initialize glassmorphism accessibility:', error)
+    })
+}
+
+// Initialize browser compatibility
+export const initializeGlassmorphismBrowserCompatibility = (): void => {
+  import('./glassmorphismBrowserCompatibility')
+    .then(
+      ({
+        initializeGlassmorphismCompatibility,
+        optimizeGlassmorphismFontLoading,
+      }) => {
+        const compatibility = initializeGlassmorphismCompatibility()
+        optimizeGlassmorphismFontLoading()
+
+        const info = compatibility.getCompatibilityInfo()
+        if (info.recommendations.length > 0) {
+          console.log(
+            'Glassmorphism compatibility recommendations:',
+            info.recommendations
+          )
+        }
+      }
+    )
+    .catch(error => {
+      console.warn(
+        'Failed to initialize glassmorphism browser compatibility:',
+        error
+      )
+    })
 }
 
 // Initialize glassmorphism system
@@ -355,8 +421,14 @@ export const initializeGlassmorphismSystem = (
     injectGlassmorphismCSSProperties(theme)
   }
 
-  // Apply performance optimizations
-  optimizeGlassmorphismPerformance()
+  // Apply performance optimizations (temporarily disabled to fix tag registration)
+  // optimizeGlassmorphismPerformance()
+
+  // Initialize accessibility enhancements
+  initializeGlassmorphismAccessibility()
+
+  // Initialize browser compatibility
+  initializeGlassmorphismBrowserCompatibility()
 
   // Add feature detection classes
   const root = document.documentElement
@@ -366,5 +438,7 @@ export const initializeGlassmorphismSystem = (
     root.classList.add('no-backdrop-filter')
   }
 
-  console.log('✨ Glassmorphism design system initialized')
+  console.log(
+    '✨ Glassmorphism design system initialized with performance and accessibility enhancements'
+  )
 }

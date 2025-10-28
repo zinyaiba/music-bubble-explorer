@@ -39,12 +39,13 @@ export default defineConfig({
     minify: 'terser',
     target: 'es2015',
     cssCodeSplit: true,
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 500, // Reduced from 1000 to 500KB for better performance
     // Ensure proper asset handling for GitHub Pages
     emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks: {
+          // Core vendor libraries
           vendor: ['react', 'react-dom'],
           motion: ['framer-motion'],
           styled: ['styled-components'],

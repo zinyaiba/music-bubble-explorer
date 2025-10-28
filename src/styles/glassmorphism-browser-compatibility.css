@@ -1,0 +1,502 @@
+/**
+ * Glassmorphism Browser Compatibility Styles
+ * ブラウザ互換性とフォールバック対応
+ */
+
+/* ===== FEATURE DETECTION FALLBACKS ===== */
+
+/* backdrop-filter未対応ブラウザのフォールバック */
+@supports not (backdrop-filter: blur(10px)) {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-modal {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .glass-card-primary {
+    background: rgba(254, 247, 247, 0.9) !important;
+    border: 1px solid rgba(224, 102, 102, 0.3) !important;
+  }
+
+  .glass-card-secondary {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  }
+
+  .glass-card-accent {
+    background: rgba(254, 247, 247, 0.85) !important;
+    border: 1px solid rgba(224, 102, 102, 0.4) !important;
+  }
+
+  .glass-modal {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2) !important;
+  }
+
+  .glass-modal-overlay {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* CSS Grid未対応ブラウザのフォールバック */
+@supports not (display: grid) {
+  .glass-grid {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+  }
+
+  .glass-grid > * {
+    -webkit-box-flex: 1;
+    -webkit-flex: 1 1 300px;
+    -ms-flex: 1 1 300px;
+    flex: 1 1 300px;
+    margin: var(--glass-space-2, 8px);
+    min-width: 280px;
+  }
+
+  .glass-grid-2 > * {
+    -webkit-flex: 1 1 calc(50% - 16px);
+    -ms-flex: 1 1 calc(50% - 16px);
+    flex: 1 1 calc(50% - 16px);
+  }
+
+  .glass-grid-3 > * {
+    -webkit-flex: 1 1 calc(33.333% - 16px);
+    -ms-flex: 1 1 calc(33.333% - 16px);
+    flex: 1 1 calc(33.333% - 16px);
+  }
+}
+
+/* Flexbox未対応ブラウザのフォールバック */
+@supports not (display: flex) {
+  .glass-flex {
+    display: block;
+  }
+
+  .glass-flex > * {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 16px;
+  }
+
+  .glass-flex-center {
+    text-align: center;
+  }
+
+  .glass-flex-center > * {
+    display: inline-block;
+    vertical-align: middle;
+  }
+}
+
+/* CSS Custom Properties未対応ブラウザのフォールバック */
+.no-custom-properties .glass-card {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+}
+
+.no-custom-properties .glass-button {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 12px 24px;
+  color: #374151;
+}
+
+.no-custom-properties .glass-input {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #374151;
+}
+
+/* ===== BROWSER-SPECIFIC FIXES ===== */
+
+/* Safari固有の修正 */
+.browser-safari .glass-card,
+.browser-safari .glass-button,
+.browser-safari .glass-modal {
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+}
+
+.browser-safari .glass-card,
+.browser-safari .glass-button,
+.browser-safari .glass-input {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Safari iOS固有の修正 */
+@supports (-webkit-touch-callout: none) {
+  .glass-input {
+    font-size: 16px; /* Prevent zoom on focus */
+    -webkit-appearance: none;
+    border-radius: 12px;
+  }
+
+  .glass-button,
+  .glass-card-interactive {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+}
+
+/* Firefox固有の修正 */
+@-moz-document url-prefix() {
+  .glass-card,
+  .glass-button,
+  .glass-modal {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .glass-flex {
+    display: -moz-box;
+    display: -webkit-flex;
+    display: flex;
+  }
+
+  .glass-grid {
+    display: -moz-grid;
+    display: grid;
+  }
+}
+
+/* Edge Legacy固有の修正 */
+@supports (-ms-ime-align: auto) {
+  .glass-flex {
+    display: -ms-flexbox;
+    display: flex;
+  }
+
+  .glass-flex > * {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+  }
+
+  .glass-grid {
+    display: -ms-grid;
+    display: grid;
+  }
+}
+
+/* Edge Chromium固有の修正 */
+@supports (-ms-backdrop-filter: blur(10px)) {
+  .glass-card,
+  .glass-button,
+  .glass-modal {
+    -ms-backdrop-filter: blur(12px);
+  }
+}
+
+/* ===== MOBILE BROWSER OPTIMIZATIONS ===== */
+
+.browser-mobile .glass-card,
+.browser-mobile .glass-button,
+.browser-mobile .glass-modal {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.browser-mobile .glass-button,
+.browser-mobile .glass-card-interactive {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.browser-mobile .glass-input {
+  font-size: 16px; /* Prevent zoom on iOS */
+  -webkit-appearance: none;
+}
+
+/* Android Chrome固有の修正 */
+@media screen and (-webkit-min-device-pixel-ratio: 0) and (min-resolution: 0.001dpcm) {
+  .glass-card,
+  .glass-button {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+/* ===== LOW-END DEVICE OPTIMIZATIONS ===== */
+
+.browser-low-end .glass-card,
+.browser-low-end .glass-button,
+.browser-low-end .glass-modal {
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  will-change: auto !important;
+  contain: layout style !important;
+}
+
+.browser-low-end .glass-card-interactive:hover {
+  transform: none !important;
+}
+
+.browser-low-end * {
+  animation-duration: 0.1s !important;
+  transition-duration: 0.1s !important;
+}
+
+.browser-low-end .glass-shadow-strong {
+  box-shadow: var(
+    --glass-shadow-medium,
+    0 4px 16px rgba(0, 0, 0, 0.1)
+  ) !important;
+}
+
+/* ===== FONT LOADING OPTIMIZATIONS ===== */
+
+/* フォント読み込み前のフォールバック */
+.no-web-fonts,
+.fonts-loading {
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+    Arial, sans-serif;
+}
+
+/* フォント読み込み完了後 */
+.fonts-loaded {
+  font-family:
+    'M PLUS Rounded 1c',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+}
+
+/* フォント表示の最適化 */
+@font-face {
+  font-family: 'M PLUS Rounded 1c';
+  font-display: swap;
+  font-weight: 300 700;
+  src: url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700&display=swap');
+}
+
+/* ===== PRINT COMPATIBILITY ===== */
+
+@media print {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-modal {
+    background: white !important;
+    color: black !important;
+    border: 1px solid black !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .glass-modal-overlay {
+    display: none !important;
+  }
+
+  .glass-button:hover,
+  .glass-card-interactive:hover {
+    transform: none !important;
+    background: white !important;
+  }
+}
+
+/* ===== LEGACY BROWSER SUPPORT ===== */
+
+/* Internet Explorer 11 */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-modal {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(200, 200, 200, 0.5) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  .glass-flex {
+    display: -ms-flexbox;
+    display: flex;
+  }
+
+  .glass-flex > * {
+    -ms-flex: 1 1 auto;
+    flex: 1 1 auto;
+  }
+}
+
+/* ===== PROGRESSIVE ENHANCEMENT ===== */
+
+/* 基本スタイル（全ブラウザ対応） */
+.glass-card-basic {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 拡張スタイル（モダンブラウザ） */
+.supports-backdrop-filter .glass-card-basic {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+}
+
+.supports-css-grid .glass-grid-basic {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.supports-custom-properties .glass-card-basic {
+  background: var(--glass-medium);
+  border: var(--glass-border-glass);
+  border-radius: var(--glass-radius-lg);
+  padding: var(--glass-space-4);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+/* ===== ACCESSIBILITY COMPATIBILITY ===== */
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-modal {
+    background: white !important;
+    color: black !important;
+    border: 2px solid black !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* モーション軽減対応 */
+@media (prefers-reduced-motion: reduce) {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-modal {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .glass-card-interactive:hover,
+  .glass-button:hover {
+    transform: none !important;
+  }
+}
+
+/* ===== RESPONSIVE COMPATIBILITY ===== */
+
+/* 小画面での互換性調整 */
+@media (max-width: 480px) {
+  .glass-card,
+  .glass-button,
+  .glass-modal {
+    border-radius: 12px;
+  }
+
+  .glass-button {
+    min-height: 44px;
+    padding: 12px 16px;
+  }
+
+  .glass-input {
+    font-size: 16px; /* Prevent zoom */
+    min-height: 44px;
+  }
+}
+
+/* 大画面での互換性調整 */
+@media (min-width: 1200px) {
+  .glass-card,
+  .glass-button,
+  .glass-modal {
+    border-radius: 20px;
+  }
+}
+
+/* ===== PERFORMANCE COMPATIBILITY ===== */
+
+/* GPU加速対応ブラウザ */
+@supports (transform: translateZ(0)) {
+  .glass-card,
+  .glass-button {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+}
+
+/* will-change対応ブラウザ */
+@supports (will-change: transform) {
+  .glass-card-interactive:hover,
+  .glass-button:hover {
+    will-change: transform;
+  }
+
+  .glass-card-interactive:not(:hover),
+  .glass-button:not(:hover) {
+    will-change: auto;
+  }
+}
+
+/* contain対応ブラウザ */
+@supports (contain: layout) {
+  .glass-card,
+  .glass-modal {
+    contain: layout style;
+  }
+}
+
+/* ===== DEBUGGING UTILITIES ===== */
+
+.debug-browser-compatibility::before {
+  content: 'Browser: ' attr(data-browser) ' | Features: ' attr(data-features);
+  position: absolute;
+  top: -30px;
+  left: 0;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  font-size: 10px;
+  border-radius: 4px;
+  z-index: 9999;
+  pointer-events: none;
+}
