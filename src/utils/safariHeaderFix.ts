@@ -29,27 +29,27 @@ export function fixSafariHeader(): void {
   const style = document.createElement('style')
   style.id = 'safari-header-offset'
   style.textContent = `
-    /* Safari専用：ヘッダーを90px下げる */
+    /* Safari専用：ヘッダーを80px下げる */
     header,
     [role="banner"] {
-      top: 90px !important;
+      top: 80px !important;
     }
     
     /* Safari専用：シャボン玉領域に上部マージンを追加 */
     .bubble-container,
     .bubble-area-maximized,
     .mobile-first-bubble-area {
-      margin-top: 90px !important;
+      margin-top: 80px !important;
       padding-top: 20px !important;
     }
     
     /* Safari専用：レイアウト調整 */
     .scrollable-main-section {
-      padding-top: 90px !important;
+      padding-top: 80px !important;
     }
     
     .content-wrapper {
-      margin-top: 90px !important;
+      margin-top: 80px !important;
     }
   `
   document.head.appendChild(style)
