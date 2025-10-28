@@ -958,7 +958,7 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
               perspective: '1000px',
               // レイヤー順序を確保
               position: 'relative',
-              zIndex: 1,
+              zIndex: 0,
             }}
           />
 
