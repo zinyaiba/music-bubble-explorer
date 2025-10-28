@@ -1,12 +1,13 @@
 /**
- * Safari専用ヘッダー位置調整
- * シンプルにヘッダを100px下げるだけ
+ * Safari専用レイアウト調整
+ * ヘッダーを100px下げ、シャボン玉領域との重複を防ぐ
  */
 
-// Safari検出（最も厳密）
+// Safari検出
 function isSafari(): boolean {
   const ua = navigator.userAgent
-  // 真のSafariのみを検出（Chrome開発者ツールのSafariモードも除外）
+
+  // return true
   return (
     ua.includes('Safari') &&
     ua.includes('Version') &&
@@ -21,7 +22,7 @@ function isSafari(): boolean {
   )
 }
 
-// ヘッダを100px下げる
+// Safari専用レイアウト調整
 export function fixSafariHeader(): void {
   if (!isSafari()) return
 
@@ -33,10 +34,25 @@ export function fixSafariHeader(): void {
     [role="banner"] {
       top: 100px !important;
     }
+    
+    /* Safari専用：シャボン玉領域に上部マージンを追加 */
+    .bubble-container,
+    .bubble-area-maximized,
+    .mobile-first-bubble-area {
+      margin-top: 100px !important;
+      padding-top: 20px !important;
+    }
+    
+    /* Safari専用：レイアウト調整 */
+    .scrollable-main-section {
+      padding-top: 100px !important;
+    }
+    
+    .content-wrapper {
+      margin-top: 100px !important;
+    }
   `
   document.head.appendChild(style)
-
-  console.log('🍎 Safari header offset applied')
 }
 
 // 初期化
