@@ -148,7 +148,7 @@
   --glass-z-base: 0; /* ベース */
   --glass-z-dropdown: 10; /* ドロップダウン */
   --glass-z-sticky: 20; /* スティッキー */
-  --glass-z-fixed: 30; /* 固定要素 */
+  --glass-z-fixed: 0; /* 固定要素 */
   --glass-z-modal-backdrop: 40; /* モーダル背景 */
   --glass-z-modal: 50; /* モーダル */
   --glass-z-popover: 60; /* ポップオーバー */

@@ -43,7 +43,7 @@
 
 .animation-layer {
   position: relative;
-  z-index: 1;
+  z-index: 0;
   contain: layout style paint;
   transform: translateZ(0);
 }
