@@ -19,10 +19,7 @@ import { RoleBasedBubbleManager } from './services/roleBasedBubbleManager'
 import { useRoleBasedBubbles } from './hooks/useRoleBasedBubbles'
 import { BubbleEntity } from './types/bubble'
 import { Song, MusicDatabase } from './types/music'
-import {
-  useResponsive,
-  calculateOptimalCanvasSize,
-} from './hooks/useResponsive'
+import { useResponsive } from './hooks/useResponsive'
 import {
   ErrorBoundary,
   DataLoadingErrorBoundary,
@@ -581,22 +578,12 @@ function App() {
       if (container) {
         const rect = container.getBoundingClientRect()
 
-        // Mobile-first canvas size calculation
-        let optimalSize
-        if (screenSize.isMobile) {
-          // モバイル: スクロール可能な領域でのキャンバスサイズ
-          const padding = 16
+        // コンテナサイズに合わせたcanvas計算
+        const padding = screenSize.isMobile ? 16 : 20
 
-          optimalSize = {
-            width: Math.max(300, rect.width - padding * 2),
-            height: Math.max(
-              400, // 最小高さを400pxに設定してスクロールが発生しやすくする
-              500 // 固定高さでスクロールを確実に発生させる
-            ),
-          }
-        } else {
-          // デスクトップ/タブレット: 従来の計算方法
-          optimalSize = calculateOptimalCanvasSize(rect, screenSize)
+        const optimalSize = {
+          width: Math.max(280, rect.width - padding * 2),
+          height: Math.max(250, rect.height - padding * 2),
         }
 
         setCanvasSize(optimalSize)
@@ -1289,10 +1276,10 @@ function App() {
                   performanceMode={screenSize.isMobile}
                   enableGenreFiltering={true}
                   enableCollisionDetection={true} // モバイル・デスクトップ両方で有効
-                  // モバイル高さ調整プロパティ
-                  mobileHeightRatio={0.5} // モバイルでの高さを50%に調整
-                  maxMobileHeight={600} // 最大高さ600px
-                  minMobileHeight={250} // 最小高さ250px
+                  // モバイル高さ調整プロパティ（無効化）
+                  mobileHeightRatio={1.0} // モバイルでも100%のサイズを使用
+                  maxMobileHeight={800} // 最大高さを拡大
+                  minMobileHeight={300} // 最小高さを拡大
                 />
 
                 {/* Category Filter Integration (Requirements: 5.1, 5.2, 5.3) */}

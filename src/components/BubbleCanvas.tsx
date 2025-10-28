@@ -86,9 +86,6 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
     selectedGenres = [],
     enableGenreFiltering = false,
     enableCollisionDetection = false,
-    mobileHeightRatio = 1.0,
-    maxMobileHeight = 800,
-    minMobileHeight = 300,
   }) => {
     const screenSize = useResponsive()
     const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -100,37 +97,11 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
       Map<string, number>
     >(new Map())
 
-    // モバイル環境での調整された高さを計算
+    // コンテナサイズに合わせた寸法計算（モバイル調整を無効化）
     const adjustedDimensions = useMemo(() => {
-      if (!screenSize.isMobile) {
-        return { width, height }
-      }
-
-      // モバイルでの高さ調整
-      let adjustedHeight = height * mobileHeightRatio
-
-      // 最大・最小高さの制限を適用
-      adjustedHeight = Math.max(
-        minMobileHeight,
-        Math.min(maxMobileHeight, adjustedHeight)
-      )
-
-      // アスペクト比を保持して幅を調整
-      const aspectRatio = width / height
-      const adjustedWidth = adjustedHeight * aspectRatio
-
-      return {
-        width: adjustedWidth,
-        height: adjustedHeight,
-      }
-    }, [
-      width,
-      height,
-      screenSize.isMobile,
-      mobileHeightRatio,
-      maxMobileHeight,
-      minMobileHeight,
-    ])
+      // モバイル調整を無効化し、常に渡されたサイズを使用
+      return { width, height }
+    }, [width, height])
 
     // パフォーマンス最適化: 可視範囲の計算をメモ化（調整された寸法を使用）
     const visibleBounds = useMemo(
@@ -925,17 +896,14 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
             className="bubble-canvas gpu-accelerated animation-optimized flicker-prevention stable-rendering mobile-touch-optimized bubble-canvas-improved"
             style={{
               display: 'block',
-              width: `${adjustedDimensions.width}px`,
-              height: `${adjustedDimensions.height}px`,
+              width: '100%',
+              height: '100%',
               maxWidth: '100%',
               maxHeight: '100%',
               minWidth: screenSize.isMobile ? '280px' : '400px',
               minHeight: screenSize.isMobile ? '250px' : '300px',
               visibility: 'visible',
               opacity: 1,
-              // アスペクト比を保持
-              aspectRatio: `${adjustedDimensions.width} / ${adjustedDimensions.height}`,
-              objectFit: 'contain',
               // ガラスモーフィズム効果を適用
               background: 'rgba(255, 255, 255, 0.15)',
               backdropFilter: 'blur(12px)',

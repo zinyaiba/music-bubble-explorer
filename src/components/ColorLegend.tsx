@@ -243,7 +243,7 @@ const LegendContainer = styled.div.withConfig({
         case 'bottom-left':
           return 'bottom: 10px; left: 10px;'
         case 'bottom-right':
-          return 'bottom: 10px; right: 8px;'
+          return 'bottom: 10px; right: 0px;'
         default:
           return 'bottom: 10px; right: 10px;'
       }
