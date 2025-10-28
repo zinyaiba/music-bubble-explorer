@@ -1,7 +1,6 @@
 import React, { ReactNode, useEffect } from 'react'
 import styled from 'styled-components'
 import { useResponsive } from '@/hooks/useResponsive'
-import { initSafariViewportFix } from '@/utils/safariViewportFix'
 import { initSafariHeaderFix } from '@/utils/safariHeaderFix'
 import ScrollableMainSection from './ScrollableMainSection'
 
@@ -22,13 +21,10 @@ export const MobileFirstLayout: React.FC<MobileFirstLayoutProps> = React.memo(
 
     // Safari対応の初期化
     useEffect(() => {
-      // 基本的なViewport対応
-      initSafariViewportFix()
-
       // Safari専用のヘッダー修正
       initSafariHeaderFix()
 
-      console.log('🍎 Safari fixes initialized')
+      console.log('🍎 Safari header fix initialized')
     }, [])
 
     return (
