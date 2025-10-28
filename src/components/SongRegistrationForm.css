@@ -12,23 +12,21 @@
   position: relative;
 }
 
-/* 編集モード用フォーム - コンパクト - 最高優先度 */
+/* 編集モード用フォーム - 全画面表示対応 */
 form.song-form.song-form--editing,
 .song-form--editing {
   display: flex !important;
   flex-direction: column !important;
-  gap: 0px !important;
+  gap: 16px !important; /* 適切な間隔に調整 */
   width: 100% !important;
   background: transparent !important;
   padding: 0 !important;
   border-radius: 0 !important;
   position: relative !important;
-  max-height: calc(100vh - 300px) !important;
-  overflow-y: auto !important;
+  max-height: none !important; /* 全画面表示では制限なし */
+  overflow-y: visible !important; /* 全画面表示では制限なし */
   overflow-x: hidden !important;
   -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: thin !important;
-  scrollbar-color: rgba(255, 105, 180, 0.3) transparent !important;
 }
 
 /* 編集モード用スクロールバー */
@@ -53,33 +51,35 @@ form.song-form.song-form--editing::-webkit-scrollbar-thumb:hover,
   background: rgba(255, 105, 180, 0.5) !important;
 }
 
-/* 編集モード専用 - 全てのスタイルを強制上書き */
+/* 編集モード専用 - 全画面表示対応 */
 form.song-form--editing,
 form.song-form.song-form--editing {
-  gap: 0px !important;
+  gap: 16px !important; /* 適切な間隔 */
   padding: 0 !important;
   margin: 0 !important;
 }
 
 form.song-form--editing .form-group,
 form.song-form.song-form--editing .form-group {
-  gap: 1px !important;
-  margin-bottom: 1px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important; /* 適切な間隔 */
+  margin-bottom: 16px !important; /* 適切な間隔 */
   padding: 0 !important;
 }
 
 form.song-form--editing .form-group label,
 form.song-form.song-form--editing .form-group label {
-  min-width: 25px !important;
-  max-width: 25px !important;
-  font-size: 0.6rem !important;
-  line-height: 0.9 !important;
+  min-width: 60px !important; /* 読みやすいサイズ */
+  font-size: 14px !important; /* 読みやすいサイズ */
+  line-height: 1.2 !important;
   padding: 0 !important;
   margin: 0 !important;
   flex-shrink: 0 !important;
   text-align: left !important;
   font-weight: 600 !important;
-  color: #FF69B4 !important;
+  color: #374151 !important; /* 黒文字に統一 */
 }
 
 form.song-form--editing .form-group input,
@@ -88,20 +88,19 @@ form.song-form--editing .form-group select,
 form.song-form.song-form--editing .form-group input,
 form.song-form.song-form--editing .form-group textarea,
 form.song-form.song-form--editing .form-group select {
-  padding: 2px 4px !important;
-  font-size: 0.65rem !important;
-  border-radius: 3px !important;
+  padding: 8px 12px !important; /* 適切なパディング */
+  font-size: 14px !important; /* 読みやすいサイズ */
+  border-radius: 12px !important;
   margin: 0 !important;
-  border: 2px solid transparent !important;
-  background: linear-gradient(white, white) padding-box,
-    linear-gradient(135deg, #FFB6C1, #98FB98, #DDA0DD) border-box !important;
-  color: #333 !important;
-  transition: all 0.3s ease !important;
+  border: 1px solid rgba(255, 182, 193, 0.3) !important; /* タグ登録と統一 */
+  background: rgba(255, 255, 255, 0.8) !important; /* タグ登録と統一 */
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  color: #374151 !important; /* 黒文字に統一 */
+  transition: all 0.2s ease !important;
   box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15) !important;
   flex: 1 !important;
 }
-
-
 
 .song-form::before {
   content: '';
@@ -111,9 +110,21 @@ form.song-form.song-form--editing .form-group select {
   right: 0;
   bottom: 0;
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(255, 182, 193, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(152, 251, 152, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 60%, rgba(221, 160, 221, 0.1) 0%, transparent 50%);
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 182, 193, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(152, 251, 152, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 60%,
+      rgba(221, 160, 221, 0.1) 0%,
+      transparent 50%
+    );
   pointer-events: none;
   border-radius: 20px;
 }
@@ -141,12 +152,11 @@ form.song-form.song-form--editing .form-group,
   margin-bottom: 1px !important;
 }
 
-/* 登録モード用ラベル */
+/* 登録モード用ラベル - タグ登録画面と統一 */
 .song-form--registration .form-group label {
-  font-size: 0.8rem;
+  font-size: 14px;
   font-weight: 600;
-  color: #FF69B4;
-  text-shadow: 0 1px 2px rgba(255, 105, 180, 0.2);
+  color: #374151; /* 黒文字に統一 */
   min-width: 50px;
   flex-shrink: 0;
 }
@@ -156,10 +166,10 @@ form.song-form.song-form--editing .form-group label,
 .song-form--editing .form-group label {
   font-size: 0.6rem !important;
   font-weight: 600 !important;
-  color: #FF69B4 !important;
+  color: #374151 !important;
   text-shadow: 0 1px 2px rgba(255, 105, 180, 0.2) !important;
-  min-width: 25px !important;
-  max-width: 25px !important;
+  /* min-width: 25px !important;
+  max-width: 25px !important; */
   flex-shrink: 0 !important;
   text-align: left !important;
   line-height: 0.9 !important;
@@ -169,52 +179,46 @@ form.song-form.song-form--editing .form-group label,
 
 .form-group label.required::after {
   /* content: ' ✨'; */
-  color: #98FB98;
+  color: #98fb98;
   font-weight: bold;
   margin-left: 4px;
 }
 
-/* 登録モード用入力フィールド */
+/* 登録モード用入力フィールド - タグ登録画面と統一 */
 .song-form--registration .form-group input,
 .song-form--registration .form-group textarea,
 .song-form--registration .form-group select {
-  padding: 6px 10px;
-  border: 2px solid transparent;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  background: linear-gradient(white, white) padding-box,
-    linear-gradient(135deg, #FFB6C1, #98FB98, #DDA0DD) border-box;
-  color: #333;
-  transition: all 0.3s ease;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 182, 193, 0.3);
+  border-radius: 12px;
+  font-size: 14px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #374151; /* 黒文字に統一 */
+  transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15);
   flex: 1;
 }
 
-/* 編集モード用入力フィールド - コンパクト - 最高優先度 */
-form.song-form.song-form--editing .form-group input,
-form.song-form.song-form--editing .form-group textarea,
-form.song-form.song-form--editing .form-group select,
-.song-form--editing .form-group input,
-.song-form--editing .form-group textarea,
-.song-form--editing .form-group select {
-  padding: 2px 4px !important;
-  border: 2px solid transparent !important;
-  border-radius: 3px !important;
-  font-size: 0.65rem !important;
-  background: linear-gradient(white, white) padding-box,
-    linear-gradient(135deg, #FFB6C1, #98FB98, #DDA0DD) border-box !important;
-  color: #333 !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15) !important;
-  flex: 1 !important;
+/* 編集モード用入力フィールドのフォーカススタイル */
+form.song-form--editing .form-group input:focus,
+form.song-form--editing .form-group textarea:focus,
+form.song-form--editing .form-group select:focus,
+form.song-form.song-form--editing .form-group input:focus,
+form.song-form.song-form--editing .form-group textarea:focus,
+form.song-form.song-form--editing .form-group select:focus {
+  outline: none !important;
+  border-color: rgba(255, 105, 180, 0.5) !important;
+  box-shadow: 0 0 0 2px rgba(255, 105, 180, 0.2) !important;
 }
 
 .form-group input:focus,
 .form-group textarea:focus,
 .form-group select:focus {
   outline: none;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 182, 193, 0.25);
+  border-color: rgba(255, 105, 180, 0.5);
+  box-shadow: 0 0 0 2px rgba(255, 105, 180, 0.2);
 }
 
 .form-group input.error,
@@ -225,7 +229,7 @@ form.song-form.song-form--editing .form-group select,
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: #8a8a8a;
+  color: #9ca3af; /* 薄い灰色に統一 */
 }
 
 .form-group input:disabled,
@@ -315,9 +319,13 @@ form.song-form.song-form--editing .form-group select,
 }
 
 .secondary-button {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(248, 249, 250, 0.9) 100%
+  );
   border: 2px solid rgba(255, 182, 193, 0.3);
-  color: #FF69B4;
+  color: #ff69b4;
   box-shadow: 0 4px 12px rgba(255, 182, 193, 0.2);
 }
 
@@ -327,14 +335,14 @@ form.song-form.song-form--editing .form-group select,
 }
 
 .secondary-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #FFB6C1 0%, #FF69B4 100%);
+  background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%);
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(255, 182, 193, 0.3);
 }
 
 .primary-button {
-  background: linear-gradient(135deg, #FFB6C1 0%, #98FB98 100%);
+  background: linear-gradient(135deg, #ffb6c1 0%, #98fb98 100%);
   border: 2px solid rgba(255, 255, 255, 0.5);
   color: white;
   box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3);
@@ -388,7 +396,6 @@ form.song-form.song-form--editing .form-group select,
 }
 
 @keyframes bounce {
-
   0%,
   20%,
   50%,
@@ -518,10 +525,10 @@ form.song-form.song-form--editing .form-group select,
   form.song-form--editing .form-group label,
   form.song-form.song-form--editing .form-group label,
   .song-form--editing .form-group label {
-    min-width: 18px !important;
-    max-width: 18px !important;
-    font-size: 0.5rem !important;
-    line-height: 0.7 !important;
+    min-width: 200px;
+    max-width: 250px;
+    font-size: 16px !important;
+    line-height: 2.5 !important;
   }
 
   form.song-form--editing .form-group input,

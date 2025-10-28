@@ -2,6 +2,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Song } from '@/types/music'
 import { DataManager } from '@/services/dataManager'
 import { MusicDataService } from '@/services/musicDataService'
+import { StandardLayout } from './StandardLayout'
 
 // import TagInput from './TagInput' // タグ編集は専用画面からのみ
 import './SongRegistrationForm.css'
@@ -32,10 +33,12 @@ interface FormErrors {
 
 /**
  * シンプルな楽曲登録フォームコンポーネント
+ * Updated to use StandardLayout template for consistency
  */
 export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
   onSongAdded,
   onClose,
+  isVisible,
   editingSong,
 }) => {
   // Form state
@@ -247,93 +250,99 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
     ]
   )
 
-  if (isSuccess) {
-    return (
-      <div className="success-message">
-        <div className="success-icon">✨</div>
-        <div className="success-text">
-          楽曲が正常に{isEditMode ? '更新' : '登録'}されました！
-        </div>
-        <div className="success-subtext">シャボン玉に反映されます</div>
-      </div>
-    )
-  }
-
   return (
-    <form
-      ref={formRef}
-      onSubmit={handleSubmit}
-      className={`song-form ${editingSong ? 'song-form--editing' : 'song-form--registration'}`}
-      noValidate
+    <StandardLayout
+      isVisible={isVisible}
+      onClose={onClose}
+      title={isEditMode ? '編集中' : '🎵 楽曲登録'}
+      size="standard"
+      mobileOptimized={true}
     >
-      <div className="form-group">
-        <label htmlFor="title" className="required">
-          楽曲名
-        </label>
-        <input
-          ref={titleInputRef}
-          id="title"
-          type="text"
-          value={formData.title}
-          onChange={e => handleInputChange('title', e.target.value)}
-          placeholder="楽曲名を入力してください"
-          className={errors.title ? 'error' : ''}
-          maxLength={100}
-          required
-        />
-        {errors.title && <div className="error-message">{errors.title}</div>}
-      </div>
+      {isSuccess ? (
+        <div className="success-message">
+          <div className="success-icon">✨</div>
+          <div className="success-text">
+            楽曲が正常に{isEditMode ? '更新' : '登録'}されました！
+          </div>
+          <div className="success-subtext">シャボン玉に反映されます</div>
+        </div>
+      ) : (
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          className={`song-form ${editingSong ? 'song-form--editing' : 'song-form--registration'}`}
+          noValidate
+        >
+          <div className="form-group">
+            <label htmlFor="title" className="required">
+              楽曲名
+            </label>
+            <input
+              ref={titleInputRef}
+              id="title"
+              type="text"
+              value={formData.title}
+              onChange={e => handleInputChange('title', e.target.value)}
+              placeholder="楽曲名を入力してください"
+              className={errors.title ? 'error' : ''}
+              maxLength={100}
+              required
+            />
+            {errors.title && (
+              <div className="error-message">{errors.title}</div>
+            )}
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="lyricists">作詞家</label>
-        <input
-          id="lyricists"
-          type="text"
-          value={formData.lyricists}
-          onChange={e => handleInputChange('lyricists', e.target.value)}
-          placeholder="作詞家名を入力（複数の場合はカンマ区切り）"
-          className={errors.lyricists ? 'error' : ''}
-          maxLength={200}
-        />
-        {errors.lyricists && (
-          <div className="error-message">{errors.lyricists}</div>
-        )}
-      </div>
+          <div className="form-group">
+            <label htmlFor="lyricists">作詞家</label>
+            <input
+              id="lyricists"
+              type="text"
+              value={formData.lyricists}
+              onChange={e => handleInputChange('lyricists', e.target.value)}
+              placeholder="作詞家名を入力（複数の場合はカンマ区切り）"
+              className={errors.lyricists ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.lyricists && (
+              <div className="error-message">{errors.lyricists}</div>
+            )}
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="composers">作曲</label>
-        <input
-          id="composers"
-          type="text"
-          value={formData.composers}
-          onChange={e => handleInputChange('composers', e.target.value)}
-          placeholder="作曲家名を入力（複数の場合はカンマ区切り）"
-          className={errors.composers ? 'error' : ''}
-          maxLength={200}
-        />
-        {errors.composers && (
-          <div className="error-message">{errors.composers}</div>
-        )}
-      </div>
+          <div className="form-group">
+            <label htmlFor="composers">作曲</label>
+            <input
+              id="composers"
+              type="text"
+              value={formData.composers}
+              onChange={e => handleInputChange('composers', e.target.value)}
+              placeholder="作曲家名を入力（複数の場合はカンマ区切り）"
+              className={errors.composers ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.composers && (
+              <div className="error-message">{errors.composers}</div>
+            )}
+          </div>
 
-      <div className="form-group">
-        <label htmlFor="arrangers">編曲家</label>
-        <input
-          id="arrangers"
-          type="text"
-          value={formData.arrangers}
-          onChange={e => handleInputChange('arrangers', e.target.value)}
-          placeholder="編曲家名を入力（複数の場合はカンマ区切り）"
-          className={errors.arrangers ? 'error' : ''}
-          maxLength={200}
-        />
-        {errors.arrangers && (
-          <div className="error-message">{errors.arrangers}</div>
-        )}
-      </div>
+          <div className="form-group">
+            <label htmlFor="arrangers">編曲家</label>
+            <input
+              id="arrangers"
+              type="text"
+              value={formData.arrangers}
+              onChange={e => handleInputChange('arrangers', e.target.value)}
+              placeholder="編曲家名を入力（複数の場合はカンマ区切り）"
+              className={errors.arrangers ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.arrangers && (
+              <div className="error-message">{errors.arrangers}</div>
+            )}
+          </div>
 
-      {/* タグ入力機能は専用のタグ登録画面からのみ利用可能 */}
-      {/* 
+          {/* タグ入力機能は専用のタグ登録画面からのみ利用可能 */}
+          {/* 
       <div className="form-group">
         <label htmlFor="tags">タグ</label>
         <TagInput
@@ -354,27 +363,31 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
       </div>
       */}
 
-      {errors.general && <div className="general-error">{errors.general}</div>}
-
-      <div className="button-group">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="primary-button"
-        >
-          {isSubmitting ? (
-            <>
-              <span className="loading-spinner"></span>
-              {isEditMode ? '更新中...' : '登録中...'}
-            </>
-          ) : isEditMode ? (
-            '楽曲を更新'
-          ) : (
-            '楽曲を登録'
+          {errors.general && (
+            <div className="general-error">{errors.general}</div>
           )}
-        </button>
-      </div>
-    </form>
+
+          <div className="button-group">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="primary-button"
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  {isEditMode ? '更新中...' : '登録中...'}
+                </>
+              ) : isEditMode ? (
+                '楽曲を更新'
+              ) : (
+                '楽曲を登録'
+              )}
+            </button>
+          </div>
+        </form>
+      )}
+    </StandardLayout>
   )
 }
 

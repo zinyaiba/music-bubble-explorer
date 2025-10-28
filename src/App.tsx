@@ -35,7 +35,7 @@ import { SongManagement } from './components/SongManagement'
 import { TagRegistrationScreen } from './components/TagRegistrationScreen'
 
 import { EnhancedTagList } from './components/EnhancedTagList'
-import { UnifiedDialogLayout } from './components/UnifiedDialogLayout'
+
 import { GenreFilterIntegration } from './components/GenreFilterIntegration'
 // ErrorHandler import removed - using simple error handling
 import {
@@ -718,12 +718,23 @@ function App() {
    */
   const handleBubbleClick = useCallback(
     (bubble: BubbleEntity) => {
-      if (!bubbleManagerRef.current) return
+      console.log('🫧 App: handleBubbleClick called', {
+        type: bubble.type,
+        name: bubble.name,
+        relatedCount: bubble.relatedCount,
+        currentSelectedBubble: selectedBubble?.name,
+      })
 
-      // Trigger click animation
-      bubbleManagerRef.current.triggerClickAnimation(bubble.id)
+      if (!bubbleManagerRef.current) {
+        console.warn('🫧 App: bubbleManagerRef.current is null')
+        // bubbleManagerがない場合でも詳細表示は可能
+      } else {
+        // Trigger click animation
+        bubbleManagerRef.current.triggerClickAnimation(bubble.id)
+      }
 
       // Set selected bubble for modal
+      console.log('🫧 App: Setting selectedBubble to', bubble.name)
       setSelectedBubble(bubble)
 
       debugLogger.debug('Bubble clicked', {
@@ -732,7 +743,7 @@ function App() {
         relatedCount: bubble.relatedCount,
       })
     },
-    [debugLogger]
+    [debugLogger, selectedBubble]
   )
 
   /**
@@ -770,6 +781,7 @@ function App() {
 
     setShowRegistrationForm(newState)
     setCurrentView(newState ? 'registration' : 'main')
+    setSelectedBubble(null) // 画面遷移時にタグ詳細画面を閉じる
 
     // Announce state change for screen readers
     const announcement = newState
@@ -784,6 +796,7 @@ function App() {
   const handleRegistrationFormClose = useCallback(() => {
     setShowRegistrationForm(false)
     setCurrentView('main')
+    setSelectedBubble(null) // タグ詳細画面を閉じる
     announceToScreenReader('楽曲登録フォームを閉じました')
   }, [])
 
@@ -798,6 +811,7 @@ function App() {
 
     setShowSongManagement(newState)
     setCurrentView(newState ? 'management' : 'main')
+    setSelectedBubble(null) // 画面遷移時にタグ詳細画面を閉じる
 
     // Announce state change for screen readers
     const announcement = newState
@@ -812,6 +826,7 @@ function App() {
   const handleSongManagementClose = useCallback(() => {
     setShowSongManagement(false)
     setCurrentView('main')
+    setSelectedBubble(null) // タグ詳細画面を閉じる
     announceToScreenReader('楽曲編集画面を閉じました')
   }, [])
 
@@ -826,6 +841,7 @@ function App() {
 
     setShowTagList(newState)
     setCurrentView(newState ? 'tag-list' : 'main')
+    setSelectedBubble(null) // 画面遷移時にタグ詳細画面を閉じる
 
     // Announce state change for screen readers
     const announcement = newState
@@ -840,6 +856,7 @@ function App() {
   const handleTagListClose = useCallback(() => {
     setShowTagList(false)
     setCurrentView('main')
+    setSelectedBubble(null) // タグ詳細画面を閉じる
     announceToScreenReader('タグ一覧画面を閉じました')
   }, [])
 
@@ -851,6 +868,7 @@ function App() {
 
     setShowTagRegistration(newState)
     setCurrentView(newState ? 'tag-registration' : 'main')
+    setSelectedBubble(null) // 画面遷移時にタグ詳細画面を閉じる
 
     // Announce state change for screen readers
     const announcement = newState
@@ -865,6 +883,7 @@ function App() {
   const handleTagRegistrationClose = useCallback(() => {
     setShowTagRegistration(false)
     setCurrentView('main')
+    setSelectedBubble(null) // タグ詳細画面を閉じる
     announceToScreenReader('タグ登録画面を閉じました')
   }, [])
 
@@ -1321,47 +1340,24 @@ function App() {
               onClose={handleDatabaseDebuggerClose}
             />
 
-            <UnifiedDialogLayout
+            <SongRegistrationForm
               isVisible={showRegistrationForm}
               onClose={handleRegistrationFormClose}
-              title="🎵 楽曲登録"
-              className="song-registration-dialog"
-              size="standard"
-              mobileOptimized={true}
-            >
-              <SongRegistrationForm
-                isVisible={true}
-                onClose={handleRegistrationFormClose}
-                onSongAdded={handleSongAdded}
-              />
-            </UnifiedDialogLayout>
+              onSongAdded={handleSongAdded}
+            />
 
-            <UnifiedDialogLayout
+            <SongManagement
               isVisible={showSongManagement}
               onClose={handleSongManagementClose}
-              title="📝 楽曲編集"
-              className="song-management-dialog"
-              size="large"
-              mobileOptimized={true}
-            >
-              <SongManagement
-                isVisible={true}
-                onClose={handleSongManagementClose}
-                onSongUpdated={handleSongUpdated}
-                onSongDeleted={handleSongDeleted}
-              />
-            </UnifiedDialogLayout>
+              onSongUpdated={handleSongUpdated}
+              onSongDeleted={handleSongDeleted}
+            />
 
-            <UnifiedDialogLayout
+            <EnhancedTagList
               isVisible={showTagList}
               onClose={handleTagListClose}
-              title="🏷️ タグ一覧"
-              className="tag-list-dialog"
-              size="standard"
-              mobileOptimized={true}
-            >
-              <EnhancedTagList isVisible={true} onClose={handleTagListClose} />
-            </UnifiedDialogLayout>
+              onTagDetailOpen={handleBubbleClick}
+            />
 
             <TagRegistrationScreen
               isVisible={showTagRegistration}

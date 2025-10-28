@@ -1,0 +1,584 @@
+/* Standard Layout - 統一レイアウトテンプレート */
+
+/* オーバーレイ（背景） - 全画面表示対応 */
+.standard-layout-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+
+  /* ガラスモーフィズム背景 */
+  background: var(--glass-medium);
+  backdrop-filter: var(--glass-blur-strong);
+  -webkit-backdrop-filter: var(--glass-blur-strong);
+
+  display: flex !important;
+  flex-direction: column !important;
+  z-index: 10000 !important; /* タグ登録画面と同じz-index */
+  overflow: hidden !important;
+
+  /* パフォーマンス最適化 */
+  will-change: backdrop-filter, opacity;
+  transform: translateZ(0);
+
+  /* 表示/非表示のアニメーション */
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* フェードインアニメーション */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.standard-layout-overlay[style*='opacity: 1'] .standard-layout {
+  animation: fadeIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* レイアウト本体 - 全画面表示対応 */
+.standard-layout {
+  /* 全画面表示 */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+
+  /* ガラスモーフィズム効果は背景で適用済み */
+  background: transparent;
+
+  /* パフォーマンス最適化 */
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* サイズバリエーション - 全画面表示では無効 */
+.standard-layout--compact,
+.standard-layout--standard,
+.standard-layout--large {
+  /* 全画面表示では全て同じサイズ */
+  width: 100%;
+  height: 100%;
+}
+
+/* モバイル最適化 - 全画面表示では無効 */
+.standard-layout--mobile-optimized {
+  width: 100%;
+  height: 100%;
+}
+
+/* ヘッダー - ガラスモーフィズム対応 */
+.standard-layout-header {
+  /* ガラスモーフィズム効果 */
+  background: var(--glass-tinted);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+
+  border-bottom: var(--glass-border-subtle);
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  min-height: 60px;
+
+  /* 上部の角丸を維持 */
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+
+.standard-layout-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 182, 193, 0.1) 0%,
+    transparent 70%
+  );
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(180deg);
+  }
+}
+
+.standard-layout-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* タイトル - タグ登録画面と統一 */
+.standard-layout-title {
+  margin: 0;
+  font-family: var(--font-family-primary);
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  color: #374151; /* 黒文字に統一 */
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left; /* 左詰めを明示 */
+}
+
+/* ヘッダーアクション */
+.standard-layout-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* 戻るボタン - タグ登録画面と統一 */
+.standard-layout-back-button {
+  /* ガラスモーフィズム効果 */
+  background: var(--glass-light);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: var(--glass-border-subtle);
+  border-radius: 12px;
+
+  /* レイアウト */
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+
+  /* タイポグラフィ */
+  font-family: var(--font-family-primary);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  color: var(--glass-text-primary);
+
+  /* トランジション */
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.standard-layout-back-button:hover {
+  background: var(--glass-medium);
+  transform: translateY(-1px);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.standard-layout-back-button:active {
+  transform: translateY(0);
+  transition: all 0.1s ease;
+}
+
+.standard-layout-back-button:focus {
+  outline: 2px solid var(--glass-accent);
+  outline-offset: 2px;
+}
+
+/* 閉じるボタン */
+.standard-layout-close {
+  /* ガラスモーフィズム効果 */
+  background: var(--glass-light);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+
+  border: var(--glass-border-subtle);
+  border-radius: 50%;
+  font-size: 24px;
+  color: var(--glass-text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  touch-action: manipulation;
+
+  /* パフォーマンス最適化 */
+  will-change: transform, background;
+  transform: translateZ(0);
+}
+
+.standard-layout-close:hover {
+  background: var(--glass-medium);
+  color: var(--glass-text-primary);
+  transform: translateY(-1px) translateZ(0);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.standard-layout-close:active {
+  transform: translateY(0) translateZ(0);
+  transition: all 0.1s ease;
+}
+
+.standard-layout-close:focus {
+  outline: 2px solid var(--glass-accent);
+  outline-offset: 2px;
+}
+
+/* コンテンツエリア */
+.standard-layout-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+
+  /* ガラスモーフィズム効果 */
+  background: var(--glass-light);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+
+  position: relative;
+  min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(224, 102, 102, 0.3) transparent;
+}
+
+.standard-layout-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 182, 193, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(152, 251, 152, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 60%,
+      rgba(221, 160, 221, 0.1) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+}
+
+/* Webkit系ブラウザ用のスクロールバースタイル */
+.standard-layout-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.standard-layout-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.standard-layout-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 182, 193, 0.45);
+  border-radius: 999px;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  transition: all 0.2s ease;
+}
+
+.standard-layout-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 182, 193, 0.65);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45);
+}
+
+/* アクション */
+.standard-layout-actions {
+  padding: 20px 24px;
+  border-top: var(--glass-border-subtle);
+
+  /* ガラスモーフィズム効果 */
+  background: var(--glass-tinted);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+
+  flex-shrink: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  align-items: center;
+
+  /* 下部の角丸を維持 */
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+/* レスポンシブ対応 - 全画面表示 */
+@media screen and (max-width: 768px) {
+  .standard-layout-header-content {
+    padding: 14px 18px !important;
+  }
+
+  .standard-layout-title {
+    font-size: 1.1rem !important;
+  }
+
+  .standard-layout-content {
+    padding: 16px 18px !important;
+  }
+
+  .standard-layout-actions {
+    padding: 14px 18px !important;
+  }
+
+  .standard-layout-close {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    font-size: 20px !important;
+  }
+
+  .standard-layout-back-button {
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* 小型モバイル対応 */
+@media screen and (max-width: 480px) {
+  .standard-layout-header-content {
+    padding: 12px 16px !important;
+  }
+
+  .standard-layout-title {
+    font-size: 1rem !important;
+  }
+
+  .standard-layout-content {
+    padding: 14px 16px !important;
+  }
+
+  .standard-layout-actions {
+    padding: 12px 16px !important;
+  }
+
+  .standard-layout-close {
+    min-width: 32px !important;
+    min-height: 32px !important;
+    font-size: 18px !important;
+  }
+}
+
+/* サイズ調整は全画面表示では不要 */
+
+/* モーション軽減対応 */
+@media (prefers-reduced-motion: reduce) {
+  .standard-layout-close,
+  .standard-layout-back-button,
+  .standard-layout-header::before {
+    transition: none;
+    animation: none;
+  }
+
+  .standard-layout-close:hover,
+  .standard-layout-back-button:hover {
+    transform: none;
+  }
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .standard-layout {
+    background: var(--glass-surface);
+    border: 2px solid var(--glass-neutral-400);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .standard-layout-header {
+    background: var(--glass-surface);
+    border-bottom: 2px solid var(--glass-neutral-400);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .standard-layout-content {
+    background: var(--glass-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .standard-layout-close,
+  .standard-layout-back-button {
+    background: var(--glass-surface);
+    border: 2px solid var(--glass-neutral-400);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .standard-layout-actions {
+    background: var(--glass-surface);
+    border-top: 2px solid var(--glass-neutral-400);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Backdrop Filter フォールバック対応 */
+@supports not (backdrop-filter: blur(10px)) {
+  .standard-layout-overlay {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .standard-layout {
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-neutral-200);
+  }
+
+  .standard-layout-header {
+    background: var(--glass-primary-50);
+  }
+
+  .standard-layout-content {
+    background: var(--glass-surface);
+  }
+
+  .standard-layout-actions {
+    background: var(--glass-neutral-50);
+  }
+
+  .standard-layout-close,
+  .standard-layout-back-button {
+    background: var(--glass-neutral-100);
+  }
+}
+
+/* 安全エリア対応（ノッチ付きデバイス） */
+@supports (padding: max(0px)) {
+  .standard-layout-header-content {
+    padding-top: max(20px, env(safe-area-inset-top, 0px) + 20px);
+    padding-left: max(24px, env(safe-area-inset-left, 0px) + 24px);
+    padding-right: max(24px, env(safe-area-inset-right, 0px) + 24px);
+  }
+
+  .standard-layout-content {
+    padding-left: max(24px, env(safe-area-inset-left, 0px) + 24px);
+    padding-right: max(24px, env(safe-area-inset-right, 0px) + 24px);
+  }
+
+  .standard-layout-actions {
+    padding-left: max(24px, env(safe-area-inset-left, 0px) + 24px);
+    padding-right: max(24px, env(safe-area-inset-right, 0px) + 24px);
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px) + 20px);
+  }
+}
+/* DetailM
+odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
+.standard-layout-overlay.detail-modal-overlay {
+  z-index: 10001 !important; /* タグ一覧画面より前面に表示 */
+}
+
+/* 複数の全画面表示が重なった場合の優先順位 */
+.standard-layout-overlay.priority-high {
+  z-index: 10001 !important;
+}
+
+.standard-layout-overlay.priority-medium {
+  z-index: 10000 !important;
+}
+
+.standard-layout-overlay.priority-low {
+  z-index: 9999 !important;
+} /* 入力欄の統
+一スタイル - タグ登録画面と統一 */
+.standard-layout-content input[type='text'],
+.standard-layout-content input[type='search'],
+.standard-layout-content textarea,
+.standard-layout-content select {
+  /* Layout */
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--glass-border-light);
+  border-radius: var(--glass-border-radius-medium);
+  box-sizing: border-box;
+
+  /* Typography */
+  font-family: var(--font-family-primary);
+  font-size: 14px;
+  color: #374151; /* 黒文字に統一 */
+
+  /* Background */
+  background: var(--glass-background-glass);
+  backdrop-filter: blur(var(--glass-blur-light));
+
+  /* Transitions */
+  transition: all 0.2s ease;
+}
+
+.standard-layout-content input[type='text']:focus,
+.standard-layout-content input[type='search']:focus,
+.standard-layout-content textarea:focus,
+.standard-layout-content select:focus {
+  outline: none;
+  border-color: var(--glass-primary-main);
+  box-shadow: 0 0 0 2px rgba(var(--glass-primary-main-rgb), 0.2);
+}
+
+.standard-layout-content input::placeholder,
+.standard-layout-content textarea::placeholder {
+  color: #9ca3af; /* 薄い灰色に統一 */
+}
+
+/* ボタンの統一スタイル - タグ登録画面と統一 */
+.standard-layout-content
+  button:not(.standard-layout-close):not(.standard-layout-back-button) {
+  /* Layout */
+  padding: 8px 16px;
+  border: 1px solid var(--glass-border-subtle);
+  border-radius: 12px;
+  cursor: pointer;
+
+  /* Typography */
+  font-family: var(--font-family-primary);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  color: #374151; /* 黒文字に統一 */
+
+  /* Background */
+  background: var(--glass-light);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+
+  /* Transitions */
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.standard-layout-content
+  button:not(.standard-layout-close):not(.standard-layout-back-button):hover {
+  background: var(--glass-medium);
+  transform: translateY(-1px);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.standard-layout-content
+  button:not(.standard-layout-close):not(.standard-layout-back-button):active {
+  transform: translateY(0);
+  transition: all 0.1s ease;
+}
+
+.standard-layout-content
+  button:not(.standard-layout-close):not(.standard-layout-back-button):focus {
+  outline: 2px solid var(--glass-accent);
+  outline-offset: 2px;
+}
