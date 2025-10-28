@@ -930,7 +930,7 @@ export const BubbleCanvas: React.FC<BubbleCanvasProps> = React.memo(
               maxWidth: '100%',
               maxHeight: '100%',
               minWidth: screenSize.isMobile ? '280px' : '400px',
-              minHeight: screenSize.isMobile ? '200px' : '300px',
+              minHeight: screenSize.isMobile ? '250px' : '300px',
               visibility: 'visible',
               opacity: 1,
               // アスペクト比を保持

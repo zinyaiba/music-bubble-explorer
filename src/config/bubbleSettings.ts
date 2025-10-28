@@ -43,8 +43,8 @@ export const DEFAULT_BUBBLE_SETTINGS: BubbleSettings = {
   maxVelocity: 150, // 最大速度
 
   // サイズ設定
-  minSize: 130, // 最小サイズ（ピクセル）
-  maxSize: 200, // 最大サイズ（ピクセル）
+  minSize: 100, // 最小サイズ（ピクセル）
+  maxSize: 130, // 最大サイズ（ピクセル）
 
   // 物理設定（値を大きくすると効果が強くなる）
   buoyancyStrength: 80, // 浮力の強さ（上向きの力）

@@ -1290,9 +1290,9 @@ function App() {
                   enableGenreFiltering={true}
                   enableCollisionDetection={true} // モバイル・デスクトップ両方で有効
                   // モバイル高さ調整プロパティ
-                  mobileHeightRatio={0.6} // モバイルでの高さを70%に調整
+                  mobileHeightRatio={0.5} // モバイルでの高さを50%に調整
                   maxMobileHeight={600} // 最大高さ600px
-                  minMobileHeight={250} // 最小高さ350px
+                  minMobileHeight={250} // 最小高さ250px
                 />
 
                 {/* Category Filter Integration (Requirements: 5.1, 5.2, 5.3) */}
