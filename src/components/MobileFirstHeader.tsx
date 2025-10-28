@@ -160,7 +160,7 @@ const HeaderContainer = styled.header<{ $theme: any }>`
     top: 0;
     left: 0;
     right: 0;
-    z-index: 999999;
+    z-index: 0;
     transform: translate3d(0, 0, 0);
     -webkit-transform: translate3d(0, 0, 0);
     backface-visibility: hidden;

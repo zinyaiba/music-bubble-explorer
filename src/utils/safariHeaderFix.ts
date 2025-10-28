@@ -3,14 +3,21 @@
  * シンプルにヘッダを100px下げるだけ
  */
 
-// Safari検出
+// Safari検出（最も厳密）
 function isSafari(): boolean {
   const ua = navigator.userAgent
+  // 真のSafariのみを検出（Chrome開発者ツールのSafariモードも除外）
   return (
     ua.includes('Safari') &&
+    ua.includes('Version') &&
     !ua.includes('Chrome') &&
+    !ua.includes('Chromium') &&
     !ua.includes('Edge') &&
-    !ua.includes('Edg')
+    !ua.includes('Edg') &&
+    !ua.includes('OPR') &&
+    !ua.includes('Opera') &&
+    !ua.includes('CriOS') &&
+    !ua.includes('FxiOS')
   )
 }
 
@@ -25,7 +32,7 @@ export function fixSafariHeader(): void {
     [role="banner"] {
       top: 100px !important;
       position: fixed !important;
-      z-index: 999999 !important;
+      z-index: 0 !important;
     }
   `
   document.head.appendChild(style)

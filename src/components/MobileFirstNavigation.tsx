@@ -423,7 +423,7 @@ const MobileNavigation = styled.div<{ $theme: any }>`
   box-shadow: ${props => props.$theme.effects.shadows.strong} !important;
 
   padding: 16px 20px 20px !important; /* パディングを調整 */
-  z-index: 9999 !important;
+  z-index: 100 !important;
   display: flex !important;
   justify-content: space-around !important; /* space-betweenからspace-aroundに変更 */
   align-items: center !important;
