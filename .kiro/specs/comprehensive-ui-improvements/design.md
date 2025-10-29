@@ -388,6 +388,166 @@ class CacheErrorHandler {
 2. 包括的なテストの実行
 3. ユーザビリティの検証
 
+### 7. タグ一覧画面の完全再構築システム
+
+#### 既存コードの完全削除と再構築
+- **目的**: 複雑化したタグ一覧画面のクリーンな再実装
+- **対象ファイル**:
+  - `src/components/EnhancedTagList.tsx` - 完全書き換え
+  - `src/components/EnhancedTagList.css` - 完全書き換え
+- **アプローチ**: 既存のレイアウト関連コードを削除し、StandardLayoutテンプレートベースで再構築
+
+#### 統一レイアウトの適用（タグ登録画面と完全に同じ構成）
+```typescript
+// 新しいタグ一覧コンポーネント構造（タグ登録画面と同じStandardLayoutテンプレート使用）
+interface TagListProps {
+  isVisible: boolean
+  onClose: () => void
+  onTagClick?: (tag: TagListItem) => void
+  onTagDetailOpen?: (bubble: BubbleEntity) => void
+}
+
+const TagList: React.FC<TagListProps> = (props) => {
+  return (
+    <StandardLayout
+      isVisible={props.isVisible}
+      onClose={props.onClose}
+      title="🏷️ タグ一覧"
+      size="standard"
+      mobileOptimized={true}
+    >
+      {/* タグ一覧の新しい実装 - タグ登録画面と同じタイトル部・ボディ部構成 */}
+    </StandardLayout>
+  )
+}
+```
+
+### 8. 楽曲管理統合システム
+
+#### 既存コードの完全削除と再構築
+- **目的**: 複雑化した楽曲編集・楽曲登録画面のクリーンな再実装
+- **対象ファイル**:
+  - `src/components/SongManagement.tsx` - 完全書き換え
+  - `src/components/SongManagement.css` - 完全書き換え
+  - `src/components/SongRegistrationForm.tsx` - 完全書き換え
+  - `src/components/SongRegistrationForm.css` - 完全書き換え
+- **アプローチ**: 既存のレイアウト関連コードを削除し、StandardLayoutテンプレートベースで統合画面として再構築
+
+#### メニュー統合の設計
+- **統合前**: 「楽曲登録」「楽曲編集」の2つの独立したメニュー
+- **統合後**: 「楽曲管理」1つのメニューで両機能にアクセス
+- **実装方式**: タブ切り替えで両機能を1つの画面に統合
+
+#### 楽曲管理統合コンポーネント（タグ登録画面と完全に同じ構成）
+```typescript
+interface UnifiedSongManagementProps {
+  isVisible: boolean
+  onClose: () => void
+  initialMode?: 'register' | 'edit'
+}
+
+const UnifiedSongManagement: React.FC<UnifiedSongManagementProps> = ({
+  isVisible,
+  onClose,
+  initialMode = 'edit'
+}) => {
+  const [currentMode, setCurrentMode] = useState<'register' | 'edit'>(initialMode)
+  
+  return (
+    <StandardLayout
+      isVisible={isVisible}
+      onClose={onClose}
+      title="🎵 楽曲管理"
+      size="large"
+      mobileOptimized={true}
+    >
+      {/* タグ登録画面と同じタイトル部・ボディ部構成を踏襲 */}
+      <div className="song-management-tabs">
+        <button 
+          className={currentMode === 'edit' ? 'active' : ''}
+          onClick={() => setCurrentMode('edit')}
+        >
+          楽曲編集
+        </button>
+        <button 
+          className={currentMode === 'register' ? 'active' : ''}
+          onClick={() => setCurrentMode('register')}
+        >
+          楽曲登録
+        </button>
+      </div>
+      
+      {currentMode === 'edit' && <SongEditingInterface />}
+      {currentMode === 'register' && <SongRegistrationInterface />}
+    </StandardLayout>
+  )
+}
+```
+
+### 9. ナビゲーション再構築システム
+
+#### 新しいメニュー構造
+```typescript
+interface NavigationItem {
+  id: string
+  label: string
+  icon: string
+  isEnabled: boolean
+  order: number
+  onClick: () => void
+}
+
+const navigationItems: NavigationItem[] = [
+  {
+    id: 'tag-registration',
+    label: 'タグ登録',
+    icon: '🏷️➕',
+    isEnabled: true,
+    order: 1,
+    onClick: handleOpenTagRegistration
+  },
+  {
+    id: 'tag-list',
+    label: 'タグ一覧',
+    icon: '🏷️',
+    isEnabled: true,
+    order: 2,
+    onClick: handleOpenTagList
+  },
+  {
+    id: 'song-list',
+    label: '楽曲一覧',
+    icon: '🎵📋',
+    isEnabled: false, // 非活性
+    order: 3,
+    onClick: () => {} // 何もしない
+  },
+  {
+    id: 'song-management',
+    label: '楽曲管理',
+    icon: '🎵⚙️',
+    isEnabled: true,
+    order: 4,
+    onClick: handleOpenSongManagement
+  }
+]
+```
+
+#### 非活性ボタンの視覚デザイン
+```css
+.nav-button--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-button--disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+```
+
 ## 設計決定と根拠
 
 ### 1. UI構造のシンプル化
@@ -414,6 +574,21 @@ class CacheErrorHandler {
 - **決定**: ビルド時の自動ハッシュ生成とブラウザ互換性の両立
 - **根拠**: 手動でのキャッシュクリアはユーザビリティを損なう
 - **実装**: Vite設定の拡張とカスタムマネージャーの組み合わせ
+
+### 6. タグ一覧画面の完全再構築
+- **決定**: 既存コードを完全削除してゼロから再構築
+- **根拠**: 過去の改修の積み重ねによりコードが複雑化し、部分修正では限界
+- **利点**: クリーンなコードベース、統一されたレイアウト、保守性の向上
+
+### 7. 楽曲機能の統合
+- **決定**: 楽曲登録と楽曲編集を「楽曲管理」として統合
+- **根拠**: メニューの簡素化とユーザビリティの向上
+- **実装**: タブ切り替え方式で両機能を1つの画面に統合
+
+### 8. 段階的機能追加の準備
+- **決定**: 楽曲一覧ボタンを非活性状態で先行追加
+- **根拠**: 将来のアップデートでスムーズな機能追加を可能にする
+- **利点**: ユーザーへの機能予告、開発計画の明確化
 
 ## 技術的考慮事項
 
