@@ -525,10 +525,10 @@
   }
 
   div.unified-dialog-overlay[role='dialog'] {
-    padding: 16px 16px 160px 16px !important; /* フッターメニュー分を考慮 */
+    padding: 16px !important;
+    padding-bottom: 140px !important; /* フッターメニュー分を考慮 */
     box-sizing: border-box !important;
-    align-items: flex-start !important;
-    padding-top: 120px !important; /* ブラウザメニューバー分を考慮 */
+    align-items: center !important; /* 中央配置 */
     justify-content: center !important;
   }
 
@@ -617,9 +617,9 @@
   }
 
   div.unified-dialog-overlay[role='dialog'] {
-    padding: 16px 16px 130px 16px !important;
-    align-items: flex-start !important;
-    padding-top: 130px !important; /* ブラウザメニューバー分を考慮 */
+    padding: 16px !important;
+    padding-bottom: 130px !important; /* フッターメニュー分を考慮 */
+    align-items: center !important; /* 中央配置 */
     box-sizing: border-box !important;
   }
 
@@ -652,9 +652,9 @@
   }
 
   div.unified-dialog-overlay[role='dialog'] {
-    padding: 12px 12px 160px 12px !important; /* フッターメニュー分を考慮 */
-    align-items: flex-start !important;
-    padding-top: 120px !important; /* ブラウザメニューバー分を考慮 */
+    padding: 12px !important;
+    padding-bottom: 140px !important; /* フッターメニュー分を考慮 */
+    align-items: center !important; /* 中央配置 */
     box-sizing: border-box !important;
   }
 
@@ -729,11 +729,11 @@
   }
 
   div.unified-dialog-overlay[role='dialog'] {
-    padding: 8px 8px 110px 8px !important;
-    align-items: flex-start !important;
+    padding: 8px !important;
+    padding-bottom: 110px !important; /* フッターメニュー分を考慮 */
+    align-items: center !important; /* 中央配置 */
     justify-content: center !important;
     box-sizing: border-box !important;
-    padding-top: 115px !important; /* ブラウザメニューバー分を考慮 */
   }
 
   div.unified-dialog-overlay[role='dialog'] .unified-dialog {
