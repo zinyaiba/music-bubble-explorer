@@ -282,6 +282,7 @@
       transparent 50%
     );
   pointer-events: none;
+  z-index: 0; /* ヘッダーより下に配置 */
 }
 
 /* Webkit系ブラウザ用のスクロールバースタイル */
@@ -338,7 +339,7 @@
   }
 
   .standard-layout-content {
-    padding: 16px 18px !important;
+    padding: 0 !important; /* 統合ヘッダー使用時はパディングなし */
   }
 
   .standard-layout-actions {
@@ -368,7 +369,7 @@
   }
 
   .standard-layout-content {
-    padding: 14px 16px !important;
+    padding: 0 !important; /* 統合ヘッダー使用時はパディングなし */
   }
 
   .standard-layout-actions {
@@ -599,7 +600,9 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
   -webkit-backdrop-filter: var(--glass-blur-light);
 
   flex-shrink: 0;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 10;
   overflow: hidden;
   min-height: 60px;
 }
@@ -740,6 +743,8 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   min-height: 0;
+  position: relative;
+  z-index: 1;
 }
 
 /* レスポンシブ対応 - 統合ヘッダー */

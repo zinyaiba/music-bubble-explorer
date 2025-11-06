@@ -379,6 +379,7 @@
       transparent 50%
     );
   pointer-events: none;
+  z-index: 0; /* ヘッダーより下に配置 */
 }
 
 /* Webkit系ブラウザ用のスクロールバースタイル - ガラスモーフィズム対応 */
