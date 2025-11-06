@@ -90,12 +90,17 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: var(--glass-border-subtle);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-  /* ガラスモーフィズム効果 */
-  background: var(--glass-tinted);
-  backdrop-filter: var(--glass-blur-light);
-  -webkit-backdrop-filter: var(--glass-blur-light);
+  /* モバイル対応の背景 - フォールバック付き */
+  background: rgba(254, 247, 247, 0.95);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(254, 247, 247, 0.85) 100%
+  );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
   flex-shrink: 0;
   position: relative;
@@ -237,12 +242,17 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  border-bottom: var(--glass-border-subtle);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-  /* ガラスモーフィズム効果 */
-  background: var(--glass-tinted);
-  backdrop-filter: var(--glass-blur-light);
-  -webkit-backdrop-filter: var(--glass-blur-light);
+  /* モバイル対応の背景 - フォールバック付き */
+  background: rgba(254, 247, 247, 0.95);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(254, 247, 247, 0.85) 100%
+  );
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 
   flex-shrink: 0;
   position: relative;
@@ -492,8 +502,28 @@
   }
 }
 
-/* モバイル対応 - 最高優先度で強制適用 */
+/* モバイル専用フォールバック - ヘッダー背景問題対応 */
 @media screen and (max-width: 768px) {
+  /* ヘッダー背景の強制修正 */
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-header,
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-integrated-header {
+    background: #fef7f7 !important;
+    background: linear-gradient(135deg, #ffffff 0%, #fef7f7 100%) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Safari iOS専用対応 */
+  @supports (-webkit-touch-callout: none) {
+    div.unified-dialog-overlay[role='dialog'] .unified-dialog-header,
+    div.unified-dialog-overlay[role='dialog']
+      .unified-dialog-integrated-header {
+      background: #fef7f7 !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+  }
+
   div.unified-dialog-overlay[role='dialog'] {
     padding: 16px 16px 160px 16px !important; /* フッターメニュー分を考慮 */
     box-sizing: border-box !important;
@@ -577,6 +607,15 @@
 
 /* iPhone 15 Pro等の中型モバイル対応 - 最高優先度 */
 @media screen and (min-width: 390px) and (max-width: 430px) and (max-height: 900px) {
+  /* ヘッダー背景の強制修正 */
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-header,
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-integrated-header {
+    background: #fef7f7 !important;
+    background: linear-gradient(135deg, #ffffff 0%, #fef7f7 100%) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
   div.unified-dialog-overlay[role='dialog'] {
     padding: 16px 16px 130px 16px !important;
     align-items: flex-start !important;
@@ -603,6 +642,15 @@
 
 /* 小型モバイル対応 - 最高優先度 */
 @media screen and (max-width: 480px) {
+  /* ヘッダー背景の強制修正 */
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-header,
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-integrated-header {
+    background: #fef7f7 !important;
+    background: linear-gradient(135deg, #ffffff 0%, #fef7f7 100%) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
   div.unified-dialog-overlay[role='dialog'] {
     padding: 12px 12px 160px 12px !important; /* フッターメニュー分を考慮 */
     align-items: flex-start !important;
@@ -671,6 +719,15 @@
 
 /* 極小モバイル対応 - 最高優先度 */
 @media screen and (max-width: 320px) {
+  /* ヘッダー背景の強制修正 */
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-header,
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-integrated-header {
+    background: #fef7f7 !important;
+    background: linear-gradient(135deg, #ffffff 0%, #fef7f7 100%) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
   div.unified-dialog-overlay[role='dialog'] {
     padding: 8px 8px 110px 8px !important;
     align-items: flex-start !important;
@@ -1632,29 +1689,31 @@ div.unified-dialog
   }
 
   .unified-dialog {
-    background: var(--glass-surface);
-    border: 1px solid var(--glass-neutral-200);
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
   }
 
   .unified-dialog-header {
-    background: var(--glass-primary-50);
+    background: #fef7f7;
+    background: linear-gradient(135deg, #ffffff 0%, #fef7f7 100%);
   }
 
   .unified-dialog-content {
-    background: var(--glass-surface);
+    background: #ffffff;
   }
 
   .unified-dialog-footer {
-    background: var(--glass-neutral-50);
+    background: #fafafa;
   }
 
   .unified-dialog-close,
   .unified-dialog-integrated-close {
-    background: var(--glass-neutral-100);
+    background: #f5f5f5;
   }
 
   .unified-dialog-integrated-header {
-    background: var(--glass-primary-50);
+    background: #fef7f7;
+    background: linear-gradient(135deg, #ffffff 0%, #fef7f7 100%);
   }
 } /*
  追加のレイアウト修正 */
