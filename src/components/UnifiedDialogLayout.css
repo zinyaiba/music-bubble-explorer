@@ -256,7 +256,9 @@
   -webkit-backdrop-filter: blur(8px);
 
   flex-shrink: 0;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 10;
   overflow: hidden;
   min-height: 60px;
 }
@@ -349,6 +351,8 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   min-height: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .unified-dialog-content::before {
