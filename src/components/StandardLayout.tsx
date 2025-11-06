@@ -13,6 +13,7 @@ interface StandardLayoutProps {
   onBack?: () => void
   showActions?: boolean
   actionContent?: React.ReactNode
+  integratedHeader?: boolean // ヘッダーをボディ内に統合するかどうか
 }
 
 /**
@@ -32,6 +33,7 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
   onBack,
   showActions = false,
   actionContent,
+  integratedHeader = true, // デフォルトで統合ヘッダーを使用
 }) => {
   /**
    * バックドロップクリックハンドラー（全画面表示では無効）
@@ -105,40 +107,83 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
         }}
       >
         <div className={layoutClasses}>
-          {/* ヘッダー */}
-          <div className="standard-layout-header">
-            <div className="standard-layout-header-content">
-              <h2 id="standard-layout-title" className="standard-layout-title">
-                {title}
-              </h2>
+          {/* 従来のヘッダー（統合ヘッダーが無効の場合のみ表示） */}
+          {!integratedHeader && (
+            <div className="standard-layout-header">
+              <div className="standard-layout-header-content">
+                <h2
+                  id="standard-layout-title"
+                  className="standard-layout-title"
+                >
+                  {title}
+                </h2>
 
-              {/* ヘッダーアクション */}
-              <div className="standard-layout-header-actions">
-                {showBackButton && onBack && (
+                {/* ヘッダーアクション */}
+                <div className="standard-layout-header-actions">
+                  {showBackButton && onBack && (
+                    <button
+                      className="standard-layout-back-button"
+                      onClick={onBack}
+                      aria-label="前の画面に戻る"
+                      type="button"
+                    >
+                      ← 戻る
+                    </button>
+                  )}
+
                   <button
-                    className="standard-layout-back-button"
-                    onClick={onBack}
-                    aria-label="前の画面に戻る"
+                    className="standard-layout-close"
+                    onClick={onClose}
+                    aria-label="画面を閉じる"
                     type="button"
                   >
-                    ← 戻る
+                    ×
                   </button>
-                )}
-
-                <button
-                  className="standard-layout-close"
-                  onClick={onClose}
-                  aria-label="画面を閉じる"
-                  type="button"
-                >
-                  ×
-                </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* コンテンツエリア */}
-          <div className="standard-layout-content">{children}</div>
+          <div className="standard-layout-content">
+            {/* 統合ヘッダー（統合ヘッダーが有効の場合のみ表示） */}
+            {integratedHeader && (
+              <div className="standard-layout-integrated-header">
+                <h2
+                  id="standard-layout-title"
+                  className="standard-layout-integrated-title"
+                >
+                  {title}
+                </h2>
+
+                {/* ヘッダーアクション */}
+                <div className="standard-layout-integrated-header-actions">
+                  {showBackButton && onBack && (
+                    <button
+                      className="standard-layout-integrated-back-button"
+                      onClick={onBack}
+                      aria-label="前の画面に戻る"
+                      type="button"
+                    >
+                      ← 戻る
+                    </button>
+                  )}
+
+                  <button
+                    className="standard-layout-integrated-close"
+                    onClick={onClose}
+                    aria-label="画面を閉じる"
+                    type="button"
+                  >
+                    ×
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* メインコンテンツ */}
+            <div className="standard-layout-main-content">{children}</div>
+          </div>
 
           {/* アクション（オプション） */}
           {showActions && actionContent && (

@@ -240,7 +240,7 @@
 /* コンテンツエリア */
 .standard-layout-content {
   flex: 1;
-  padding: 24px;
+  padding: 0; /* 統合ヘッダー使用時はパディングを削除 */
   overflow-y: auto !important;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -254,6 +254,8 @@
   min-height: 0;
   scrollbar-width: thin;
   scrollbar-color: rgba(224, 102, 102, 0.3) transparent;
+  display: flex;
+  flex-direction: column;
 }
 
 .standard-layout-content::before {
@@ -581,4 +583,255 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
   button:not(.standard-layout-close):not(.standard-layout-back-button):focus {
   outline: 2px solid var(--glass-accent);
   outline-offset: 2px;
+}
+
+/* 統合ヘッダー - ガラスモーフィズム対応 */
+.standard-layout-integrated-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: var(--glass-border-subtle);
+
+  /* ガラスモーフィズム効果 */
+  background: var(--glass-tinted);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  min-height: 60px;
+}
+
+.standard-layout-integrated-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 182, 193, 0.1) 0%,
+    transparent 70%
+  );
+  animation: float 6s ease-in-out infinite;
+}
+
+/* 統合タイトル - ガラスモーフィズム対応 */
+.standard-layout-integrated-title {
+  margin: 0;
+  font-family: var(--font-family-primary);
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  color: #374151; /* 黒文字に統一 */
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left; /* 左詰めを明示 */
+}
+
+/* 統合ヘッダーアクション */
+.standard-layout-integrated-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+/* 統合戻るボタン - ガラスモーフィズム対応 */
+.standard-layout-integrated-back-button {
+  /* ガラスモーフィズム効果 */
+  background: var(--glass-light);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+  border: var(--glass-border-subtle);
+  border-radius: 12px;
+
+  /* レイアウト */
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+
+  /* タイポグラフィ */
+  font-family: var(--font-family-primary);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  color: var(--glass-text-primary);
+
+  /* トランジション */
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.standard-layout-integrated-back-button:hover {
+  background: var(--glass-medium);
+  transform: translateY(-1px);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.standard-layout-integrated-back-button:active {
+  transform: translateY(0);
+  transition: all 0.1s ease;
+}
+
+.standard-layout-integrated-back-button:focus {
+  outline: 2px solid var(--glass-accent);
+  outline-offset: 2px;
+}
+
+/* 統合閉じるボタン - ガラスモーフィズム対応 */
+.standard-layout-integrated-close {
+  /* ガラスモーフィズム効果 */
+  background: var(--glass-light);
+  backdrop-filter: var(--glass-blur-light);
+  -webkit-backdrop-filter: var(--glass-blur-light);
+
+  border: var(--glass-border-subtle);
+  border-radius: 50%;
+  font-size: 24px;
+  color: var(--glass-text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  touch-action: manipulation;
+
+  /* パフォーマンス最適化 */
+  will-change: transform, background;
+  transform: translateZ(0);
+}
+
+.standard-layout-integrated-close:hover {
+  background: var(--glass-medium);
+  color: var(--glass-text-primary);
+  transform: translateY(-1px) translateZ(0);
+  box-shadow: var(--glass-shadow-medium);
+}
+
+.standard-layout-integrated-close:active {
+  transform: translateY(0) translateZ(0);
+  transition: all 0.1s ease;
+}
+
+.standard-layout-integrated-close:focus {
+  outline: 2px solid var(--glass-accent);
+  outline-offset: 2px;
+}
+
+/* メインコンテンツエリア */
+.standard-layout-main-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  min-height: 0;
+}
+
+/* レスポンシブ対応 - 統合ヘッダー */
+@media screen and (max-width: 768px) {
+  .standard-layout-integrated-header {
+    padding: 14px 18px !important;
+    min-height: 48px !important;
+  }
+
+  .standard-layout-integrated-title {
+    font-size: 1.1rem !important;
+  }
+
+  .standard-layout-main-content {
+    padding: 16px 18px !important;
+  }
+
+  .standard-layout-integrated-close {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    font-size: 20px !important;
+  }
+
+  .standard-layout-integrated-back-button {
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+  }
+}
+
+/* 小型モバイル対応 - 統合ヘッダー */
+@media screen and (max-width: 480px) {
+  .standard-layout-integrated-header {
+    padding: 12px 16px !important;
+    min-height: 44px !important;
+  }
+
+  .standard-layout-integrated-title {
+    font-size: 1rem !important;
+  }
+
+  .standard-layout-main-content {
+    padding: 14px 16px !important;
+  }
+
+  .standard-layout-integrated-close {
+    min-width: 32px !important;
+    min-height: 32px !important;
+    font-size: 18px !important;
+  }
+}
+
+/* モーション軽減対応 - 統合ヘッダー */
+@media (prefers-reduced-motion: reduce) {
+  .standard-layout-integrated-close,
+  .standard-layout-integrated-back-button,
+  .standard-layout-integrated-header::before {
+    transition: none;
+    animation: none;
+  }
+
+  .standard-layout-integrated-close:hover,
+  .standard-layout-integrated-back-button:hover {
+    transform: none;
+  }
+}
+
+/* ハイコントラストモード対応 - 統合ヘッダー */
+@media (prefers-contrast: high) {
+  .standard-layout-integrated-header {
+    background: var(--glass-surface);
+    border-bottom: 2px solid var(--glass-neutral-400);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .standard-layout-integrated-close,
+  .standard-layout-integrated-back-button {
+    background: var(--glass-surface);
+    border: 2px solid var(--glass-neutral-400);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+/* Backdrop Filter フォールバック対応 - 統合ヘッダー */
+@supports not (backdrop-filter: blur(10px)) {
+  .standard-layout-integrated-header {
+    background: var(--glass-primary-50);
+  }
+
+  .standard-layout-integrated-close,
+  .standard-layout-integrated-back-button {
+    background: var(--glass-neutral-100);
+  }
 }

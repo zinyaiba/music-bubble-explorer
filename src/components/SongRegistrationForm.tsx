@@ -33,7 +33,7 @@ interface FormErrors {
 
 /**
  * シンプルな楽曲登録フォームコンポーネント
- * Updated to use StandardLayout template for consistency
+ * Updated to use StandardLayout template for full-screen consistency
  */
 export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
   onSongAdded,

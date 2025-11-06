@@ -3,8 +3,8 @@ import { Song } from '@/types/music'
 import { DataManager } from '@/services/dataManager'
 import { MusicDataService } from '@/services/musicDataService'
 import { SongRegistrationForm } from './SongRegistrationForm'
-import { UnifiedDialogLayout } from './UnifiedDialogLayout'
 import { StandardLayout } from './StandardLayout'
+import { UnifiedDialogLayout } from './UnifiedDialogLayout'
 import './SongManagement.css'
 
 interface SongManagementProps {
@@ -21,7 +21,7 @@ interface DeleteConfirmationState {
 
 /**
  * シンプルな楽曲管理コンポーネント
- * Updated to use StandardLayout template for consistency
+ * Updated to use StandardLayout template for full-screen consistency
  */
 export const SongManagement: React.FC<SongManagementProps> = ({
   onClose,

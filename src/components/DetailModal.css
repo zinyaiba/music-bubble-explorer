@@ -1,5 +1,15 @@
 /* Detail Modal Content Styles - UnifiedDialogLayoutと統合 */
 
+/* DetailModal専用のz-index設定 - タグ詳細画面を最前面に表示 */
+.detail-modal-overlay {
+  z-index: 10001 !important; /* TagRegistrationScreenより前面に表示 */
+}
+
+/* StandardLayout使用時のz-index設定 */
+.standard-layout-overlay.detail-modal-overlay {
+  z-index: 10001 !important; /* TagRegistrationScreenより前面に表示 */
+}
+
 .detail-modal-content {
   width: 100%;
   display: flex;

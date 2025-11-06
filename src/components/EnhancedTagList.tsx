@@ -22,7 +22,7 @@ export interface EnhancedTagListProps {
 /**
  * Enhanced Tag List Component
  * Requirements: 21.1, 21.2, 21.3, 21.4, 21.5
- * Updated to use StandardLayout template for consistency
+ * Updated to use StandardLayout template for full-screen consistency
  */
 export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
   isVisible,
@@ -50,6 +50,11 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
         tagId: tag.id,
         tagName: tag.name,
         songCount: tag.songCount,
+        onTagDetailOpen: !!onTagDetailOpen,
+      })
+
+      console.log('🏷️ EnhancedTagList: Props check', {
+        onTagClick: !!onTagClick,
         onTagDetailOpen: !!onTagDetailOpen,
       })
 
