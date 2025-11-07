@@ -282,8 +282,7 @@
       transparent 50%
     );
   pointer-events: none;
-  z-index: 0; /* ヘッダーより下に配置 */
-  display: none; /* 一時的に無効化して診断 */
+  z-index: 0;
 }
 
 /* Webkit系ブラウザ用のスクロールバースタイル */
@@ -587,55 +586,18 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
   outline-offset: 2px;
 }
 
-/* 統合ヘッダー - 完全ハードコード版（診断用） */
+/* 統合ヘッダー - モバイル対応版 */
 .standard-layout-integrated-header {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  padding: 20px 24px !important;
-  border-bottom: 3px solid #ff0000 !important; /* 診断用：赤い太線 */
-  background: #ffff00 !important; /* 診断用：黄色背景 */
-  flex-shrink: 0 !important;
-  position: relative !important;
-  z-index: 9999 !important;
-  min-height: 80px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
+  /* インラインスタイルで制御するため、最小限のスタイルのみ */
+  box-sizing: border-box;
 }
 
-.standard-layout-integrated-header::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: radial-gradient(
-    circle,
-    rgba(255, 182, 193, 0.1) 0%,
-    transparent 70%
-  );
-  animation: float 6s ease-in-out infinite;
-  display: none; /* 診断用：装飾を無効化 */
-}
+/* 装飾は削除（モバイルで問題を起こすため） */
 
-/* 統合タイトル - 完全ハードコード版（診断用） */
+/* 統合タイトル - モバイル対応版 */
 .standard-layout-integrated-title {
-  margin: 0 !important;
-  font-family: Arial, sans-serif !important;
-  font-size: 24px !important;
-  font-weight: 900 !important;
-  color: #000000 !important; /* 診断用：黒文字 */
-  background: #00ff00 !important; /* 診断用：緑背景 */
-  line-height: 1.5 !important;
-  padding: 10px !important;
-  position: relative !important;
-  z-index: 1 !important;
-  flex: 1 !important;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  white-space: normal !important;
-  text-align: left !important;
+  /* インラインスタイルで制御するため、最小限のスタイルのみ */
+  box-sizing: border-box;
 }
 
 /* 統合ヘッダーアクション */

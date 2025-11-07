@@ -154,97 +154,101 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
           <div className="standard-layout-content">
             {/* メインコンテンツ */}
             <div className="standard-layout-main-content">
-              {/* デバッグ情報を画面に表示 */}
-              <div
-                style={{
-                  background: '#ff00ff',
-                  color: '#ffffff',
-                  padding: '20px',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  border: '5px solid #000000',
-                  zIndex: 99999,
-                  position: 'relative',
-                }}
-              >
-                DEBUG INFO:
-                <br />
-                integratedHeader: {String(integratedHeader)}
-                <br />
-                title: {title}
-                <br />
-                isVisible: {String(isVisible)}
-                <br />
-              </div>
-
               {/* 統合ヘッダー（統合ヘッダーが有効の場合のみ表示） - メインコンテンツ内に移動 */}
               {integratedHeader && (
                 <div
                   className="standard-layout-integrated-header"
                   style={{
-                    background: '#ffff00',
-                    border: '5px solid #ff0000',
-                    padding: '20px',
-                    minHeight: '80px',
+                    display: 'block',
+                    background: '#fef7f7',
+                    borderBottom: '1px solid rgba(224, 102, 102, 0.2)',
+                    padding: '0',
+                    position: 'relative',
+                    width: '100%',
+                    boxSizing: 'border-box',
                   }}
                 >
-                  <h2
-                    id="standard-layout-title"
-                    className="standard-layout-integrated-title"
+                  <div
                     style={{
-                      color: '#000000',
-                      fontSize: '24px',
-                      fontWeight: 'bold',
-                      background: '#00ff00',
-                      padding: '10px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '20px 24px',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      minHeight: '60px',
                     }}
                   >
-                    TEST HEADER: {title}
-                  </h2>
-
-                  {/* ヘッダーアクション */}
-                  <div className="standard-layout-integrated-header-actions">
-                    {showBackButton && onBack && (
-                      <button
-                        className="standard-layout-integrated-back-button"
-                        onClick={onBack}
-                        aria-label="前の画面に戻る"
-                        type="button"
-                      >
-                        ← 戻る
-                      </button>
-                    )}
-
-                    <button
-                      className="standard-layout-integrated-close"
-                      onClick={onClose}
-                      aria-label="画面を閉じる"
-                      type="button"
+                    <h2
+                      id="standard-layout-title"
+                      className="standard-layout-integrated-title"
                       style={{
-                        background: '#0000ff',
-                        color: '#ffffff',
-                        fontSize: '32px',
-                        padding: '10px',
-                        border: '3px solid #ffffff',
+                        margin: 0,
+                        fontSize: '20px',
+                        fontWeight: 'bold',
+                        color: '#e06666',
+                        flex: '1 1 auto',
+                        minWidth: 0,
+                        paddingRight: '12px',
+                        lineHeight: '1.3',
                       }}
                     >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              )}
+                      {title}
+                    </h2>
 
-              {/* integratedHeaderがfalseの場合の表示 */}
-              {!integratedHeader && (
-                <div
-                  style={{
-                    background: '#ff0000',
-                    color: '#ffffff',
-                    padding: '20px',
-                    fontSize: '20px',
-                  }}
-                >
-                  integratedHeader is FALSE!
+                    {/* ヘッダーアクション */}
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {showBackButton && onBack && (
+                        <button
+                          className="standard-layout-integrated-back-button"
+                          onClick={onBack}
+                          aria-label="前の画面に戻る"
+                          type="button"
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.5)',
+                            border: '1px solid rgba(224, 102, 102, 0.2)',
+                            borderRadius: '12px',
+                            padding: '8px 16px',
+                            fontSize: '14px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          ← 戻る
+                        </button>
+                      )}
+
+                      <button
+                        className="standard-layout-integrated-close"
+                        onClick={onClose}
+                        aria-label="画面を閉じる"
+                        type="button"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.5)',
+                          border: '1px solid rgba(224, 102, 102, 0.2)',
+                          borderRadius: '50%',
+                          fontSize: '24px',
+                          color: '#666',
+                          width: '44px',
+                          height: '44px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          flexShrink: 0,
+                          padding: 0,
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
 
