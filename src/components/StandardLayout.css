@@ -18,8 +18,7 @@
   z-index: 10000 !important; /* タグ登録画面と同じz-index */
   overflow: hidden !important;
 
-  /* スマホ実機のブラウザUIバー対応 */
-  padding-top: env(safe-area-inset-top, 0px) !important;
+  /* スマホ実機のブラウザUIバー対応はJavaScriptで動的に設定 */
   box-sizing: border-box !important;
 
   /* パフォーマンス最適化 */

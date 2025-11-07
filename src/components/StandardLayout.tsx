@@ -78,13 +78,21 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
 
           console.log('🔧 Browser UI Height:', browserUIHeight)
           console.log('🔧 Applying padding-top:', paddingTop)
+          console.log('🔧 Overlay element:', overlay)
 
           overlay.style.paddingTop = `${paddingTop}px`
+          overlay.style.setProperty(
+            'padding-top',
+            `${paddingTop}px`,
+            'important'
+          )
         }
       }
 
-      // 初回実行
-      updatePadding()
+      // 初回実行（DOMレンダリング後に実行）
+      setTimeout(updatePadding, 0)
+      setTimeout(updatePadding, 100)
+      setTimeout(updatePadding, 300)
 
       // リサイズ時にも更新
       window.addEventListener('resize', updatePadding)
