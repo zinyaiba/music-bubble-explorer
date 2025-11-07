@@ -74,6 +74,12 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
         const overlay = document.querySelector(
           '.standard-layout-overlay'
         ) as HTMLElement
+        const header = document.querySelector(
+          '.standard-layout-integrated-header'
+        ) as HTMLElement
+        const contentWrapper = document.querySelector(
+          '.standard-layout-content-wrapper'
+        ) as HTMLElement
 
         if (overlay && window.innerWidth <= 768) {
           // ブラウザUIバーの高さを計算
@@ -82,7 +88,6 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
 
           console.log('🔧 Browser UI Height:', browserUIHeight)
           console.log('🔧 Applying top offset:', topOffset)
-          console.log('🔧 Overlay element:', overlay)
 
           // position: fixedのtopプロパティを変更
           overlay.style.top = `${topOffset}px`
@@ -92,9 +97,25 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
           overlay.style.bottom = '0px'
           overlay.style.setProperty('bottom', '0px', 'important')
 
-          // デバッグ用：適用された値を状態に保存
-          const computedTop = window.getComputedStyle(overlay).top
-          setAppliedPadding(`Top: Set:${topOffset}px / Computed:${computedTop}`)
+          // ヘッダーの高さを取得してコンテンツにpadding-topを追加
+          if (header && contentWrapper) {
+            const headerHeight = header.offsetHeight
+            console.log('🔧 Header height:', headerHeight)
+
+            contentWrapper.style.paddingTop = `${headerHeight}px`
+            contentWrapper.style.setProperty(
+              'padding-top',
+              `${headerHeight}px`,
+              'important'
+            )
+
+            setAppliedPadding(`Top:${topOffset}px / Header:${headerHeight}px`)
+          } else {
+            const computedTop = window.getComputedStyle(overlay).top
+            setAppliedPadding(
+              `Top: Set:${topOffset}px / Computed:${computedTop}`
+            )
+          }
         }
       }
 
