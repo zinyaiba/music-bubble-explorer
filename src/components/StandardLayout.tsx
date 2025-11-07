@@ -173,10 +173,10 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'center',
-                      padding: '20px 24px',
+                      padding: '12px 16px',
                       width: '100%',
                       boxSizing: 'border-box',
-                      minHeight: '60px',
+                      minHeight: '48px',
                     }}
                   >
                     <h2
@@ -184,13 +184,13 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
                       className="standard-layout-integrated-title"
                       style={{
                         margin: 0,
-                        fontSize: '20px',
+                        fontSize: '18px',
                         fontWeight: 'bold',
                         color: '#e06666',
                         flex: '1 1 auto',
                         minWidth: 0,
                         paddingRight: '12px',
-                        lineHeight: '1.3',
+                        lineHeight: '1.2',
                       }}
                     >
                       {title}
@@ -233,10 +233,10 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
                           background: 'rgba(255, 255, 255, 0.5)',
                           border: '1px solid rgba(224, 102, 102, 0.2)',
                           borderRadius: '50%',
-                          fontSize: '24px',
+                          fontSize: '20px',
                           color: '#666',
-                          width: '44px',
-                          height: '44px',
+                          width: '36px',
+                          height: '36px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',

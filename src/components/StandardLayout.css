@@ -711,7 +711,14 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
 
 /* メインコンテンツの子要素（ヘッダー以外）にパディングを適用 */
 .standard-layout-main-content > *:not(.standard-layout-integrated-header) {
-  padding: 24px;
+  padding: 16px 24px 24px 24px;
+}
+
+/* モバイルでのパディング調整 */
+@media screen and (max-width: 768px) {
+  .standard-layout-main-content > *:not(.standard-layout-integrated-header) {
+    padding: 12px 16px 16px 16px;
+  }
 }
 
 /* レスポンシブ対応 - 統合ヘッダー */
