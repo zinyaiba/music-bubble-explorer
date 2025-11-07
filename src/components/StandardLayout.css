@@ -18,6 +18,10 @@
   z-index: 10000 !important; /* タグ登録画面と同じz-index */
   overflow: hidden !important;
 
+  /* スマホ実機のブラウザUIバー対応 */
+  padding-top: env(safe-area-inset-top, 0px) !important;
+  box-sizing: border-box !important;
+
   /* パフォーマンス最適化 */
   will-change: backdrop-filter, opacity;
   transform: translateZ(0);
@@ -497,15 +501,15 @@
     border: 3px solid #ff00ff !important; /* デバッグ用：マゼンタの枠線 */
   }
 
-  /* 統合ヘッダーにブラウザUIバー分のパディングを追加 */
+  /* 統合ヘッダーの内側のdiv */
   .standard-layout-integrated-header > div {
-    padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 14px 16px !important;
+    padding: 14px 16px !important;
     background: #ffff00 !important; /* デバッグ用：黄色背景 */
   }
 
-  /* 通常ヘッダーにもブラウザUIバー分のパディングを追加 */
+  /* 通常ヘッダー */
   .standard-layout-header-content {
-    padding-top: calc(env(safe-area-inset-top, 0px) + 14px) !important;
+    padding: 14px 18px !important;
   }
 }
 
@@ -516,15 +520,15 @@
     border: 3px solid #ff0000 !important; /* デバッグ用：赤の枠線 */
   }
 
-  /* 統合ヘッダーにブラウザUIバー分のパディングを追加 */
+  /* 統合ヘッダーの内側のdiv */
   .standard-layout-integrated-header > div {
-    padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px 16px !important;
+    padding: 12px 16px !important;
     background: #00ffff !important; /* デバッグ用：シアン背景 */
   }
 
-  /* 通常ヘッダーにもブラウザUIバー分のパディングを追加 */
+  /* 通常ヘッダー */
   .standard-layout-header-content {
-    padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+    padding: 12px 16px !important;
   }
 }
 /* DetailM
