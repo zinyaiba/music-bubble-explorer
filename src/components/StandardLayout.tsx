@@ -74,11 +74,17 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
 
   // 表示状態でない場合は何も表示しない
   if (!isVisible) {
-    // console.log('🖼️ StandardLayout: Not visible, returning null', { title })
+    console.log('🖼️ StandardLayout: Not visible, returning null', { title })
     return null
   }
 
-  // console.log('🖼️ StandardLayout: Rendering', { title, isVisible })
+  console.log('🖼️ StandardLayout: Rendering', {
+    title,
+    isVisible,
+    integratedHeader,
+    showBackButton,
+    children: !!children,
+  })
 
   const layoutClasses = [
     'standard-layout',
@@ -146,43 +152,104 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
 
           {/* コンテンツエリア */}
           <div className="standard-layout-content">
-            {/* 統合ヘッダー（統合ヘッダーが有効の場合のみ表示） */}
-            {integratedHeader && (
-              <div className="standard-layout-integrated-header">
-                <h2
-                  id="standard-layout-title"
-                  className="standard-layout-integrated-title"
-                >
-                  {title}
-                </h2>
-
-                {/* ヘッダーアクション */}
-                <div className="standard-layout-integrated-header-actions">
-                  {showBackButton && onBack && (
-                    <button
-                      className="standard-layout-integrated-back-button"
-                      onClick={onBack}
-                      aria-label="前の画面に戻る"
-                      type="button"
-                    >
-                      ← 戻る
-                    </button>
-                  )}
-
-                  <button
-                    className="standard-layout-integrated-close"
-                    onClick={onClose}
-                    aria-label="画面を閉じる"
-                    type="button"
-                  >
-                    ×
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* メインコンテンツ */}
-            <div className="standard-layout-main-content">{children}</div>
+            <div className="standard-layout-main-content">
+              {/* デバッグ情報を画面に表示 */}
+              <div
+                style={{
+                  background: '#ff00ff',
+                  color: '#ffffff',
+                  padding: '20px',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  border: '5px solid #000000',
+                  zIndex: 99999,
+                  position: 'relative',
+                }}
+              >
+                DEBUG INFO:
+                <br />
+                integratedHeader: {String(integratedHeader)}
+                <br />
+                title: {title}
+                <br />
+                isVisible: {String(isVisible)}
+                <br />
+              </div>
+
+              {/* 統合ヘッダー（統合ヘッダーが有効の場合のみ表示） - メインコンテンツ内に移動 */}
+              {integratedHeader && (
+                <div
+                  className="standard-layout-integrated-header"
+                  style={{
+                    background: '#ffff00',
+                    border: '5px solid #ff0000',
+                    padding: '20px',
+                    minHeight: '80px',
+                  }}
+                >
+                  <h2
+                    id="standard-layout-title"
+                    className="standard-layout-integrated-title"
+                    style={{
+                      color: '#000000',
+                      fontSize: '24px',
+                      fontWeight: 'bold',
+                      background: '#00ff00',
+                      padding: '10px',
+                    }}
+                  >
+                    TEST HEADER: {title}
+                  </h2>
+
+                  {/* ヘッダーアクション */}
+                  <div className="standard-layout-integrated-header-actions">
+                    {showBackButton && onBack && (
+                      <button
+                        className="standard-layout-integrated-back-button"
+                        onClick={onBack}
+                        aria-label="前の画面に戻る"
+                        type="button"
+                      >
+                        ← 戻る
+                      </button>
+                    )}
+
+                    <button
+                      className="standard-layout-integrated-close"
+                      onClick={onClose}
+                      aria-label="画面を閉じる"
+                      type="button"
+                      style={{
+                        background: '#0000ff',
+                        color: '#ffffff',
+                        fontSize: '32px',
+                        padding: '10px',
+                        border: '3px solid #ffffff',
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* integratedHeaderがfalseの場合の表示 */}
+              {!integratedHeader && (
+                <div
+                  style={{
+                    background: '#ff0000',
+                    color: '#ffffff',
+                    padding: '20px',
+                    fontSize: '20px',
+                  }}
+                >
+                  integratedHeader is FALSE!
+                </div>
+              )}
+
+              {children}
+            </div>
           </div>
 
           {/* アクション（オプション） */}
