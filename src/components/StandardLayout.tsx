@@ -74,24 +74,27 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
         const overlay = document.querySelector(
           '.standard-layout-overlay'
         ) as HTMLElement
-        const layout = document.querySelector('.standard-layout') as HTMLElement
 
-        if (overlay && layout && window.innerWidth <= 768) {
+        if (overlay && window.innerWidth <= 768) {
           // ブラウザUIバーの高さを計算
           const browserUIHeight = window.screen.height - window.innerHeight
-          const marginTop = Math.max(0, browserUIHeight)
+          const topOffset = Math.max(0, browserUIHeight)
 
           console.log('🔧 Browser UI Height:', browserUIHeight)
-          console.log('🔧 Applying margin-top to layout:', marginTop)
-          console.log('🔧 Layout element:', layout)
+          console.log('🔧 Applying top offset:', topOffset)
+          console.log('🔧 Overlay element:', overlay)
 
-          // オーバーレイではなく、レイアウト本体にmargin-topを適用
-          layout.style.marginTop = `${marginTop}px`
-          layout.style.setProperty('margin-top', `${marginTop}px`, 'important')
+          // position: fixedのtopプロパティを変更
+          overlay.style.top = `${topOffset}px`
+          overlay.style.setProperty('top', `${topOffset}px`, 'important')
+
+          // 下部も調整して全体の高さを維持
+          overlay.style.bottom = '0px'
+          overlay.style.setProperty('bottom', '0px', 'important')
 
           // デバッグ用：適用された値を状態に保存
-          const computedMargin = window.getComputedStyle(layout).marginTop
-          setAppliedPadding(`Set:${marginTop}px / Computed:${computedMargin}`)
+          const computedTop = window.getComputedStyle(overlay).top
+          setAppliedPadding(`Top: Set:${topOffset}px / Computed:${computedTop}`)
         }
       }
 
