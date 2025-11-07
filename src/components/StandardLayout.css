@@ -486,6 +486,31 @@
     padding-bottom: max(20px, env(safe-area-inset-bottom, 0px) + 20px);
   }
 }
+
+/* スマホ実機のブラウザUIバー対応 */
+@media screen and (max-width: 768px) {
+  /* 統合ヘッダーにブラウザUIバー分のパディングを追加 */
+  .standard-layout-integrated-header > div {
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 14px 16px !important;
+  }
+
+  /* 通常ヘッダーにもブラウザUIバー分のパディングを追加 */
+  .standard-layout-header-content {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 14px) !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* 統合ヘッダーにブラウザUIバー分のパディングを追加 */
+  .standard-layout-integrated-header > div {
+    padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 12px 16px !important;
+  }
+
+  /* 通常ヘッダーにもブラウザUIバー分のパディングを追加 */
+  .standard-layout-header-content {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+  }
+}
 /* DetailM
 odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
 .standard-layout-overlay.detail-modal-overlay {

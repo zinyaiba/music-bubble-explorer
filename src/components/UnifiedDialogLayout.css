@@ -1962,3 +1962,32 @@ div.unified-dialog
     border-radius: 1px !important;
   }
 }
+
+/* スマホ実機のブラウザUIバー対応 */
+@media screen and (max-width: 768px) {
+  /* 統合ヘッダーにブラウザUIバー分のパディングを追加 */
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-integrated-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 14px) !important;
+    padding-bottom: 14px !important;
+  }
+
+  /* 通常ヘッダーにもブラウザUIバー分のパディングを追加 */
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 14px) !important;
+    padding-bottom: 14px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* 統合ヘッダーにブラウザUIバー分のパディングを追加 */
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-integrated-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+    padding-bottom: 12px !important;
+  }
+
+  /* 通常ヘッダーにもブラウザUIバー分のパディングを追加 */
+  div.unified-dialog-overlay[role='dialog'] .unified-dialog-header {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 12px) !important;
+    padding-bottom: 12px !important;
+  }
+}
