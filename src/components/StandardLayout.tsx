@@ -35,6 +35,9 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
   actionContent,
   integratedHeader = true, // デフォルトで統合ヘッダーを使用
 }) => {
+  // デバッグ用：適用されたpadding-topの値を保持
+  const [appliedPadding, setAppliedPadding] = React.useState<string>('0px')
+
   /**
    * バックドロップクリックハンドラー（全画面表示では無効）
    */
@@ -86,6 +89,10 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
             `${paddingTop}px`,
             'important'
           )
+
+          // デバッグ用：適用された値を状態に保存
+          const computedPadding = window.getComputedStyle(overlay).paddingTop
+          setAppliedPadding(`Set:${paddingTop}px / Computed:${computedPadding}`)
         }
       }
 
@@ -186,6 +193,8 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
               : 0}
             px
           </strong>
+          <br />
+          <strong style={{ color: 'cyan' }}>Padding: {appliedPadding}</strong>
           <br />
           UserAgent:{' '}
           {typeof window !== 'undefined'
