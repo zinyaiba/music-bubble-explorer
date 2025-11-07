@@ -35,9 +35,6 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
   actionContent,
   integratedHeader = true, // デフォルトで統合ヘッダーを使用
 }) => {
-  // デバッグ用：適用されたpadding-topの値を保持
-  const [appliedPadding, setAppliedPadding] = React.useState<string>('0px')
-
   /**
    * バックドロップクリックハンドラー（全画面表示では無効）
    */
@@ -69,11 +66,8 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
     if (isVisible) {
       document.addEventListener('keydown', handleKeyDown)
 
-      // スマホ実機のブラウザUIバー対応
+      // スマホ実機のヘッダー固定対応
       const updatePadding = () => {
-        const overlay = document.querySelector(
-          '.standard-layout-overlay'
-        ) as HTMLElement
         const header = document.querySelector(
           '.standard-layout-integrated-header'
         ) as HTMLElement
@@ -81,41 +75,15 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
           '.standard-layout-content-wrapper'
         ) as HTMLElement
 
-        if (overlay && window.innerWidth <= 768) {
-          // ブラウザUIバーの高さを計算
-          const browserUIHeight = window.screen.height - window.innerHeight
-          const topOffset = Math.max(0, browserUIHeight)
-
-          console.log('🔧 Browser UI Height:', browserUIHeight)
-          console.log('🔧 Applying top offset:', topOffset)
-
-          // position: fixedのtopプロパティを変更
-          overlay.style.top = `${topOffset}px`
-          overlay.style.setProperty('top', `${topOffset}px`, 'important')
-
-          // 下部も調整して全体の高さを維持
-          overlay.style.bottom = '0px'
-          overlay.style.setProperty('bottom', '0px', 'important')
-
+        if (header && contentWrapper && window.innerWidth <= 768) {
           // ヘッダーの高さを取得してコンテンツにpadding-topを追加
-          if (header && contentWrapper) {
-            const headerHeight = header.offsetHeight
-            console.log('🔧 Header height:', headerHeight)
-
-            contentWrapper.style.paddingTop = `${headerHeight}px`
-            contentWrapper.style.setProperty(
-              'padding-top',
-              `${headerHeight}px`,
-              'important'
-            )
-
-            setAppliedPadding(`Top:${topOffset}px / Header:${headerHeight}px`)
-          } else {
-            const computedTop = window.getComputedStyle(overlay).top
-            setAppliedPadding(
-              `Top: Set:${topOffset}px / Computed:${computedTop}`
-            )
-          }
+          const headerHeight = header.offsetHeight
+          contentWrapper.style.paddingTop = `${headerHeight}px`
+          contentWrapper.style.setProperty(
+            'padding-top',
+            `${headerHeight}px`,
+            'important'
+          )
         }
       }
 
@@ -176,58 +144,6 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
           pointerEvents: isVisible ? 'auto' : 'none',
         }}
       >
-        {/* デバッグ情報：画面右上に表示 */}
-        <div
-          style={{
-            position: 'fixed',
-            top: '0',
-            right: '0',
-            background: 'rgba(0, 0, 0, 0.9)',
-            color: 'lime',
-            padding: '8px',
-            fontSize: '11px',
-            zIndex: 99999,
-            maxWidth: '200px',
-            lineHeight: '1.4',
-          }}
-        >
-          <strong>DEBUG INFO</strong>
-          <br />
-          Window: {typeof window !== 'undefined' ? window.innerWidth : 0} x{' '}
-          {typeof window !== 'undefined' ? window.innerHeight : 0}
-          <br />
-          Screen: {typeof window !== 'undefined'
-            ? window.screen.width
-            : 0} x {typeof window !== 'undefined' ? window.screen.height : 0}
-          <br />
-          Viewport:{' '}
-          {typeof window !== 'undefined'
-            ? document.documentElement.clientWidth
-            : 0}{' '}
-          x{' '}
-          {typeof window !== 'undefined'
-            ? document.documentElement.clientHeight
-            : 0}
-          <br />
-          <strong style={{ color: 'yellow' }}>
-            UI Bar:{' '}
-            {typeof window !== 'undefined'
-              ? window.screen.height - window.innerHeight
-              : 0}
-            px
-          </strong>
-          <br />
-          <strong style={{ color: 'cyan' }}>Padding: {appliedPadding}</strong>
-          <br />
-          UserAgent:{' '}
-          {typeof window !== 'undefined'
-            ? navigator.userAgent.includes('Safari')
-              ? 'Safari'
-              : navigator.userAgent.includes('Chrome')
-                ? 'Chrome'
-                : 'Other'
-            : 'N/A'}
-        </div>
         <div className={layoutClasses}>
           {/* 従来のヘッダー（統合ヘッダーが無効の場合のみ表示） */}
           {!integratedHeader && (
@@ -272,44 +188,7 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
             <div className="standard-layout-main-content">
               {/* 統合ヘッダー（統合ヘッダーが有効の場合のみ表示） - メインコンテンツ内に移動 */}
               {integratedHeader && (
-                <div
-                  className="standard-layout-integrated-header"
-                  style={{
-                    display: 'block',
-                    background: '#ff0000', // デバッグ用：赤色背景
-                    borderBottom: '1px solid rgba(224, 102, 102, 0.2)',
-                    position: 'relative',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                  }}
-                >
-                  {/* デバッグ情報表示 */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '0',
-                      left: '0',
-                      background: 'rgba(0, 0, 0, 0.8)',
-                      color: 'white',
-                      padding: '4px 8px',
-                      fontSize: '10px',
-                      zIndex: 9999,
-                      pointerEvents: 'none',
-                    }}
-                  >
-                    safe-top:{' '}
-                    {typeof window !== 'undefined'
-                      ? getComputedStyle(
-                          document.documentElement
-                        ).getPropertyValue('--safe-area-inset-top') || '0px'
-                      : '0px'}
-                    <br />
-                    innerHeight:{' '}
-                    {typeof window !== 'undefined' ? window.innerHeight : 0}px
-                    <br />
-                    screenHeight:{' '}
-                    {typeof window !== 'undefined' ? window.screen.height : 0}px
-                  </div>
+                <div className="standard-layout-integrated-header">
                   <div
                     style={{
                       display: 'flex',
