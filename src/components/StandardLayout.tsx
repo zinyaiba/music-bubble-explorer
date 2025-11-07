@@ -252,7 +252,16 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
                 </div>
               )}
 
-              {children}
+              <div
+                className="standard-layout-content-wrapper"
+                style={{
+                  padding: '16px',
+                  flex: 1,
+                  overflow: 'auto',
+                }}
+              >
+                {children}
+              </div>
             </div>
           </div>
 
