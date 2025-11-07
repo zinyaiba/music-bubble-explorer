@@ -60,14 +60,40 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
   )
 
   /**
-   * キーボードイベントリスナーの設定
+   * キーボードイベントリスナーの設定とブラウザUIバー対応
    */
   useEffect(() => {
     if (isVisible) {
       document.addEventListener('keydown', handleKeyDown)
 
+      // スマホ実機のブラウザUIバー対応
+      const updatePadding = () => {
+        const overlay = document.querySelector(
+          '.standard-layout-overlay'
+        ) as HTMLElement
+        if (overlay && window.innerWidth <= 768) {
+          // ブラウザUIバーの高さを計算
+          const browserUIHeight = window.screen.height - window.innerHeight
+          const paddingTop = Math.max(0, browserUIHeight)
+
+          console.log('🔧 Browser UI Height:', browserUIHeight)
+          console.log('🔧 Applying padding-top:', paddingTop)
+
+          overlay.style.paddingTop = `${paddingTop}px`
+        }
+      }
+
+      // 初回実行
+      updatePadding()
+
+      // リサイズ時にも更新
+      window.addEventListener('resize', updatePadding)
+      window.addEventListener('orientationchange', updatePadding)
+
       return () => {
         document.removeEventListener('keydown', handleKeyDown)
+        window.removeEventListener('resize', updatePadding)
+        window.removeEventListener('orientationchange', updatePadding)
       }
     }
   }, [isVisible, handleKeyDown])
@@ -144,6 +170,14 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
           {typeof window !== 'undefined'
             ? document.documentElement.clientHeight
             : 0}
+          <br />
+          <strong style={{ color: 'yellow' }}>
+            UI Bar:{' '}
+            {typeof window !== 'undefined'
+              ? window.screen.height - window.innerHeight
+              : 0}
+            px
+          </strong>
           <br />
           UserAgent:{' '}
           {typeof window !== 'undefined'
