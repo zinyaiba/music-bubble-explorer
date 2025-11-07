@@ -112,6 +112,48 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
           pointerEvents: isVisible ? 'auto' : 'none',
         }}
       >
+        {/* デバッグ情報：画面右上に表示 */}
+        <div
+          style={{
+            position: 'fixed',
+            top: '0',
+            right: '0',
+            background: 'rgba(0, 0, 0, 0.9)',
+            color: 'lime',
+            padding: '8px',
+            fontSize: '11px',
+            zIndex: 99999,
+            maxWidth: '200px',
+            lineHeight: '1.4',
+          }}
+        >
+          <strong>DEBUG INFO</strong>
+          <br />
+          Window: {typeof window !== 'undefined' ? window.innerWidth : 0} x{' '}
+          {typeof window !== 'undefined' ? window.innerHeight : 0}
+          <br />
+          Screen: {typeof window !== 'undefined'
+            ? window.screen.width
+            : 0} x {typeof window !== 'undefined' ? window.screen.height : 0}
+          <br />
+          Viewport:{' '}
+          {typeof window !== 'undefined'
+            ? document.documentElement.clientWidth
+            : 0}{' '}
+          x{' '}
+          {typeof window !== 'undefined'
+            ? document.documentElement.clientHeight
+            : 0}
+          <br />
+          UserAgent:{' '}
+          {typeof window !== 'undefined'
+            ? navigator.userAgent.includes('Safari')
+              ? 'Safari'
+              : navigator.userAgent.includes('Chrome')
+                ? 'Chrome'
+                : 'Other'
+            : 'N/A'}
+        </div>
         <div className={layoutClasses}>
           {/* 従来のヘッダー（統合ヘッダーが無効の場合のみ表示） */}
           {!integratedHeader && (
@@ -160,13 +202,40 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
                   className="standard-layout-integrated-header"
                   style={{
                     display: 'block',
-                    background: '#fef7f7',
+                    background: '#ff0000', // デバッグ用：赤色背景
                     borderBottom: '1px solid rgba(224, 102, 102, 0.2)',
                     position: 'relative',
                     width: '100%',
                     boxSizing: 'border-box',
                   }}
                 >
+                  {/* デバッグ情報表示 */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '0',
+                      left: '0',
+                      background: 'rgba(0, 0, 0, 0.8)',
+                      color: 'white',
+                      padding: '4px 8px',
+                      fontSize: '10px',
+                      zIndex: 9999,
+                      pointerEvents: 'none',
+                    }}
+                  >
+                    safe-top:{' '}
+                    {typeof window !== 'undefined'
+                      ? getComputedStyle(
+                          document.documentElement
+                        ).getPropertyValue('--safe-area-inset-top') || '0px'
+                      : '0px'}
+                    <br />
+                    innerHeight:{' '}
+                    {typeof window !== 'undefined' ? window.innerHeight : 0}px
+                    <br />
+                    screenHeight:{' '}
+                    {typeof window !== 'undefined' ? window.screen.height : 0}px
+                  </div>
                   <div
                     style={{
                       display: 'flex',
