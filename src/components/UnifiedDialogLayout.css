@@ -339,6 +339,7 @@
 /* コンテンツラッパー */
 .unified-dialog-content-wrapper {
   box-sizing: border-box;
+  padding: 16px;
 }
 
 /* モバイルでのパディング調整 */

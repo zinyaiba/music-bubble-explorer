@@ -205,17 +205,17 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
             )}
 
             {/* メインコンテンツ */}
-            <div className="unified-dialog-main-content">
-              <div
-                className="unified-dialog-content-wrapper"
-                style={{
-                  padding: '16px',
-                  flex: 1,
-                  overflow: 'auto',
-                }}
-              >
-                {children}
-              </div>
+            <div
+              className="unified-dialog-main-content"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                flex: 1,
+                overflow: 'auto',
+                padding: 0,
+              }}
+            >
+              <div className="unified-dialog-content-wrapper">{children}</div>
             </div>
           </div>
 
