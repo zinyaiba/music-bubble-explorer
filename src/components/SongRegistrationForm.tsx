@@ -200,9 +200,9 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             throw new Error('楽曲の更新に失敗しました')
           }
         } else {
-          const songId = `song-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+          const tempId = `song-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
           songToSave = {
-            id: songId,
+            id: tempId,
             title: formData.title.trim(),
             lyricists: parseCommaSeparatedString(formData.lyricists),
             composers: parseCommaSeparatedString(formData.composers),
@@ -211,12 +211,19 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
           }
 
           console.log('🎵 Saving new song:', songToSave)
-          const saveSuccess = await DataManager.saveSong(songToSave)
-          console.log('🎵 Save result:', saveSuccess)
+          const firebaseId = await DataManager.saveSong(songToSave)
+          console.log('🎵 Save result - Firebase ID:', firebaseId)
 
-          if (!saveSuccess) {
+          if (!firebaseId) {
             throw new Error('楽曲の保存に失敗しました')
           }
+
+          // FirebaseのIDを使用して楽曲オブジェクトを更新
+          songToSave = {
+            ...songToSave,
+            id: firebaseId,
+          }
+          console.log('🎵 Updated song with Firebase ID:', songToSave)
         }
 
         const musicService = MusicDataService.getInstance()

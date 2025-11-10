@@ -33,10 +33,17 @@ interface NavigationItem {
   id: string
   label: string
   icon: string
-  view: 'main' | 'registration' | 'management' | 'tag-list' | 'tag-registration'
+  view:
+    | 'main'
+    | 'registration'
+    | 'management'
+    | 'tag-list'
+    | 'tag-registration'
+    | 'song-list'
   isActive: boolean
   color: string
   onClick: () => void
+  disabled?: boolean
 }
 
 /**
@@ -60,51 +67,10 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
       // handleGoToMainは削除（シャボン玉ボタンを削除したため不要）
 
       /**
-       * 楽曲登録フォームを開く
+       * 楽曲管理画面を開く（登録と編集を統合）
        */
-      const handleOpenRegistration = useCallback(() => {
-        console.log('🎵 Opening registration form...')
-
-        // 他のダイアログを閉じる
-        if (showSongManagement) {
-          console.log('Closing song management...')
-          onToggleSongManagement()
-        }
-        if (showTagList && onToggleTagList) {
-          console.log('Closing tag list...')
-          onToggleTagList()
-        }
-        if (showTagRegistration && onToggleTagRegistration) {
-          console.log('Closing tag registration...')
-          onToggleTagRegistration()
-        }
-
-        // 楽曲登録フォームを開く
-        console.log('Current showRegistrationForm:', showRegistrationForm)
-        if (!showRegistrationForm) {
-          console.log('Toggling registration form...')
-          onToggleRegistrationForm()
-        }
-
-        onViewChange('registration')
-        announceToScreenReader('楽曲登録フォームを開きました')
-      }, [
-        showSongManagement,
-        showTagList,
-        showTagRegistration,
-        showRegistrationForm,
-        onToggleSongManagement,
-        onToggleTagList,
-        onToggleTagRegistration,
-        onToggleRegistrationForm,
-        onViewChange,
-      ])
-
-      /**
-       * 楽曲編集画面を開く
-       */
-      const handleOpenManagement = useCallback(() => {
-        console.log('📝 Opening song management...')
+      const handleOpenSongManagement = useCallback(() => {
+        console.log('🎵📝 Opening song management...')
 
         // 他のダイアログを閉じる
         if (showRegistrationForm) {
@@ -120,7 +86,7 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
           onToggleTagRegistration()
         }
 
-        // 楽曲編集画面を開く
+        // 楽曲管理画面を開く
         console.log('Current showSongManagement:', showSongManagement)
         if (!showSongManagement) {
           console.log('Toggling song management...')
@@ -128,7 +94,7 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
         }
 
         onViewChange('management')
-        announceToScreenReader('楽曲編集画面を開きました')
+        announceToScreenReader('楽曲管理画面を開きました')
       }, [
         showRegistrationForm,
         showTagList,
@@ -220,8 +186,8 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
         onViewChange,
       ])
 
-      // ナビゲーションアイテムの定義（使用頻度順に最適化）
-      // Priority 1: タグ登録, Priority 2: タグ一覧, Priority 3: 楽曲編集, Priority 4: 楽曲登録
+      // ナビゲーションアイテムの定義（要件4.2に基づく順序）
+      // 順序: タグ登録、タグ一覧、楽曲一覧（非活性）、楽曲管理
       const navigationItems: NavigationItem[] = [
         {
           id: 'tag-registration',
@@ -242,22 +208,24 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
           onClick: handleOpenTagList,
         },
         {
-          id: 'manage-songs',
-          label: '楽曲編集',
-          icon: '📝',
-          view: 'management',
-          isActive: currentView === 'management',
-          color: '#DDA0DD',
-          onClick: handleOpenManagement,
+          id: 'song-list',
+          label: '楽曲一覧',
+          icon: '🎵📋',
+          view: 'song-list',
+          isActive: false,
+          color: '#B6E5D8',
+          onClick: () => {}, // 非活性のため空の関数
+          disabled: true, // 要件4.3, 4.4: 非活性状態
         },
         {
-          id: 'add-song',
-          label: '楽曲登録',
-          icon: '🎵',
-          view: 'registration',
-          isActive: currentView === 'registration',
-          color: '#B6E5D8',
-          onClick: handleOpenRegistration,
+          id: 'song-management',
+          label: '楽曲管理',
+          icon: '🎵📝',
+          view: 'management',
+          isActive:
+            currentView === 'management' || currentView === 'registration',
+          color: '#DDA0DD',
+          onClick: handleOpenSongManagement,
         },
       ]
 
@@ -272,11 +240,14 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
               {navigationItems.map(item => (
                 <HeaderNavButton
                   key={item.id}
-                  onClick={item.onClick}
+                  onClick={item.disabled ? undefined : item.onClick}
                   $isActive={item.isActive}
                   $color={item.color}
                   $theme={theme}
-                  title={item.label}
+                  $disabled={item.disabled || false}
+                  title={item.disabled ? `${item.label}（準備中）` : item.label}
+                  disabled={item.disabled}
+                  aria-disabled={item.disabled}
                 >
                   {item.icon}
                 </HeaderNavButton>
@@ -290,16 +261,28 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
               {navigationItems.map(item => (
                 <MobileNavButton
                   key={item.id}
-                  onClick={item.onClick}
+                  onClick={item.disabled ? undefined : item.onClick}
                   $isActive={item.isActive}
                   $color={item.color}
                   $theme={theme}
-                  aria-label={item.label}
+                  $disabled={item.disabled || false}
+                  aria-label={
+                    item.disabled ? `${item.label}（準備中）` : item.label
+                  }
+                  disabled={item.disabled}
+                  aria-disabled={item.disabled}
                 >
-                  <MobileButtonIcon $isActive={item.isActive}>
+                  <MobileButtonIcon
+                    $isActive={item.isActive}
+                    $disabled={item.disabled || false}
+                  >
                     {item.icon}
                   </MobileButtonIcon>
-                  <MobileButtonText $isActive={item.isActive} $theme={theme}>
+                  <MobileButtonText
+                    $isActive={item.isActive}
+                    $theme={theme}
+                    $disabled={item.disabled || false}
+                  >
                     {item.label}
                   </MobileButtonText>
                 </MobileNavButton>
@@ -325,6 +308,7 @@ const HeaderNavButton = styled.button<{
   $isActive: boolean
   $color: string
   $theme: any
+  $disabled?: boolean
 }>`
   width: 48px;
   height: 48px;
@@ -332,30 +316,37 @@ const HeaderNavButton = styled.button<{
 
   /* ガラスモーフィズム効果 */
   background: ${props =>
-    props.$isActive
-      ? props.$theme.colors.glass.strong
-      : props.$theme.colors.glass.medium};
+    props.$disabled
+      ? props.$theme.colors.glass.light
+      : props.$isActive
+        ? props.$theme.colors.glass.strong
+        : props.$theme.colors.glass.medium};
   backdrop-filter: ${props => props.$theme.effects.blur.medium};
   -webkit-backdrop-filter: ${props => props.$theme.effects.blur.medium};
 
   /* 境界線 */
   border: ${props =>
-    props.$isActive
-      ? props.$theme.effects.borders.accent
-      : props.$theme.effects.borders.glass};
+    props.$disabled
+      ? props.$theme.effects.borders.glass
+      : props.$isActive
+        ? props.$theme.effects.borders.accent
+        : props.$theme.effects.borders.glass};
 
   /* テキスト色 */
   color: ${props =>
-    props.$isActive
-      ? props.$theme.colors.accent
-      : props.$theme.colors.text.onGlass};
+    props.$disabled
+      ? props.$theme.colors.text.disabled
+      : props.$isActive
+        ? props.$theme.colors.accent
+        : props.$theme.colors.text.onGlass};
 
   font-size: 20px;
-  cursor: pointer;
+  cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   display: flex;
   align-items: center;
   justify-content: center;
+  opacity: ${props => (props.$disabled ? '0.5' : '1')};
 
   /* パフォーマンス最適化 */
   will-change: transform, box-shadow, background;
@@ -364,6 +355,7 @@ const HeaderNavButton = styled.button<{
   /* アクティブ状態の視覚的強調 */
   ${props =>
     props.$isActive &&
+    !props.$disabled &&
     `
     box-shadow: ${props.$theme.effects.shadows.colored};
     font-weight: bold;
@@ -371,21 +363,33 @@ const HeaderNavButton = styled.button<{
 
   /* ホバー・タップエフェクトの改善 */
   &:hover {
-    transform: translateY(-3px) translateZ(0);
-    box-shadow: ${props => props.$theme.effects.shadows.strong};
-    background: ${props => props.$theme.colors.glass.strong};
-    border: ${props => props.$theme.effects.borders.accent};
+    ${props =>
+      !props.$disabled &&
+      `
+      transform: translateY(-3px) translateZ(0);
+      box-shadow: ${props.$theme.effects.shadows.strong};
+      background: ${props.$theme.colors.glass.strong};
+      border: ${props.$theme.effects.borders.accent};
+    `}
   }
 
   &:active {
-    transform: translateY(-1px) translateZ(0);
-    transition: all 0.1s ease;
+    ${props =>
+      !props.$disabled &&
+      `
+      transform: translateY(-1px) translateZ(0);
+      transition: all 0.1s ease;
+    `}
   }
 
   /* フォーカス状態 */
   &:focus {
-    outline: 2px solid ${props => props.$theme.colors.accent};
-    outline-offset: 2px;
+    ${props =>
+      !props.$disabled &&
+      `
+      outline: 2px solid ${props.$theme.colors.accent};
+      outline-offset: 2px;
+    `}
   }
 
   /* モバイル対応 */
@@ -456,23 +460,28 @@ const MobileNavButton = styled.button<{
   $isActive: boolean
   $color: string
   $theme: any
+  $disabled?: boolean
 }>`
   /* ガラスモーフィズム効果 */
   background: ${props =>
-    props.$isActive
-      ? props.$theme.colors.glass.strong
-      : props.$theme.colors.glass.medium};
+    props.$disabled
+      ? props.$theme.colors.glass.light
+      : props.$isActive
+        ? props.$theme.colors.glass.strong
+        : props.$theme.colors.glass.medium};
   backdrop-filter: ${props => props.$theme.effects.blur.light};
   -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
 
   /* 境界線 */
   border: ${props =>
-    props.$isActive
-      ? props.$theme.effects.borders.accent
-      : props.$theme.effects.borders.glass};
+    props.$disabled
+      ? props.$theme.effects.borders.glass
+      : props.$isActive
+        ? props.$theme.effects.borders.accent
+        : props.$theme.effects.borders.glass};
 
   padding: 12px 6px; /* パディングを調整 */
-  cursor: pointer;
+  cursor: ${props => (props.$disabled ? 'not-allowed' : 'pointer')};
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   display: flex;
   flex-direction: column;
@@ -483,6 +492,7 @@ const MobileNavButton = styled.button<{
   border-radius: 20px;
   flex: 1;
   max-width: 80px; /* 最大幅を狭める */
+  opacity: ${props => (props.$disabled ? '0.5' : '1')};
 
   /* パフォーマンス最適化 */
   will-change: transform, background, box-shadow;
@@ -494,27 +504,40 @@ const MobileNavButton = styled.button<{
   /* アクティブ状態の視覚的強調 */
   ${props =>
     props.$isActive &&
+    !props.$disabled &&
     `
     box-shadow: ${props.$theme.effects.shadows.colored};
   `}
 
   /* ホバー・タップエフェクトの改善 */
   &:hover {
-    background: ${props => props.$theme.colors.glass.strong};
-    transform: translateY(-3px) translateZ(0);
-    box-shadow: ${props => props.$theme.effects.shadows.medium};
-    border: ${props => props.$theme.effects.borders.accent};
+    ${props =>
+      !props.$disabled &&
+      `
+      background: ${props.$theme.colors.glass.strong};
+      transform: translateY(-3px) translateZ(0);
+      box-shadow: ${props.$theme.effects.shadows.medium};
+      border: ${props.$theme.effects.borders.accent};
+    `}
   }
 
   &:active {
-    transform: scale(0.95) translateZ(0);
-    transition: all 0.1s ease;
+    ${props =>
+      !props.$disabled &&
+      `
+      transform: scale(0.95) translateZ(0);
+      transition: all 0.1s ease;
+    `}
   }
 
   /* フォーカス状態 */
   &:focus {
-    outline: 2px solid ${props => props.$theme.colors.accent};
-    outline-offset: 2px;
+    ${props =>
+      !props.$disabled &&
+      `
+      outline: 2px solid ${props.$theme.colors.accent};
+      outline-offset: 2px;
+    `}
   }
 
   /* モーション軽減対応 */
@@ -531,15 +554,20 @@ const MobileNavButton = styled.button<{
   }
 `
 
-const MobileButtonIcon = styled.span<{ $isActive: boolean }>`
+const MobileButtonIcon = styled.span<{
+  $isActive: boolean
+  $disabled?: boolean
+}>`
   font-size: ${props => (props.$isActive ? '20px' : '19px')};
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   /* アイコンの視覚的強調 */
   filter: ${props =>
-    props.$isActive
-      ? 'drop-shadow(0 2px 4px rgba(224, 102, 102, 0.3))'
-      : 'none'};
+    props.$disabled
+      ? 'grayscale(100%)'
+      : props.$isActive
+        ? 'drop-shadow(0 2px 4px rgba(224, 102, 102, 0.3))'
+        : 'none'};
 
   /* モーション軽減対応 */
   @media (prefers-reduced-motion: reduce) {
@@ -550,6 +578,7 @@ const MobileButtonIcon = styled.span<{ $isActive: boolean }>`
 const MobileButtonText = styled.span<{
   $isActive: boolean
   $theme: any
+  $disabled?: boolean
 }>`
   font-family: ${props => props.$theme.typography.fontFamily};
   font-size: ${props => (props.$isActive ? '11px' : '10px')};
@@ -558,9 +587,11 @@ const MobileButtonText = styled.span<{
       ? props.$theme.typography.fontWeights.bold
       : props.$theme.typography.fontWeights.medium};
   color: ${props =>
-    props.$isActive
-      ? props.$theme.colors.text.primary
-      : props.$theme.colors.text.secondary};
+    props.$disabled
+      ? props.$theme.colors.text.disabled
+      : props.$isActive
+        ? props.$theme.colors.text.primary
+        : props.$theme.colors.text.secondary};
   text-align: center;
   line-height: 1.1;
   letter-spacing: -0.02em; /* 文字間隔を狭める */

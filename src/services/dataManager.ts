@@ -52,49 +52,51 @@ export class DataManager {
 
   /**
    * 楽曲データを保存（34.3対応: Firebase専用）
+   * @returns Firebase document ID or null
    */
-  public static async saveSong(song: Song): Promise<boolean> {
-    return (
-      safeExecute(
-        async () => {
-          // Firebase専用モードではFirebaseのみに保存
-          const firebaseSuccess = await DataManager.saveSongToFirebase(song)
+  public static async saveSong(song: Song): Promise<string | null> {
+    return safeExecute(
+      async () => {
+        // Firebase専用モードではFirebaseのみに保存
+        const firebaseId = await DataManager.saveSongToFirebase(song)
 
-          if (firebaseSuccess) {
-            console.log(`🔥 Song "${song.title}" saved to Firebase`)
-            return true
-          } else {
-            console.error(`❌ Failed to save song "${song.title}" to Firebase`)
-            return false
-          }
-        },
-        ErrorType.DATA_LOADING,
-        {
-          source: 'DataManager.saveSong',
-          songId: song.id,
-          songTitle: song.title,
+        if (firebaseId) {
+          console.log(
+            `🔥 Song "${song.title}" saved to Firebase with ID: ${firebaseId}`
+          )
+          return firebaseId
+        } else {
+          console.error(`❌ Failed to save song "${song.title}" to Firebase`)
+          return null
         }
-      ) || false
+      },
+      ErrorType.DATA_LOADING,
+      {
+        source: 'DataManager.saveSong',
+        songId: song.id,
+        songTitle: song.title,
+      }
     )
   }
 
   /**
    * Firebaseに楽曲を保存（34.2対応）
+   * @returns Firebase document ID or null
    */
-  private static async saveSongToFirebase(song: Song): Promise<boolean> {
+  private static async saveSongToFirebase(song: Song): Promise<string | null> {
     try {
       const FirebaseServiceClass = await loadFirebaseService()
       if (!FirebaseServiceClass) {
-        return false
+        return null
       }
 
       const firebaseService = FirebaseServiceClass.getInstance()
       const firebaseId = await firebaseService.addSong(song)
 
-      return firebaseId !== null
+      return firebaseId
     } catch (error) {
       console.error('🔥 Firebase save error:', error)
-      return false
+      return null
     }
   }
 

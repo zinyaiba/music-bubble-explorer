@@ -106,17 +106,8 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
 
   // 表示状態でない場合は何も表示しない
   if (!isVisible) {
-    console.log('🖼️ StandardLayout: Not visible, returning null', { title })
     return null
   }
-
-  console.log('🖼️ StandardLayout: Rendering', {
-    title,
-    isVisible,
-    integratedHeader,
-    showBackButton,
-    children: !!children,
-  })
 
   const layoutClasses = [
     'standard-layout',

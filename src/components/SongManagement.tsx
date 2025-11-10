@@ -109,6 +109,14 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     )
   }, [songs, searchQuery])
 
+  const handleAddNewSong = useCallback(() => {
+    console.log('➕➕➕ ADD NEW SONG BUTTON CLICKED ➕➕➕')
+    console.log('Current state:', { showEditForm, editingSong })
+    setEditingSong(null) // 新規登録の場合はnull
+    setShowEditForm(true)
+    console.log('After setState - showEditForm should be true')
+  }, [showEditForm, editingSong])
+
   const handleEditSong = useCallback((song: Song) => {
     console.log('✏️ Opening edit form for song:', {
       songId: song.id,
@@ -130,20 +138,17 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   const handleSongUpdated = useCallback(
     async (updatedSong: Song) => {
       try {
-        const localUpdateSuccess = await DataManager.updateSong(updatedSong)
+        console.log('🔄 handleSongUpdated called:', {
+          updatedSongId: updatedSong.id,
+          updatedSongTitle: updatedSong.title,
+        })
 
-        if (!localUpdateSuccess) {
-          throw new Error('楽曲の更新に失敗しました')
-        }
-
-        setSongs(prevSongs =>
-          prevSongs.map(song =>
-            song.id === updatedSong.id ? updatedSong : song
-          )
-        )
-
+        // キャッシュをクリアして最新データを再読み込み
         const musicService = MusicDataService.getInstance()
         musicService.clearCache()
+
+        // Firebaseから最新のデータを再読み込み
+        await loadSongs()
 
         onSongUpdated?.(updatedSong)
         handleCloseEditForm()
@@ -153,7 +158,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
         setError(errorMessage)
       }
     },
-    [onSongUpdated, handleCloseEditForm]
+    [loadSongs, onSongUpdated, handleCloseEditForm]
   )
 
   const handleDeleteSong = useCallback((song: Song) => {
@@ -296,6 +301,15 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                   <span className="stat-value">{filteredSongs.length}曲</span>
                 </span>
               </div>
+              <button
+                onClick={handleAddNewSong}
+                className="add-song-button"
+                aria-label="新しい楽曲を登録"
+                title="新しい楽曲を登録"
+              >
+                <span className="add-icon">➕</span>
+                <span className="add-text">新規登録</span>
+              </button>
             </div>
 
             <div className="song-list">
@@ -363,7 +377,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
               )}
             </div>
 
-            {showEditForm && editingSong && (
+            {showEditForm && (
               <SongRegistrationForm
                 isVisible={showEditForm}
                 onClose={handleCloseEditForm}

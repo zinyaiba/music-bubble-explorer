@@ -999,38 +999,46 @@ function App() {
    * Handle song updated
    */
   const handleSongUpdated = useCallback(
-    (song: Song) => {
+    async (song: Song) => {
       // Refresh the role-based bubble manager with updated data
       if (roleBasedBubbleManagerRef.current && musicServiceRef.current) {
-        // Clear cache and reload data
-        musicServiceRef.current.clearCache()
+        // Firebaseから最新データを再読み込み
+        try {
+          await musicServiceRef.current.loadFromFirebase()
+          debugLogger.info(
+            'Song updated - reloaded data from Firebase',
+            song.title
+          )
 
-        // Get updated music database
-        const updatedMusicDatabase = {
-          songs: musicServiceRef.current.getAllSongs(),
-          people: musicServiceRef.current.getAllPeople(),
-          tags: musicServiceRef.current.getAllTags(),
-        }
+          // Get updated music database
+          const updatedMusicDatabase = {
+            songs: musicServiceRef.current.getAllSongs(),
+            people: musicServiceRef.current.getAllPeople(),
+            tags: musicServiceRef.current.getAllTags(),
+          }
 
-        // Update state and managers
-        setMusicDatabase(updatedMusicDatabase)
+          // Update state and managers
+          setMusicDatabase(updatedMusicDatabase)
 
-        // Update role-based bubble manager with new data
-        roleBasedBubbleManagerRef.current.updateMusicDatabase(
-          updatedMusicDatabase
-        )
-
-        // Update enhanced bubble manager as well
-        if (enhancedBubbleManagerRef.current) {
-          enhancedBubbleManagerRef.current.updateMusicDatabase(
+          // Update role-based bubble manager with new data
+          roleBasedBubbleManagerRef.current.updateMusicDatabase(
             updatedMusicDatabase
           )
-        }
 
-        debugLogger.info(
-          'Song updated and role-based bubbles refreshed',
-          song.title
-        )
+          // Update enhanced bubble manager as well
+          if (enhancedBubbleManagerRef.current) {
+            enhancedBubbleManagerRef.current.updateMusicDatabase(
+              updatedMusicDatabase
+            )
+          }
+
+          debugLogger.info(
+            'Song updated and role-based bubbles refreshed',
+            song.title
+          )
+        } catch (error) {
+          debugLogger.error('Failed to reload data after song update', error)
+        }
       }
     },
     [debugLogger]
@@ -1040,38 +1048,43 @@ function App() {
    * Handle song deleted
    */
   const handleSongDeleted = useCallback(
-    (songId: string) => {
+    async (songId: string) => {
       // Refresh the role-based bubble manager with updated data
       if (roleBasedBubbleManagerRef.current && musicServiceRef.current) {
-        // Clear cache and reload data
-        musicServiceRef.current.clearCache()
+        // Firebaseから最新データを再読み込み
+        try {
+          await musicServiceRef.current.loadFromFirebase()
+          debugLogger.info('Song deleted - reloaded data from Firebase', songId)
 
-        // Get updated music database
-        const updatedMusicDatabase = {
-          songs: musicServiceRef.current.getAllSongs(),
-          people: musicServiceRef.current.getAllPeople(),
-          tags: musicServiceRef.current.getAllTags(),
-        }
+          // Get updated music database
+          const updatedMusicDatabase = {
+            songs: musicServiceRef.current.getAllSongs(),
+            people: musicServiceRef.current.getAllPeople(),
+            tags: musicServiceRef.current.getAllTags(),
+          }
 
-        // Update state and managers
-        setMusicDatabase(updatedMusicDatabase)
+          // Update state and managers
+          setMusicDatabase(updatedMusicDatabase)
 
-        // Update role-based bubble manager with updated data
-        roleBasedBubbleManagerRef.current.updateMusicDatabase(
-          updatedMusicDatabase
-        )
-
-        // Update enhanced bubble manager as well
-        if (enhancedBubbleManagerRef.current) {
-          enhancedBubbleManagerRef.current.updateMusicDatabase(
+          // Update role-based bubble manager with updated data
+          roleBasedBubbleManagerRef.current.updateMusicDatabase(
             updatedMusicDatabase
           )
-        }
 
-        debugLogger.info(
-          'Song deleted and role-based bubbles refreshed',
-          songId
-        )
+          // Update enhanced bubble manager as well
+          if (enhancedBubbleManagerRef.current) {
+            enhancedBubbleManagerRef.current.updateMusicDatabase(
+              updatedMusicDatabase
+            )
+          }
+
+          debugLogger.info(
+            'Song deleted and role-based bubbles refreshed',
+            songId
+          )
+        } catch (error) {
+          debugLogger.error('Failed to reload data after song deletion', error)
+        }
       }
     },
     [debugLogger]
