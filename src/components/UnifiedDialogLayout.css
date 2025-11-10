@@ -1964,3 +1964,25 @@ div.unified-dialog
 }
 
 /* スマホ実機のブラウザUIバー対応 - オーバーレイで対応済みのため削除 */
+
+/* 統合ヘッダーをstickyに固定 */
+.unified-dialog-integrated-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 10 !important;
+  background: #fef7f7 !important;
+  border-bottom: 1px solid rgba(224, 102, 102, 0.2) !important;
+}
+
+/* 削除確認ダイアログの表示領域を拡大 */
+.unified-dialog--compact {
+  max-width: 90% !important;
+  min-height: 200px !important;
+}
+
+@media screen and (max-width: 768px) {
+  .unified-dialog--compact {
+    max-width: calc(100% - 32px) !important;
+    min-height: 250px !important;
+  }
+}

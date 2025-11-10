@@ -65,6 +65,36 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
     if (isVisible) {
       document.addEventListener('keydown', handleKeyDown)
 
+      // スマホ実機のヘッダー固定対応
+      const updatePadding = () => {
+        const header = document.querySelector(
+          '.unified-dialog-integrated-header'
+        ) as HTMLElement
+        const contentWrapper = document.querySelector(
+          '.unified-dialog-content-wrapper'
+        ) as HTMLElement
+
+        if (header && contentWrapper && window.innerWidth <= 768) {
+          // ヘッダーの高さを取得してコンテンツにpadding-topを追加
+          const headerHeight = header.offsetHeight
+          contentWrapper.style.paddingTop = `${headerHeight}px`
+          contentWrapper.style.setProperty(
+            'padding-top',
+            `${headerHeight}px`,
+            'important'
+          )
+        }
+      }
+
+      // 初回実行（DOMレンダリング後に実行）
+      setTimeout(updatePadding, 0)
+      setTimeout(updatePadding, 100)
+      setTimeout(updatePadding, 300)
+
+      // リサイズ時にも更新
+      window.addEventListener('resize', updatePadding)
+      window.addEventListener('orientationchange', updatePadding)
+
       // モバイルでの強制位置調整
       const isMobile = window.innerWidth <= 768
       if (isMobile) {
@@ -89,6 +119,8 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
 
       return () => {
         document.removeEventListener('keydown', handleKeyDown)
+        window.removeEventListener('resize', updatePadding)
+        window.removeEventListener('orientationchange', updatePadding)
       }
     }
   }, [isVisible, handleKeyDown])
@@ -215,7 +247,16 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
                 padding: 0,
               }}
             >
-              <div className="unified-dialog-content-wrapper">{children}</div>
+              <div
+                className="unified-dialog-content-wrapper"
+                style={{
+                  padding: '16px',
+                  flex: 1,
+                  overflow: 'auto',
+                }}
+              >
+                {children}
+              </div>
             </div>
           </div>
 
