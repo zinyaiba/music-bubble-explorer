@@ -210,7 +210,7 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
         {
           id: 'song-list',
           label: '楽曲一覧',
-          icon: '🎵📋',
+          icon: '🎵',
           view: 'song-list',
           isActive: false,
           color: '#B6E5D8',
@@ -220,7 +220,7 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
         {
           id: 'song-management',
           label: '楽曲管理',
-          icon: '🎵📝',
+          icon: '📝',
           view: 'management',
           isActive:
             currentView === 'management' || currentView === 'registration',

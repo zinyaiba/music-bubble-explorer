@@ -138,26 +138,85 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
           <div className="unified-dialog-content">
             {/* 統合ヘッダー（統合ヘッダーが有効の場合のみ表示） */}
             {integratedHeader && (
-              <div className="unified-dialog-integrated-header">
-                <h2
-                  id="unified-dialog-title"
-                  className="unified-dialog-integrated-title"
+              <div
+                className="unified-dialog-integrated-header"
+                style={{
+                  display: 'block',
+                  background: '#fef7f7',
+                  borderBottom: '1px solid rgba(224, 102, 102, 0.2)',
+                  padding: '0',
+                  position: 'relative',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 16px',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    minHeight: '48px',
+                  }}
                 >
-                  {title}
-                </h2>
-                <button
-                  className="unified-dialog-integrated-close"
-                  onClick={onClose}
-                  aria-label="ダイアログを閉じる"
-                  type="button"
-                >
-                  ×
-                </button>
+                  <h2
+                    id="unified-dialog-title"
+                    className="unified-dialog-integrated-title"
+                    style={{
+                      margin: 0,
+                      fontSize: '18px',
+                      fontWeight: 'bold',
+                      color: '#e06666',
+                      flex: '1 1 auto',
+                      minWidth: 0,
+                      paddingRight: '12px',
+                      lineHeight: '1.2',
+                    }}
+                  >
+                    {title}
+                  </h2>
+                  <button
+                    className="unified-dialog-integrated-close"
+                    onClick={onClose}
+                    aria-label="ダイアログを閉じる"
+                    type="button"
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.5)',
+                      border: '1px solid rgba(224, 102, 102, 0.2)',
+                      borderRadius: '50%',
+                      fontSize: '20px',
+                      color: '#666',
+                      width: '36px',
+                      height: '36px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      padding: 0,
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
             )}
 
             {/* メインコンテンツ */}
-            <div className="unified-dialog-main-content">{children}</div>
+            <div className="unified-dialog-main-content">
+              <div
+                className="unified-dialog-content-wrapper"
+                style={{
+                  padding: '16px',
+                  flex: 1,
+                  overflow: 'auto',
+                }}
+              >
+                {children}
+              </div>
+            </div>
           </div>
 
           {/* フッター（オプション） */}
