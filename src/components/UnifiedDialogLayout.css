@@ -67,6 +67,14 @@
   border-radius: 20px;
 }
 
+/* モバイルではcompactも幅を広げる */
+@media screen and (max-width: 768px) {
+  .unified-dialog--compact {
+    max-width: calc(100% - 32px) !important;
+    width: calc(100% - 32px) !important;
+  }
+}
+
 .unified-dialog--standard {
   max-width: 500px;
   min-height: 200px;
@@ -596,7 +604,7 @@
   }
 
   div.unified-dialog-overlay[role='dialog'] .unified-dialog-main-content {
-    padding: 16px 18px !important;
+    padding: 0 !important;
   }
 
   div.unified-dialog-overlay[role='dialog'] .unified-dialog-footer {
@@ -831,7 +839,7 @@
 }
 
 .unified-dialog--compact .unified-dialog-content {
-  padding: 14px 16px;
+  padding: 0;
 }
 
 .unified-dialog--compact .unified-dialog-footer {
