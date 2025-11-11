@@ -68,6 +68,9 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
 
       // スマホ実機のヘッダー固定対応
       const updatePadding = () => {
+        const overlay = document.querySelector(
+          '.standard-layout-overlay'
+        ) as HTMLElement
         const header = document.querySelector(
           '.standard-layout-integrated-header'
         ) as HTMLElement
@@ -76,12 +79,16 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
         ) as HTMLElement
 
         if (header && contentWrapper && window.innerWidth <= 768) {
-          // ヘッダーの高さを取得してコンテンツにpadding-topを追加
-          const headerHeight = header.offsetHeight
-          contentWrapper.style.paddingTop = `${headerHeight}px`
+          // 編集中ダイアログ（song-editing-mode）の場合は100px、それ以外はヘッダーの高さ
+          const isEditingMode = overlay?.classList.contains('song-editing-mode')
+          const paddingTop = isEditingMode
+            ? '100px'
+            : `${header.offsetHeight}px`
+
+          contentWrapper.style.paddingTop = paddingTop
           contentWrapper.style.setProperty(
             'padding-top',
-            `${headerHeight}px`,
+            paddingTop,
             'important'
           )
         }
