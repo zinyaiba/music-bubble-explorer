@@ -833,7 +833,7 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
 .standard-layout-integrated-header {
   position: sticky !important;
   top: 0 !important;
-  z-index: 10 !important;
+  /* z-index: 30 !important; */
   background: #fef7f7 !important;
   border-bottom: 1px solid rgba(224, 102, 102, 0.2) !important;
 }
