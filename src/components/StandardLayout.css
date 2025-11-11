@@ -724,12 +724,14 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
 @media screen and (max-width: 768px) {
   .standard-layout-content-wrapper {
     padding: 12px !important;
+    padding-top: 100px !important;
   }
 }
 
 @media screen and (max-width: 480px) {
   .standard-layout-content-wrapper {
     padding: 8px !important;
+    padding-top: 100px !important;
   }
 }
 

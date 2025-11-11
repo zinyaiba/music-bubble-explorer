@@ -267,6 +267,7 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
                 className="standard-layout-content-wrapper"
                 style={{
                   padding: '16px',
+                  paddingTop: '100px',
                   flex: 1,
                   overflow: 'auto',
                 }}
