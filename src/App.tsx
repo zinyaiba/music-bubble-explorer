@@ -754,6 +754,181 @@ function App() {
   }, [])
 
   /**
+   * Handle song click from DetailModal - open another bubble detail
+   * Requirements: 2.2, 2.4, 2.5
+   * Note: Dialog navigation does NOT maintain history (Requirement 2.4)
+   * Each navigation replaces the current dialog instead of stacking
+   */
+  const handleSongClickFromDetail = useCallback(
+    (songName: string) => {
+      if (!musicServiceRef.current) return
+
+      // Find the song by name
+      const allSongs = musicServiceRef.current.getAllSongs()
+      const song = allSongs.find(s => s.title === songName)
+
+      if (song) {
+        // Create a bubble entity for the song
+        const songBubble = new BubbleEntity({
+          id: `song-${song.id}`,
+          name: song.title,
+          type: 'song',
+          x: 0,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          size: 20,
+          color: '#FFB6C1',
+          opacity: 1,
+          lifespan: 1000,
+          relatedCount:
+            song.lyricists.length +
+            song.composers.length +
+            song.arrangers.length,
+        })
+
+        // Replace current dialog with new song detail (no history stack)
+        // This implements Requirement 2.4: no navigation history
+        setSelectedBubble(songBubble)
+
+        debugLogger.debug('Song clicked from detail - dialog replaced', {
+          songName,
+          songId: song.id,
+        })
+      }
+    },
+    [debugLogger]
+  )
+
+  /**
+   * Handle tag click from DetailModal - navigate to tag detail
+   * Requirements: 2.3, 2.4
+   * Note: Dialog navigation does NOT maintain history (Requirement 2.4)
+   * Each navigation replaces the current dialog instead of stacking
+   */
+  const handleTagClickFromDetail = useCallback(
+    (tagName: string) => {
+      console.log('🔍 App: handleTagClickFromDetail called', { tagName })
+
+      if (!musicServiceRef.current) return
+
+      // Find songs with this tag to calculate relatedCount
+      const allSongs = musicServiceRef.current.getAllSongs()
+      const taggedSongs = allSongs.filter(
+        song => song.tags && song.tags.includes(tagName)
+      )
+
+      console.log('🔍 App: Tag search result', {
+        tagName,
+        songsWithTag: taggedSongs.length,
+        totalSongs: allSongs.length,
+      })
+
+      // Create a bubble entity for the tag (even if no songs found)
+      const tagBubble = new BubbleEntity({
+        id: `tag-${tagName}`,
+        name: tagName,
+        type: 'tag',
+        x: 0,
+        y: 0,
+        vx: 0,
+        vy: 0,
+        size: 20,
+        color: '#98FB98',
+        opacity: 1,
+        lifespan: 1000,
+        relatedCount: taggedSongs.length,
+      })
+
+      // Replace current dialog with tag detail (no history stack)
+      // This implements Requirement 2.4: no navigation history
+      setSelectedBubble(tagBubble)
+
+      debugLogger.debug('Tag clicked from detail - dialog replaced', {
+        tagName,
+        relatedCount: taggedSongs.length,
+      })
+    },
+    [debugLogger]
+  )
+
+  /**
+   * Handle person click from DetailModal - navigate to person detail
+   * Requirements: 2.1, 2.4, 2.5
+   * Note: Dialog navigation does NOT maintain history (Requirement 2.4)
+   * Each navigation replaces the current dialog instead of stacking
+   */
+  const handlePersonClickFromDetail = useCallback(
+    (personName: string) => {
+      if (!musicServiceRef.current) return
+
+      // Find the person by checking all songs
+      const allSongs = musicServiceRef.current.getAllSongs()
+      const personSongs = allSongs.filter(
+        song =>
+          song.lyricists.includes(personName) ||
+          song.composers.includes(personName) ||
+          song.arrangers.includes(personName)
+      )
+
+      if (personSongs.length > 0) {
+        // Determine the person's primary role
+        let personType: 'lyricist' | 'composer' | 'arranger' = 'lyricist'
+        let personColor = '#4caf50'
+
+        const isLyricist = personSongs.some(s =>
+          s.lyricists.includes(personName)
+        )
+        const isComposer = personSongs.some(s =>
+          s.composers.includes(personName)
+        )
+        const isArranger = personSongs.some(s =>
+          s.arrangers.includes(personName)
+        )
+
+        // Prioritize: composer > lyricist > arranger
+        if (isComposer) {
+          personType = 'composer'
+          personColor = '#2196f3'
+        } else if (isLyricist) {
+          personType = 'lyricist'
+          personColor = '#4caf50'
+        } else if (isArranger) {
+          personType = 'arranger'
+          personColor = '#ff9800'
+        }
+
+        // Create a bubble entity for the person
+        const personBubble = new BubbleEntity({
+          id: `person-${personName}`,
+          name: personName,
+          type: personType,
+          x: 0,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          size: 20,
+          color: personColor,
+          opacity: 1,
+          lifespan: 1000,
+          relatedCount: personSongs.length,
+        })
+
+        // Replace current dialog with person detail (no history stack)
+        // This implements Requirement 2.4: no navigation history
+        setSelectedBubble(personBubble)
+
+        debugLogger.debug('Person clicked from detail - dialog replaced', {
+          personName,
+          personType,
+          relatedSongs: personSongs.length,
+        })
+      }
+    },
+    [debugLogger]
+  )
+
+  /**
    * Handle view changes
    */
   const handleViewChange = useCallback(
@@ -1346,6 +1521,9 @@ function App() {
             <DetailModal
               selectedBubble={selectedBubble}
               onClose={handleModalClose}
+              onSongClick={handleSongClickFromDetail}
+              onTagClick={handleTagClickFromDetail}
+              onPersonClick={handlePersonClickFromDetail}
             />
 
             <DatabaseDebugger

@@ -8,6 +8,9 @@ import './DetailModal.css'
 interface DetailModalProps {
   selectedBubble: BubbleEntity | null
   onClose: () => void
+  onSongClick?: (songName: string) => void
+  onTagClick?: (tagName: string) => void
+  onPersonClick?: (personName: string) => void
 }
 
 interface RelatedData {
@@ -27,7 +30,7 @@ interface RelatedData {
  * Updated to use StandardLayout for full-screen display consistency
  */
 export const DetailModal: React.FC<DetailModalProps> = React.memo(
-  ({ selectedBubble, onClose }) => {
+  ({ selectedBubble, onClose, onSongClick, onTagClick, onPersonClick }) => {
     const [relatedData, setRelatedData] = useState<RelatedData[]>([])
 
     const musicService = useMemo(() => MusicDataService.getInstance(), [])
@@ -217,6 +220,13 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
         return
       }
 
+      console.log('🔍 DetailModal: Setting relatedData', {
+        bubbleType: selectedBubble?.type,
+        bubbleName: selectedBubble?.name,
+        dataCount: data.length,
+        data: data.map(d => ({ type: d.type, name: d.name, role: d.role })),
+      })
+
       setRelatedData(data)
     }, [selectedBubble, musicService])
 
@@ -244,6 +254,40 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
         }
       },
       []
+    )
+
+    /**
+     * Handle item click for navigation
+     * Requirements: 2.2, 2.3, 2.4, 2.5
+     * Note: Navigation replaces current dialog (no history stack per Requirement 2.4)
+     */
+    const handleItemClick = useCallback(
+      (item: RelatedData) => {
+        console.log('🔍 DetailModal: handleItemClick called', {
+          itemType: item.type,
+          itemName: item.name,
+          onSongClick: !!onSongClick,
+          onTagClick: !!onTagClick,
+          onPersonClick: !!onPersonClick,
+        })
+
+        if (item.type === 'song' && onSongClick) {
+          // Navigate to song detail (replaces current dialog)
+          console.log('🎵 Navigating to song:', item.name)
+          onSongClick(item.name)
+        } else if (item.type === 'tag' && onTagClick) {
+          // Navigate to tag detail (replaces current dialog)
+          console.log('🏷️ Navigating to tag:', item.name)
+          onTagClick(item.name)
+        } else if (item.type === 'person' && onPersonClick) {
+          // Navigate to person detail (replaces current dialog)
+          console.log('👤 Navigating to person:', item.name)
+          onPersonClick(item.name)
+        } else {
+          console.warn('⚠️ No handler found for item:', item)
+        }
+      },
+      [onSongClick, onTagClick, onPersonClick]
     )
 
     console.log('🔍 DetailModal: Render check', {
@@ -292,28 +336,56 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                 <div
                   className="related-list"
                   role="list"
-                  aria-label="関連する人物一覧"
+                  aria-label="関連する人物とタグ一覧"
                 >
-                  {relatedData.map(item => (
-                    <div
-                      key={item.id}
-                      className="related-item"
-                      role="listitem"
-                      tabIndex={0}
-                    >
-                      <span
-                        className={`role-tag role-${item.role}`}
-                        aria-label={`役割: ${getRoleLabel(item.role!)}`}
+                  {relatedData.map(item => {
+                    console.log('🔍 Rendering item:', {
+                      id: item.id,
+                      name: item.name,
+                      type: item.type,
+                      role: item.role,
+                    })
+                    return (
+                      <div
+                        key={item.id}
+                        className={`related-item ${item.type === 'tag' || item.type === 'person' ? 'clickable' : ''}`}
+                        role="listitem"
+                        tabIndex={0}
+                        onClick={
+                          item.type === 'tag' || item.type === 'person'
+                            ? () => handleItemClick(item)
+                            : undefined
+                        }
+                        onKeyDown={
+                          item.type === 'tag' || item.type === 'person'
+                            ? e => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault()
+                                  handleItemClick(item)
+                                }
+                              }
+                            : undefined
+                        }
+                        style={
+                          item.type === 'tag' || item.type === 'person'
+                            ? { cursor: 'pointer' }
+                            : undefined
+                        }
                       >
-                        {getRoleLabel(item.role!)}
-                      </span>
-                      <span className="item-name">{item.name}</span>
-                    </div>
-                  ))}
+                        <span
+                          className={`role-tag role-${item.role}`}
+                          aria-label={`役割: ${getRoleLabel(item.role!)}`}
+                        >
+                          {getRoleLabel(item.role!)}
+                        </span>
+                        <span className="item-name">{item.name}</span>
+                      </div>
+                    )
+                  })}
                 </div>
               ) : (
                 <div className="empty-message" role="status" aria-live="polite">
-                  関連する人物が見つかりません
+                  関連する人物やタグが見つかりません
                 </div>
               )}
             </div>
@@ -338,14 +410,22 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                     console.log('🎵 Rendering tag song item:', {
                       itemId: item.id,
                       itemName: item.name,
-                      className: 'related-item tag-song-item',
+                      className: 'related-item tag-song-item clickable',
                     })
                     return (
                       <div
                         key={item.id}
-                        className="related-item tag-song-item"
+                        className="related-item tag-song-item clickable"
                         role="listitem"
                         tabIndex={0}
+                        onClick={() => handleItemClick(item)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            handleItemClick(item)
+                          }
+                        }}
+                        style={{ cursor: 'pointer' }}
                       >
                         <div className="song-info">
                           <div className="item-name">{item.name}</div>
@@ -409,9 +489,17 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                   {relatedData.map(item => (
                     <div
                       key={item.id}
-                      className="related-item"
+                      className="related-item clickable"
                       role="listitem"
                       tabIndex={0}
+                      onClick={() => handleItemClick(item)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          handleItemClick(item)
+                        }
+                      }}
+                      style={{ cursor: 'pointer' }}
                     >
                       <span
                         className={`role-tag role-${item.role}`}
