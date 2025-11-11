@@ -234,6 +234,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
       title="📝 楽曲編集"
       size="large"
       mobileOptimized={true}
+      className={showEditForm ? 'hide-header-on-mobile' : ''}
     >
       <div className="song-management-content">
         {isLoading && (

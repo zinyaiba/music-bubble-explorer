@@ -735,6 +735,17 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
   }
 }
 
+/* モバイルで親ヘッダーを非表示にする（編集ダイアログ表示時） */
+@media screen and (max-width: 768px) {
+  .standard-layout-overlay.hide-header-on-mobile
+    > .standard-layout
+    > .standard-layout-content
+    > .standard-layout-main-content
+    > .standard-layout-integrated-header {
+    display: none !important;
+  }
+}
+
 /* レスポンシブ対応 - 統合ヘッダー */
 @media screen and (max-width: 768px) {
   .standard-layout-integrated-header {
