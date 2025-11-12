@@ -38,6 +38,14 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
   const [sortBy, setSortBy] = useState<TagSortBy>('frequency')
   const [layout, setLayout] = useState<TagLayout>('grid')
 
+  // タグ一覧が表示される時に最新データを再取得
+  React.useEffect(() => {
+    if (isVisible) {
+      console.log('🏷️ EnhancedTagList: Visible - refreshing data')
+      refreshData()
+    }
+  }, [isVisible, refreshData])
+
   // Filter and sort tags based on search and sort criteria
   const filteredAndSortedTags = useMemo(() => {
     return filterAndSortTags(searchTerm, sortBy)

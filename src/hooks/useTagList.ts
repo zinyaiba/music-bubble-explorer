@@ -47,10 +47,13 @@ export const useTagList = () => {
       // MusicDataServiceからもデータを取得してみる
       const musicService = MusicDataService.getInstance()
 
+      // キャッシュをクリアして最新データを取得
+      musicService.clearCache()
+
       // Firebaseから最新データを読み込み
       try {
-        await musicService.loadFromFirebase()
-        // console.log('🔥 Firebase data loaded:', firebaseLoaded)
+        const firebaseLoaded = await musicService.loadFromFirebase()
+        console.log('🔥 Firebase data reloaded:', firebaseLoaded)
       } catch (firebaseError) {
         console.warn('🔥 Firebase load failed:', firebaseError)
       }
