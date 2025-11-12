@@ -102,18 +102,18 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
                     textShadow: '0 2px 4px rgba(221, 160, 221, 0.3)',
                   }}
                 >
-                  Malon Bubbles
+                  Maron Bubbles
                 </span>
               </MainTitle>
               <SubTitle $theme={theme}>
                 {screenSize.isMobile
-                  ? '「タグ登録」から楽曲にタグを付けてみよう'
-                  : '栗林みな実さんの楽曲にタグをつけて魅力を伝えよう🌰'}
+                  ? '楽曲の新たな魅力を発見・登録してみましょう'
+                  : '楽曲の新たな魅力を発見・登録してみましょう'}
               </SubTitle>
               <SubTitle2 $theme={theme}>
                 {screenSize.isMobile
-                  ? 'シャボン玉をタップすると関連情報が見れるよ'
-                  : 'シャボン玉をクリックして楽曲の詳細情報を確認できます'}
+                  ? 'シャボン玉をタップすると関連情報が閲覧できます'
+                  : 'シャボン玉をクリックして関連情報が閲覧できます'}
               </SubTitle2>
             </LogoText>
           </LogoSection>
