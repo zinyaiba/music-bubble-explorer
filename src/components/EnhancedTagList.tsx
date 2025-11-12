@@ -201,9 +201,8 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                   onChange={e => handleSortChange(e.target.value as TagSortBy)}
                   className="sort-select"
                 >
-                  <option value="frequency">使用頻度順</option>
+                  <option value="frequency">登録が多い順</option>
                   <option value="alphabetical">アルファベット順</option>
-                  <option value="recent">最近使用順</option>
                 </select>
               </div>
 
