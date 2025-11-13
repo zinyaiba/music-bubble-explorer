@@ -17,6 +17,7 @@ import { EnhancedBubbleManager } from './services/enhancedBubbleManager'
 import { RoleBasedBubbleManager } from './services/roleBasedBubbleManager'
 
 import { useRoleBasedBubbles } from './hooks/useRoleBasedBubbles'
+import { useAnimationControl } from './hooks/useAnimationControl'
 import { BubbleEntity } from './types/bubble'
 import { Song, MusicDatabase } from './types/music'
 import { useResponsive } from './hooks/useResponsive'
@@ -109,6 +110,9 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
 function App() {
   // Responsive hook for screen size detection
   const screenSize = useResponsive()
+
+  // Animation control hook for performance optimization
+  const { shouldAnimate, setDialogOpen: _setDialogOpen } = useAnimationControl()
 
   // State management
   const [bubbles, setBubbles] = useState<BubbleEntity[]>([])
@@ -617,10 +621,11 @@ function App() {
   }, [screenSize])
 
   /**
-   * Animation loop
+   * Animation loop with performance optimization
+   * Requirements: 1.1, 1.2, 1.3, 2.2, 3.1, 3.2
    */
   useEffect(() => {
-    if (!bubbleManagerRef.current || isLoading) return
+    if (!bubbleManagerRef.current || isLoading || !shouldAnimate) return
 
     let _frameCount = 0
     const animate = () => {
@@ -674,7 +679,7 @@ function App() {
         animationFrameRef.current = null
       }
     }
-  }, [isLoading])
+  }, [isLoading, shouldAnimate])
 
   /**
    * Handle selected categories change

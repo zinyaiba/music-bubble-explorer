@@ -1,6 +1,11 @@
 # Implementation Plan
 
-- [ ] 1. useAnimationControlフックの実装
+- [x] 1. useAnimationControlフックの実装
+
+
+
+
+
   - src/hooks/useAnimationControl.tsファイルを作成
   - ダイアログ開閉状態の管理（isDialogOpen state）を実装
   - アイドル状態の管理（isIdle state）を実装
@@ -11,6 +16,11 @@
   - _Requirements: 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 2.5_
 
 - [ ] 2. App.tsxへのアニメーション制御の統合
+
+
+
+
+
   - useAnimationControlフックをインポート
   - shouldAnimateフラグを取得
   - 既存のアニメーションループのuseEffectにshouldAnimateを依存配列に追加
