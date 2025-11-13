@@ -2,9 +2,11 @@
 
 ## Overview
 
-このドキュメントは、Music Bubble Explorerアプリケーションのモバイルパフォーマンス最適化機能の技術設計を定義します。主な目的は、ダイアログ表示時のバックグラウンドアニメーション停止、アイドル状態での処理削減、デバイス性能に応じた自動最適化により、スマートフォンでの発熱とバッテリー消費を大幅に削減することです。
+このドキュメントは、Music Bubble Explorerアプリケーションのシャボン玉アニメーション制御機能の技術設計を定義します。主な目的は、ダイアログ表示時とアイドル状態でのアニメーション停止により、スマートフォンでの発熱とバッテリー消費を削減することです。
 
 現在のアプリケーションは、`App.tsx`内のアニメーションループ（`requestAnimationFrame`）が常時実行されており、ダイアログやモーダルが開いている間もバックグラウンドでシャボン玉のアニメーションが継続されています。これにより、不要なCPU使用率が発生し、モバイルデバイスの発熱とバッテリー消費の原因となっています。
+
+**設計方針**: 複雑なシステムを作り込まず、シンプルで理解しやすい実装を優先します。
 
 ## Architecture
 
@@ -14,308 +16,254 @@
 ┌─────────────────────────────────────────────────────────────┐
 │                         App.tsx                              │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │         AnimationController (新規)                     │  │
-│  │  - アニメーション状態管理                              │  │
-│  │  - ダイアログ状態監視                                  │  │
-│  │  - アイドル状態検出                                    │  │
+│  │    useAnimationControl Hook (新規)                    │  │
+│  │  - ダイアログ開閉状態の追跡                            │  │
+│  │  - アイドル状態の検出（30秒タイマー）                  │  │
+│  │  - shouldAnimate フラグの管理                         │  │
 │  └───────────────────────────────────────────────────────┘  │
 │                           ↓                                  │
 │  ┌───────────────────────────────────────────────────────┐  │
-│  │    useAnimationOptimization Hook (新規)               │  │
-│  │  - アニメーションフレーム制御                          │  │
-│  │  - パフォーマンス監視                                  │  │
-│  │  - 最適化レベル調整                                    │  │
-│  └───────────────────────────────────────────────────────┘  │
-│                           ↓                                  │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │      PerformanceMonitor (新規)                         │  │
-│  │  - FPS計測                                             │  │
-│  │  - CPU使用率推定                                       │  │
-│  │  - デバイス性能検出                                    │  │
+│  │      既存のアニメーションループ                        │  │
+│  │  - shouldAnimate が true の時のみ実行                 │  │
+│  │  - requestAnimationFrame の制御                       │  │
 │  └───────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
-                           ↓
+                           ↑
 ┌─────────────────────────────────────────────────────────────┐
 │              Dialog Components                               │
 │  - DetailModal                                               │
 │  - StandardLayout                                            │
 │  - UnifiedDialogLayout                                       │
-│  - その他のダイアログコンポーネント                          │
 │                                                              │
-│  各コンポーネントは isVisible prop を通じて                 │
-│  AnimationController に状態を通知                           │
+│  各コンポーネントは開閉状態を                                │
+│  useAnimationControl に通知                                 │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### データフロー
 
 1. **ダイアログ開閉時**
-   - ダイアログコンポーネントの `isVisible` prop が変更
-   - `AnimationController` が状態変更を検出
-   - `useAnimationOptimization` がアニメーションフレームを一時停止/再開
-   - バックグラウンドのシャボン玉アニメーションが停止/再開
+   - ダイアログコンポーネントが `useAnimationControl` の `setDialogOpen` を呼び出し
+   - `shouldAnimate` が `false` に変更
+   - `App.tsx` のアニメーションループが停止
+   - ダイアログを閉じると `shouldAnimate` が `true` に戻り、アニメーション再開
 
 2. **アイドル状態検出時**
-   - ユーザー操作イベント（マウス、タッチ、キーボード）を監視
-   - 30秒間操作がない場合、アイドル状態に移行
-   - フレームレートを50%削減（60fps → 30fps）
-   - 非表示要素のレンダリングを停止
-
-3. **パフォーマンス監視**
-   - `PerformanceMonitor` が継続的にFPSとCPU使用率を計測
-   - フレームドロップが連続で発生した場合、最適化レベルを自動調整
-   - 開発モードでは、パフォーマンス指標をUIに表示
+   - `useAnimationControl` がユーザー操作イベント（マウス移動、クリック、タッチ、スクロール、キーボード）を監視
+   - 30秒間操作がない場合、`shouldAnimate` が `false` に変更
+   - 操作が再開されると、`shouldAnimate` が `true` に戻る
+   - ダイアログが開いている間は、アイドルタイマーをリセットしない
 
 ## Components and Interfaces
 
-### 1. AnimationController (Context Provider)
+### 1. useAnimationControl Hook
 
-アニメーション状態を管理するReact Contextプロバイダー。
-
-```typescript
-interface AnimationState {
-  isAnimationActive: boolean      // アニメーションが実行中かどうか
-  isDialogOpen: boolean            // ダイアログが開いているかどうか
-  isIdle: boolean                  // アイドル状態かどうか
-  optimizationLevel: 'none' | 'standard' | 'aggressive'
-  performanceMetrics: PerformanceMetrics
-}
-
-interface AnimationControllerContextValue {
-  state: AnimationState
-  pauseAnimation: () => void
-  resumeAnimation: () => void
-  setDialogOpen: (isOpen: boolean) => void
-  setOptimizationLevel: (level: 'none' | 'standard' | 'aggressive') => void
-}
-
-// Context Provider
-export const AnimationControllerProvider: React.FC<{children: React.ReactNode}>
-```
-
-**責務:**
-- アニメーション状態の一元管理
-- ダイアログ開閉状態の追跡
-- アイドル状態の検出と管理
-- 最適化レベルの調整
-
-### 2. useAnimationOptimization Hook
-
-アニメーションフレーム制御とパフォーマンス最適化を提供するカスタムフック。
+アニメーション制御を提供するシンプルなカスタムフック。
 
 ```typescript
-interface AnimationOptimizationOptions {
-  enabled: boolean                 // 最適化を有効にするかどうか
-  idleTimeout: number              // アイドル状態に移行するまでの時間（ミリ秒）
-  idleFrameRateReduction: number   // アイドル時のフレームレート削減率（0-1）
-  pauseOnDialogOpen: boolean       // ダイアログ開閉時にアニメーションを停止するか
-}
-
-interface AnimationOptimizationResult {
+interface AnimationControlResult {
   shouldAnimate: boolean           // アニメーションを実行すべきかどうか
-  frameRateMultiplier: number      // フレームレート乗数（1.0 = 通常、0.5 = 50%削減）
-  isOptimized: boolean             // 最適化が適用されているかどうか
-  performanceMetrics: PerformanceMetrics
+  setDialogOpen: (isOpen: boolean) => void  // ダイアログ開閉状態を設定
 }
 
-export function useAnimationOptimization(
-  options: AnimationOptimizationOptions
-): AnimationOptimizationResult
+export function useAnimationControl(): AnimationControlResult
 ```
+
+**内部実装:**
+- `isDialogOpen` state: ダイアログが開いているかどうか
+- `isIdle` state: アイドル状態かどうか
+- `idleTimerRef`: 30秒のアイドルタイマー
+- イベントリスナー: `mousemove`, `mousedown`, `touchstart`, `scroll`, `keydown`
+- `shouldAnimate = !isDialogOpen && !isIdle`
 
 **責務:**
-- `requestAnimationFrame` の制御
-- フレームレート調整
-- アイドル状態でのアニメーション削減
-- ダイアログ開閉時のアニメーション停止
-
-### 3. PerformanceMonitor Class
-
-パフォーマンス指標の計測と監視を行うシングルトンクラス。
-
-```typescript
-interface PerformanceMetrics {
-  fps: number                      // 現在のフレームレート
-  averageFps: number               // 平均フレームレート
-  cpuUsageEstimate: number         // CPU使用率の推定値（0-100）
-  frameDropCount: number           // フレームドロップ回数
-  devicePerformance: 'low' | 'medium' | 'high'
-  lastUpdateTime: number           // 最終更新時刻
-}
-
-class PerformanceMonitor {
-  private static instance: PerformanceMonitor
-  
-  static getInstance(): PerformanceMonitor
-  
-  startMonitoring(): void
-  stopMonitoring(): void
-  getMetrics(): PerformanceMetrics
-  detectDevicePerformance(): 'low' | 'medium' | 'high'
-  recordFrame(timestamp: number): void
-  reset(): void
-}
-```
-
-**責務:**
-- FPS計測（`requestAnimationFrame`のタイムスタンプを使用）
-- CPU使用率の推定（フレームドロップ率から算出）
-- デバイス性能の検出（初回レンダリング時のFPSから判定）
-- パフォーマンス指標の記録と提供
-
-### 4. PerformanceDebugOverlay Component (開発モード専用)
-
-パフォーマンス指標を画面上に表示するデバッグ用コンポーネント。
-
-```typescript
-interface PerformanceDebugOverlayProps {
-  enabled: boolean
-  position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
-}
-
-export const PerformanceDebugOverlay: React.FC<PerformanceDebugOverlayProps>
-```
-
-**表示内容:**
-- 現在のFPS
-- 平均FPS
-- CPU使用率推定値
-- アニメーション状態（アクティブ/一時停止/アイドル）
-- 最適化レベル
-- デバイス性能
+- ダイアログ開閉状態の追跡
+- アイドル状態の検出（30秒タイマー）
+- ユーザー操作イベントの監視
+- アニメーション実行可否の判定
 
 ## Data Models
 
-### AnimationState
+### AnimationControlResult
 
 ```typescript
-interface AnimationState {
-  isAnimationActive: boolean
-  isDialogOpen: boolean
-  isIdle: boolean
-  optimizationLevel: 'none' | 'standard' | 'aggressive'
-  performanceMetrics: PerformanceMetrics
+interface AnimationControlResult {
+  shouldAnimate: boolean
+  setDialogOpen: (isOpen: boolean) => void
 }
 ```
 
-### PerformanceMetrics
-
-```typescript
-interface PerformanceMetrics {
-  fps: number
-  averageFps: number
-  cpuUsageEstimate: number
-  frameDropCount: number
-  devicePerformance: 'low' | 'medium' | 'high'
-  lastUpdateTime: number
-}
-```
-
-### OptimizationConfig
-
-```typescript
-interface OptimizationConfig {
-  enabled: boolean
-  idleTimeout: number
-  idleFrameRateReduction: number
-  pauseOnDialogOpen: boolean
-  autoAdjustOptimization: boolean
-  frameDropThreshold: number
-}
-```
+**内部状態（フック内部のみ）:**
+- `isDialogOpen: boolean` - ダイアログが開いているかどうか
+- `isIdle: boolean` - アイドル状態かどうか
+- `idleTimerRef: React.MutableRefObject<number | null>` - アイドルタイマーの参照
 
 ## Error Handling
 
 ### エラーケース
 
-1. **パフォーマンス監視の失敗**
-   - `performance.now()` が利用できない環境
-   - フォールバック: `Date.now()` を使用
+1. **イベントリスナーの登録失敗**
+   - イベントリスナーの追加/削除時のエラー
+   - フォールバック: エラーをログ出力し、アニメーションは継続
 
-2. **アニメーションフレームの制御失敗**
-   - `requestAnimationFrame` / `cancelAnimationFrame` が利用できない環境
-   - フォールバック: 最適化を無効化し、通常のアニメーションを継続
-
-3. **デバイス性能検出の失敗**
-   - 初回レンダリング時のFPS計測が不正確
-   - フォールバック: 'medium' 性能として扱う
+2. **タイマーの制御失敗**
+   - `setTimeout` / `clearTimeout` の失敗
+   - フォールバック: アイドル検出を無効化し、アニメーションは継続
 
 ### エラーハンドリング戦略
 
-- すべてのエラーは console.warn でログ出力
+- すべてのエラーは `console.warn` でログ出力
 - エラーが発生してもアプリケーションの動作を継続
-- 最適化が失敗した場合は、最適化なしの通常動作にフォールバック
-- 開発モードでは、エラー詳細を `PerformanceDebugOverlay` に表示
+- 最適化が失敗した場合は、通常のアニメーション動作を維持
 
 ## Testing Strategy
 
-### ユニットテスト
-
-1. **PerformanceMonitor**
-   - FPS計測の精度テスト
-   - CPU使用率推定の妥当性テスト
-   - デバイス性能検出のロジックテスト
-
-2. **useAnimationOptimization Hook**
-   - アイドル状態検出のタイミングテスト
-   - フレームレート削減の計算テスト
-   - ダイアログ開閉時のアニメーション停止テスト
-
-3. **AnimationController**
-   - 状態管理のロジックテスト
-   - Context値の更新テスト
-
-### 統合テスト
+### 手動テスト
 
 1. **ダイアログ開閉時のアニメーション制御**
    - DetailModal を開いた時にアニメーションが停止することを確認
    - DetailModal を閉じた時にアニメーションが再開することを確認
-   - 複数のダイアログが同時に開いている場合の動作確認
+   - StandardLayout を開いた時にアニメーションが停止することを確認
+   - UnifiedDialogLayout を開いた時にアニメーションが停止することを確認
 
-2. **アイドル状態の検出と最適化**
-   - 30秒間操作がない場合にアイドル状態に移行することを確認
-   - アイドル状態でフレームレートが50%削減されることを確認
-   - 操作再開時に通常のフレームレートに復帰することを確認
+2. **アイドル状態の検出**
+   - 30秒間操作がない場合にアニメーションが停止することを確認
+   - マウス移動でアニメーションが再開することを確認
+   - クリックでアニメーションが再開することを確認
+   - スクロールでアニメーションが再開することを確認
+   - ダイアログが開いている間はアイドルタイマーが動作しないことを確認
 
-3. **パフォーマンス監視**
-   - FPS計測が正確に行われることを確認
-   - CPU使用率推定が妥当な範囲内であることを確認
-   - デバイス性能検出が適切に機能することを確認
-
-### パフォーマンステスト
-
-1. **CPU使用率の削減**
-   - 最適化前後のCPU使用率を比較
-   - 目標: 30%以上の削減
-
-2. **バッテリー消費の削減**
-   - 長時間使用時のバッテリー消費を計測
-   - 目標: 最適化により使用時間が延長されること
-
-3. **ユーザー体験の維持**
-   - スクロール時のフレームレートが60FPSを維持することを確認
-   - UI操作の応答性が損なわれていないことを確認
-   - ダイアログ内のアニメーションが正常に動作することを確認
-
-### 手動テスト
-
-1. **モバイルデバイスでの実機テスト**
-   - iPhone (Safari)
-   - Android (Chrome)
+3. **モバイルデバイスでの実機テスト**
+   - iPhone (Safari) での動作確認
+   - Android (Chrome) での動作確認
    - 発熱の体感確認
    - バッテリー消費の確認
-
-2. **様々なシナリオでのテスト**
-   - ダイアログを開いたまま長時間放置
-   - ダイアログを頻繁に開閉
-   - アイドル状態からの復帰
-   - 低性能デバイスでの動作確認
 
 ## Implementation Notes
 
 ### App.tsx への統合
 
-現在の `App.tsx` のアニメーションループ（`useEffect` 内の `animate` 関数）を、`useAnimationOptimization` フックを使用して制御します。
+現在の `App.tsx` のアニメーションループを、`useAnimationControl` フックを使用して制御します。
+
+```typescript
+// 現在の実装
+useEffect(() => {
+  if (!bubbleManagerRef.current || isLoading) return
+  
+  const animate = () => {
+    const updatedBubbles = bubbleManagerRef.current.updateFrame()
+    setBubbles([...updatedBubbles])
+    animationFrameRef.current = requestAnimationFrame(animate)
+  }
+  
+  animationFrameRef.current = requestAnimationFrame(animate)
+  
+  return () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
+  }
+}, [isLoading])
+
+// 最適化後の実装
+const { shouldAnimate, setDialogOpen } = useAnimationControl()
+
+useEffect(() => {
+  if (!bubbleManagerRef.current || isLoading || !shouldAnimate) return
+  
+  const animate = () => {
+    const updatedBubbles = bubbleManagerRef.current.updateFrame()
+    setBubbles([...updatedBubbles])
+    animationFrameRef.current = requestAnimationFrame(animate)
+  }
+  
+  animationFrameRef.current = requestAnimationFrame(animate)
+  
+  return () => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
+  }
+}, [isLoading, shouldAnimate])
+```
+
+### ダイアログコンポーネントへの統合
+
+`DetailModal`, `StandardLayout`, `UnifiedDialogLayout` などのダイアログコンポーネントは、`useAnimationControl` の `setDialogOpen` を呼び出して、開閉状態を通知します。
+
+```typescript
+// DetailModal の例
+export const DetailModal: React.FC<DetailModalProps> = ({ selectedBubble, onClose, ... }) => {
+  const { setDialogOpen } = useAnimationControl()
+  
+  useEffect(() => {
+    if (selectedBubble) {
+      setDialogOpen(true)
+    }
+    return () => {
+      setDialogOpen(false)
+    }
+  }, [selectedBubble, setDialogOpen])
+  
+  // ... 既存のコード
+}
+```
+
+### useAnimationControl フックの実装詳細
+
+```typescript
+export function useAnimationControl(): AnimationControlResult {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isIdle, setIsIdle] = useState(false)
+  const idleTimerRef = useRef<number | null>(null)
+  
+  // アイドルタイマーをリセット
+  const resetIdleTimer = useCallback(() => {
+    if (isDialogOpen) return // ダイアログが開いている間はリセットしない
+    
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current)
+    }
+    
+    setIsIdle(false)
+    
+    idleTimerRef.current = window.setTimeout(() => {
+      setIsIdle(true)
+    }, 30000) // 30秒
+  }, [isDialogOpen])
+  
+  // ユーザー操作イベントの監視
+  useEffect(() => {
+    const events = ['mousemove', 'mousedown', 'touchstart', 'scroll', 'keydown']
+    
+    events.forEach(event => {
+      window.addEventListener(event, resetIdleTimer)
+    })
+    
+    resetIdleTimer() // 初回タイマー設定
+    
+    return () => {
+      events.forEach(event => {
+        window.removeEventListener(event, resetIdleTimer)
+      })
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current)
+      }
+    }
+  }, [resetIdleTimer])
+  
+  const setDialogOpen = useCallback((isOpen: boolean) => {
+    setIsDialogOpen(isOpen)
+    if (!isOpen) {
+      resetIdleTimer() // ダイアログを閉じたらタイマーをリセット
+    }
+  }, [resetIdleTimer])
+  
+  const shouldAnimate = !isDialogOpen && !isIdle
+  
+  return { shouldAnimate, setDialogOpen }
+}
+```
 
 ```typescript
 // 現在の実装
