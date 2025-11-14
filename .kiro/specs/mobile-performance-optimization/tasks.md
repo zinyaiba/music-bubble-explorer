@@ -15,7 +15,7 @@
   - setDialogOpen関数を実装
   - _Requirements: 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 2. App.tsxへのアニメーション制御の統合
+- [x] 2. App.tsxへのアニメーション制御の統合
 
 
 
@@ -28,7 +28,12 @@
   - setDialogOpenをダイアログコンポーネントに渡すための準備
   - _Requirements: 1.1, 1.2, 1.3, 2.2, 3.1, 3.2_
 
-- [ ] 3. DetailModalへのアニメーション制御の統合
+- [x] 3. DetailModalへのアニメーション制御の統合
+
+
+
+
+
   - useAnimationControlフックをインポート
   - setDialogOpenを取得
   - selectedBubbleの変化を監視するuseEffectを追加
@@ -36,14 +41,26 @@
   - クリーンアップ関数でsetDialogOpen(false)を呼び出し
   - _Requirements: 1.1, 1.2, 1.4_
 
-- [ ] 4. StandardLayoutへのアニメーション制御の統合
+- [x] 4. StandardLayoutへのアニメーション制御の統合
+
+
+
+
+
   - useAnimationControlフックをインポート
   - setDialogOpenを取得
   - コンポーネントのマウント時にsetDialogOpen(true)を呼び出し
   - アンマウント時にsetDialogOpen(false)を呼び出し
   - _Requirements: 1.1, 1.2, 1.4_
 
-- [ ] 5. UnifiedDialogLayoutへのアニメーション制御の統合
+- [x] 5. UnifiedDialogLayoutへのアニメーション制御の統合
+
+
+
+
+
+
+
   - useAnimationControlフックをインポート
   - setDialogOpenを取得
   - コンポーネントのマウント時にsetDialogOpen(true)を呼び出し
@@ -51,6 +68,11 @@
   - _Requirements: 1.1, 1.2, 1.4_
 
 - [ ] 6. 動作確認とテスト
+
+
+
+
+
   - ダイアログを開いた時にシャボン玉のアニメーションが停止することを確認
   - ダイアログを閉じた時にシャボン玉のアニメーションが再開することを確認
   - 30秒間操作しない時にアニメーションが停止することを確認

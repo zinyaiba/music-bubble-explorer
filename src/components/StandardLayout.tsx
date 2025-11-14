@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from 'react'
 import './StandardLayout.css'
+import { useAnimationControl } from '../hooks/useAnimationControl'
 
 interface StandardLayoutProps {
   isVisible: boolean
@@ -35,6 +36,9 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
   actionContent,
   integratedHeader = true, // デフォルトで統合ヘッダーを使用
 }) => {
+  // アニメーション制御フックを使用
+  const { setDialogOpen } = useAnimationControl()
+
   /**
    * バックドロップクリックハンドラー（全画面表示では無効）
    */
@@ -58,6 +62,19 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
     },
     [onClose, showBackButton, onBack]
   )
+
+  /**
+   * アニメーション制御の統合
+   * コンポーネントのマウント時にアニメーションを停止し、アンマウント時に再開
+   */
+  useEffect(() => {
+    if (isVisible) {
+      setDialogOpen(true)
+    }
+    return () => {
+      setDialogOpen(false)
+    }
+  }, [isVisible, setDialogOpen])
 
   /**
    * キーボードイベントリスナーの設定とブラウザUIバー対応

@@ -3,6 +3,7 @@ import { BubbleEntity } from '@/types/bubble'
 import { Song, Person, Tag } from '@/types/music'
 import { MusicDataService } from '@/services/musicDataService'
 import { StandardLayout } from './StandardLayout'
+import { useAnimationControl } from '@/hooks/useAnimationControl'
 import './DetailModal.css'
 
 interface DetailModalProps {
@@ -17,7 +18,7 @@ interface RelatedData {
   id: string
   name: string
   type: 'song' | 'person' | 'tag'
-  role?: 'lyricist' | 'composer' | 'arranger'
+  role?: 'lyricist' | 'composer' | 'arranger' | 'tag'
   roles?: Array<{
     type: 'lyricist' | 'composer' | 'arranger'
     songCount: number
@@ -32,6 +33,7 @@ interface RelatedData {
 export const DetailModal: React.FC<DetailModalProps> = React.memo(
   ({ selectedBubble, onClose, onSongClick, onTagClick, onPersonClick }) => {
     const [relatedData, setRelatedData] = useState<RelatedData[]>([])
+    const { setDialogOpen } = useAnimationControl()
 
     const musicService = useMemo(() => MusicDataService.getInstance(), [])
 
@@ -87,7 +89,7 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                   id: `tag-${tag}`,
                   name: tag,
                   type: 'tag',
-                  role: 'tag' as any,
+                  role: 'tag',
                 })
               })
             }
@@ -138,7 +140,7 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                     id: `tag-${tag}`,
                     name: tag,
                     type: 'tag',
-                    role: 'tag' as any,
+                    role: 'tag',
                   })
                 })
               }
@@ -237,6 +239,16 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
         setRelatedData([])
       }
     }, [selectedBubble, loadRelatedData])
+
+    // Animation control: pause animations when dialog is open
+    useEffect(() => {
+      if (selectedBubble) {
+        setDialogOpen(true)
+      }
+      return () => {
+        setDialogOpen(false)
+      }
+    }, [selectedBubble, setDialogOpen])
 
     const getRoleLabel = useCallback(
       (role: 'lyricist' | 'composer' | 'arranger' | 'tag') => {

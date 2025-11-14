@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from 'react'
 import './UnifiedDialogLayout.css'
+import { useAnimationControl } from '../hooks/useAnimationControl'
 // import { useGlassmorphismTheme } from './GlassmorphismThemeProvider' // TODO: Use for dynamic theming
 
 interface UnifiedDialogLayoutProps {
@@ -33,6 +34,20 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
   integratedHeader = true, // デフォルトで統合ヘッダーを使用
 }) => {
   // const theme = useGlassmorphismTheme() // TODO: Use theme for dynamic styling
+  const { setDialogOpen } = useAnimationControl()
+
+  /**
+   * ダイアログの表示状態をアニメーション制御に通知
+   */
+  useEffect(() => {
+    if (isVisible) {
+      setDialogOpen(true)
+    }
+    return () => {
+      setDialogOpen(false)
+    }
+  }, [isVisible, setDialogOpen])
+
   /**
    * バックドロップクリックハンドラー
    */

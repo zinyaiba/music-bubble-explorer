@@ -112,7 +112,7 @@ function App() {
   const screenSize = useResponsive()
 
   // Animation control hook for performance optimization
-  const { shouldAnimate, setDialogOpen: _setDialogOpen } = useAnimationControl()
+  const { shouldAnimate } = useAnimationControl()
 
   // State management
   const [bubbles, setBubbles] = useState<BubbleEntity[]>([])
