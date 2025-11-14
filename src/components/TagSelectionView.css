@@ -134,6 +134,12 @@
   color: #2d5016;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(152, 251, 152, 0.3);
+  max-width: 100%;
+  overflow: visible;
+}
+
+.selected-tag-chip .tag-text {
+  max-width: 200px;
 }
 
 .selected-tag-chip:hover {
@@ -337,7 +343,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  max-width: 100%;
 }
 
 .available-tag-chip:hover {
@@ -359,9 +366,30 @@
 .tag-text {
   flex: 1;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 120px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 200px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 105, 180, 0.3) rgba(255, 105, 180, 0.1);
+}
+
+/* タグテキストのスクロールバースタイル（Webkit） */
+.tag-text::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tag-text::-webkit-scrollbar-track {
+  background: rgba(255, 105, 180, 0.1);
+  border-radius: 2px;
+}
+
+.tag-text::-webkit-scrollbar-thumb {
+  background: rgba(255, 105, 180, 0.3);
+  border-radius: 2px;
+}
+
+.tag-text::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 105, 180, 0.5);
 }
 
 .add-icon {
@@ -552,7 +580,7 @@
   }
 
   .tag-text {
-    max-width: 80px;
+    max-width: 150px;
   }
 }
 

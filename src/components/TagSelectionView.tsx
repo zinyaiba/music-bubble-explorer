@@ -304,7 +304,9 @@ export const TagSelectionView: React.FC<TagSelectionViewProps> = ({
           <TagInput
             tags={[]}
             onTagsChange={handleTagInputChange}
-            existingTags={availableTags}
+            existingTags={availableTags.filter(
+              tag => !selectedTags.includes(tag)
+            )}
             maxTags={maxTags - selectedTags.length}
             placeholder="新しいタグを入力してください"
             disabled={isLoading || tagLimitStatus.isAtLimit}
