@@ -283,7 +283,6 @@ export class TagRegistrationService {
 
           if (!song) {
             // DataManagerで見つからない場合、MusicDataServiceからも検索
-            const { MusicDataService } = await import('./musicDataService')
             const musicService = MusicDataService.getInstance()
             const allSongs = musicService.getAllSongs()
             song = allSongs.find(s => s.id === songId) || null

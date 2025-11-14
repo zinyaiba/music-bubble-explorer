@@ -5,6 +5,8 @@ import { GlassCard } from './GlassCard'
 import { TagChipGroup } from './TagChipGroup'
 import { Song } from '@/types/music'
 import { TagRegistrationService } from '@/services/tagRegistrationService'
+import { MusicDataService } from '@/services/musicDataService'
+import { DataManager } from '@/services/dataManager'
 
 // Animation keyframes
 const fadeInUp = keyframes`
@@ -419,6 +421,7 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
   const [newTagInput, setNewTagInput] = useState('')
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
   const [statusMessage, setStatusMessage] = useState<{
     text: string
     type: 'info' | 'success' | 'warning' | 'error'
@@ -477,8 +480,11 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
     async (index: number) => {
       const tag = currentTags[index]
       const newTags = currentTags.filter((_, i) => i !== index)
+
+      // 即座にUIを更新
       setCurrentTags(newTags)
       onTagsChange?.(newTags)
+      setIsProcessing(true)
 
       // Immediate save to DB using TagRegistrationService
       try {
@@ -490,7 +496,7 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
           onSave(song.id, newTags)
           setStatusMessage({
             text: `タグ「${tag}」を削除しました`,
-            type: 'info',
+            type: 'success',
           })
         } else {
           throw new Error(
@@ -506,6 +512,8 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
         // Revert on error
         setCurrentTags(currentTags)
         onTagsChange?.(currentTags)
+      } finally {
+        setIsProcessing(false)
       }
       setTimeout(() => setStatusMessage(null), 3000)
     },
@@ -554,9 +562,6 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
           // If no suggestions from TagRegistrationService, get from MusicDataService
           if (suggestions.length === 0) {
             try {
-              const { MusicDataService } = await import(
-                '@/services/musicDataService'
-              )
               const musicService = MusicDataService.getInstance()
 
               // Get all songs and extract tags from them
@@ -610,9 +615,6 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
       } else {
         // When input is empty, show popular tags
         try {
-          const { MusicDataService } = await import(
-            '@/services/musicDataService'
-          )
           const musicService = MusicDataService.getInstance()
 
           // Get all songs and extract tags from them
@@ -677,7 +679,6 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
     } else if (newTagInput.trim().length === 0) {
       // Show existing tags when input is empty (on focus)
       try {
-        const { MusicDataService } = await import('@/services/musicDataService')
         const musicService = MusicDataService.getInstance()
 
         // Get all songs and extract tags from them
@@ -728,48 +729,40 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
   // Debug: Log available tags on component mount
   useEffect(() => {
     // Check DataManager directly
-    import('@/services/dataManager').then(({ DataManager }) => {
-      const songs = DataManager.loadSongs()
-      console.log('🏷️ Songs from DataManager:', songs.length, songs.slice(0, 3))
+    const songs = DataManager.loadSongs()
+    console.log('🏷️ Songs from DataManager:', songs.length, songs.slice(0, 3))
 
-      const allTags = DataManager.getAllTags()
-      console.log('🏷️ All tags from DataManager:', allTags)
+    const allTags = DataManager.getAllTags()
+    console.log('🏷️ All tags from DataManager:', allTags)
 
-      // Check if any song has the expected tag
-      const songsWithTag = songs.filter(
-        song => song.tags && song.tags.some(tag => tag.includes('君が望む'))
-      )
-      console.log('🏷️ Songs with "君が望む" tag:', songsWithTag)
-    })
+    // Check if any song has the expected tag
+    const songsWithTag = songs.filter(
+      song => song.tags && song.tags.some(tag => tag.includes('君が望む'))
+    )
+    console.log('🏷️ Songs with "君が望む" tag:', songsWithTag)
 
     const tagService = TagRegistrationService.getInstance()
-    const allTags = tagService.getTagSuggestions('', 50) // Get popular tags
-    console.log('🏷️ Available tags on component mount:', allTags)
+    const allTagsFromService = tagService.getTagSuggestions('', 50) // Get popular tags
+    console.log('🏷️ Available tags on component mount:', allTagsFromService)
 
     // Also try to get from MusicDataService
-    import('@/services/musicDataService')
-      .then(({ MusicDataService }) => {
-        const musicService = MusicDataService.getInstance()
-        const musicTags = musicService.getAllTags()
-        console.log('🏷️ Tags from MusicDataService on mount:', musicTags)
+    const musicService = MusicDataService.getInstance()
+    const musicTags = musicService.getAllTags()
+    console.log('🏷️ Tags from MusicDataService on mount:', musicTags)
 
-        const allSongs = musicService.getAllSongs()
-        console.log('🏷️ Songs from MusicDataService:', allSongs.length)
+    const allSongs = musicService.getAllSongs()
+    console.log('🏷️ Songs from MusicDataService:', allSongs.length)
 
-        // Extract tags from songs
-        const allTagsSet = new Set<string>()
-        allSongs.forEach(song => {
-          console.log('🏷️ Song:', song.title, 'Tags:', song.tags)
-          if (song.tags && song.tags.length > 0) {
-            song.tags.forEach(tag => allTagsSet.add(tag))
-          }
-        })
-        const allTagsFromSongs = Array.from(allTagsSet)
-        console.log('🏷️ All tags extracted from songs:', allTagsFromSongs)
-      })
-      .catch(error => {
-        console.error('Failed to load MusicDataService:', error)
-      })
+    // Extract tags from songs
+    const allTagsSet = new Set<string>()
+    allSongs.forEach(song => {
+      console.log('🏷️ Song:', song.title, 'Tags:', song.tags)
+      if (song.tags && song.tags.length > 0) {
+        song.tags.forEach(tag => allTagsSet.add(tag))
+      }
+    })
+    const allTagsFromSongs = Array.from(allTagsSet)
+    console.log('🏷️ All tags extracted from songs:', allTagsFromSongs)
   }, [])
 
   return (
@@ -802,6 +795,13 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
         {statusMessage && (
           <StatusMessage $theme={theme} $type={statusMessage.type}>
             {statusMessage.text}
+          </StatusMessage>
+        )}
+
+        {/* Processing Indicator */}
+        {isProcessing && (
+          <StatusMessage $theme={theme} $type="info">
+            処理中...
           </StatusMessage>
         )}
 
@@ -846,7 +846,7 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
         <TagsContainer>
           <TagChipGroup
             tags={currentTags}
-            onTagRemove={handleTagRemove}
+            onTagRemove={isProcessing ? undefined : handleTagRemove}
             variant="editable"
             showFullText={true}
             maxTags={maxTags}
