@@ -89,7 +89,7 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                   id: `tag-${tag}`,
                   name: tag,
                   type: 'tag',
-                  role: 'tag',
+                  role: 'tag' as const,
                 })
               })
             }
@@ -140,7 +140,7 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                     id: `tag-${tag}`,
                     name: tag,
                     type: 'tag',
-                    role: 'tag',
+                    role: 'tag' as const,
                   })
                 })
               }

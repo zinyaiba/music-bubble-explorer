@@ -173,20 +173,29 @@
   text-align: center;
 }
 
-.role-tag.role-lyricist {
-  background: linear-gradient(135deg, #4caf50, #2e7d32);
-}
-
-.role-tag.role-composer {
-  background: linear-gradient(135deg, #2196f3, #1565c0);
-}
-
-.role-tag.role-arranger {
-  background: linear-gradient(135deg, #ff9800, #ef6c00);
-}
-
+/* タグ - 黄緑（最初に定義して他のスタイルで上書き可能にする） */
 .role-tag.role-tag {
-  background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+  background: linear-gradient(135deg, #98fb98, #7ae87a);
+}
+
+/* 楽曲 - ピンク */
+.role-tag.role-song {
+  background: linear-gradient(135deg, #ffb6c1, #ff9faa);
+}
+
+/* 作詞 - 水色 */
+.role-tag.role-lyricist {
+  background: linear-gradient(135deg, #b6e5d8, #8fcfc0);
+}
+
+/* 作曲 - 紫 */
+.role-tag.role-composer {
+  background: linear-gradient(135deg, #dda0dd, #c77dc7);
+}
+
+/* 編曲 - 黄色 */
+.role-tag.role-arranger {
+  background: linear-gradient(135deg, #f0e68c, #e6d76e);
 }
 
 .item-name {
