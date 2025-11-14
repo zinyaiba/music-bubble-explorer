@@ -1,7 +1,7 @@
 {
   "name": "Music Bubble Explorer",
   "short_name": "Bubble Music",
-  "description": "楽曲の作詞家・作曲家・編曲家情報をシャボン玉で探索するアプリ",
+  "description": "栗林みな実さんの楽曲にタグをつけて新しい魅力を広めよう",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
