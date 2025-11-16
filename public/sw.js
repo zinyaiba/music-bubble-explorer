@@ -1,4 +1,6 @@
-const CACHE_NAME = 'music-bubble-explorer-v2';
+// アプリバージョン - package.jsonと同期させること
+const APP_VERSION = '1.0.0';
+const CACHE_NAME = `music-bubble-explorer-v${APP_VERSION}`;
 const BASE_PATH = self.location.pathname.replace(/\/[^\/]*$/, '');
 const STATIC_CACHE_URLS = [
   BASE_PATH + '/',
@@ -7,6 +9,16 @@ const STATIC_CACHE_URLS = [
   BASE_PATH + '/icons/icon-192x192.png',
   BASE_PATH + '/icons/icon-512x512.png'
 ];
+
+// バージョン情報をクライアントに通知
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'GET_VERSION') {
+    event.ports[0].postMessage({ version: APP_VERSION });
+  }
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
 
 // インストール時のキャッシュ
 self.addEventListener('install', (event) => {

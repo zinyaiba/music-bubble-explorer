@@ -7,6 +7,7 @@ import { GlassmorphismThemeProvider } from './components/GlassmorphismThemeProvi
 import { MobileFirstLayout } from './components/MobileFirstLayout'
 import { MobileFirstHeader } from './components/MobileFirstHeader'
 import { MobileFirstNavigation } from './components/MobileFirstNavigation'
+import { UpdateNotification } from './components/UpdateNotification'
 
 import { BubbleCanvas } from './components/BubbleCanvas'
 import { DetailModal } from './components/DetailModal'
@@ -1427,6 +1428,7 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <GlassmorphismThemeProvider>
+          <UpdateNotification />
           <MobileFirstLayout
             className="App mobile-first-container improved-background"
             header={

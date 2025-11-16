@@ -1,12 +1,12 @@
 {
   "name": "music-bubble-explorer",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
-    "build:production": "node scripts/production-build.cjs",
+    "build": "node scripts/update-version.cjs && tsc && vite build",
+    "build:production": "node scripts/update-version.cjs && node scripts/production-build.cjs",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100",
     "lint:fix": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 100 --fix",
     "type-check": "tsc --noEmit",
