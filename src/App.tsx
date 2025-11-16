@@ -52,6 +52,7 @@ import { DebugLogger } from './utils/debugLogger'
 import { enableConsoleDebug } from './utils/debugStorage'
 import { useFirebase } from './hooks/useFirebase'
 import { getCurrentBubbleSettings } from './config/bubbleSettings'
+import { AnalyticsService } from './services/analyticsService'
 
 // Import mobile performance CSS
 import './styles/mobilePerformance.css'
@@ -141,6 +142,7 @@ function App() {
   const [showDatabaseDebugger, setShowDatabaseDebugger] = useState(false)
 
   const [debugLogger] = useState(() => DebugLogger.getInstance())
+  const [analyticsService] = useState(() => AnalyticsService.getInstance())
 
   // Firebase integration
   useFirebase() // Firebase hook for initialization
@@ -341,6 +343,11 @@ function App() {
 
     // Safari専用ヘッダー修正
     initSafariHeaderFix()
+
+    // Analytics初期化
+    analyticsService.logSessionStart()
+    analyticsService.setDeviceType(screenSize.isMobile, screenSize.isTablet)
+    analyticsService.logPageView('main', 'Music Bubble Explorer')
 
     // 共有データサービスの初期化
     const initializeSharedDataService = async () => {
@@ -743,13 +750,16 @@ function App() {
       console.log('🫧 App: Setting selectedBubble to', bubble.name)
       setSelectedBubble(bubble)
 
+      // Analytics tracking
+      analyticsService.logBubbleClick(bubble.type, bubble.name)
+
       debugLogger.debug('Bubble clicked', {
         type: bubble.type,
         name: bubble.name,
         relatedCount: bubble.relatedCount,
       })
     },
-    [debugLogger, selectedBubble]
+    [debugLogger, selectedBubble, analyticsService]
   )
 
   /**
@@ -797,13 +807,16 @@ function App() {
         // This implements Requirement 2.4: no navigation history
         setSelectedBubble(songBubble)
 
+        // Analytics tracking
+        analyticsService.logSongDetailView(song.title)
+
         debugLogger.debug('Song clicked from detail - dialog replaced', {
           songName,
           songId: song.id,
         })
       }
     },
-    [debugLogger]
+    [debugLogger, analyticsService]
   )
 
   /**
@@ -850,12 +863,15 @@ function App() {
       // This implements Requirement 2.4: no navigation history
       setSelectedBubble(tagBubble)
 
+      // Analytics tracking
+      analyticsService.logTagDetailView(tagName, taggedSongs.length)
+
       debugLogger.debug('Tag clicked from detail - dialog replaced', {
         tagName,
         relatedCount: taggedSongs.length,
       })
     },
-    [debugLogger]
+    [debugLogger, analyticsService]
   )
 
   /**
@@ -924,6 +940,13 @@ function App() {
         // This implements Requirement 2.4: no navigation history
         setSelectedBubble(personBubble)
 
+        // Analytics tracking
+        analyticsService.logPersonDetailView(
+          personName,
+          personType,
+          personSongs.length
+        )
+
         debugLogger.debug('Person clicked from detail - dialog replaced', {
           personName,
           personType,
@@ -931,7 +954,7 @@ function App() {
         })
       }
     },
-    [debugLogger]
+    [debugLogger, analyticsService]
   )
 
   /**
@@ -947,8 +970,11 @@ function App() {
         | 'tag-registration'
     ) => {
       setCurrentView(view)
+
+      // Analytics tracking
+      analyticsService.logPageView(view, `View: ${view}`)
     },
-    []
+    [analyticsService]
   )
 
   /**

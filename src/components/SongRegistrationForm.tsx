@@ -3,6 +3,7 @@ import { Song } from '@/types/music'
 import { DataManager } from '@/services/dataManager'
 import { MusicDataService } from '@/services/musicDataService'
 import { StandardLayout } from './StandardLayout'
+import { AnalyticsService } from '@/services/analyticsService'
 
 // import TagInput from './TagInput' // タグ編集は専用画面からのみ
 import './SongRegistrationForm.css'
@@ -228,6 +229,13 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
 
         const musicService = MusicDataService.getInstance()
         musicService.clearCache()
+
+        // Analytics tracking
+        const analyticsService = AnalyticsService.getInstance()
+        analyticsService.logSongRegistration(
+          songToSave.title,
+          (songToSave.tags?.length ?? 0) > 0
+        )
 
         setIsSuccess(true)
         onSongAdded(songToSave)

@@ -4,6 +4,7 @@ import { useGlassmorphismTheme } from './GlassmorphismThemeProvider'
 import { Song } from '@/types/music'
 import { SongSelectionScreen } from './SongSelectionScreen'
 import { TagEditingScreen } from './TagEditingScreen'
+import { AnalyticsService } from '@/services/analyticsService'
 
 // Animation keyframes for screen transitions
 const slideInFromRight = keyframes`
@@ -517,6 +518,13 @@ export const TagRegistrationScreen: React.FC<TagRegistrationScreenProps> = ({
   const handleTagsRegistered = useCallback(
     (songId: string, tags: string[]) => {
       onTagsRegistered(songId, tags)
+
+      // Analytics tracking
+      const analyticsService = AnalyticsService.getInstance()
+      tags.forEach(tag => {
+        analyticsService.logTagRegistration(tag, 1)
+      })
+
       // Don't close the screen to allow continuous tag editing
     },
     [onTagsRegistered]

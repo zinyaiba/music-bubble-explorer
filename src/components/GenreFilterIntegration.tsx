@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { ColorLegend, ColorLegendProps } from './ColorLegend'
 import { BubbleEntity } from '../types/bubble'
+import { AnalyticsService } from '@/services/analyticsService'
 
 import { CATEGORY_COLORS } from '../services/roleBasedBubbleManager'
 
@@ -67,6 +68,10 @@ export const GenreFilterIntegration: React.FC<GenreFilterIntegrationProps> = ({
           '🔍 [DEBUG] GenreFilterIntegration - New categories:',
           newCategories
         )
+
+        // Analytics tracking
+        const analyticsService = AnalyticsService.getInstance()
+        analyticsService.logCategoryFilter(newCategories)
 
         return newCategories
       })
