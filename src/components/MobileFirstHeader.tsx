@@ -202,7 +202,7 @@ const HeaderContent = styled.div`
   height: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center; /* 中央寄せに変更 */
   max-width: 1200px;
   margin: 0 auto;
   padding: 16px 32px; /* パディングを適度に設定 */
@@ -229,7 +229,6 @@ const LogoSection = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  flex: 1;
   min-width: 0;
 
   /* タイトルロゴの強調 */
@@ -352,17 +351,19 @@ const HeaderActions = styled.div`
   align-items: center;
   gap: 16px;
   flex-shrink: 0;
+  position: absolute;
+  right: 32px;
 
   /* 余白とレイアウトの最適化 */
   padding: 4px 0;
 
-  /* PC: 中央寄りに配置 */
-  @media (min-width: 769px) {
-    margin-right: 15%;
-  }
-
   @media (max-width: 900px) {
     gap: 12px;
+    right: 20px;
+  }
+
+  @media (max-width: 480px) {
+    right: 16px;
   }
 `
 
