@@ -102,7 +102,7 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
                     textShadow: '0 2px 4px rgba(221, 160, 221, 0.3)',
                   }}
                 >
-                  Maron Bubbles
+                  Maron Bubbles(β)
                 </span>
               </MainTitle>
               <SubTitle $theme={theme}>
@@ -234,9 +234,18 @@ const LogoSection = styled.div`
   /* タイトルロゴの強調 */
   padding: 8px 0;
 
+  /* 絵文字の幅を考慮してテキスト部分を中央に配置 */
+  /* PCでは右側のアイコンとのバランスを考慮してさらに左に */
+  margin-left: -80px;
+
   @media (max-width: 900px) {
     gap: 8px;
     padding: 4px 0;
+    margin-left: -16px;
+  }
+
+  @media (max-width: 480px) {
+    margin-left: -14px;
   }
 `
 

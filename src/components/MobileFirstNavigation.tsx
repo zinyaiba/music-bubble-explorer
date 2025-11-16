@@ -192,7 +192,7 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
         {
           id: 'tag-registration',
           label: 'タグ登録',
-          icon: '🏷️➕',
+          icon: '➕',
           view: 'tag-registration',
           isActive: currentView === 'tag-registration',
           color: '#FFB6C1',
