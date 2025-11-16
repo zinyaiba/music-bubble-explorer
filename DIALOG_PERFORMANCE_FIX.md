@@ -155,8 +155,72 @@ try {
 7. 楽曲の削除ボタンをクリック
 8. 確認ダイアログが表示された直後に操作可能であることを確認
 
+## 追加修正: 閉じるボタンの反応遅延
+
+### 問題
+
+編集画面を表示してすぐに閉じるボタンを押下しても、しばらく時間が経たないと閉じず、画面が固まったように見える。
+
+### 原因
+
+1. **閉じるボタンのイベントハンドラーが直接`onClose`を呼び出していた** - イベントの伝播が適切に処理されていませんでした
+2. **`handleCloseEditForm`が親の`onClose`を呼び出していた** - 編集フォームを閉じる際に、楽曲管理画面も閉じてしまっていました
+
+### 修正内容
+
+#### 1. StandardLayout.tsx と UnifiedDialogLayout.tsx
+
+閉じるボタン専用のイベントハンドラーを追加:
+
+```typescript
+/**
+ * 閉じるボタンのクリックハンドラー（即座に反応）
+ */
+const handleCloseClick = useCallback((e: React.MouseEvent) => {
+  e.preventDefault()
+  e.stopPropagation()
+  console.log('🔙 Close button clicked')
+  onClose()
+}, [onClose])
+```
+
+閉じるボタンで`handleCloseClick`を使用:
+
+```typescript
+<button
+  className="standard-layout-integrated-close"
+  onClick={handleCloseClick}  // onCloseから変更
+  aria-label="画面を閉じる"
+  type="button"
+>
+  ×
+</button>
+```
+
+#### 2. SongManagement.tsx
+
+`handleCloseEditForm`はそのまま維持（編集フォームを閉じる際に親の楽曲管理画面も閉じてトップ画面に戻る仕様）:
+
+```typescript
+const handleCloseEditForm = useCallback(() => {
+  console.log('🔙 Closing edit form and parent song management')
+  setEditingSong(null)
+  setShowEditForm(false)
+  // 編集フォームを閉じる時に、楽曲編集画面も閉じてトップ画面に戻る
+  onClose()
+}, [onClose])
+```
+
+### 効果
+
+- 閉じるボタンをクリックした際に、イベントが即座に処理されます
+- `e.preventDefault()`と`e.stopPropagation()`により、イベントの伝播が適切に制御されます
+- 編集フォームを閉じると、楽曲管理画面も閉じてトップ画面に戻ります（元の仕様通り）
+- ユーザーが期待する動作（トップ画面に戻る）が実現されます
+
 ## 注意事項
 
 - `requestAnimationFrame`は次のフレームで実行されるため、`setTimeout(fn, 0)`よりも適切なタイミングで処理が実行されます
 - Firebaseのタイムアウトは5秒に設定されていますが、必要に応じて調整可能です
 - ローカルストレージへのフォールバックにより、オフライン時でも動作します
+- 閉じるボタンには`touch-action: manipulation`が設定されており、タッチデバイスでの反応が最適化されています

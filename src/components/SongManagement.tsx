@@ -152,9 +152,10 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   }, [])
 
   const handleCloseEditForm = useCallback(() => {
+    console.log('🔙 Closing edit form and parent song management')
     setEditingSong(null)
     setShowEditForm(false)
-    // 編集フォームを閉じる時に、楽曲編集画面も閉じる
+    // 編集フォームを閉じる時に、楽曲編集画面も閉じてトップ画面に戻る
     onClose()
   }, [onClose])
 

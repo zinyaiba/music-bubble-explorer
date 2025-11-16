@@ -48,6 +48,19 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
   }, [])
 
   /**
+   * 閉じるボタンのクリックハンドラー（即座に反応）
+   */
+  const handleCloseClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      console.log('🔙 Close button clicked')
+      onClose()
+    },
+    [onClose]
+  )
+
+  /**
    * ESCキーでダイアログを閉じる
    */
   const handleKeyDown = useCallback(
@@ -187,7 +200,7 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
 
                   <button
                     className="standard-layout-close"
-                    onClick={onClose}
+                    onClick={handleCloseClick}
                     aria-label="画面を閉じる"
                     type="button"
                   >
@@ -262,7 +275,7 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
 
                       <button
                         className="standard-layout-integrated-close"
-                        onClick={onClose}
+                        onClick={handleCloseClick}
                         aria-label="画面を閉じる"
                         type="button"
                         style={{

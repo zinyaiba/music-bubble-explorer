@@ -62,6 +62,19 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
   )
 
   /**
+   * 閉じるボタンのクリックハンドラー（即座に反応）
+   */
+  const handleCloseClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      console.log('🔙 Close button clicked (UnifiedDialog)')
+      onClose()
+    },
+    [onClose]
+  )
+
+  /**
    * ESCキーでダイアログを閉じる
    */
   const handleKeyDown = useCallback(
@@ -173,7 +186,7 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
               </h2>
               <button
                 className="unified-dialog-close"
-                onClick={onClose}
+                onClick={handleCloseClick}
                 aria-label="ダイアログを閉じる"
                 type="button"
               >
@@ -227,7 +240,7 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
                   </h2>
                   <button
                     className="unified-dialog-integrated-close"
-                    onClick={onClose}
+                    onClick={handleCloseClick}
                     aria-label="ダイアログを閉じる"
                     type="button"
                     style={{
