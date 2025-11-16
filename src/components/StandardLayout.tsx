@@ -111,16 +111,17 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
         }
       }
 
-      // 初回実行（DOMレンダリング後に実行）
-      setTimeout(updatePadding, 0)
-      setTimeout(updatePadding, 100)
-      setTimeout(updatePadding, 300)
+      // 初回実行（requestAnimationFrameで次のフレームで実行）
+      const rafId = requestAnimationFrame(() => {
+        updatePadding()
+      })
 
       // リサイズ時にも更新
       window.addEventListener('resize', updatePadding)
       window.addEventListener('orientationchange', updatePadding)
 
       return () => {
+        cancelAnimationFrame(rafId)
         document.removeEventListener('keydown', handleKeyDown)
         window.removeEventListener('resize', updatePadding)
         window.removeEventListener('orientationchange', updatePadding)

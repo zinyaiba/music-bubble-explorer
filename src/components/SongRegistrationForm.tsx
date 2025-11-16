@@ -82,12 +82,14 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
 
   // フォーカス管理
   useEffect(() => {
-    if (titleInputRef.current) {
-      setTimeout(() => {
+    if (isVisible && titleInputRef.current) {
+      // requestAnimationFrameを使用して次のフレームでフォーカス
+      const rafId = requestAnimationFrame(() => {
         titleInputRef.current?.focus()
-      }, 100)
+      })
+      return () => cancelAnimationFrame(rafId)
     }
-  }, [])
+  }, [isVisible])
 
   const handleInputChange = useCallback(
     (field: keyof Omit<SongFormData, 'tags'>, value: string) => {

@@ -57,17 +57,38 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     try {
       let loadedSongs: Song[] = []
 
-      try {
-        const { FirebaseService } = await import('@/services/firebaseService')
-        const firebaseService = FirebaseService.getInstance()
+      // Firebaseの読み込みを非同期で実行し、タイムアウトを設定
+      const loadWithTimeout = async () => {
+        const timeoutPromise = new Promise<Song[]>((_, reject) => {
+          setTimeout(() => reject(new Error('Timeout')), 5000)
+        })
 
-        const isConnected = await firebaseService.checkConnection()
-        if (isConnected) {
-          loadedSongs = await firebaseService.getAllSongs()
-        } else {
-          loadedSongs = DataManager.loadSongs()
-        }
-      } catch (firebaseError) {
+        const loadPromise = (async () => {
+          try {
+            const { FirebaseService } = await import(
+              '@/services/firebaseService'
+            )
+            const firebaseService = FirebaseService.getInstance()
+
+            const isConnected = await firebaseService.checkConnection()
+            if (isConnected) {
+              return await firebaseService.getAllSongs()
+            } else {
+              return DataManager.loadSongs()
+            }
+          } catch (firebaseError) {
+            return DataManager.loadSongs()
+          }
+        })()
+
+        return Promise.race([loadPromise, timeoutPromise])
+      }
+
+      try {
+        loadedSongs = await loadWithTimeout()
+      } catch (timeoutError) {
+        // タイムアウトした場合はローカルストレージから読み込み
+        console.warn('Firebase load timeout, falling back to local storage')
         loadedSongs = DataManager.loadSongs()
       }
 
