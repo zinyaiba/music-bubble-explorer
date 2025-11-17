@@ -72,6 +72,9 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
         {isTouchDevice ? '📱' : '💻️'}🌰
       </p>
       <p className="instructions-item">
+        👀 シャボン玉の凡例はフィルタボタンになっているよ
+      </p>
+      <p className="instructions-item">
         ➕「タグ登録」から自由にタグを作ってみよう！
       </p>
       <p className="instructions-item">
