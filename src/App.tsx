@@ -89,7 +89,8 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
       <p className="instructions-item">
         ✉️ 改善要望・不具合については
         <a
-          href="https://x.com/kentaro_uechan"
+          href="https://mixi.social/@kentaro_uechan"
+          // href="https://x.com/kentaro_uechan"
           target="_blank"
           rel="noopener noreferrer"
           className="twitter-link"
