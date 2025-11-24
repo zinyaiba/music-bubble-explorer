@@ -1,0 +1,206 @@
+/**
+ * Tag Registration Screen Performance Optimization
+ * タグ登録画面のパフォーマンス最適化CSS
+ */
+
+/* タグ登録画面全体の最適化 */
+.tag-registration-screen {
+  /* GPU加速 */
+  transform: translateZ(0);
+  will-change: auto;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+
+  /* レンダリング最適化 */
+  contain: layout style paint;
+  isolation: isolate;
+
+  /* タッチ最適化 */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 楽曲選択画面の最適化 */
+.song-selection-screen {
+  /* スクロール最適化 */
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+
+  /* レンダリング最適化 */
+  contain: layout style paint;
+  will-change: scroll-position;
+}
+
+/* 楽曲カードの最適化 */
+.song-card {
+  /* GPU加速 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+
+  /* レンダリング最適化 */
+  contain: layout style paint;
+  content-visibility: auto;
+  contain-intrinsic-size: 0 150px;
+
+  /* タッチ最適化 */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  /* トランジション最適化 */
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* 楽曲カードのホバー・アクティブ状態 */
+.song-card:active {
+  transform: scale(0.98) translateZ(0);
+}
+
+/* タグ編集画面の最適化 */
+.tag-editing-screen {
+  /* レンダリング最適化 */
+  contain: layout style paint;
+  isolation: isolate;
+
+  /* タッチ最適化 */
+  touch-action: manipulation;
+}
+
+/* タグ入力フィールドの最適化 */
+.tag-input-field {
+  /* タッチ最適化 */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+
+  /* フォーカス時の最適化 */
+  will-change: border-color, box-shadow;
+}
+
+.tag-input-field:focus {
+  will-change: auto;
+}
+
+/* タグチップの最適化 */
+.tag-chip {
+  /* GPU加速 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+
+  /* レンダリング最適化 */
+  contain: layout style paint;
+
+  /* タッチ最適化 */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* タグサジェストドロップダウンの最適化 */
+.tag-suggestions-dropdown {
+  /* GPU加速 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+
+  /* レンダリング最適化 */
+  contain: layout style paint;
+  isolation: isolate;
+
+  /* スクロール最適化 */
+  -webkit-overflow-scrolling: touch;
+  overflow-scrolling: touch;
+}
+
+/* タグサジェストアイテムの最適化 */
+.tag-suggestion-item {
+  /* レンダリング最適化 */
+  contain: layout style paint;
+  content-visibility: auto;
+
+  /* タッチ最適化 */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* モバイル専用の最適化 */
+@media (max-width: 768px) {
+  /* タグ登録画面のモバイル最適化 */
+  .tag-registration-screen {
+    /* アニメーション時間を短縮 */
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+
+  /* 楽曲カードのアニメーションを無効化（パフォーマンス向上） */
+  .song-card {
+    animation: none !important;
+  }
+
+  /* 最初の10個のみアニメーション */
+  .song-card:nth-child(-n + 10) {
+    animation: fadeInUp 0.3s ease-out;
+    animation-fill-mode: both;
+  }
+
+  /* スクロールパフォーマンス向上 */
+  .songs-container {
+    /* スクロール最適化 */
+    -webkit-overflow-scrolling: touch;
+    overflow-scrolling: touch;
+    will-change: scroll-position;
+
+    /* レンダリング最適化 */
+    contain: layout style paint;
+  }
+
+  /* タッチ反応の改善 */
+  .song-card,
+  .tag-chip,
+  .tag-suggestion-item {
+    /* タッチ遅延を削除 */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* 低速デバイス向けの最適化 */
+@media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+  /* アニメーションを簡略化 */
+  .song-card {
+    transition: transform 0.15s ease;
+  }
+
+  .tag-chip {
+    transition: background-color 0.15s ease;
+  }
+}
+
+/* 縮小モーション設定への対応 */
+@media (prefers-reduced-motion: reduce) {
+  .tag-registration-screen,
+  .song-card,
+  .tag-chip {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* 仮想スクロール用のスタイル */
+.virtual-scroll-container {
+  position: relative;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  will-change: scroll-position;
+}
+
+.virtual-scroll-spacer {
+  pointer-events: none;
+}
+
+/* パフォーマンスモニタリング用（開発環境のみ） */
+.perf-debug .song-card {
+  outline: 1px solid rgba(255, 0, 0, 0.2);
+}
+
+.perf-debug .tag-chip {
+  outline: 1px solid rgba(0, 255, 0, 0.2);
+}

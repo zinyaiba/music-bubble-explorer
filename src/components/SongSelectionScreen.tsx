@@ -1,9 +1,10 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react'
-import styled, { keyframes } from 'styled-components'
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react'
+import styled, { keyframes, css } from 'styled-components'
 import { useGlassmorphismTheme } from './GlassmorphismThemeProvider'
 import { Song } from '@/types/music'
 import { MusicDataService } from '@/services/musicDataService'
 import { DataManager } from '@/services/dataManager'
+import '@/styles/tagRegistrationOptimization.css'
 
 // Animation keyframes
 const fadeInUp = keyframes`
@@ -157,6 +158,11 @@ const SongsContainer = styled.div<{
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
+  position: relative;
+
+  /* パフォーマンス最適化 */
+  will-change: scroll-position;
+  -webkit-overflow-scrolling: touch;
 
   /* Custom scrollbar styling */
   &::-webkit-scrollbar {
@@ -216,10 +222,14 @@ const SongCard = styled.div<{
   padding: 20px;
   cursor: pointer;
 
-  /* Animation with staggered delay */
-  animation: ${fadeInUp} 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  animation-delay: ${props => props.$index * 0.05}s;
-  animation-fill-mode: both;
+  /* パフォーマンス最適化: アニメーションを最初の20個のみに制限 */
+  ${props =>
+    props.$index < 20 &&
+    css`
+      animation: ${fadeInUp} 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      animation-delay: ${props.$index * 0.05}s;
+      animation-fill-mode: both;
+    `}
 
   /* Interactive states */
   &:hover {
@@ -250,6 +260,16 @@ const SongCard = styled.div<{
       transform: scale(0.98);
     }
   }
+
+  /* パフォーマンス最適化 */
+  contain: layout style paint;
+  content-visibility: auto;
+
+  /* タッチデバイスでの即座の反応 */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  pointer-events: auto;
+  cursor: pointer;
 `
 
 const SongTitle = styled.h3<{
@@ -468,6 +488,12 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
   const [searchTerm, setSearchTerm] = useState(propSearchTerm)
   const [isLoading, setIsLoading] = useState(false)
 
+  // 仮想スクロール用のstate
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 20 })
+  const containerRef = useRef<HTMLDivElement>(null)
+  const ITEM_HEIGHT = 150 // 1つの楽曲カードの高さ（概算）
+  const BUFFER_SIZE = 5 // 上下に余分に表示する数
+
   // Load songs data if not provided via props
   useEffect(() => {
     if (propSongs) {
@@ -539,9 +565,69 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
     )
   }, [songs, searchTerm])
 
+  // 仮想スクロール: 表示する楽曲のみを抽出
+  const visibleSongs = useMemo(() => {
+    return filteredSongs.slice(visibleRange.start, visibleRange.end)
+  }, [filteredSongs, visibleRange])
+
+  // スクロールイベントハンドラー（仮想スクロール）
+  const handleScroll = useCallback(() => {
+    if (!containerRef.current) return
+
+    const scrollTop = containerRef.current.scrollTop
+    const containerHeight = containerRef.current.clientHeight
+
+    // 現在のスクロール位置から表示範囲を計算
+    const start = Math.max(0, Math.floor(scrollTop / ITEM_HEIGHT) - BUFFER_SIZE)
+    const end = Math.min(
+      filteredSongs.length,
+      Math.ceil((scrollTop + containerHeight) / ITEM_HEIGHT) + BUFFER_SIZE
+    )
+
+    setVisibleRange({ start, end })
+  }, [filteredSongs.length])
+
+  // スクロールイベントリスナーの登録
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    // デバウンス処理
+    let timeoutId: number | undefined
+    const debouncedHandleScroll = () => {
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId)
+      }
+      timeoutId = window.setTimeout(handleScroll, 50)
+    }
+
+    container.addEventListener('scroll', debouncedHandleScroll, {
+      passive: true,
+    })
+
+    // 初期表示範囲を設定
+    handleScroll()
+
+    return () => {
+      container.removeEventListener('scroll', debouncedHandleScroll)
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId)
+      }
+    }
+  }, [handleScroll])
+
+  // 検索条件が変わったら表示範囲をリセット
+  useEffect(() => {
+    setVisibleRange({ start: 0, end: 20 })
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0
+    }
+  }, [searchTerm, songs])
+
   // Handle song selection
   const handleSongSelect = useCallback(
     (song: Song) => {
+      console.log('🎵 Song selected:', song.title)
       onSongSelect(song)
     },
     [onSongSelect]
@@ -601,7 +687,10 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
   )
 
   return (
-    <ScreenContainer $theme={theme} className={className}>
+    <ScreenContainer
+      $theme={theme}
+      className={`song-selection-screen ${className || ''}`}
+    >
       {/* Search Section */}
       <SearchSection $theme={theme}>
         <SearchInput
@@ -639,7 +728,11 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
       </SearchSection>
 
       {/* Songs Container */}
-      <SongsContainer $theme={theme}>
+      <SongsContainer
+        $theme={theme}
+        ref={containerRef}
+        className="songs-container virtual-scroll-container"
+      >
         {isLoading ? (
           <LoadingState $theme={theme}>
             <div className="loading-spinner" />
@@ -658,35 +751,47 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
             </div>
           </EmptyState>
         ) : (
-          <SongsList $theme={theme}>
-            {filteredSongs.map((song, index) => (
-              <SongCard
-                key={song.id}
-                $theme={theme}
-                $index={index}
-                onClick={() => handleSongSelect(song)}
-                onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, song)}
-                tabIndex={0}
-                role="button"
-                aria-label={`楽曲「${song.title}」を選択`}
-              >
-                <SongTitle $theme={theme}>{song.title}</SongTitle>
+          <SongsList
+            $theme={theme}
+            className="virtual-scroll-spacer"
+            style={{
+              // 仮想スクロール用のスペーサー
+              paddingTop: `${visibleRange.start * ITEM_HEIGHT}px`,
+              paddingBottom: `${(filteredSongs.length - visibleRange.end) * ITEM_HEIGHT}px`,
+            }}
+          >
+            {visibleSongs.map((song, index) => {
+              const actualIndex = visibleRange.start + index
+              return (
+                <SongCard
+                  key={song.id}
+                  $theme={theme}
+                  $index={actualIndex}
+                  className="song-card"
+                  onClick={() => handleSongSelect(song)}
+                  onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, song)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`楽曲「${song.title}」を選択`}
+                >
+                  <SongTitle $theme={theme}>{song.title}</SongTitle>
 
-                <SongDetails $theme={theme}>
-                  {renderSongCredits(song)}
-                </SongDetails>
+                  <SongDetails $theme={theme}>
+                    {renderSongCredits(song)}
+                  </SongDetails>
 
-                {song.tags && song.tags.length > 0 && (
-                  <SongTags $theme={theme}>
-                    {song.tags.map((tag, tagIndex) => (
-                      <TagChip key={tagIndex} $theme={theme}>
-                        {tag}
-                      </TagChip>
-                    ))}
-                  </SongTags>
-                )}
-              </SongCard>
-            ))}
+                  {song.tags && song.tags.length > 0 && (
+                    <SongTags $theme={theme}>
+                      {song.tags.map((tag, tagIndex) => (
+                        <TagChip key={tagIndex} $theme={theme}>
+                          {tag}
+                        </TagChip>
+                      ))}
+                    </SongTags>
+                  )}
+                </SongCard>
+              )
+            })}
           </SongsList>
         )}
       </SongsContainer>

@@ -593,6 +593,7 @@ export const TagRegistrationScreen: React.FC<TagRegistrationScreenProps> = ({
     <ScreenContainer
       $isVisible={isVisible}
       $theme={theme}
+      className="tag-registration-screen"
       onKeyDown={handleKeyDown}
       tabIndex={-1}
       role="dialog"
