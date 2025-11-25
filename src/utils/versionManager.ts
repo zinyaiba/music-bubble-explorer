@@ -2,7 +2,7 @@
  * バージョン管理とキャッシュ更新を制御するユーティリティ
  */
 
-const CURRENT_VERSION = '1.0.0' // package.jsonと同期
+const CURRENT_VERSION = '1.0.1' // package.jsonと同期 - タグ登録パフォーマンス最適化
 const VERSION_KEY = 'app_version'
 const LAST_CHECK_KEY = 'version_last_check'
 const CHECK_INTERVAL = 1000 * 60 * 60 // 1時間ごとにチェック

@@ -85,12 +85,39 @@ const Button = styled.button<{ $primary?: boolean }>`
 
 export const UpdateNotification: React.FC = () => {
   const [showNotification, setShowNotification] = useState(false)
+  const [autoUpdateTimer, setAutoUpdateTimer] = useState<number | null>(null)
+  const [countdown, setCountdown] = useState(10)
 
   useEffect(() => {
     const checkUpdate = async () => {
       const hasUpdate = await checkForUpdates()
       if (hasUpdate) {
         setShowNotification(true)
+
+        // カウントダウンを開始
+        let count = 10
+        const countdownInterval = window.setInterval(() => {
+          count -= 1
+          setCountdown(count)
+          if (count <= 0) {
+            clearInterval(countdownInterval)
+          }
+        }, 1000)
+
+        // 10秒後に自動更新
+        const timerId = window.setTimeout(() => {
+          console.log('🔄 Auto-updating to clear cache...')
+          clearInterval(countdownInterval)
+          applyUpdate()
+        }, 10000)
+
+        setAutoUpdateTimer(timerId)
+
+        // クリーンアップ用に両方のIDを保存
+        return () => {
+          clearTimeout(timerId)
+          clearInterval(countdownInterval)
+        }
       }
     }
 
@@ -103,13 +130,26 @@ export const UpdateNotification: React.FC = () => {
         setShowNotification(true)
       })
     }
+
+    return () => {
+      if (autoUpdateTimer) {
+        clearTimeout(autoUpdateTimer)
+      }
+    }
   }, [])
 
   const handleUpdate = () => {
+    if (autoUpdateTimer) {
+      clearTimeout(autoUpdateTimer)
+    }
     applyUpdate()
   }
 
   const handleDismiss = () => {
+    if (autoUpdateTimer) {
+      clearTimeout(autoUpdateTimer)
+      setAutoUpdateTimer(null)
+    }
     setShowNotification(false)
   }
 
@@ -125,7 +165,9 @@ export const UpdateNotification: React.FC = () => {
             🎉 新しいバージョンが利用可能です
           </NotificationTitle>
           <NotificationText>
-            アプリが更新されました。最新の機能を使用するには更新してください。
+            アプリが更新されました。最新の機能とパフォーマンス改善を適用するため、
+            {countdown}
+            秒後に自動的に更新されます。
           </NotificationText>
         </div>
         <ButtonGroup>
