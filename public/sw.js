@@ -1,5 +1,5 @@
 // アプリバージョン - package.jsonと同期させること
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.0.1';
 const CACHE_NAME = `music-bubble-explorer-v${APP_VERSION}`;
 const BASE_PATH = self.location.pathname.replace(/\/[^\/]*$/, '');
 const STATIC_CACHE_URLS = [

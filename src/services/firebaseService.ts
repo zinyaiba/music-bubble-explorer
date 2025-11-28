@@ -67,7 +67,7 @@ export class FirebaseService {
    */
   private convertFirebaseSongToSong(doc: any): Song {
     const data = doc.data() as FirebaseSong
-    return {
+    const song: Song = {
       id: doc.id,
       title: data.title || '',
       lyricists: data.lyricists || [],
@@ -77,6 +77,16 @@ export class FirebaseService {
       notes: data.notes || '',
       createdAt: this.convertTimestampToString(data.createdAt),
     }
+
+    // 拡張フィールド - 値が存在する場合のみ追加
+    if (data.artists) song.artists = data.artists
+    if (data.releaseYear) song.releaseYear = data.releaseYear
+    if (data.singleName) song.singleName = data.singleName
+    if (data.albumName) song.albumName = data.albumName
+    if (data.jacketImageUrl) song.jacketImageUrl = data.jacketImageUrl
+    if (data.detailPageUrls) song.detailPageUrls = data.detailPageUrls
+
+    return song
   }
 
   public static getInstance(): FirebaseService {
@@ -127,12 +137,17 @@ export class FirebaseService {
         isPublic: true,
       }
 
-      // idフィールドを除外
+      // idフィールドを除外し、undefinedフィールドも除外
       const { id: _id, ...songData } = firebaseSong
+
+      // Firestoreはundefinedを受け付けないため、undefinedフィールドを削除
+      const cleanedSongData = Object.fromEntries(
+        Object.entries(songData).filter(([_, value]) => value !== undefined)
+      )
 
       const docRef = await addDoc(
         collection(db!, this.COLLECTION_NAME),
-        songData
+        cleanedSongData
       )
       console.log('🔥 Firebase: 楽曲を保存しました', docRef.id)
       return docRef.id
@@ -191,8 +206,14 @@ export class FirebaseService {
       }
 
       const songRef = doc(db!, this.COLLECTION_NAME, songId)
+
+      // Firestoreはundefinedを受け付けないため、undefinedフィールドを削除
+      const cleanedUpdates = Object.fromEntries(
+        Object.entries(updates).filter(([_, value]) => value !== undefined)
+      )
+
       await updateDoc(songRef, {
-        ...updates,
+        ...cleanedUpdates,
         updatedAt: serverTimestamp(),
       })
 

@@ -29,3 +29,11 @@ dist-ssr
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Firebase service account (機密情報)
+firebase-service-account.json
+firebase-service-account*.json
+
+# Backups
+backups/
+*.backup.json

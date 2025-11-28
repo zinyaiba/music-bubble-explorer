@@ -1,9 +1,21 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
-import { Song } from '@/types/music'
+import { Song, DetailPageUrl } from '@/types/music'
 import { DataManager } from '@/services/dataManager'
 import { MusicDataService } from '@/services/musicDataService'
 import { StandardLayout } from './StandardLayout'
 import { AnalyticsService } from '@/services/analyticsService'
+import { DetailUrlList } from './DetailUrlList'
+import { JacketImage } from './JacketImage'
+import {
+  validateUrl,
+  validateUrlLength,
+  validateTextLength,
+  validateReleaseYear,
+  validateArtists,
+  validateDetailPageUrls,
+  parseCommaSeparated,
+  formatCommaSeparated,
+} from '@/utils/songFormValidation'
 
 // import TagInput from './TagInput' // タグ編集は専用画面からのみ
 import './SongRegistrationForm.css'
@@ -21,6 +33,13 @@ interface SongFormData {
   composers: string
   arrangers: string
   tags: string[]
+  // 拡張フィールド
+  artists: string // カンマ区切り文字列
+  releaseYear: string // 入力時は文字列、保存時に数値に変換
+  singleName: string
+  albumName: string
+  jacketImageUrl: string
+  detailPageUrls: DetailPageUrl[] // URL配列（ラベル付き）
 }
 
 interface FormErrors {
@@ -29,6 +48,12 @@ interface FormErrors {
   composers?: string
   arrangers?: string
   // tags?: string // タグエラーは専用画面で処理
+  artists?: string
+  releaseYear?: string
+  singleName?: string
+  albumName?: string
+  jacketImageUrl?: string
+  detailPageUrls?: string
   general?: string
 }
 
@@ -49,6 +74,13 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
     composers: '',
     arrangers: '',
     tags: [], // タグは専用画面からのみ編集
+    // 拡張フィールド
+    artists: '',
+    releaseYear: '',
+    singleName: '',
+    albumName: '',
+    jacketImageUrl: '',
+    detailPageUrls: [],
   })
 
   // const [existingTags, setExistingTags] = useState<string[]>([]) // タグ編集は専用画面からのみ
@@ -68,14 +100,31 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
   // }, [])
 
   // 編集モード時のフォームデータ初期化
+  // Requirement 15.1: 編集画面での既存データ表示
   useEffect(() => {
     if (editingSong) {
+      // detailPageUrlsの後方互換性対応: 文字列配列の場合はDetailPageUrl型に変換
+      const detailPageUrls = editingSong.detailPageUrls
+        ? editingSong.detailPageUrls.map(urlItem =>
+            typeof urlItem === 'string'
+              ? { url: urlItem, label: undefined }
+              : urlItem
+          )
+        : []
+
       setFormData({
         title: editingSong.title,
         lyricists: editingSong.lyricists.join(', '),
         composers: editingSong.composers.join(', '),
         arrangers: editingSong.arrangers.join(', '),
         tags: [], // タグは専用画面からのみ編集
+        // 拡張フィールド
+        artists: formatCommaSeparated(editingSong.artists || []),
+        releaseYear: editingSong.releaseYear?.toString() || '',
+        singleName: editingSong.singleName || '',
+        albumName: editingSong.albumName || '',
+        jacketImageUrl: editingSong.jacketImageUrl || '',
+        detailPageUrls,
       })
     }
   }, [editingSong])
@@ -91,8 +140,12 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
     }
   }, [isVisible])
 
+  // Requirement 15.2: 入力変更の受け付け
   const handleInputChange = useCallback(
-    (field: keyof Omit<SongFormData, 'tags'>, value: string) => {
+    (
+      field: keyof Omit<SongFormData, 'tags' | 'detailPageUrls'>,
+      value: string
+    ) => {
       setFormData(prev => ({
         ...prev,
         [field]: value,
@@ -106,6 +159,24 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
       }
     },
     [errors]
+  )
+
+  // DetailUrlList用の変更ハンドラ
+  const handleDetailUrlsChange = useCallback(
+    (urls: DetailPageUrl[]) => {
+      setFormData(prev => ({
+        ...prev,
+        detailPageUrls: urls,
+      }))
+
+      if (errors.detailPageUrls) {
+        setErrors(prev => ({
+          ...prev,
+          detailPageUrls: undefined,
+        }))
+      }
+    },
+    [errors.detailPageUrls]
   )
 
   // タグ変更ハンドラーは専用画面で実施
@@ -142,6 +213,52 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
 
     if (formData.arrangers.trim() && formData.arrangers.trim().length > 200) {
       newErrors.arrangers = '編曲家は200文字以内で入力してください'
+    }
+
+    // 拡張フィールドのバリデーション
+    // Requirement 9.3: アーティスト名の文字数制限
+    const artistsValidation = validateArtists(formData.artists)
+    if (!artistsValidation.isValid) {
+      newErrors.artists = artistsValidation.error
+    }
+
+    // Requirement 10.3, 10.4: 発売年のバリデーション
+    const releaseYearValidation = validateReleaseYear(formData.releaseYear)
+    if (!releaseYearValidation.isValid) {
+      newErrors.releaseYear = releaseYearValidation.error
+    }
+
+    // Requirement 11.3: 収録シングル名の文字数制限
+    const singleNameValidation = validateTextLength(formData.singleName, 200)
+    if (!singleNameValidation.isValid) {
+      newErrors.singleName = singleNameValidation.error
+    }
+
+    // Requirement 12.3: 収録アルバム名の文字数制限
+    const albumNameValidation = validateTextLength(formData.albumName, 200)
+    if (!albumNameValidation.isValid) {
+      newErrors.albumName = albumNameValidation.error
+    }
+
+    // Requirement 13.3, 13.5: ジャケット画像URLのバリデーション
+    if (formData.jacketImageUrl.trim()) {
+      const jacketUrlValidation = validateUrl(formData.jacketImageUrl)
+      if (!jacketUrlValidation.isValid) {
+        newErrors.jacketImageUrl = jacketUrlValidation.error
+      } else {
+        const jacketUrlLengthValidation = validateUrlLength(
+          formData.jacketImageUrl
+        )
+        if (!jacketUrlLengthValidation.isValid) {
+          newErrors.jacketImageUrl = jacketUrlLengthValidation.error
+        }
+      }
+    }
+
+    // Requirement 14.4, 14.7: 楽曲詳細ページURLのバリデーション
+    const detailUrlsValidation = validateDetailPageUrls(formData.detailPageUrls)
+    if (!detailUrlsValidation.isValid) {
+      newErrors.detailPageUrls = detailUrlsValidation.error
     }
 
     // タグのバリデーションは専用画面で実施
@@ -185,6 +302,24 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
         })
         let songToSave: Song
 
+        // Requirement 9.4: カンマ区切り入力から配列への変換
+        const artistsArray = parseCommaSeparated(formData.artists)
+        const releaseYearNum = formData.releaseYear.trim()
+          ? parseInt(formData.releaseYear, 10)
+          : undefined
+
+        // 楽曲詳細ページURLから空の値を除外し、undefinedフィールドをクリーンアップ
+        const detailPageUrlsFiltered = formData.detailPageUrls
+          .filter(urlObj => urlObj.url.trim() !== '')
+          .map(urlObj => {
+            // labelがundefinedの場合は除外
+            const cleaned: any = { url: urlObj.url }
+            if (urlObj.label && urlObj.label.trim() !== '') {
+              cleaned.label = urlObj.label.trim()
+            }
+            return cleaned
+          })
+
         if (isEditMode && editingSong) {
           songToSave = {
             ...editingSong,
@@ -193,6 +328,16 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             composers: parseCommaSeparatedString(formData.composers),
             arrangers: parseCommaSeparatedString(formData.arrangers),
             tags: editingSong.tags || [], // 既存のタグを保持、編集は専用画面からのみ
+            // 拡張フィールド
+            artists: artistsArray.length > 0 ? artistsArray : undefined,
+            releaseYear: releaseYearNum,
+            singleName: formData.singleName.trim() || undefined,
+            albumName: formData.albumName.trim() || undefined,
+            jacketImageUrl: formData.jacketImageUrl.trim() || undefined,
+            detailPageUrls:
+              detailPageUrlsFiltered.length > 0
+                ? detailPageUrlsFiltered
+                : undefined,
           }
 
           console.log('🎵 Updating existing song:', songToSave)
@@ -211,6 +356,16 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             composers: parseCommaSeparatedString(formData.composers),
             arrangers: parseCommaSeparatedString(formData.arrangers),
             tags: [], // 新規楽曲のタグは空、専用画面からのみ追加可能
+            // 拡張フィールド
+            artists: artistsArray.length > 0 ? artistsArray : undefined,
+            releaseYear: releaseYearNum,
+            singleName: formData.singleName.trim() || undefined,
+            albumName: formData.albumName.trim() || undefined,
+            jacketImageUrl: formData.jacketImageUrl.trim() || undefined,
+            detailPageUrls:
+              detailPageUrlsFiltered.length > 0
+                ? detailPageUrlsFiltered
+                : undefined,
           }
 
           console.log('🎵 Saving new song:', songToSave)
@@ -310,6 +465,24 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             )}
           </div>
 
+          {/* 拡張フィールド */}
+          {/* Requirement 9.1-9.4: アーティスト名入力 */}
+          <div className="form-group">
+            <label htmlFor="artists">アーティスト</label>
+            <input
+              id="artists"
+              type="text"
+              value={formData.artists}
+              onChange={e => handleInputChange('artists', e.target.value)}
+              placeholder="アーティスト名を入力（複数の場合はカンマ区切り）"
+              className={errors.artists ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.artists && (
+              <div className="error-message">{errors.artists}</div>
+            )}
+          </div>
+
           <div className="form-group">
             <label htmlFor="lyricists">作詞家</label>
             <input
@@ -355,6 +528,108 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             />
             {errors.arrangers && (
               <div className="error-message">{errors.arrangers}</div>
+            )}
+          </div>
+
+          {/* Requirement 10.1-10.4: 発売年入力 */}
+          <div className="form-group">
+            <label htmlFor="releaseYear">発売年</label>
+            <input
+              id="releaseYear"
+              type="number"
+              value={formData.releaseYear}
+              onChange={e => handleInputChange('releaseYear', e.target.value)}
+              placeholder="例: 2024"
+              className={errors.releaseYear ? 'error' : ''}
+              min={1000}
+              max={9999}
+            />
+            {errors.releaseYear && (
+              <div className="error-message">{errors.releaseYear}</div>
+            )}
+          </div>
+
+          {/* Requirement 11.1-11.3: 収録シングル名入力 */}
+          <div className="form-group">
+            <label htmlFor="singleName">収録シングル</label>
+            <input
+              id="singleName"
+              type="text"
+              value={formData.singleName}
+              onChange={e => handleInputChange('singleName', e.target.value)}
+              placeholder="収録シングル名を入力"
+              className={errors.singleName ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.singleName && (
+              <div className="error-message">{errors.singleName}</div>
+            )}
+          </div>
+
+          {/* Requirement 12.1-12.3: 収録アルバム名入力 */}
+          <div className="form-group">
+            <label htmlFor="albumName">収録アルバム</label>
+            <input
+              id="albumName"
+              type="text"
+              value={formData.albumName}
+              onChange={e => handleInputChange('albumName', e.target.value)}
+              placeholder="収録アルバム名を入力"
+              className={errors.albumName ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.albumName && (
+              <div className="error-message">{errors.albumName}</div>
+            )}
+          </div>
+
+          {/* Requirement 13.1-13.5: ジャケット画像URL入力とプレビュー */}
+          <div className="form-group">
+            <label htmlFor="jacketImageUrl">ジャケット画像URL</label>
+            <input
+              id="jacketImageUrl"
+              type="url"
+              value={formData.jacketImageUrl}
+              onChange={e =>
+                handleInputChange('jacketImageUrl', e.target.value)
+              }
+              placeholder="https://example.com/jacket.jpg"
+              className={errors.jacketImageUrl ? 'error' : ''}
+              maxLength={500}
+            />
+            {errors.jacketImageUrl && (
+              <div className="error-message">{errors.jacketImageUrl}</div>
+            )}
+          </div>
+
+          {/* Requirement 13.4: ジャケット画像プレビュー */}
+          {formData.jacketImageUrl.trim() && !errors.jacketImageUrl && (
+            <div className="form-group">
+              <label>プレビュー</label>
+              <div style={{ flex: 1 }}>
+                <JacketImage
+                  imageUrl={formData.jacketImageUrl}
+                  alt="ジャケット画像プレビュー"
+                  size="small"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Requirement 14.1-14.7: 楽曲詳細ページURL入力リスト */}
+          <div
+            className="form-group"
+            style={{ flexDirection: 'column', alignItems: 'flex-start' }}
+          >
+            <label htmlFor="detailPageUrls">楽曲詳細ページURL</label>
+            <DetailUrlList
+              urls={formData.detailPageUrls}
+              onChange={handleDetailUrlsChange}
+              maxUrls={10}
+              disabled={isSubmitting}
+            />
+            {errors.detailPageUrls && (
+              <div className="error-message">{errors.detailPageUrls}</div>
             )}
           </div>
 

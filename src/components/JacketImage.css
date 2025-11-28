@@ -1,0 +1,253 @@
+/* JacketImage コンポーネントのスタイル */
+
+.jacket-image-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 240, 245, 0.9) 0%,
+    rgba(240, 255, 240, 0.9) 100%
+  );
+  border: 2px solid rgba(255, 182, 193, 0.3);
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.15);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Requirement 2.4: サイズバリエーション */
+.jacket-image-small {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
+  min-height: 80px;
+}
+
+.jacket-image-medium {
+  width: 200px;
+  height: 200px;
+  min-width: 200px;
+  min-height: 200px;
+}
+
+.jacket-image-large {
+  width: 300px;
+  height: 300px;
+  min-width: 300px;
+  min-height: 300px;
+}
+
+/* クリック可能な場合のスタイル */
+.jacket-image-container.clickable {
+  cursor: pointer;
+}
+
+.jacket-image-container.clickable:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 16px rgba(255, 182, 193, 0.25);
+  border-color: rgba(255, 182, 193, 0.5);
+}
+
+.jacket-image-container.clickable:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 182, 193, 0.4);
+}
+
+.jacket-image-container.clickable:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.2);
+}
+
+/* 画像本体 */
+.jacket-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: opacity 0.3s ease;
+}
+
+.jacket-image.loading {
+  opacity: 0;
+}
+
+/* 読み込み中インジケーター */
+.jacket-image-loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 240, 245, 0.95) 0%,
+    rgba(240, 255, 240, 0.95) 100%
+  );
+}
+
+.loading-spinner {
+  font-size: 2rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Requirement 2.2, 2.3: フォールバック表示 */
+.jacket-image-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 240, 245, 0.95) 0%,
+    rgba(240, 255, 240, 0.95) 100%
+  );
+}
+
+.fallback-icon {
+  font-size: 3rem;
+  opacity: 0.6;
+  filter: grayscale(0.3);
+}
+
+.jacket-image-small .fallback-icon {
+  font-size: 1.5rem;
+}
+
+.jacket-image-large .fallback-icon {
+  font-size: 4rem;
+}
+
+.fallback-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ff69b4;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.jacket-image-small .fallback-text {
+  font-size: 0.6rem;
+}
+
+.jacket-image-large .fallback-text {
+  font-size: 0.9rem;
+}
+
+/* Requirement 17.3: レスポンシブ画像サイズ調整 */
+@media (max-width: 768px) {
+  .jacket-image-medium {
+    width: 150px;
+    height: 150px;
+    min-width: 150px;
+    min-height: 150px;
+  }
+
+  .jacket-image-large {
+    width: 200px;
+    height: 200px;
+    min-width: 200px;
+    min-height: 200px;
+  }
+
+  .fallback-icon {
+    font-size: 2.5rem;
+  }
+
+  .jacket-image-large .fallback-icon {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .jacket-image-small {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    min-height: 60px;
+  }
+
+  .jacket-image-medium {
+    width: 120px;
+    height: 120px;
+    min-width: 120px;
+    min-height: 120px;
+  }
+
+  .jacket-image-large {
+    width: 150px;
+    height: 150px;
+    min-width: 150px;
+    min-height: 150px;
+  }
+
+  .fallback-icon {
+    font-size: 2rem;
+  }
+
+  .jacket-image-small .fallback-icon {
+    font-size: 1.2rem;
+  }
+
+  .jacket-image-large .fallback-icon {
+    font-size: 2.5rem;
+  }
+
+  .fallback-text {
+    font-size: 0.65rem;
+  }
+
+  .jacket-image-small .fallback-text {
+    font-size: 0.5rem;
+  }
+}
+
+/* アクセシビリティ対応 */
+@media (prefers-reduced-motion: reduce) {
+  .jacket-image-container,
+  .jacket-image,
+  .loading-spinner {
+    transition: none;
+    animation: none;
+  }
+
+  .jacket-image-container.clickable:hover {
+    transform: none;
+  }
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .jacket-image-container {
+    border-color: #000;
+    background: #fff;
+  }
+
+  .jacket-image-container.clickable:hover,
+  .jacket-image-container.clickable:focus {
+    border-color: #000;
+    background: #f0f0f0;
+  }
+
+  .fallback-text {
+    color: #000;
+    opacity: 1;
+  }
+}

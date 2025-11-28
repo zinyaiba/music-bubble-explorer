@@ -3,6 +3,7 @@ import { Song } from '@/types/music'
 import { DataManager } from '@/services/dataManager'
 import { MusicDataService } from '@/services/musicDataService'
 import { SongRegistrationForm } from './SongRegistrationForm'
+import { SongDetailView } from './SongDetailView'
 import { StandardLayout } from './StandardLayout'
 import { UnifiedDialogLayout } from './UnifiedDialogLayout'
 import './SongManagement.css'
@@ -43,6 +44,8 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   const [searchQuery, setSearchQuery] = useState('')
   const [editingSong, setEditingSong] = useState<Song | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
+  const [showDetailView, setShowDetailView] = useState(false)
+  const [selectedSongId, setSelectedSongId] = useState<string | null>(null)
   const [deleteConfirmation, setDeleteConfirmation] =
     useState<DeleteConfirmationState>({
       isOpen: false,
@@ -138,6 +141,17 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     console.log('After setState - showEditForm should be true')
   }, [showEditForm, editingSong])
 
+  // Requirement 1.1: 楽曲アイテムをタップして楽曲詳細画面へ遷移
+  const handleSongClick = useCallback((song: Song) => {
+    console.log('🎵 Opening detail view for song:', {
+      songId: song.id,
+      songTitle: song.title,
+    })
+    setEditingSong(song) // 選択された楽曲を保存
+    setSelectedSongId(song.id)
+    setShowDetailView(true)
+  }, [])
+
   const handleEditSong = useCallback((song: Song) => {
     console.log('✏️ Opening edit form for song:', {
       songId: song.id,
@@ -149,6 +163,12 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     })
     setEditingSong(song)
     setShowEditForm(true)
+  }, [])
+
+  const handleCloseDetailView = useCallback(() => {
+    setShowDetailView(false)
+    setSelectedSongId(null)
+    setEditingSong(null)
   }, [])
 
   const handleCloseEditForm = useCallback(() => {
@@ -350,7 +370,19 @@ export const SongManagement: React.FC<SongManagementProps> = ({
               ) : (
                 filteredSongs.map(song => (
                   <div key={song.id} className="song-item">
-                    <div className="song-info">
+                    <div
+                      className="song-info clickable"
+                      onClick={() => handleSongClick(song)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          handleSongClick(song)
+                        }
+                      }}
+                      aria-label={`${song.title}の詳細を表示`}
+                    >
                       <h3 className="song-title">{song.title}</h3>
                       <div className="song-details">
                         {song.lyricists.length > 0 && (
@@ -381,7 +413,10 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                     </div>
                     <div className="song-actions">
                       <button
-                        onClick={() => handleEditSong(song)}
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleEditSong(song)
+                        }}
                         className="edit-button"
                         aria-label={`${song.title}を編集`}
                         title="楽曲を編集"
@@ -389,7 +424,10 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                         ✏️
                       </button>
                       <button
-                        onClick={() => handleDeleteSong(song)}
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleDeleteSong(song)
+                        }}
                         className="delete-button"
                         aria-label={`${song.title}を削除`}
                         title="楽曲を削除"
@@ -408,6 +446,15 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                 onClose={handleCloseEditForm}
                 onSongAdded={handleSongUpdated}
                 editingSong={editingSong}
+              />
+            )}
+
+            {showDetailView && selectedSongId && editingSong && (
+              <SongDetailView
+                songId={selectedSongId}
+                song={editingSong}
+                isVisible={showDetailView}
+                onClose={handleCloseDetailView}
               />
             )}
 

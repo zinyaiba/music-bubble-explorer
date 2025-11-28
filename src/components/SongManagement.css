@@ -330,6 +330,21 @@
   width: 100%;
 }
 
+.song-info.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.song-info.clickable:hover {
+  opacity: 0.8;
+}
+
+.song-info.clickable:focus {
+  outline: 2px solid var(--primary-color, #4a90e2);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
 .song-title {
   font-size: 16px;
   font-weight: 600;

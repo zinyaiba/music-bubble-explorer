@@ -173,6 +173,7 @@ form.song-form.song-form--editing .form-group label,
   flex-shrink: 0 !important;
   text-align: left !important;
   line-height: 0.9 !important;
+  white-space: nowrap !important;
 }
 
 /* 絵文字を削除 */
@@ -424,36 +425,49 @@ form.song-form.song-form--editing .form-group select:focus {
   color: #666;
 }
 
-/* Mobile Responsive - 1行レイアウト強制適用 */
+/* Mobile Responsive - 縦並びレイアウト */
 @media (max-width: 768px) {
   .song-form {
-    gap: 3px;
+    gap: 8px;
   }
 
-  .form-group {
+  .form-group,
+  form.song-form--editing .form-group,
+  form.song-form.song-form--editing .form-group {
     display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 4px !important;
-    margin-bottom: 10px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+    margin-bottom: 16px !important;
     position: relative;
   }
 
-  .form-group label {
-    min-width: 40px !important;
-    max-width: 40px !important;
+  .form-group label,
+  form.song-form--editing .form-group label,
+  form.song-form.song-form--editing .form-group label {
+    min-width: auto !important;
+    max-width: none !important;
     flex-shrink: 0 !important;
-    font-size: 0.75rem !important;
+    font-size: 0.85rem !important;
     text-align: left !important;
-    line-height: 1.1 !important;
+    line-height: 1.3 !important;
+    white-space: normal !important;
+    font-weight: 600 !important;
+    color: #374151 !important;
   }
 
   .form-group input,
   .form-group textarea,
-  .form-group select {
-    padding: 6px 8px !important;
-    font-size: 0.85rem !important;
-    flex: 1 !important;
+  .form-group select,
+  form.song-form--editing .form-group input,
+  form.song-form--editing .form-group textarea,
+  form.song-form--editing .form-group select,
+  form.song-form.song-form--editing .form-group input,
+  form.song-form.song-form--editing .form-group textarea,
+  form.song-form.song-form--editing .form-group select {
+    padding: 10px 12px !important;
+    font-size: 1rem !important;
+    width: 100% !important;
     min-width: 0 !important;
     border-radius: 8px !important;
   }
@@ -484,27 +498,43 @@ form.song-form.song-form--editing .form-group select:focus {
 }
 
 @media (max-width: 480px) {
-  .song-form--registration {
-    gap: 2px;
+  .song-form--registration,
+  form.song-form--editing,
+  form.song-form.song-form--editing {
+    gap: 8px !important;
   }
 
-  .song-form--registration .form-group {
-    margin-bottom: 12px !important;
+  .song-form--registration .form-group,
+  form.song-form--editing .form-group,
+  form.song-form.song-form--editing .form-group {
+    margin-bottom: 16px !important;
+    flex-direction: column !important;
+    gap: 6px !important;
   }
 
-  .song-form--registration .form-group label {
-    min-width: 35px !important;
-    max-width: 35px !important;
-    font-size: 0.7rem !important;
+  .song-form--registration .form-group label,
+  form.song-form--editing .form-group label,
+  form.song-form.song-form--editing .form-group label {
+    min-width: auto !important;
+    max-width: none !important;
+    font-size: 0.85rem !important;
+    white-space: normal !important;
   }
 
   .song-form--registration .form-group input,
   .song-form--registration .form-group textarea,
-  .song-form--registration .form-group select {
-    padding: 8px 10px !important;
+  .song-form--registration .form-group select,
+  form.song-form--editing .form-group input,
+  form.song-form--editing .form-group textarea,
+  form.song-form--editing .form-group select,
+  form.song-form.song-form--editing .form-group input,
+  form.song-form.song-form--editing .form-group textarea,
+  form.song-form.song-form--editing .form-group select {
+    padding: 10px 12px !important;
     font-size: 16px !important;
     /* Prevent zoom on iOS */
-    border-radius: 6px !important;
+    border-radius: 8px !important;
+    width: 100% !important;
   }
 
   /* 編集モードの小画面対応 - 最高優先度 */

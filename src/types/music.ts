@@ -1,3 +1,9 @@
+// 楽曲詳細ページURLの型定義
+export interface DetailPageUrl {
+  url: string
+  label?: string // 別名（オプション）
+}
+
 // 楽曲データの型定義
 export interface Song {
   id: string
@@ -8,6 +14,14 @@ export interface Song {
   tags?: string[]
   notes?: string
   createdAt?: string
+
+  // 拡張フィールド
+  artists?: string[] // アーティスト名（複数対応）
+  releaseYear?: number // 発売年（4桁の数値）
+  singleName?: string // 収録シングル名
+  albumName?: string // 収録アルバム名
+  jacketImageUrl?: string // ジャケット画像URL
+  detailPageUrls?: DetailPageUrl[] // 楽曲詳細ページURL（複数、ラベル付き）
 }
 
 // 人物データの型定義

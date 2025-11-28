@@ -26,7 +26,9 @@
     "check": "node scripts/quick-build-check.cjs",
     "pre-commit-check": "node scripts/pre-commit-validation.cjs",
     "setup-hooks": "node scripts/setup-git-hooks.cjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "backup": "node scripts/firebase-backup.cjs",
+    "restore": "node scripts/firebase-restore.cjs"
   },
   "dependencies": {
     "firebase": "^12.4.0",
@@ -59,6 +61,7 @@
     "eslint": "^8.53.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.4",
+    "firebase-admin": "^12.7.0",
     "gh-pages": "^6.3.0",
     "husky": "^9.1.7",
     "jsdom": "^27.0.0",

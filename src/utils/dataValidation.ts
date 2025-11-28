@@ -5,10 +5,35 @@ import { MusicDatabase, Song, Person, Tag } from '@/types/music'
  */
 export class DataValidator {
   /**
+   * URL形式のバリデーション
+   */
+  static validateUrl(url: string): boolean {
+    if (!url || typeof url !== 'string') return false
+    const urlPattern = /^https?:\/\/.+/
+    return urlPattern.test(url)
+  }
+
+  /**
+   * テキストの文字数制限バリデーション
+   */
+  static validateTextLength(text: string, maxLength: number): boolean {
+    if (typeof text !== 'string') return false
+    return text.length <= maxLength
+  }
+
+  /**
+   * 発売年のバリデーション（1000-9999の範囲）
+   */
+  static validateReleaseYear(year: number): boolean {
+    if (typeof year !== 'number') return false
+    return year >= 1000 && year <= 9999
+  }
+
+  /**
    * 楽曲データの基本的な検証
    */
   static validateSong(song: Song): boolean {
-    return (
+    const basicValidation =
       typeof song.id === 'string' &&
       song.id.length > 0 &&
       typeof song.title === 'string' &&
@@ -16,7 +41,46 @@ export class DataValidator {
       Array.isArray(song.lyricists) &&
       Array.isArray(song.composers) &&
       Array.isArray(song.arrangers)
+
+    if (!basicValidation) return false
+
+    // 拡張フィールドのバリデーション
+    if (song.artists !== undefined && !Array.isArray(song.artists)) return false
+    if (
+      song.releaseYear !== undefined &&
+      !this.validateReleaseYear(song.releaseYear)
     )
+      return false
+    if (
+      song.singleName !== undefined &&
+      !this.validateTextLength(song.singleName, 200)
+    )
+      return false
+    if (
+      song.albumName !== undefined &&
+      !this.validateTextLength(song.albumName, 200)
+    )
+      return false
+    if (
+      song.jacketImageUrl !== undefined &&
+      !this.validateUrl(song.jacketImageUrl)
+    )
+      return false
+    if (
+      song.jacketImageUrl !== undefined &&
+      !this.validateTextLength(song.jacketImageUrl, 500)
+    )
+      return false
+    if (song.detailPageUrls !== undefined) {
+      if (!Array.isArray(song.detailPageUrls)) return false
+      if (song.detailPageUrls.length > 10) return false
+      for (const urlObj of song.detailPageUrls) {
+        if (!this.validateUrl(urlObj.url)) return false
+        if (!this.validateTextLength(urlObj.url, 500)) return false
+      }
+    }
+
+    return true
   }
 
   /**
@@ -77,7 +141,9 @@ export class DataValidator {
     // 各人物の検証
     database.people?.forEach((person, index) => {
       if (!this.validatePerson(person)) {
-        errors.push(`Invalid person at index ${index}: ${person.id || 'unknown'}`)
+        errors.push(
+          `Invalid person at index ${index}: ${person.id || 'unknown'}`
+        )
       }
     })
 
@@ -93,7 +159,9 @@ export class DataValidator {
     database.people?.forEach(person => {
       person.songs.forEach(songId => {
         if (!songIds.has(songId)) {
-          errors.push(`Person ${person.name} references non-existent song: ${songId}`)
+          errors.push(
+            `Person ${person.name} references non-existent song: ${songId}`
+          )
         }
       })
     })
@@ -109,7 +177,7 @@ export class DataValidator {
 
     return {
       isValid: errors.length === 0,
-      errors
+      errors,
     }
   }
 
@@ -125,7 +193,7 @@ export class DataValidator {
     tagCount: number
   } {
     const people = database.people || []
-    
+
     return {
       songCount: database.songs?.length || 0,
       personCount: people.length,

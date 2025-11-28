@@ -1,6 +1,11 @@
 # Implementation Plan
 
-- [ ] 1. データモデルとバリデーションの拡張
+- [x] 1. データモデルとバリデーションの拡張
+
+
+
+
+
   - Song型に新しいフィールドを追加（artists, releaseYear, singleName, albumName, jacketImageUrl, detailPageUrls）
   - バリデーション関数を実装（URL形式、文字数制限、数値範囲）
   - _Requirements: 9.1-9.4, 10.1-10.4, 11.1-11.3, 12.1-12.3, 13.1-13.5, 14.1-14.7_
@@ -21,7 +26,12 @@
   - **Property 13: URL文字数制限**
   - **Validates: Requirements 13.5, 14.7**
 
-- [ ] 2. JacketImage コンポーネントの実装
+- [x] 2. JacketImage コンポーネントの実装
+
+
+
+
+
   - 外部URLから画像を読み込むコンポーネントを作成
   - 読み込みエラー時のフォールバック処理を実装
   - レスポンシブサイズ調整を実装
@@ -46,7 +56,12 @@
   - Test click handler
   - _Requirements: 2.1-2.5_
 
-- [ ] 3. DetailUrlList コンポーネントの実装
+- [x] 3. DetailUrlList コンポーネントの実装
+
+
+
+
+
   - 動的URL入力フィールドリストを作成
   - 追加ボタンと削除ボタンを実装
   - 最大数（10個）の制限を実装
@@ -67,7 +82,12 @@
   - Test max limit enforcement
   - _Requirements: 14.1-14.7_
 
-- [ ] 4. SongDetailView コンポーネントの実装
+- [x] 4. SongDetailView コンポーネントの実装
+
+
+
+
+
   - StandardLayoutを使用した全画面ビューを作成
   - 楽曲データの取得と表示ロジックを実装
   - JacketImageコンポーネントを統合
@@ -100,13 +120,23 @@
   - **Property 20: 長いテキストの折り返し**
   - **Validates: Requirements 17.4**
 
-- [ ] 5. SongManagement コンポーネントの拡張
+- [x] 5. SongManagement コンポーネントの拡張
+
+
+
+
+
   - 楽曲アイテムのクリックハンドラを追加
   - SongDetailViewへの遷移ロジックを実装
   - 既存の編集・削除機能を維持
   - _Requirements: 1.1-1.5_
 
-- [ ] 6. SongRegistrationForm コンポーネントの拡張
+- [x] 6. SongRegistrationForm コンポーネントの拡張
+
+
+
+
+
   - アーティスト名入力フィールドを追加
   - 発売年入力フィールドを追加（数値のみ）
   - 収録シングル入力フィールドを追加
@@ -133,7 +163,12 @@
   - **Property 17: 入力変更の受け付け**
   - **Validates: Requirements 15.2**
 
-- [ ] 7. Firebase統合とデータ永続化
+- [x] 7. Firebase統合とデータ永続化
+
+
+
+
+
   - DataManagerのsaveSong/updateSongメソッドが拡張フィールドを処理することを確認
   - Firebaseスキーマが新しいフィールドを受け入れることを確認
   - エラーハンドリングを実装（既存のgetDetailedErrorMessageを使用）
