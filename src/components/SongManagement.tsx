@@ -199,13 +199,8 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     setSelectedSongId(null)
     setEditingSong(null)
 
-    // 楽曲一覧のスクロール位置を強制的にリセット
-    requestAnimationFrame(() => {
-      const scrollContainer = document.querySelector('.song-list')
-      if (scrollContainer) {
-        scrollContainer.scrollTop = 0
-      }
-    })
+    // 楽曲管理画面は開いたままにする（自動で再表示）
+    // onClose()を呼ばないことで、楽曲管理画面が表示され続ける
   }, [])
 
   const handleCloseEditForm = useCallback(() => {
