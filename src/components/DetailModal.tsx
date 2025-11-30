@@ -4,6 +4,7 @@ import { Song, Person, Tag } from '@/types/music'
 import { MusicDataService } from '@/services/musicDataService'
 import { StandardLayout } from './StandardLayout'
 import { useAnimationControl } from '@/hooks/useAnimationControl'
+import { AnalyticsService } from '@/services/analyticsService'
 import './DetailModal.css'
 
 interface DetailModalProps {
@@ -235,6 +236,25 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
     useEffect(() => {
       if (selectedBubble) {
         loadRelatedData()
+
+        // Analytics tracking
+        const analyticsService = AnalyticsService.getInstance()
+        if (selectedBubble.type === 'tag') {
+          analyticsService.logTagDetailView(
+            selectedBubble.name,
+            selectedBubble.relatedCount || 0
+          )
+        } else if (
+          selectedBubble.type === 'lyricist' ||
+          selectedBubble.type === 'composer' ||
+          selectedBubble.type === 'arranger'
+        ) {
+          analyticsService.logPersonDetailView(
+            selectedBubble.name,
+            selectedBubble.type,
+            selectedBubble.relatedCount || 0
+          )
+        }
       } else {
         setRelatedData([])
       }

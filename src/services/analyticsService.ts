@@ -62,9 +62,9 @@ export class AnalyticsService {
    * ページビューをログ
    */
   public logPageView(pageName: string, pageTitle?: string) {
-    this.logCustomEvent('page_view', {
-      page_name: pageName,
-      page_title: pageTitle || pageName,
+    this.logCustomEvent('ページ表示', {
+      ページ名: pageName,
+      ページタイトル: pageTitle || pageName,
     })
   }
 
@@ -72,29 +72,54 @@ export class AnalyticsService {
    * シャボン玉クリックをログ
    */
   public logBubbleClick(bubbleType: string, bubbleName: string) {
-    this.logCustomEvent('bubble_click', {
-      bubble_type: bubbleType,
-      bubble_name: bubbleName,
+    this.logCustomEvent('シャボン玉クリック', {
+      種類: bubbleType,
+      名前: bubbleName,
     })
   }
 
   /**
    * 楽曲登録をログ
    */
-  public logSongRegistration(songTitle: string, hasTag: boolean) {
-    this.logCustomEvent('song_registration', {
-      song_title: songTitle,
-      has_tag: hasTag,
+  public logSongRegistration(
+    songTitle: string,
+    songData?: {
+      artist?: string
+      composer?: string
+      lyricist?: string
+      arranger?: string
+      tags?: string[]
+      category?: string
+    }
+  ) {
+    this.logCustomEvent('楽曲登録', {
+      楽曲名: songTitle,
+      アーティスト: songData?.artist || '未設定',
+      作曲者: songData?.composer || '未設定',
+      作詞者: songData?.lyricist || '未設定',
+      編曲者: songData?.arranger || '未設定',
+      タグ数: songData?.tags?.length || 0,
+      タグ一覧: songData?.tags?.join(', ') || 'なし',
+      カテゴリ: songData?.category || '未設定',
     })
   }
 
   /**
    * タグ登録をログ
    */
-  public logTagRegistration(tagName: string, songCount: number) {
-    this.logCustomEvent('tag_registration', {
-      tag_name: tagName,
-      song_count: songCount,
+  public logTagRegistration(
+    tagName: string,
+    tagData?: {
+      songCount?: number
+      category?: string
+      isNew?: boolean
+    }
+  ) {
+    this.logCustomEvent('タグ登録', {
+      タグ名: tagName,
+      関連楽曲数: tagData?.songCount || 0,
+      カテゴリ: tagData?.category || '未設定',
+      新規作成: tagData?.isNew ? 'はい' : 'いいえ',
     })
   }
 
@@ -102,9 +127,9 @@ export class AnalyticsService {
    * 検索・フィルタリングをログ
    */
   public logSearch(searchType: string, query?: string) {
-    this.logCustomEvent('search', {
-      search_type: searchType,
-      search_query: query,
+    this.logCustomEvent('検索実行', {
+      検索種類: searchType,
+      検索キーワード: query || '',
     })
   }
 
@@ -112,18 +137,26 @@ export class AnalyticsService {
    * カテゴリフィルタをログ
    */
   public logCategoryFilter(categories: string[]) {
-    this.logCustomEvent('category_filter', {
-      selected_categories: categories.join(','),
-      category_count: categories.length,
+    this.logCustomEvent('カテゴリフィルタ', {
+      選択カテゴリ: categories.join(', '),
+      カテゴリ数: categories.length,
     })
   }
 
   /**
    * 楽曲詳細表示をログ
    */
-  public logSongDetailView(songTitle: string) {
-    this.logCustomEvent('song_detail_view', {
-      song_title: songTitle,
+  public logSongDetailView(
+    songTitle: string,
+    songData?: {
+      artist?: string
+      tags?: string[]
+    }
+  ) {
+    this.logCustomEvent('楽曲詳細表示', {
+      楽曲名: songTitle,
+      アーティスト: songData?.artist || '未設定',
+      タグ数: songData?.tags?.length || 0,
     })
   }
 
@@ -131,9 +164,9 @@ export class AnalyticsService {
    * タグ詳細表示をログ
    */
   public logTagDetailView(tagName: string, relatedSongCount: number) {
-    this.logCustomEvent('tag_detail_view', {
-      tag_name: tagName,
-      related_song_count: relatedSongCount,
+    this.logCustomEvent('タグ詳細表示', {
+      タグ名: tagName,
+      関連楽曲数: relatedSongCount,
     })
   }
 
@@ -145,10 +178,10 @@ export class AnalyticsService {
     personType: string,
     relatedSongCount: number
   ) {
-    this.logCustomEvent('person_detail_view', {
-      person_name: personName,
-      person_type: personType,
-      related_song_count: relatedSongCount,
+    this.logCustomEvent('人物詳細表示', {
+      人物名: personName,
+      役割: personType,
+      関連楽曲数: relatedSongCount,
     })
   }
 
@@ -156,9 +189,9 @@ export class AnalyticsService {
    * エラーをログ
    */
   public logError(errorType: string, errorMessage: string) {
-    this.logCustomEvent('error', {
-      error_type: errorType,
-      error_message: errorMessage,
+    this.logCustomEvent('エラー発生', {
+      エラー種類: errorType,
+      エラー内容: errorMessage,
     })
   }
 
@@ -166,8 +199,8 @@ export class AnalyticsService {
    * セッション開始をログ
    */
   public logSessionStart() {
-    this.logCustomEvent('session_start', {
-      timestamp: new Date().toISOString(),
+    this.logCustomEvent('セッション開始', {
+      タイムスタンプ: new Date().toISOString(),
     })
   }
 

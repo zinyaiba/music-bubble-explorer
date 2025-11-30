@@ -389,10 +389,16 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
 
         // Analytics tracking
         const analyticsService = AnalyticsService.getInstance()
-        analyticsService.logSongRegistration(
-          songToSave.title,
-          (songToSave.tags?.length ?? 0) > 0
-        )
+        analyticsService.logSongRegistration(songToSave.title, {
+          artist: songToSave.artists?.join(', '),
+          composer: songToSave.composers?.join(', '),
+          lyricist: songToSave.lyricists?.join(', '),
+          arranger: songToSave.arrangers?.join(', '),
+          tags: songToSave.tags,
+          category: songToSave.releaseYear
+            ? `${songToSave.releaseYear}年代`
+            : undefined,
+        })
 
         setIsSuccess(true)
         onSongAdded(songToSave)

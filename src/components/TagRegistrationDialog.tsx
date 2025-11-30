@@ -3,6 +3,7 @@ import { Song } from '@/types/music'
 import { MusicDataService } from '@/services/musicDataService'
 import { DataManager } from '@/services/dataManager'
 import { TagRegistrationService } from '@/services/tagRegistrationService'
+import { AnalyticsService } from '@/services/analyticsService'
 
 import TagSelectionView from './TagSelectionView'
 import './TagRegistrationDialog.css'
@@ -209,6 +210,24 @@ export const TagRegistrationDialog: React.FC<TagRegistrationDialogProps> = ({
       )
 
       if (result.success && result.updatedSong) {
+        // Analytics tracking - 各タグを個別に記録
+        const analyticsService = AnalyticsService.getInstance()
+        const previousTags = state.selectedSong.tags || []
+        const newlyAddedTags = state.selectedTags.filter(
+          tag => !previousTags.includes(tag)
+        )
+
+        // 新規追加されたタグのみを記録
+        newlyAddedTags.forEach(tagName => {
+          analyticsService.logTagRegistration(tagName, {
+            songCount: 1,
+            category: state.selectedSong?.releaseYear
+              ? `${state.selectedSong.releaseYear}年代`
+              : undefined,
+            isNew: !state.availableTags.includes(tagName),
+          })
+        })
+
         onTagsRegistered(state.selectedSong.id, state.selectedTags)
         onClose()
       } else {

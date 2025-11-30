@@ -522,7 +522,10 @@ export const TagRegistrationScreen: React.FC<TagRegistrationScreenProps> = ({
       // Analytics tracking
       const analyticsService = AnalyticsService.getInstance()
       tags.forEach(tag => {
-        analyticsService.logTagRegistration(tag, 1)
+        analyticsService.logTagRegistration(tag, {
+          songCount: 1,
+          isNew: false,
+        })
       })
 
       // Don't close the screen to allow continuous tag editing

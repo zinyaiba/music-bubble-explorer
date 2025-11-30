@@ -3,6 +3,7 @@ import { Song } from '@/types/music'
 import { DataManager } from '@/services/dataManager'
 import { StandardLayout } from './StandardLayout'
 import { JacketImage } from './JacketImage'
+import { AnalyticsService } from '@/services/analyticsService'
 import './SongDetailView.css'
 
 interface SongDetailViewProps {
@@ -54,6 +55,13 @@ export const SongDetailView: React.FC<SongDetailViewProps> = ({
         setSong(null)
       } else {
         setSong(loadedSong)
+
+        // Analytics tracking
+        const analyticsService = AnalyticsService.getInstance()
+        analyticsService.logSongDetailView(loadedSong.title, {
+          artist: loadedSong.artists?.join(', '),
+          tags: loadedSong.tags,
+        })
       }
     } catch (err) {
       const errorMessage =
