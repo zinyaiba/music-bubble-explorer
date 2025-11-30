@@ -229,7 +229,7 @@ describe('SongRegistrationForm - Extended Fields', () => {
     expect(savedSong.releaseYear).toBe(2024)
     expect(savedSong.singleName).toBe('テストシングル')
     expect(savedSong.albumName).toBe('テストアルバム')
-    expect(savedSong.spotifyEmbed).toContain('open.spotify.com/embed')
+    expect(savedSong.musicServiceEmbed).toContain('open.spotify.com/embed')
   })
 
   it('should populate extended fields in edit mode', () => {

@@ -35,7 +35,7 @@ interface SongFormData {
   releaseYear: string // 入力時は文字列、保存時に数値に変換
   singleName: string
   albumName: string
-  spotifyEmbed: string // Spotify埋め込みコード（iframe全体）
+  musicServiceEmbed: string // 音楽サービス埋め込みコード（Spotify、Apple Music、YouTube等のiframe）
   detailPageUrls: DetailPageUrl[] // URL配列（ラベル付き）
 }
 
@@ -49,7 +49,7 @@ interface FormErrors {
   releaseYear?: string
   singleName?: string
   albumName?: string
-  spotifyEmbed?: string
+  musicServiceEmbed?: string
   detailPageUrls?: string
   general?: string
 }
@@ -76,7 +76,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
     releaseYear: '',
     singleName: '',
     albumName: '',
-    spotifyEmbed: '',
+    musicServiceEmbed: '',
     detailPageUrls: [],
   })
 
@@ -120,7 +120,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
         releaseYear: editingSong.releaseYear?.toString() || '',
         singleName: editingSong.singleName || '',
         albumName: editingSong.albumName || '',
-        spotifyEmbed: editingSong.spotifyEmbed || '',
+        musicServiceEmbed: editingSong.musicServiceEmbed || '',
         detailPageUrls,
       })
     }
@@ -237,18 +237,23 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
       newErrors.albumName = albumNameValidation.error
     }
 
-    // Spotify埋め込みコードのバリデーション
-    if (formData.spotifyEmbed.trim()) {
-      // iframeタグが含まれているか、またはSpotify URLが含まれているかチェック
-      const hasIframe = formData.spotifyEmbed.includes('<iframe')
-      const hasSpotifyUrl = formData.spotifyEmbed.includes(
-        'open.spotify.com/embed'
-      )
+    // 音楽サービス埋め込みコードのバリデーション
+    if (formData.musicServiceEmbed.trim()) {
+      const hasIframe = formData.musicServiceEmbed.includes('<iframe')
+      const hasValidService =
+        formData.musicServiceEmbed.includes('open.spotify.com/embed') ||
+        formData.musicServiceEmbed.includes('embed.music.apple.com') ||
+        formData.musicServiceEmbed.includes('youtube.com/embed')
 
-      if (!hasIframe && !hasSpotifyUrl) {
-        newErrors.spotifyEmbed = 'Spotifyの埋め込みコードを入力してください'
-      } else if (formData.spotifyEmbed.length > 2000) {
-        newErrors.spotifyEmbed = '埋め込みコードが長すぎます（2000文字以内）'
+      if (!hasIframe) {
+        newErrors.musicServiceEmbed =
+          'iframe形式の埋め込みコードを入力してください'
+      } else if (!hasValidService) {
+        newErrors.musicServiceEmbed =
+          'サブスクサービスの埋め込みコードを入力してください'
+      } else if (formData.musicServiceEmbed.length > 2000) {
+        newErrors.musicServiceEmbed =
+          '埋め込みコードが長すぎます（2000文字以内）'
       }
     }
 
@@ -330,7 +335,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             releaseYear: releaseYearNum,
             singleName: formData.singleName.trim() || undefined,
             albumName: formData.albumName.trim() || undefined,
-            spotifyEmbed: formData.spotifyEmbed.trim() || undefined,
+            musicServiceEmbed: formData.musicServiceEmbed.trim() || undefined,
             detailPageUrls:
               detailPageUrlsFiltered.length > 0
                 ? detailPageUrlsFiltered
@@ -358,7 +363,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             releaseYear: releaseYearNum,
             singleName: formData.singleName.trim() || undefined,
             albumName: formData.albumName.trim() || undefined,
-            spotifyEmbed: formData.spotifyEmbed.trim() || undefined,
+            musicServiceEmbed: formData.musicServiceEmbed.trim() || undefined,
             detailPageUrls:
               detailPageUrlsFiltered.length > 0
                 ? detailPageUrlsFiltered
@@ -586,42 +591,52 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             )}
           </div>
 
-          {/* Spotify埋め込みコード入力とプレビュー */}
+          {/* 音楽サービス埋め込みコード入力とプレビュー */}
           <div className="form-group">
-            <label htmlFor="spotifyEmbed">Spotify埋め込みコード</label>
+            <label htmlFor="musicServiceEmbed">
+              音楽サービス埋め込みコード
+            </label>
             <textarea
-              id="spotifyEmbed"
-              value={formData.spotifyEmbed}
-              onChange={e => handleInputChange('spotifyEmbed', e.target.value)}
-              placeholder='<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/..." width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'
-              className={errors.spotifyEmbed ? 'error' : ''}
+              id="musicServiceEmbed"
+              value={formData.musicServiceEmbed}
+              onChange={e =>
+                handleInputChange('musicServiceEmbed', e.target.value)
+              }
+              placeholder='Spotify: <iframe src="https://open.spotify.com/embed/track/..." ...></iframe>&#10;Apple Music: <iframe src="https://embed.music.apple.com/..." ...></iframe>&#10;YouTube: <iframe src="https://www.youtube.com/embed/..." ...></iframe>'
+              className={errors.musicServiceEmbed ? 'error' : ''}
               maxLength={2000}
               rows={4}
               style={{ fontFamily: 'monospace', fontSize: '0.9em' }}
             />
-            {errors.spotifyEmbed && (
-              <div className="error-message">{errors.spotifyEmbed}</div>
+            {errors.musicServiceEmbed && (
+              <div className="error-message">{errors.musicServiceEmbed}</div>
             )}
             <div className="help-text">
-              Spotifyの「共有」→「埋め込みコード」からコピーしたiframeコードをそのまま貼り付けてください
+              サブスクサービスの埋め込みコードを入力してください
+              <br />
+              •「共有」→「埋め込みコード」
             </div>
           </div>
 
-          {/* Spotify埋め込みプレビュー */}
-          {formData.spotifyEmbed.trim() && !errors.spotifyEmbed && (
+          {/* 音楽サービス埋め込みプレビュー */}
+          {formData.musicServiceEmbed.trim() && !errors.musicServiceEmbed && (
             <div className="form-group">
               <label>プレビュー</label>
               <div
                 style={{ flex: 1 }}
-                dangerouslySetInnerHTML={{ __html: formData.spotifyEmbed }}
+                dangerouslySetInnerHTML={{ __html: formData.musicServiceEmbed }}
               />
             </div>
           )}
 
           {/* Requirement 14.1-14.7: 関連外部サイトURL入力リスト */}
           <div
-            className="form-group"
-            style={{ flexDirection: 'column', alignItems: 'flex-start' }}
+            className="form-group detail-urls-group"
+            style={{
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              marginTop: '2rem',
+            }}
           >
             <label htmlFor="detailPageUrls">関連外部サイトURL</label>
             <DetailUrlList

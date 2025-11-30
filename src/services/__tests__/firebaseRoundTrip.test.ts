@@ -41,7 +41,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(song.releaseYear).toBeDefined()
     expect(song.singleName).toBeDefined()
     expect(song.albumName).toBeDefined()
-    expect(song.spotifyEmbed).toBeDefined()
+    expect(song.musicServiceEmbed).toBeDefined()
     expect(song.detailPageUrls).toBeDefined()
 
     // Verify field types
@@ -49,7 +49,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(typeof song.releaseYear).toBe('number')
     expect(typeof song.singleName).toBe('string')
     expect(typeof song.albumName).toBe('string')
-    expect(typeof song.spotifyEmbed).toBe('string')
+    expect(typeof song.musicServiceEmbed).toBe('string')
     expect(Array.isArray(song.detailPageUrls)).toBe(true)
 
     // Verify field values
@@ -80,7 +80,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(song.releaseYear).toBeDefined()
     expect(song.singleName).toBeUndefined()
     expect(song.albumName).toBeUndefined()
-    expect(song.spotifyEmbed).toBeUndefined()
+    expect(song.musicServiceEmbed).toBeUndefined()
     expect(song.detailPageUrls).toBeUndefined()
   })
 
@@ -109,7 +109,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(deserialized.releaseYear).toBe(originalSong.releaseYear)
     expect(deserialized.singleName).toBe(originalSong.singleName)
     expect(deserialized.albumName).toBe(originalSong.albumName)
-    expect(deserialized.spotifyEmbed).toBe(originalSong.spotifyEmbed)
+    expect(deserialized.musicServiceEmbed).toBe(originalSong.musicServiceEmbed)
     expect(deserialized.detailPageUrls).toEqual(originalSong.detailPageUrls)
   })
 
@@ -139,7 +139,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(song.releaseYear).toBe(1000)
     expect(song.singleName).toBe('')
     expect(song.albumName).toHaveLength(200)
-    expect(song.spotifyEmbed!.length).toBeGreaterThan(100)
+    expect(song.musicServiceEmbed!.length).toBeGreaterThan(100)
     expect(song.detailPageUrls).toHaveLength(10)
   })
 
@@ -167,7 +167,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(song.artists?.[2]).toContain("'")
     expect(song.singleName).toContain('(')
     expect(song.albumName).toContain('&')
-    expect(song.spotifyEmbed).toContain('iframe')
+    expect(song.musicServiceEmbed).toContain('iframe')
     expect(song.detailPageUrls?.[1]).toContain('#')
   })
 })

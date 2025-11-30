@@ -587,3 +587,28 @@ form.song-form.song-form--editing .form-group select:focus {
     min-height: 48px;
   }
 }
+
+/* 音楽サービス埋め込みグループの特別なスタイル */
+.music-service-embed-group {
+  margin-bottom: 2rem !important;
+  padding-bottom: 1rem !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.detail-urls-group {
+  margin-top: 2rem !important;
+  padding-top: 1rem !important;
+}
+
+/* 編集モードでの調整 */
+form.song-form--editing .music-service-embed-group,
+form.song-form.song-form--editing .music-service-embed-group {
+  margin-bottom: 2rem !important;
+  padding-bottom: 1rem !important;
+}
+
+form.song-form--editing .detail-urls-group,
+form.song-form.song-form--editing .detail-urls-group {
+  margin-top: 2rem !important;
+  padding-top: 1rem !important;
+}

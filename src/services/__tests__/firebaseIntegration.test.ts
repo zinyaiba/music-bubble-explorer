@@ -213,7 +213,7 @@ describe('Firebase Integration - Extended Fields', () => {
       expect(typeof song.releaseYear).toBe('number')
       expect(typeof song.singleName).toBe('string')
       expect(typeof song.albumName).toBe('string')
-      expect(typeof song.spotifyEmbed).toBe('string')
+      expect(typeof song.musicServiceEmbed).toBe('string')
       expect(Array.isArray(song.detailPageUrls)).toBe(true)
     })
 
@@ -228,7 +228,7 @@ describe('Firebase Integration - Extended Fields', () => {
         releaseYear: undefined,
         singleName: undefined,
         albumName: undefined,
-        spotifyEmbed: undefined,
+        musicServiceEmbed: undefined,
         detailPageUrls: undefined,
       }
 
@@ -251,7 +251,7 @@ describe('Firebase Integration - Extended Fields', () => {
       expect(deserialized.releaseYear).toBe(song.releaseYear)
       expect(deserialized.singleName).toBe(song.singleName)
       expect(deserialized.albumName).toBe(song.albumName)
-      expect(deserialized.spotifyEmbed).toBe(song.spotifyEmbed)
+      expect(deserialized.musicServiceEmbed).toBe(song.musicServiceEmbed)
       expect(deserialized.detailPageUrls).toEqual(song.detailPageUrls)
     })
 

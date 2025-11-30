@@ -1,0 +1,218 @@
+/* MusicServiceEmbedList.css */
+
+.music-service-embed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+/* 登録済みリスト */
+.embed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.embed-item {
+  position: relative;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.embed-item:hover {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(0, 0, 0, 0.2);
+}
+
+.embed-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.embed-service-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-color, #4a90e2);
+  padding: 0.25rem 0.5rem;
+  background: rgba(74, 144, 226, 0.1);
+  border-radius: 4px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.embed-iframe-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.embed-iframe-container iframe {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.remove-button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: var(--error-color, #e74c3c);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+}
+
+.remove-button:hover:not(:disabled) {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.remove-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 新規追加フォーム */
+.embed-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.embed-add-form label {
+  font-weight: 600;
+  color: var(--text-primary, #333);
+}
+
+.embed-add-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 0.9em;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.embed-add-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color, #4a90e2);
+}
+
+.embed-add-form textarea.error {
+  border-color: var(--error-color, #e74c3c);
+}
+
+.error-message {
+  color: var(--error-color, #e74c3c);
+  font-size: 0.9rem;
+  margin-top: -0.5rem;
+}
+
+.help-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #666);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.add-button {
+  align-self: flex-start;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-color, #4a90e2);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-button:hover:not(:disabled) {
+  background: var(--primary-hover-color, #357abd);
+  transform: translateY(-2px);
+}
+
+.add-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.embed-preview-new {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(74, 144, 226, 0.05);
+  border: 1px dashed var(--primary-color, #4a90e2);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.embed-preview-new label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--primary-color, #4a90e2);
+}
+
+/* モバイル最適化 */
+@media (max-width: 768px) {
+  .embed-item {
+    padding: 0.75rem;
+  }
+
+  .remove-button {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+
+  .embed-add-form textarea {
+    font-size: 0.85em;
+  }
+
+  .add-button {
+    width: 100%;
+  }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .embed-item {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .embed-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+
+  .embed-add-form textarea {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary-dark, #f0f0f0);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .embed-preview-new {
+    background: rgba(74, 144, 226, 0.1);
+  }
+}

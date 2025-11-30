@@ -83,7 +83,9 @@ export class FirebaseService {
     if (data.releaseYear) song.releaseYear = data.releaseYear
     if (data.singleName) song.singleName = data.singleName
     if (data.albumName) song.albumName = data.albumName
-    if (data.spotifyEmbed) song.spotifyEmbed = data.spotifyEmbed
+
+    if (data.musicServiceEmbed) song.musicServiceEmbed = data.musicServiceEmbed
+
     if (data.detailPageUrls) song.detailPageUrls = data.detailPageUrls
 
     return song

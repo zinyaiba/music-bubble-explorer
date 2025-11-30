@@ -60,7 +60,7 @@ describe('DataValidator - Extended Song Fields', () => {
       expect(DataValidator.validateSong(song)).toBe(false)
     })
 
-    it('should reject song with spotifyEmbed exceeding 2000 characters', () => {
+    it('should reject song with musicServiceEmbed exceeding 2000 characters', () => {
       const longEmbed = '<iframe>' + 'a'.repeat(2000) + '</iframe>'
       const song: Song = {
         id: 'song_001',
@@ -68,7 +68,7 @@ describe('DataValidator - Extended Song Fields', () => {
         lyricists: ['Lyricist A'],
         composers: ['Composer B'],
         arrangers: ['Arranger C'],
-        spotifyEmbed: longEmbed,
+        musicServiceEmbed: longEmbed,
       }
       expect(DataValidator.validateSong(song)).toBe(false)
     })

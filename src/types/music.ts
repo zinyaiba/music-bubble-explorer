@@ -20,7 +20,7 @@ export interface Song {
   releaseYear?: number // 発売年（4桁の数値）
   singleName?: string // 収録シングル名
   albumName?: string // 収録アルバム名
-  spotifyEmbed?: string // Spotify埋め込みコード（iframe全体）
+  musicServiceEmbed?: string // 音楽サービス埋め込みコード（Spotify、Apple Music、YouTube等のiframe）
   detailPageUrls?: DetailPageUrl[] // 楽曲詳細ページURL（複数、ラベル付き）
 }
 

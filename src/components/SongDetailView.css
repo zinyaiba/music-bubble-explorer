@@ -113,14 +113,19 @@
   font-size: 1.2rem;
 }
 
-/* Spotify埋め込みセクション */
-.spotify-section {
+/* 音楽サービス埋め込みセクション */
+.music-service-section {
   margin-bottom: 2rem;
   display: flex;
   justify-content: center;
 }
 
-.spotify-section iframe {
+.music-service-player {
+  display: flex;
+  justify-content: center;
+}
+
+.music-service-player iframe {
   max-width: 100%;
   border-radius: 12px;
 }

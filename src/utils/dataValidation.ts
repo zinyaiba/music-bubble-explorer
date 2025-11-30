@@ -62,8 +62,8 @@ export class DataValidator {
     )
       return false
     if (
-      song.spotifyEmbed !== undefined &&
-      !this.validateTextLength(song.spotifyEmbed, 2000)
+      song.musicServiceEmbed !== undefined &&
+      !this.validateTextLength(song.musicServiceEmbed, 2000)
     )
       return false
     if (song.detailPageUrls !== undefined) {

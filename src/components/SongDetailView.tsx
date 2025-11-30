@@ -249,10 +249,13 @@ export const SongDetailView: React.FC<SongDetailViewProps> = ({
 
         {!isLoading && !error && song && (
           <>
-            {/* Spotify埋め込みプレーヤー */}
-            {song.spotifyEmbed && (
-              <div className="spotify-section">
-                <div dangerouslySetInnerHTML={{ __html: song.spotifyEmbed }} />
+            {/* 音楽サービス埋め込みプレーヤー */}
+            {song.musicServiceEmbed && (
+              <div className="music-service-section">
+                <div
+                  className="music-service-player"
+                  dangerouslySetInnerHTML={{ __html: song.musicServiceEmbed }}
+                />
               </div>
             )}
 
