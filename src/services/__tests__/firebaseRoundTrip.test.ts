@@ -27,7 +27,8 @@ describe('Firebase Round-Trip - Extended Fields', () => {
       releaseYear: 2023,
       singleName: 'Demo Single',
       albumName: 'Demo Album',
-      jacketImageUrl: 'https://example.com/jacket.jpg',
+      spotifyEmbed:
+        '<iframe src="https://open.spotify.com/embed/track/demo"></iframe>',
       detailPageUrls: [
         'https://example.com/detail1',
         'https://example.com/detail2',
@@ -40,7 +41,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(song.releaseYear).toBeDefined()
     expect(song.singleName).toBeDefined()
     expect(song.albumName).toBeDefined()
-    expect(song.jacketImageUrl).toBeDefined()
+    expect(song.spotifyEmbed).toBeDefined()
     expect(song.detailPageUrls).toBeDefined()
 
     // Verify field types
@@ -48,7 +49,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(typeof song.releaseYear).toBe('number')
     expect(typeof song.singleName).toBe('string')
     expect(typeof song.albumName).toBe('string')
-    expect(typeof song.jacketImageUrl).toBe('string')
+    expect(typeof song.spotifyEmbed).toBe('string')
     expect(Array.isArray(song.detailPageUrls)).toBe(true)
 
     // Verify field values
@@ -56,7 +57,9 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(song.releaseYear).toBe(2023)
     expect(song.singleName).toBe('Demo Single')
     expect(song.albumName).toBe('Demo Album')
-    expect(song.jacketImageUrl).toBe('https://example.com/jacket.jpg')
+    expect(song.spotifyEmbed).toBe(
+      '<iframe src="https://open.spotify.com/embed/track/demo"></iframe>'
+    )
     expect(song.detailPageUrls).toHaveLength(3)
   })
 
@@ -77,7 +80,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(song.releaseYear).toBeDefined()
     expect(song.singleName).toBeUndefined()
     expect(song.albumName).toBeUndefined()
-    expect(song.jacketImageUrl).toBeUndefined()
+    expect(song.spotifyEmbed).toBeUndefined()
     expect(song.detailPageUrls).toBeUndefined()
   })
 
@@ -92,7 +95,8 @@ describe('Firebase Round-Trip - Extended Fields', () => {
       releaseYear: 2023,
       singleName: 'Test Single',
       albumName: 'Test Album',
-      jacketImageUrl: 'https://example.com/image.jpg',
+      spotifyEmbed:
+        '<iframe src="https://open.spotify.com/embed/track/test"></iframe>',
       detailPageUrls: ['https://example.com/url1', 'https://example.com/url2'],
     }
 
@@ -105,7 +109,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(deserialized.releaseYear).toBe(originalSong.releaseYear)
     expect(deserialized.singleName).toBe(originalSong.singleName)
     expect(deserialized.albumName).toBe(originalSong.albumName)
-    expect(deserialized.jacketImageUrl).toBe(originalSong.jacketImageUrl)
+    expect(deserialized.spotifyEmbed).toBe(originalSong.spotifyEmbed)
     expect(deserialized.detailPageUrls).toEqual(originalSong.detailPageUrls)
   })
 
@@ -121,7 +125,10 @@ describe('Firebase Round-Trip - Extended Fields', () => {
       releaseYear: 1000, // Minimum valid year
       singleName: '', // Empty string
       albumName: 'A'.repeat(200), // Maximum length
-      jacketImageUrl: 'https://example.com/' + 'x'.repeat(450), // Long URL
+      spotifyEmbed:
+        '<iframe src="https://open.spotify.com/embed/track/' +
+        'x'.repeat(100) +
+        '"></iframe>',
       detailPageUrls: Array.from(
         { length: 10 },
         (_, i) => `https://example.com/url${i}`
@@ -132,7 +139,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(song.releaseYear).toBe(1000)
     expect(song.singleName).toBe('')
     expect(song.albumName).toHaveLength(200)
-    expect(song.jacketImageUrl.length).toBeGreaterThan(400)
+    expect(song.spotifyEmbed!.length).toBeGreaterThan(100)
     expect(song.detailPageUrls).toHaveLength(10)
   })
 
@@ -146,7 +153,8 @@ describe('Firebase Round-Trip - Extended Fields', () => {
       artists: ['アーティスト', 'Artist with émojis 🎵🎶', "Artist's Name"],
       singleName: 'シングル名 (Special Edition)',
       albumName: 'Album & More "Quotes"',
-      jacketImageUrl: 'https://example.com/image?param=value&other=123',
+      spotifyEmbed:
+        '<iframe src="https://open.spotify.com/embed/track/test?param=value"></iframe>',
       detailPageUrls: [
         'https://example.com/detail?id=1&lang=ja',
         'https://example.com/detail#section',
@@ -159,7 +167,7 @@ describe('Firebase Round-Trip - Extended Fields', () => {
     expect(song.artists?.[2]).toContain("'")
     expect(song.singleName).toContain('(')
     expect(song.albumName).toContain('&')
-    expect(song.jacketImageUrl).toContain('?')
+    expect(song.spotifyEmbed).toContain('iframe')
     expect(song.detailPageUrls?.[1]).toContain('#')
   })
 })

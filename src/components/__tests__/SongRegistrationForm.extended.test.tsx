@@ -78,19 +78,24 @@ describe('SongRegistrationForm - Extended Fields', () => {
     const releaseYearInput = screen.getByLabelText('発売年')
     const singleNameInput = screen.getByLabelText('収録シングル')
     const albumNameInput = screen.getByLabelText('収録アルバム')
-    const jacketUrlInput = screen.getByLabelText('ジャケット画像URL')
+    const spotifyEmbedInput = screen.getByLabelText('Spotify埋め込みコード')
 
     await user.type(artistsInput, 'アーティストA, アーティストB')
     await user.type(releaseYearInput, '2024')
     await user.type(singleNameInput, 'テストシングル')
     await user.type(albumNameInput, 'テストアルバム')
-    await user.type(jacketUrlInput, 'https://example.com/jacket.jpg')
+    await user.type(
+      spotifyEmbedInput,
+      '<iframe src="https://open.spotify.com/embed/track/test"></iframe>'
+    )
 
     expect(artistsInput).toHaveValue('アーティストA, アーティストB')
     expect(releaseYearInput).toHaveValue(2024)
     expect(singleNameInput).toHaveValue('テストシングル')
     expect(albumNameInput).toHaveValue('テストアルバム')
-    expect(jacketUrlInput).toHaveValue('https://example.com/jacket.jpg')
+    expect(spotifyEmbedInput).toHaveValue(
+      '<iframe src="https://open.spotify.com/embed/track/test"></iframe>'
+    )
   })
 
   it('should validate release year correctly', async () => {
@@ -138,26 +143,26 @@ describe('SongRegistrationForm - Extended Fields', () => {
 
     const titleInput = screen.getByLabelText('楽曲名')
     const lyricistsInput = screen.getByLabelText('作詞家')
-    const jacketUrlInput = screen.getByLabelText('ジャケット画像URL')
+    const spotifyEmbedInput = screen.getByLabelText('Spotify埋め込みコード')
     const submitButton = screen.getByRole('button', { name: /楽曲を登録/ })
 
     // Fill required fields
     await user.type(titleInput, 'テスト楽曲')
     await user.type(lyricistsInput, '作詞家A')
 
-    // Enter invalid URL
-    await user.type(jacketUrlInput, 'not-a-valid-url')
+    // Enter invalid embed code
+    await user.type(spotifyEmbedInput, 'not-a-valid-embed')
     await user.click(submitButton)
 
     // Should show error
     await waitFor(() => {
       expect(
-        screen.getByText(/有効なURL形式で入力してください/)
+        screen.getByText(/Spotifyの埋め込みコードを入力してください/)
       ).toBeInTheDocument()
     })
   })
 
-  it('should show jacket image preview when valid URL is entered', async () => {
+  it('should show Spotify embed preview when valid code is entered', async () => {
     const user = userEvent.setup()
 
     render(
@@ -168,10 +173,13 @@ describe('SongRegistrationForm - Extended Fields', () => {
       />
     )
 
-    const jacketUrlInput = screen.getByLabelText('ジャケット画像URL')
+    const spotifyEmbedInput = screen.getByLabelText('Spotify埋め込みコード')
 
-    // Enter valid URL
-    await user.type(jacketUrlInput, 'https://example.com/jacket.jpg')
+    // Enter valid embed code
+    await user.type(
+      spotifyEmbedInput,
+      '<iframe src="https://open.spotify.com/embed/track/test"></iframe>'
+    )
 
     // Should show preview label
     await waitFor(() => {
@@ -221,7 +229,7 @@ describe('SongRegistrationForm - Extended Fields', () => {
     expect(savedSong.releaseYear).toBe(2024)
     expect(savedSong.singleName).toBe('テストシングル')
     expect(savedSong.albumName).toBe('テストアルバム')
-    expect(savedSong.jacketImageUrl).toBe('https://example.com/jacket.jpg')
+    expect(savedSong.spotifyEmbed).toContain('open.spotify.com/embed')
   })
 
   it('should populate extended fields in edit mode', () => {
@@ -235,7 +243,8 @@ describe('SongRegistrationForm - Extended Fields', () => {
       releaseYear: 2024,
       singleName: 'テストシングル',
       albumName: 'テストアルバム',
-      jacketImageUrl: 'https://example.com/jacket.jpg',
+      spotifyEmbed:
+        '<iframe src="https://open.spotify.com/embed/track/test"></iframe>',
       detailPageUrls: [
         'https://example.com/detail1',
         'https://example.com/detail2',

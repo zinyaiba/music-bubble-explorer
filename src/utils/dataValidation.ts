@@ -62,13 +62,8 @@ export class DataValidator {
     )
       return false
     if (
-      song.jacketImageUrl !== undefined &&
-      !this.validateUrl(song.jacketImageUrl)
-    )
-      return false
-    if (
-      song.jacketImageUrl !== undefined &&
-      !this.validateTextLength(song.jacketImageUrl, 500)
+      song.spotifyEmbed !== undefined &&
+      !this.validateTextLength(song.spotifyEmbed, 2000)
     )
       return false
     if (song.detailPageUrls !== undefined) {

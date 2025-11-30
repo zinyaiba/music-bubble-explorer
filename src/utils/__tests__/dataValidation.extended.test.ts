@@ -15,7 +15,8 @@ describe('DataValidator - Extended Song Fields', () => {
         releaseYear: 2024,
         singleName: 'Test Single',
         albumName: 'Test Album',
-        jacketImageUrl: 'https://example.com/jacket.jpg',
+        spotifyEmbed:
+          '<iframe src="https://open.spotify.com/embed/track/test"></iframe>',
         detailPageUrls: [
           'https://example.com/song1',
           'https://example.com/song2',
@@ -59,27 +60,15 @@ describe('DataValidator - Extended Song Fields', () => {
       expect(DataValidator.validateSong(song)).toBe(false)
     })
 
-    it('should reject song with invalid jacketImageUrl', () => {
+    it('should reject song with spotifyEmbed exceeding 2000 characters', () => {
+      const longEmbed = '<iframe>' + 'a'.repeat(2000) + '</iframe>'
       const song: Song = {
         id: 'song_001',
         title: 'Test Song',
         lyricists: ['Lyricist A'],
         composers: ['Composer B'],
         arrangers: ['Arranger C'],
-        jacketImageUrl: 'not-a-valid-url',
-      }
-      expect(DataValidator.validateSong(song)).toBe(false)
-    })
-
-    it('should reject song with jacketImageUrl exceeding 500 characters', () => {
-      const longUrl = 'https://example.com/' + 'a'.repeat(500)
-      const song: Song = {
-        id: 'song_001',
-        title: 'Test Song',
-        lyricists: ['Lyricist A'],
-        composers: ['Composer B'],
-        arrangers: ['Arranger C'],
-        jacketImageUrl: longUrl,
+        spotifyEmbed: longEmbed,
       }
       expect(DataValidator.validateSong(song)).toBe(false)
     })

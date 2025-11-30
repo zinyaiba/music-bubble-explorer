@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { Song } from '@/types/music'
 import { DataManager } from '@/services/dataManager'
 import { StandardLayout } from './StandardLayout'
-import { JacketImage } from './JacketImage'
 import { AnalyticsService } from '@/services/analyticsService'
 import './SongDetailView.css'
 
@@ -250,15 +249,12 @@ export const SongDetailView: React.FC<SongDetailViewProps> = ({
 
         {!isLoading && !error && song && (
           <>
-            {/* ジャケット画像 */}
-            {/* Requirement 2.1-2.5: ジャケット画像の表示 */}
-            <div className="jacket-section">
-              <JacketImage
-                imageUrl={song.jacketImageUrl}
-                alt={`${song.title}のジャケット画像`}
-                size="large"
-              />
-            </div>
+            {/* Spotify埋め込みプレーヤー */}
+            {song.spotifyEmbed && (
+              <div className="spotify-section">
+                <div dangerouslySetInnerHTML={{ __html: song.spotifyEmbed }} />
+              </div>
+            )}
 
             {/* 基本情報 */}
             <div className="basic-info-section">

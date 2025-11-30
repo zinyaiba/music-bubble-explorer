@@ -5,10 +5,7 @@ import { MusicDataService } from '@/services/musicDataService'
 import { StandardLayout } from './StandardLayout'
 import { AnalyticsService } from '@/services/analyticsService'
 import { DetailUrlList } from './DetailUrlList'
-import { JacketImage } from './JacketImage'
 import {
-  validateUrl,
-  validateUrlLength,
   validateTextLength,
   validateReleaseYear,
   validateArtists,
@@ -38,7 +35,7 @@ interface SongFormData {
   releaseYear: string // 入力時は文字列、保存時に数値に変換
   singleName: string
   albumName: string
-  jacketImageUrl: string
+  spotifyEmbed: string // Spotify埋め込みコード（iframe全体）
   detailPageUrls: DetailPageUrl[] // URL配列（ラベル付き）
 }
 
@@ -52,7 +49,7 @@ interface FormErrors {
   releaseYear?: string
   singleName?: string
   albumName?: string
-  jacketImageUrl?: string
+  spotifyEmbed?: string
   detailPageUrls?: string
   general?: string
 }
@@ -79,7 +76,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
     releaseYear: '',
     singleName: '',
     albumName: '',
-    jacketImageUrl: '',
+    spotifyEmbed: '',
     detailPageUrls: [],
   })
 
@@ -123,7 +120,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
         releaseYear: editingSong.releaseYear?.toString() || '',
         singleName: editingSong.singleName || '',
         albumName: editingSong.albumName || '',
-        jacketImageUrl: editingSong.jacketImageUrl || '',
+        spotifyEmbed: editingSong.spotifyEmbed || '',
         detailPageUrls,
       })
     }
@@ -240,18 +237,18 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
       newErrors.albumName = albumNameValidation.error
     }
 
-    // Requirement 13.3, 13.5: ジャケット画像URLのバリデーション
-    if (formData.jacketImageUrl.trim()) {
-      const jacketUrlValidation = validateUrl(formData.jacketImageUrl)
-      if (!jacketUrlValidation.isValid) {
-        newErrors.jacketImageUrl = jacketUrlValidation.error
-      } else {
-        const jacketUrlLengthValidation = validateUrlLength(
-          formData.jacketImageUrl
-        )
-        if (!jacketUrlLengthValidation.isValid) {
-          newErrors.jacketImageUrl = jacketUrlLengthValidation.error
-        }
+    // Spotify埋め込みコードのバリデーション
+    if (formData.spotifyEmbed.trim()) {
+      // iframeタグが含まれているか、またはSpotify URLが含まれているかチェック
+      const hasIframe = formData.spotifyEmbed.includes('<iframe')
+      const hasSpotifyUrl = formData.spotifyEmbed.includes(
+        'open.spotify.com/embed'
+      )
+
+      if (!hasIframe && !hasSpotifyUrl) {
+        newErrors.spotifyEmbed = 'Spotifyの埋め込みコードを入力してください'
+      } else if (formData.spotifyEmbed.length > 2000) {
+        newErrors.spotifyEmbed = '埋め込みコードが長すぎます（2000文字以内）'
       }
     }
 
@@ -333,7 +330,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             releaseYear: releaseYearNum,
             singleName: formData.singleName.trim() || undefined,
             albumName: formData.albumName.trim() || undefined,
-            jacketImageUrl: formData.jacketImageUrl.trim() || undefined,
+            spotifyEmbed: formData.spotifyEmbed.trim() || undefined,
             detailPageUrls:
               detailPageUrlsFiltered.length > 0
                 ? detailPageUrlsFiltered
@@ -361,7 +358,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             releaseYear: releaseYearNum,
             singleName: formData.singleName.trim() || undefined,
             albumName: formData.albumName.trim() || undefined,
-            jacketImageUrl: formData.jacketImageUrl.trim() || undefined,
+            spotifyEmbed: formData.spotifyEmbed.trim() || undefined,
             detailPageUrls:
               detailPageUrlsFiltered.length > 0
                 ? detailPageUrlsFiltered
@@ -589,36 +586,35 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             )}
           </div>
 
-          {/* Requirement 13.1-13.5: ジャケット画像URL入力とプレビュー */}
+          {/* Spotify埋め込みコード入力とプレビュー */}
           <div className="form-group">
-            <label htmlFor="jacketImageUrl">ジャケット画像URL</label>
-            <input
-              id="jacketImageUrl"
-              type="url"
-              value={formData.jacketImageUrl}
-              onChange={e =>
-                handleInputChange('jacketImageUrl', e.target.value)
-              }
-              placeholder="https://example.com/jacket.jpg"
-              className={errors.jacketImageUrl ? 'error' : ''}
-              maxLength={500}
+            <label htmlFor="spotifyEmbed">Spotify埋め込みコード</label>
+            <textarea
+              id="spotifyEmbed"
+              value={formData.spotifyEmbed}
+              onChange={e => handleInputChange('spotifyEmbed', e.target.value)}
+              placeholder='<iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/..." width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>'
+              className={errors.spotifyEmbed ? 'error' : ''}
+              maxLength={2000}
+              rows={4}
+              style={{ fontFamily: 'monospace', fontSize: '0.9em' }}
             />
-            {errors.jacketImageUrl && (
-              <div className="error-message">{errors.jacketImageUrl}</div>
+            {errors.spotifyEmbed && (
+              <div className="error-message">{errors.spotifyEmbed}</div>
             )}
+            <div className="help-text">
+              Spotifyの「共有」→「埋め込みコード」からコピーしたiframeコードをそのまま貼り付けてください
+            </div>
           </div>
 
-          {/* Requirement 13.4: ジャケット画像プレビュー */}
-          {formData.jacketImageUrl.trim() && !errors.jacketImageUrl && (
+          {/* Spotify埋め込みプレビュー */}
+          {formData.spotifyEmbed.trim() && !errors.spotifyEmbed && (
             <div className="form-group">
               <label>プレビュー</label>
-              <div style={{ flex: 1 }}>
-                <JacketImage
-                  imageUrl={formData.jacketImageUrl}
-                  alt="ジャケット画像プレビュー"
-                  size="small"
-                />
-              </div>
+              <div
+                style={{ flex: 1 }}
+                dangerouslySetInnerHTML={{ __html: formData.spotifyEmbed }}
+              />
             </div>
           )}
 

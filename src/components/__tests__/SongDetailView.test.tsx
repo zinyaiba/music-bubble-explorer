@@ -22,7 +22,8 @@ const sampleSong: Song = {
   releaseYear: 2023,
   singleName: 'Test Single',
   albumName: 'Test Album',
-  jacketImageUrl: 'https://example.com/jacket.jpg',
+  spotifyEmbed:
+    '<iframe src="https://open.spotify.com/embed/track/test"></iframe>',
   detailPageUrls: ['https://example.com/song1', 'https://example.com/song2'],
   notes: 'Test notes for this song',
 }

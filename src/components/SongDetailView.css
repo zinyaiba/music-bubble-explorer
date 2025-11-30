@@ -113,11 +113,16 @@
   font-size: 1.2rem;
 }
 
-/* ジャケット画像セクション */
-.jacket-section {
+/* Spotify埋め込みセクション */
+.spotify-section {
+  margin-bottom: 2rem;
   display: flex;
   justify-content: center;
-  margin-bottom: 2rem;
+}
+
+.spotify-section iframe {
+  max-width: 100%;
+  border-radius: 12px;
 }
 
 /* 基本情報セクション */

@@ -27,7 +27,8 @@ describe('Firebase Integration - Extended Fields', () => {
     releaseYear: 2023,
     singleName: 'Test Single',
     albumName: 'Test Album',
-    jacketImageUrl: 'https://example.com/jacket.jpg',
+    spotifyEmbed:
+      '<iframe src="https://open.spotify.com/embed/track/test"></iframe>',
     detailPageUrls: [
       'https://example.com/detail1',
       'https://example.com/detail2',
@@ -84,7 +85,8 @@ describe('Firebase Integration - Extended Fields', () => {
       // Update with modified extended fields
       song.artists = ['Updated Artist']
       song.releaseYear = 2024
-      song.jacketImageUrl = 'https://example.com/new-jacket.jpg'
+      song.spotifyEmbed =
+        '<iframe src="https://open.spotify.com/embed/track/updated"></iframe>'
 
       const result = await DataManager.updateSong(song)
 
@@ -211,7 +213,7 @@ describe('Firebase Integration - Extended Fields', () => {
       expect(typeof song.releaseYear).toBe('number')
       expect(typeof song.singleName).toBe('string')
       expect(typeof song.albumName).toBe('string')
-      expect(typeof song.jacketImageUrl).toBe('string')
+      expect(typeof song.spotifyEmbed).toBe('string')
       expect(Array.isArray(song.detailPageUrls)).toBe(true)
     })
 
@@ -226,7 +228,7 @@ describe('Firebase Integration - Extended Fields', () => {
         releaseYear: undefined,
         singleName: undefined,
         albumName: undefined,
-        jacketImageUrl: undefined,
+        spotifyEmbed: undefined,
         detailPageUrls: undefined,
       }
 
@@ -249,7 +251,7 @@ describe('Firebase Integration - Extended Fields', () => {
       expect(deserialized.releaseYear).toBe(song.releaseYear)
       expect(deserialized.singleName).toBe(song.singleName)
       expect(deserialized.albumName).toBe(song.albumName)
-      expect(deserialized.jacketImageUrl).toBe(song.jacketImageUrl)
+      expect(deserialized.spotifyEmbed).toBe(song.spotifyEmbed)
       expect(deserialized.detailPageUrls).toEqual(song.detailPageUrls)
     })
 
