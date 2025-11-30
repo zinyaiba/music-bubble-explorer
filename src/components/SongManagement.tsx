@@ -193,11 +193,19 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   }, [])
 
   const handleCloseDetailView = useCallback(() => {
-    // 全て即座に実行
+    // 詳細画面を閉じる
     setShowDetailView(false)
     setIsLoadingDetail(false)
     setSelectedSongId(null)
     setEditingSong(null)
+
+    // 楽曲一覧のスクロール位置を強制的にリセット
+    requestAnimationFrame(() => {
+      const scrollContainer = document.querySelector('.song-list')
+      if (scrollContainer) {
+        scrollContainer.scrollTop = 0
+      }
+    })
   }, [])
 
   const handleCloseEditForm = useCallback(() => {
