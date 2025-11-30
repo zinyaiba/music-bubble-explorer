@@ -208,14 +208,14 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
           onClick: handleOpenTagList,
         },
         {
-          id: 'song-list',
-          label: '楽曲一覧',
-          icon: '🎵',
+          id: 'ranking',
+          label: 'ランキング',
+          icon: '🏆',
           view: 'song-list',
           isActive: false,
-          color: '#B6E5D8',
+          color: '#FFD700',
           onClick: () => {}, // 非活性のため空の関数
-          disabled: true, // 要件4.3, 4.4: 非活性状態
+          disabled: true, // 今後実装予定のため非活性
         },
         {
           id: 'song-management',
