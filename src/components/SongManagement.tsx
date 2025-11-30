@@ -193,14 +193,11 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   }, [])
 
   const handleCloseDetailView = useCallback(() => {
-    // 即座に閉じる
+    // 全て即座に実行
     setShowDetailView(false)
     setIsLoadingDetail(false)
-    // クリーンアップは最小限の遅延（アニメーション完了後）
-    setTimeout(() => {
-      setSelectedSongId(null)
-      setEditingSong(null)
-    }, 100)
+    setSelectedSongId(null)
+    setEditingSong(null)
   }, [])
 
   const handleCloseEditForm = useCallback(() => {

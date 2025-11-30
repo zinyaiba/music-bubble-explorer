@@ -27,17 +27,8 @@
   will-change: backdrop-filter, opacity;
   transform: translateZ(0);
 
-  /* 表示/非表示のアニメーション - 超高速化 */
-  transition:
-    opacity 0.08s ease-out,
-    transform 0.08s ease-out;
-}
-
-/* 閉じる時はさらに高速 */
-.standard-layout-overlay:not(.standard-layout-visible) {
-  transition:
-    opacity 0.05s ease-out,
-    transform 0.05s ease-out;
+  /* アニメーション無効化 - 即座に表示/非表示 */
+  transition: none;
 }
 
 /* フェードインアニメーション */
