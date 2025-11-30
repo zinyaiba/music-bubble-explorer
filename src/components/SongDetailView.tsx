@@ -34,18 +34,19 @@ export const SongDetailView: React.FC<SongDetailViewProps> = ({
       return
     }
 
+    // 親コンポーネントから楽曲データが渡されている場合は即座に使用
+    if (propSong && propSong.id === songId) {
+      setSong(propSong)
+      setIsLoading(false)
+      setError(null)
+      return
+    }
+
+    // それ以外の場合はDataManagerから取得
     setIsLoading(true)
     setError(null)
 
     try {
-      // 親コンポーネントから楽曲データが渡されている場合はそれを使用
-      if (propSong && propSong.id === songId) {
-        setSong(propSong)
-        setIsLoading(false)
-        return
-      }
-
-      // それ以外の場合はDataManagerから取得
       const loadedSong = DataManager.getSong(songId)
 
       if (!loadedSong) {

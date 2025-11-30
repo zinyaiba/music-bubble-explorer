@@ -754,3 +754,51 @@
     text-align: left;
   }
 }
+
+/* 楽曲アイテムのクリック可能スタイル */
+.song-info.clickable {
+  cursor: pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.song-info.clickable::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.05);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.song-info.clickable:hover::before {
+  opacity: 1;
+}
+
+.song-info.clickable:active {
+  transform: scale(0.98);
+}
+
+.song-info.clickable:active::before {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 1;
+}
+
+/* フォーカス表示 */
+.song-info.clickable:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.3);
+  outline-offset: 2px;
+}
+
+/* モバイル用のタップフィードバック */
+@media (max-width: 768px) {
+  .song-info.clickable:active {
+    transform: scale(0.95);
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
