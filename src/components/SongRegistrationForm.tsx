@@ -255,7 +255,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
       }
     }
 
-    // Requirement 14.4, 14.7: 楽曲詳細ページURLのバリデーション
+    // Requirement 14.4, 14.7: 関連外部サイトURLのバリデーション
     const detailUrlsValidation = validateDetailPageUrls(formData.detailPageUrls)
     if (!detailUrlsValidation.isValid) {
       newErrors.detailPageUrls = detailUrlsValidation.error
@@ -616,12 +616,12 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             </div>
           )}
 
-          {/* Requirement 14.1-14.7: 楽曲詳細ページURL入力リスト */}
+          {/* Requirement 14.1-14.7: 関連外部サイトURL入力リスト */}
           <div
             className="form-group"
             style={{ flexDirection: 'column', alignItems: 'flex-start' }}
           >
-            <label htmlFor="detailPageUrls">楽曲詳細ページURL</label>
+            <label htmlFor="detailPageUrls">関連外部サイトURL</label>
             <DetailUrlList
               urls={formData.detailPageUrls}
               onChange={handleDetailUrlsChange}

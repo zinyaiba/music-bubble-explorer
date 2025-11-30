@@ -136,7 +136,7 @@ export const DetailUrlList: React.FC<DetailUrlListProps> = ({
                   className={`url-input ${error ? 'error' : ''}`}
                   disabled={disabled}
                   maxLength={500}
-                  aria-label={`楽曲詳細ページURL ${index + 1}`}
+                  aria-label={`関連外部サイトURL ${index + 1}`}
                 />
                 {displayUrls.length > 1 && (
                   <button

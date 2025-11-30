@@ -140,7 +140,7 @@ export const SongDetailView: React.FC<SongDetailViewProps> = ({
     )
   }
 
-  // 楽曲詳細ページURLリストの表示
+  // 関連外部サイトURLリストの表示
   // Requirement 8.1, 8.4: 全ての登録されたURLをリスト形式で登録順に表示
   const renderDetailUrls = () => {
     if (!song?.detailPageUrls || song.detailPageUrls.length === 0) {
@@ -149,7 +149,7 @@ export const SongDetailView: React.FC<SongDetailViewProps> = ({
 
     return (
       <div className="detail-urls-section">
-        <h3 className="section-title">楽曲詳細ページ</h3>
+        <h3 className="section-title">外部サイトリンク</h3>
         <ul className="detail-urls-list">
           {song.detailPageUrls.map((urlObj, index) => {
             // 文字列の場合は後方互換性のため対応
@@ -271,7 +271,7 @@ export const SongDetailView: React.FC<SongDetailViewProps> = ({
             {/* 収録作品情報 */}
             {renderAlbumInfo()}
 
-            {/* 楽曲詳細ページURL */}
+            {/* 関連外部サイトURL */}
             {renderDetailUrls()}
 
             {/* タグ */}
