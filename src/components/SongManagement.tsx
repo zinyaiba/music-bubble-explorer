@@ -46,6 +46,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   const [showEditForm, setShowEditForm] = useState(false)
   const [showDetailView, setShowDetailView] = useState(false)
   const [selectedSongId, setSelectedSongId] = useState<string | null>(null)
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false)
   const [deleteConfirmation, setDeleteConfirmation] =
     useState<DeleteConfirmationState>({
       isOpen: false,
@@ -163,9 +164,19 @@ export const SongManagement: React.FC<SongManagementProps> = ({
       songId: song.id,
       songTitle: song.title,
     })
+    // ローディング表示を即座に開始
+    setIsLoadingDetail(true)
     setEditingSong(song) // 選択された楽曲を保存
     setSelectedSongId(song.id)
-    setShowDetailView(true)
+
+    // 次のフレームで詳細画面を表示（ローディングアニメーションが見えるように）
+    requestAnimationFrame(() => {
+      setShowDetailView(true)
+      // 少し遅延してローディングを終了（アニメーションが見えるように）
+      setTimeout(() => {
+        setIsLoadingDetail(false)
+      }, 100)
+    })
   }, [])
 
   const handleEditSong = useCallback((song: Song) => {
@@ -182,9 +193,14 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   }, [])
 
   const handleCloseDetailView = useCallback(() => {
+    // 即座に閉じる（アニメーションはStandardLayoutが処理）
     setShowDetailView(false)
-    setSelectedSongId(null)
-    setEditingSong(null)
+    // クリーンアップは少し遅延（アニメーション完了後）
+    setTimeout(() => {
+      setSelectedSongId(null)
+      setEditingSong(null)
+      setIsLoadingDetail(false)
+    }, 200)
   }, [])
 
   const handleCloseEditForm = useCallback(() => {
@@ -480,6 +496,13 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                 onSongAdded={handleSongUpdated}
                 editingSong={editingSong}
               />
+            )}
+
+            {isLoadingDetail && (
+              <div className="detail-loading-overlay">
+                <div className="detail-loading-spinner"></div>
+                <p className="detail-loading-text">読み込み中...</p>
+              </div>
             )}
 
             {showDetailView && selectedSongId && editingSong && (
