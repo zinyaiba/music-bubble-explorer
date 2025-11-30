@@ -1042,6 +1042,15 @@ function App() {
   }, [])
 
   /**
+   * Handle song management reopen request (after closing detail view)
+   */
+  const handleSongManagementReopen = useCallback(() => {
+    setShowSongManagement(true)
+    setCurrentView('management')
+    announceToScreenReader('楽曲編集画面を再度開きました')
+  }, [])
+
+  /**
    * Handle tag list toggle with accessibility announcements
    */
   const handleToggleTagList = useCallback(() => {
@@ -1579,6 +1588,7 @@ function App() {
               onClose={handleSongManagementClose}
               onSongUpdated={handleSongUpdated}
               onSongDeleted={handleSongDeleted}
+              onRequestReopen={handleSongManagementReopen}
             />
 
             <EnhancedTagList

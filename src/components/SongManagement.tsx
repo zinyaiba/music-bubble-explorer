@@ -13,6 +13,7 @@ interface SongManagementProps {
   isVisible: boolean
   onSongUpdated?: (song: Song) => void
   onSongDeleted?: (songId: string) => void
+  onRequestReopen?: () => void // 再度開くリクエスト用
 }
 
 interface DeleteConfirmationState {
@@ -29,6 +30,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   isVisible,
   onSongUpdated,
   onSongDeleted,
+  onRequestReopen,
 }) => {
   // デバッグログ追加
   // console.log('🎵 SongManagement rendered', {
@@ -199,9 +201,14 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     setSelectedSongId(null)
     setEditingSong(null)
 
-    // 楽曲管理画面は開いたままにする（自動で再表示）
-    // onClose()を呼ばないことで、楽曲管理画面が表示され続ける
-  }, [])
+    // 楽曲管理画面を一度閉じてから再度開く
+    onClose()
+
+    // 次のフレームで再度開くリクエストを送る
+    requestAnimationFrame(() => {
+      onRequestReopen?.()
+    })
+  }, [onClose, onRequestReopen])
 
   const handleCloseEditForm = useCallback(() => {
     console.log('🔙 Closing edit form and parent song management')
