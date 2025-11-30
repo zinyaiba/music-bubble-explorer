@@ -52,6 +52,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
       song: null,
     })
   const [isDeleting, setIsDeleting] = useState(false)
+  const [displayLimit, setDisplayLimit] = useState(50) // 初期表示数を50に制限
 
   const loadSongs = useCallback(async () => {
     setIsLoading(true)
@@ -132,6 +133,21 @@ export const SongManagement: React.FC<SongManagementProps> = ({
         (song.tags && song.tags.some(tag => tag.toLowerCase().includes(query)))
     )
   }, [songs, searchQuery])
+
+  // 表示用の制限されたリスト（パフォーマンス最適化）
+  const displayedSongs = useMemo(() => {
+    return filteredSongs.slice(0, displayLimit)
+  }, [filteredSongs, displayLimit])
+
+  // もっと読み込むハンドラ
+  const handleLoadMore = useCallback(() => {
+    setDisplayLimit(prev => prev + 50)
+  }, [])
+
+  // 検索クエリが変更されたら表示数をリセット
+  useEffect(() => {
+    setDisplayLimit(50)
+  }, [searchQuery])
 
   const handleAddNewSong = useCallback(() => {
     console.log('➕➕➕ ADD NEW SONG BUTTON CLICKED ➕➕➕')
@@ -368,75 +384,92 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                   </div>
                 </div>
               ) : (
-                filteredSongs.map(song => (
-                  <div key={song.id} className="song-item">
-                    <div
-                      className="song-info clickable"
-                      onClick={() => handleSongClick(song)}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          handleSongClick(song)
-                        }
-                      }}
-                      aria-label={`${song.title}の詳細を表示`}
-                    >
-                      <h3 className="song-title">{song.title}</h3>
-                      <div className="song-details">
-                        {song.lyricists.length > 0 && (
-                          <div className="detail-item">
-                            <span className="detail-label">作詞:</span>
-                            <span className="detail-value">
-                              {song.lyricists.join(', ')}
-                            </span>
-                          </div>
-                        )}
-                        {song.composers.length > 0 && (
-                          <div className="detail-item">
-                            <span className="detail-label">作曲:</span>
-                            <span className="detail-value">
-                              {song.composers.join(', ')}
-                            </span>
-                          </div>
-                        )}
-                        {song.arrangers.length > 0 && (
-                          <div className="detail-item">
-                            <span className="detail-label">編曲:</span>
-                            <span className="detail-value">
-                              {song.arrangers.join(', ')}
-                            </span>
-                          </div>
-                        )}
+                <>
+                  {displayedSongs.map(song => (
+                    <div key={song.id} className="song-item">
+                      <div
+                        className="song-info clickable"
+                        onClick={() => handleSongClick(song)}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            handleSongClick(song)
+                          }
+                        }}
+                        aria-label={`${song.title}の詳細を表示`}
+                      >
+                        <h3 className="song-title">{song.title}</h3>
+                        <div className="song-details">
+                          {song.lyricists.length > 0 && (
+                            <div className="detail-item">
+                              <span className="detail-label">作詞:</span>
+                              <span className="detail-value">
+                                {song.lyricists.join(', ')}
+                              </span>
+                            </div>
+                          )}
+                          {song.composers.length > 0 && (
+                            <div className="detail-item">
+                              <span className="detail-label">作曲:</span>
+                              <span className="detail-value">
+                                {song.composers.join(', ')}
+                              </span>
+                            </div>
+                          )}
+                          {song.arrangers.length > 0 && (
+                            <div className="detail-item">
+                              <span className="detail-label">編曲:</span>
+                              <span className="detail-value">
+                                {song.arrangers.join(', ')}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="song-actions">
+                        <button
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleEditSong(song)
+                          }}
+                          className="edit-button"
+                          aria-label={`${song.title}を編集`}
+                          title="楽曲を編集"
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation()
+                            handleDeleteSong(song)
+                          }}
+                          className="delete-button"
+                          aria-label={`${song.title}を削除`}
+                          title="楽曲を削除"
+                        >
+                          🗑️
+                        </button>
                       </div>
                     </div>
-                    <div className="song-actions">
+                  ))}
+                  {displayedSongs.length < filteredSongs.length && (
+                    <div className="load-more-container">
                       <button
-                        onClick={e => {
-                          e.stopPropagation()
-                          handleEditSong(song)
-                        }}
-                        className="edit-button"
-                        aria-label={`${song.title}を編集`}
-                        title="楽曲を編集"
+                        onClick={handleLoadMore}
+                        className="load-more-button"
+                        aria-label="さらに楽曲を読み込む"
                       >
-                        ✏️
-                      </button>
-                      <button
-                        onClick={e => {
-                          e.stopPropagation()
-                          handleDeleteSong(song)
-                        }}
-                        className="delete-button"
-                        aria-label={`${song.title}を削除`}
-                        title="楽曲を削除"
-                      >
-                        🗑️
+                        <span className="load-more-icon">⬇️</span>
+                        <span className="load-more-text">
+                          さらに表示 ({displayedSongs.length} /{' '}
+                          {filteredSongs.length})
+                        </span>
                       </button>
                     </div>
-                  </div>
-                ))
+                  )}
+                </>
               )}
             </div>
 
