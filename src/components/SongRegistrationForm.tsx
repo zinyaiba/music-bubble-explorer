@@ -335,7 +335,10 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             releaseYear: releaseYearNum,
             singleName: formData.singleName.trim() || undefined,
             albumName: formData.albumName.trim() || undefined,
-            musicServiceEmbed: formData.musicServiceEmbed.trim() || undefined,
+            // 空文字列の場合は明示的にundefinedを設定（Firebaseから削除）
+            musicServiceEmbed: formData.musicServiceEmbed.trim()
+              ? formData.musicServiceEmbed.trim()
+              : undefined,
             detailPageUrls:
               detailPageUrlsFiltered.length > 0
                 ? detailPageUrlsFiltered
@@ -363,7 +366,10 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             releaseYear: releaseYearNum,
             singleName: formData.singleName.trim() || undefined,
             albumName: formData.albumName.trim() || undefined,
-            musicServiceEmbed: formData.musicServiceEmbed.trim() || undefined,
+            // 空文字列の場合は明示的にundefinedを設定
+            musicServiceEmbed: formData.musicServiceEmbed.trim()
+              ? formData.musicServiceEmbed.trim()
+              : undefined,
             detailPageUrls:
               detailPageUrlsFiltered.length > 0
                 ? detailPageUrlsFiltered

@@ -10,6 +10,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  deleteField,
   query,
   orderBy,
   where,
@@ -209,10 +210,17 @@ export class FirebaseService {
 
       const songRef = doc(db!, this.COLLECTION_NAME, songId)
 
-      // Firestoreはundefinedを受け付けないため、undefinedフィールドを削除
-      const cleanedUpdates = Object.fromEntries(
-        Object.entries(updates).filter(([_, value]) => value !== undefined)
-      )
+      // Firestoreはundefinedを受け付けないため、undefinedフィールドを処理
+      // undefined の場合は deleteField() を使用してフィールドを削除
+      const cleanedUpdates: Record<string, any> = {}
+      for (const [key, value] of Object.entries(updates)) {
+        if (value === undefined) {
+          // undefinedの場合はフィールドを削除
+          cleanedUpdates[key] = deleteField()
+        } else {
+          cleanedUpdates[key] = value
+        }
+      }
 
       await updateDoc(songRef, {
         ...cleanedUpdates,
