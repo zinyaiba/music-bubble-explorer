@@ -117,6 +117,18 @@ export const SongSelectionView: React.FC<SongSelectionViewProps> = ({
 
   // 検索語句変更ハンドラー
   const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const term = e.target.value
+      setSearchTerm(term)
+      if (externalOnSearchChange) {
+        externalOnSearchChange(term)
+      }
+    },
+    [setSearchTerm, externalOnSearchChange]
+  )
+
+  // 検索語句を直接設定するハンドラー（検索候補用）
+  const handleSearchTermChange = useCallback(
     (term: string) => {
       setSearchTerm(term)
       if (externalOnSearchChange) {
@@ -219,10 +231,12 @@ export const SongSelectionView: React.FC<SongSelectionViewProps> = ({
           <input
             type="text"
             value={filters.searchTerm}
-            onChange={e => handleSearchChange(e.target.value)}
+            onChange={handleSearchChange}
             placeholder="楽曲名、アーティスト、タグで検索..."
             className="search-input"
             disabled={isSearching}
+            autoComplete="off"
+            inputMode="search"
           />
           <div className="search-icon">{isSearching ? '⏳' : '🔍'}</div>
 
@@ -232,7 +246,7 @@ export const SongSelectionView: React.FC<SongSelectionViewProps> = ({
               {searchSuggestions.map((suggestion, index) => (
                 <button
                   key={index}
-                  onClick={() => handleSearchChange(suggestion)}
+                  onClick={() => handleSearchTermChange(suggestion)}
                   className="search-suggestion"
                 >
                   {suggestion}

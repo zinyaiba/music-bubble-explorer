@@ -109,16 +109,51 @@
   display: flex;
   align-items: center;
   z-index: 1;
+  background: linear-gradient(to bottom, #f5f5f5, #ebebeb);
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
 }
 
-/* 検索入力欄は StandardLayout の統一スタイルを使用 */
+/* 検索入力欄のスタイル */
+.search-input {
+  width: 100%;
+  padding: 14px 44px 14px 16px;
+  border: 2px solid #666;
+  border-radius: 10px;
+  font-size: 16px;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.15),
+    inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  color: #333;
+  font-weight: 500;
+}
+
 .search-input::placeholder {
-  color: #9ca3af; /* 薄い灰色に統一 */
+  color: #888;
+  font-weight: 400;
 }
 
-/* 虫眼鏡アイコンを除去 */
+.search-input:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow:
+    0 0 0 4px rgba(76, 175, 80, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+  background: #fff;
+}
+
+/* 虫眼鏡アイコン */
 .search-icon {
-  display: none;
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  pointer-events: none;
+  font-size: 18px;
 }
 
 .stats-container {

@@ -365,11 +365,13 @@ export const SongManagement: React.FC<SongManagementProps> = ({
             <div className="search-container">
               <input
                 type="text"
-                placeholder="楽曲名、作詞家、作曲家、編曲家、タグで検索..."
+                placeholder="例)サブスク"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 className="search-input"
                 aria-label="楽曲検索"
+                autoComplete="off"
+                inputMode="search"
               />
               <span className="search-icon">🔍</span>
             </div>
