@@ -3,8 +3,15 @@ import styled from 'styled-components'
 import { announceToScreenReader } from '@/utils/accessibility'
 
 interface NavigationProps {
-  currentView: 'main' | 'registration' | 'management' | 'firebase-test' | 'tag-list'
-  onViewChange: (view: 'main' | 'registration' | 'management' | 'firebase-test' | 'tag-list') => void
+  currentView:
+    | 'main'
+    | 'registration'
+    | 'management'
+    | 'firebase-test'
+    | 'tag-list'
+  onViewChange: (
+    view: 'main' | 'registration' | 'management' | 'firebase-test' | 'tag-list'
+  ) => void
   showRegistrationForm: boolean
   showSongManagement: boolean
   showFirebaseTest?: boolean
@@ -19,209 +26,246 @@ interface NavigationProps {
  * ナビゲーションコンポーネント
  * Requirements: 11.1, 12.1 - ナビゲーション機能の追加
  */
-export const Navigation: React.FC<NavigationProps> = React.memo(({
-  currentView,
-  onViewChange,
-  showRegistrationForm,
-  showSongManagement,
-  showFirebaseTest = false,
-  showTagList = false,
-  onToggleRegistrationForm,
-  onToggleSongManagement,
-  onToggleFirebaseTest,
-  onToggleTagList
-}) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+export const Navigation: React.FC<NavigationProps> = React.memo(
+  ({
+    currentView,
+    onViewChange,
+    showRegistrationForm,
+    showSongManagement,
+    showFirebaseTest = false,
+    showTagList = false,
+    onToggleRegistrationForm,
+    onToggleSongManagement,
+    onToggleFirebaseTest,
+    onToggleTagList,
+  }) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  /**
-   * メニューの開閉切り替え
-   */
-  const handleToggleMenu = useCallback(() => {
-    setIsMenuOpen(prev => {
-      const newState = !prev
-      announceToScreenReader(newState ? 'メニューを開きました' : 'メニューを閉じました')
-      return newState
-    })
-  }, [])
+    /**
+     * メニューの開閉切り替え
+     */
+    const handleToggleMenu = useCallback(() => {
+      setIsMenuOpen(prev => {
+        const newState = !prev
+        announceToScreenReader(
+          newState ? 'メニューを開きました' : 'メニューを閉じました'
+        )
+        return newState
+      })
+    }, [])
 
+    /**
+     * 楽曲登録フォームを開く
+     */
+    const handleOpenRegistration = useCallback(() => {
+      if (showSongManagement) {
+        onToggleSongManagement()
+      }
+      if (showTagList && onToggleTagList) {
+        onToggleTagList()
+      }
+      if (!showRegistrationForm) {
+        onToggleRegistrationForm()
+      }
+      onViewChange('registration')
+      setIsMenuOpen(false)
+      announceToScreenReader('楽曲登録フォームを開きました')
+    }, [
+      showSongManagement,
+      showTagList,
+      showRegistrationForm,
+      onToggleSongManagement,
+      onToggleTagList,
+      onToggleRegistrationForm,
+      onViewChange,
+    ])
 
+    /**
+     * 楽曲管理画面を開く
+     */
+    const handleOpenManagement = useCallback(() => {
+      if (showRegistrationForm) {
+        onToggleRegistrationForm()
+      }
+      if (showTagList && onToggleTagList) {
+        onToggleTagList()
+      }
+      if (!showSongManagement) {
+        onToggleSongManagement()
+      }
+      onViewChange('management')
+      setIsMenuOpen(false)
+      announceToScreenReader('楽曲管理画面を開きました')
+    }, [
+      showRegistrationForm,
+      showTagList,
+      showSongManagement,
+      onToggleRegistrationForm,
+      onToggleTagList,
+      onToggleSongManagement,
+      onViewChange,
+    ])
 
-  /**
-   * 楽曲登録フォームを開く
-   */
-  const handleOpenRegistration = useCallback(() => {
-    if (showSongManagement) {
-      onToggleSongManagement()
-    }
-    if (showTagList && onToggleTagList) {
-      onToggleTagList()
-    }
-    if (!showRegistrationForm) {
-      onToggleRegistrationForm()
-    }
-    onViewChange('registration')
-    setIsMenuOpen(false)
-    announceToScreenReader('楽曲登録フォームを開きました')
-  }, [showSongManagement, showTagList, showRegistrationForm, onToggleSongManagement, onToggleTagList, onToggleRegistrationForm, onViewChange])
+    /**
+     * Firebase接続テストを開く
+     */
+    const handleOpenFirebaseTest = useCallback(() => {
+      if (!onToggleFirebaseTest) return
 
-  /**
-   * 楽曲管理画面を開く
-   */
-  const handleOpenManagement = useCallback(() => {
-    if (showRegistrationForm) {
-      onToggleRegistrationForm()
-    }
-    if (showTagList && onToggleTagList) {
-      onToggleTagList()
-    }
-    if (!showSongManagement) {
-      onToggleSongManagement()
-    }
-    onViewChange('management')
-    setIsMenuOpen(false)
-    announceToScreenReader('楽曲管理画面を開きました')
-  }, [showRegistrationForm, showTagList, showSongManagement, onToggleRegistrationForm, onToggleTagList, onToggleSongManagement, onViewChange])
+      if (showRegistrationForm) {
+        onToggleRegistrationForm()
+      }
+      if (showSongManagement) {
+        onToggleSongManagement()
+      }
+      if (showTagList && onToggleTagList) {
+        onToggleTagList()
+      }
+      if (!showFirebaseTest) {
+        onToggleFirebaseTest()
+      }
+      onViewChange('firebase-test')
+      setIsMenuOpen(false)
+      announceToScreenReader('Firebase接続テストを開きました')
+    }, [
+      showRegistrationForm,
+      showSongManagement,
+      showTagList,
+      showFirebaseTest,
+      onToggleRegistrationForm,
+      onToggleSongManagement,
+      onToggleTagList,
+      onToggleFirebaseTest,
+      onViewChange,
+    ])
 
-  /**
-   * Firebase接続テストを開く
-   */
-  const handleOpenFirebaseTest = useCallback(() => {
-    if (!onToggleFirebaseTest) return
-    
-    if (showRegistrationForm) {
-      onToggleRegistrationForm()
-    }
-    if (showSongManagement) {
-      onToggleSongManagement()
-    }
-    if (showTagList && onToggleTagList) {
-      onToggleTagList()
-    }
-    if (!showFirebaseTest) {
-      onToggleFirebaseTest()
-    }
-    onViewChange('firebase-test')
-    setIsMenuOpen(false)
-    announceToScreenReader('Firebase接続テストを開きました')
-  }, [showRegistrationForm, showSongManagement, showTagList, showFirebaseTest, onToggleRegistrationForm, onToggleSongManagement, onToggleTagList, onToggleFirebaseTest, onViewChange])
+    /**
+     * タグ一覧画面を開く
+     */
+    const handleOpenTagList = useCallback(() => {
+      if (!onToggleTagList) return
 
-  /**
-   * タグ一覧画面を開く
-   */
-  const handleOpenTagList = useCallback(() => {
-    if (!onToggleTagList) return
-    
-    if (showRegistrationForm) {
-      onToggleRegistrationForm()
-    }
-    if (showSongManagement) {
-      onToggleSongManagement()
-    }
-    if (showFirebaseTest && onToggleFirebaseTest) {
-      onToggleFirebaseTest()
-    }
-    if (!showTagList) {
-      onToggleTagList()
-    }
-    onViewChange('tag-list')
-    setIsMenuOpen(false)
-    announceToScreenReader('タグ一覧画面を開きました')
-  }, [showRegistrationForm, showSongManagement, showFirebaseTest, showTagList, onToggleRegistrationForm, onToggleSongManagement, onToggleFirebaseTest, onToggleTagList, onViewChange])
+      if (showRegistrationForm) {
+        onToggleRegistrationForm()
+      }
+      if (showSongManagement) {
+        onToggleSongManagement()
+      }
+      if (showFirebaseTest && onToggleFirebaseTest) {
+        onToggleFirebaseTest()
+      }
+      if (!showTagList) {
+        onToggleTagList()
+      }
+      onViewChange('tag-list')
+      setIsMenuOpen(false)
+      announceToScreenReader('タグ一覧画面を開きました')
+    }, [
+      showRegistrationForm,
+      showSongManagement,
+      showFirebaseTest,
+      showTagList,
+      onToggleRegistrationForm,
+      onToggleSongManagement,
+      onToggleFirebaseTest,
+      onToggleTagList,
+      onViewChange,
+    ])
 
-  return (
-    <NavigationContainer role="navigation" aria-label="メインナビゲーション">
-      {/* モバイル用ハンバーガーメニューボタン */}
-      <MobileMenuButton
-        onClick={handleToggleMenu}
-        aria-expanded={isMenuOpen}
-        aria-controls="navigation-menu"
-        aria-label={isMenuOpen ? 'メニューを閉じる' : 'メニューを開く'}
-        className="mobile-only"
-      >
-        <MenuIcon $isOpen={isMenuOpen}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </MenuIcon>
-      </MobileMenuButton>
+    return (
+      <NavigationContainer role="navigation" aria-label="メインナビゲーション">
+        {/* モバイル用ハンバーガーメニューボタン */}
+        <MobileMenuButton
+          onClick={handleToggleMenu}
+          aria-expanded={isMenuOpen}
+          aria-controls="navigation-menu"
+          aria-label={isMenuOpen ? 'メニューを閉じる' : 'メニューを開く'}
+          className="mobile-only"
+        >
+          <MenuIcon $isOpen={isMenuOpen}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </MenuIcon>
+        </MobileMenuButton>
 
-      {/* ナビゲーションメニュー */}
-      <NavigationMenu
-        id="navigation-menu"
-        $isOpen={isMenuOpen}
-        role="menubar"
-        aria-orientation="horizontal"
-      >
-
-
-
-        <NavigationItem role="none">
-          <NavigationButton
-            onClick={handleOpenRegistration}
-            $isActive={currentView === 'registration'}
-            role="menuitem"
-            aria-current={currentView === 'registration' ? 'page' : undefined}
-            title="新しい楽曲を登録"
-          >
-            <ButtonIcon aria-hidden="true">🎵</ButtonIcon>
-            <ButtonText>楽曲登録</ButtonText>
-          </NavigationButton>
-        </NavigationItem>
-
-        <NavigationItem role="none">
-          <NavigationButton
-            onClick={handleOpenManagement}
-            $isActive={currentView === 'management'}
-            role="menuitem"
-            aria-current={currentView === 'management' ? 'page' : undefined}
-            title="楽曲を管理・編集"
-          >
-            <ButtonIcon aria-hidden="true">📝</ButtonIcon>
-            <ButtonText>楽曲管理</ButtonText>
-          </NavigationButton>
-        </NavigationItem>
-
-        <NavigationItem role="none">
-          <NavigationButton
-            onClick={handleOpenTagList}
-            $isActive={currentView === 'tag-list'}
-            role="menuitem"
-            aria-current={currentView === 'tag-list' ? 'page' : undefined}
-            title="タグ一覧を表示"
-          >
-            <ButtonIcon aria-hidden="true">🏷️</ButtonIcon>
-            <ButtonText>タグ一覧</ButtonText>
-          </NavigationButton>
-        </NavigationItem>
-
-        {/* Firebase接続テスト（開発環境のみ） */}
-        {import.meta.env.DEV && (
+        {/* ナビゲーションメニュー */}
+        <NavigationMenu
+          id="navigation-menu"
+          $isOpen={isMenuOpen}
+          role="menubar"
+          aria-orientation="horizontal"
+        >
           <NavigationItem role="none">
             <NavigationButton
-              onClick={handleOpenFirebaseTest}
-              $isActive={currentView === 'firebase-test'}
+              onClick={handleOpenRegistration}
+              $isActive={currentView === 'registration'}
               role="menuitem"
-              aria-current={currentView === 'firebase-test' ? 'page' : undefined}
-              title="Firebase接続をテスト"
+              aria-current={currentView === 'registration' ? 'page' : undefined}
+              title="新しい楽曲を登録"
             >
-              <ButtonIcon aria-hidden="true">🔥</ButtonIcon>
-              <ButtonText>Firebase</ButtonText>
+              <ButtonIcon aria-hidden="true">🎵</ButtonIcon>
+              <ButtonText>楽曲登録</ButtonText>
             </NavigationButton>
           </NavigationItem>
-        )}
-      </NavigationMenu>
 
-      {/* モバイル用オーバーレイ */}
-      {isMenuOpen && (
-        <MobileOverlay
-          onClick={handleToggleMenu}
-          className="mobile-only"
-          aria-hidden="true"
-        />
-      )}
-    </NavigationContainer>
-  )
-})
+          <NavigationItem role="none">
+            <NavigationButton
+              onClick={handleOpenManagement}
+              $isActive={currentView === 'management'}
+              role="menuitem"
+              aria-current={currentView === 'management' ? 'page' : undefined}
+              title="楽曲を管理・編集"
+            >
+              <ButtonIcon aria-hidden="true">📝</ButtonIcon>
+              <ButtonText>楽曲一覧</ButtonText>
+            </NavigationButton>
+          </NavigationItem>
+
+          <NavigationItem role="none">
+            <NavigationButton
+              onClick={handleOpenTagList}
+              $isActive={currentView === 'tag-list'}
+              role="menuitem"
+              aria-current={currentView === 'tag-list' ? 'page' : undefined}
+              title="タグ一覧を表示"
+            >
+              <ButtonIcon aria-hidden="true">🏷️</ButtonIcon>
+              <ButtonText>タグ一覧</ButtonText>
+            </NavigationButton>
+          </NavigationItem>
+
+          {/* Firebase接続テスト（開発環境のみ） */}
+          {import.meta.env.DEV && (
+            <NavigationItem role="none">
+              <NavigationButton
+                onClick={handleOpenFirebaseTest}
+                $isActive={currentView === 'firebase-test'}
+                role="menuitem"
+                aria-current={
+                  currentView === 'firebase-test' ? 'page' : undefined
+                }
+                title="Firebase接続をテスト"
+              >
+                <ButtonIcon aria-hidden="true">🔥</ButtonIcon>
+                <ButtonText>Firebase</ButtonText>
+              </NavigationButton>
+            </NavigationItem>
+          )}
+        </NavigationMenu>
+
+        {/* モバイル用オーバーレイ */}
+        {isMenuOpen && (
+          <MobileOverlay
+            onClick={handleToggleMenu}
+            className="mobile-only"
+            aria-hidden="true"
+          />
+        )}
+      </NavigationContainer>
+    )
+  }
+)
 
 // スタイル定義
 const NavigationContainer = styled.nav`
@@ -292,19 +336,21 @@ const MenuIcon = styled.div<{ $isOpen: boolean }>`
     transition: 0.25s ease-in-out;
 
     &:nth-child(1) {
-      top: ${props => props.$isOpen ? '7px' : '0px'};
-      transform: ${props => props.$isOpen ? 'rotate(135deg)' : 'rotate(0deg)'};
+      top: ${props => (props.$isOpen ? '7px' : '0px')};
+      transform: ${props =>
+        props.$isOpen ? 'rotate(135deg)' : 'rotate(0deg)'};
     }
 
     &:nth-child(2) {
       top: 7px;
-      opacity: ${props => props.$isOpen ? '0' : '1'};
-      left: ${props => props.$isOpen ? '-20px' : '0'};
+      opacity: ${props => (props.$isOpen ? '0' : '1')};
+      left: ${props => (props.$isOpen ? '-20px' : '0')};
     }
 
     &:nth-child(3) {
-      top: ${props => props.$isOpen ? '7px' : '14px'};
-      transform: ${props => props.$isOpen ? 'rotate(-135deg)' : 'rotate(0deg)'};
+      top: ${props => (props.$isOpen ? '7px' : '14px')};
+      transform: ${props =>
+        props.$isOpen ? 'rotate(-135deg)' : 'rotate(0deg)'};
     }
   }
 `
@@ -322,7 +368,11 @@ const NavigationMenu = styled.ul<{ $isOpen: boolean }>`
     top: 80px;
     right: 16px;
     flex-direction: column;
-    background: linear-gradient(135deg, rgba(255, 240, 248, 0.98), rgba(255, 228, 240, 0.95));
+    background: linear-gradient(
+      135deg,
+      rgba(255, 240, 248, 0.98),
+      rgba(255, 228, 240, 0.95)
+    );
     backdrop-filter: blur(15px);
     border: 2px solid var(--border-cute);
     border-radius: 16px;
@@ -330,10 +380,13 @@ const NavigationMenu = styled.ul<{ $isOpen: boolean }>`
     box-shadow: 0 12px 40px var(--shadow-strong);
     z-index: 1000;
     min-width: 200px;
-    
-    transform: ${props => props.$isOpen ? 'translateY(0) scale(1)' : 'translateY(-10px) scale(0.95)'};
-    opacity: ${props => props.$isOpen ? '1' : '0'};
-    visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
+
+    transform: ${props =>
+      props.$isOpen
+        ? 'translateY(0) scale(1)'
+        : 'translateY(-10px) scale(0.95)'};
+    opacity: ${props => (props.$isOpen ? '1' : '0')};
+    visibility: ${props => (props.$isOpen ? 'visible' : 'hidden')};
     transition: all 0.3s ease;
   }
 `
@@ -348,10 +401,10 @@ const NavigationItem = styled.li`
 `
 
 const NavigationButton = styled.button<{ $isActive: boolean }>`
-  background: ${props => props.$isActive 
-    ? 'linear-gradient(135deg, var(--bubble-rose), #dc143c)'
-    : 'linear-gradient(135deg, var(--bubble-pink), var(--bubble-rose))'
-  };
+  background: ${props =>
+    props.$isActive
+      ? 'linear-gradient(135deg, var(--bubble-rose), #dc143c)'
+      : 'linear-gradient(135deg, var(--bubble-pink), var(--bubble-rose))'};
   border: 2px solid white;
   border-radius: 20px;
   padding: 10px 16px;
@@ -363,10 +416,10 @@ const NavigationButton = styled.button<{ $isActive: boolean }>`
   display: flex;
   align-items: center;
   gap: 6px;
-  box-shadow: ${props => props.$isActive 
-    ? '0 4px 16px var(--shadow-strong), inset 0 2px 4px rgba(0,0,0,0.1)'
-    : '0 4px 12px var(--shadow-medium)'
-  };
+  box-shadow: ${props =>
+    props.$isActive
+      ? '0 4px 16px var(--shadow-strong), inset 0 2px 4px rgba(0,0,0,0.1)'
+      : '0 4px 12px var(--shadow-medium)'};
   text-transform: uppercase;
   letter-spacing: 0.3px;
   min-height: 40px;
@@ -376,10 +429,10 @@ const NavigationButton = styled.button<{ $isActive: boolean }>`
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 20px var(--shadow-strong);
-    background: ${props => props.$isActive 
-      ? 'linear-gradient(135deg, #dc143c, #b91c3c)'
-      : 'linear-gradient(135deg, var(--bubble-rose), #dc143c)'
-    };
+    background: ${props =>
+      props.$isActive
+        ? 'linear-gradient(135deg, #dc143c, #b91c3c)'
+        : 'linear-gradient(135deg, var(--bubble-rose), #dc143c)'};
   }
 
   &:active {
@@ -391,7 +444,9 @@ const NavigationButton = styled.button<{ $isActive: boolean }>`
     outline-offset: 2px;
   }
 
-  ${props => props.$isActive && `
+  ${props =>
+    props.$isActive &&
+    `
     &::after {
       content: '';
       position: absolute;
@@ -407,8 +462,12 @@ const NavigationButton = styled.button<{ $isActive: boolean }>`
   `}
 
   @keyframes activeGlow {
-    0% { opacity: 0.5; }
-    100% { opacity: 0.8; }
+    0% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 0.8;
+    }
   }
 
   @media (max-width: 768px) {
@@ -422,11 +481,17 @@ const NavigationButton = styled.button<{ $isActive: boolean }>`
 
 const ButtonIcon = styled.span`
   font-size: 16px;
-  animation: ${props => props.children === '🫧' ? 'float 3s ease-in-out infinite' : 'none'};
+  animation: ${props =>
+    props.children === '🫧' ? 'float 3s ease-in-out infinite' : 'none'};
 
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-3px); }
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-3px);
+    }
   }
 `
 

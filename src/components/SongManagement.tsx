@@ -44,6 +44,9 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState<'newest' | 'updated' | 'alphabetical'>(
+    'newest'
+  )
   const [editingSong, setEditingSong] = useState<Song | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
   const [showDetailView, setShowDetailView] = useState(false)
@@ -115,32 +118,60 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     loadSongs()
   }, [loadSongs])
 
-  const filteredSongs = useMemo(() => {
-    if (!searchQuery.trim()) {
-      return songs
+  const filteredAndSortedSongs = useMemo(() => {
+    // フィルタリング
+    let filtered = songs
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = songs.filter(
+        song =>
+          song.title.toLowerCase().includes(query) ||
+          song.lyricists.some(lyricist =>
+            lyricist.toLowerCase().includes(query)
+          ) ||
+          song.composers.some(composer =>
+            composer.toLowerCase().includes(query)
+          ) ||
+          song.arrangers.some(arranger =>
+            arranger.toLowerCase().includes(query)
+          ) ||
+          (song.tags &&
+            song.tags.some(tag => tag.toLowerCase().includes(query)))
+      )
     }
 
-    const query = searchQuery.toLowerCase()
-    return songs.filter(
-      song =>
-        song.title.toLowerCase().includes(query) ||
-        song.lyricists.some(lyricist =>
-          lyricist.toLowerCase().includes(query)
-        ) ||
-        song.composers.some(composer =>
-          composer.toLowerCase().includes(query)
-        ) ||
-        song.arrangers.some(arranger =>
-          arranger.toLowerCase().includes(query)
-        ) ||
-        (song.tags && song.tags.some(tag => tag.toLowerCase().includes(query)))
-    )
-  }, [songs, searchQuery])
+    // ソート
+    const sorted = [...filtered]
+    switch (sortBy) {
+      case 'newest':
+        // 新曲順（発売年の降順、発売年がない場合は最後）
+        sorted.sort((a, b) => {
+          const yearA = a.releaseYear ?? 0
+          const yearB = b.releaseYear ?? 0
+          return yearB - yearA
+        })
+        break
+      case 'updated':
+        // 更新順（createdAtの降順、updatedAtがないため）
+        sorted.sort((a, b) => {
+          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
+          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
+          return dateB - dateA
+        })
+        break
+      case 'alphabetical':
+        // アルファベット順（タイトルの昇順）
+        sorted.sort((a, b) => a.title.localeCompare(b.title, 'ja'))
+        break
+    }
+
+    return sorted
+  }, [songs, searchQuery, sortBy])
 
   // 表示用の制限されたリスト（パフォーマンス最適化）
   const displayedSongs = useMemo(() => {
-    return filteredSongs.slice(0, displayLimit)
-  }, [filteredSongs, displayLimit])
+    return filteredAndSortedSongs.slice(0, displayLimit)
+  }, [filteredAndSortedSongs, displayLimit])
 
   // もっと読み込むハンドラ
   const handleLoadMore = useCallback(() => {
@@ -362,44 +393,62 @@ export const SongManagement: React.FC<SongManagementProps> = ({
               </div>
             )}
 
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder="例)サブスク"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="search-input"
-                aria-label="楽曲検索"
-                autoComplete="off"
-                inputMode="search"
-              />
-              <span className="search-icon">🔍</span>
-            </div>
+            <div className="compact-controls">
+              {/* 1行目: 検索欄と登録ボタン */}
+              <div className="search-add-row">
+                <div className="search-container">
+                  <input
+                    type="text"
+                    placeholder="検索..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    className="search-input"
+                    aria-label="楽曲検索"
+                    autoComplete="off"
+                    inputMode="search"
+                  />
+                  <span className="search-icon">🔍</span>
+                </div>
 
-            <div className="stats-container">
-              <div className="stats">
-                <span className="stat-item">
-                  <span className="stat-label">総楽曲数:</span>
-                  <span className="stat-value">{songs.length}曲</span>
-                </span>
-                <span className="stat-item">
-                  <span className="stat-label">検索結果:</span>
-                  <span className="stat-value">{filteredSongs.length}曲</span>
+                <button
+                  onClick={handleAddNewSong}
+                  className="add-song-button-icon"
+                  aria-label="新しい楽曲を登録"
+                  title="新しい楽曲を登録"
+                >
+                  ➕
+                </button>
+              </div>
+
+              {/* 2行目: 統計情報 */}
+              <div className="stats-row">
+                <span className="stat-compact">
+                  全{songs.length}曲 / 表示{filteredAndSortedSongs.length}曲
                 </span>
               </div>
-              <button
-                onClick={handleAddNewSong}
-                className="add-song-button"
-                aria-label="新しい楽曲を登録"
-                title="新しい楽曲を登録"
-              >
-                <span className="add-icon">➕</span>
-                <span className="add-text">新規登録</span>
-              </button>
+
+              {/* 3行目: 並び替え */}
+              <div className="sort-row">
+                <select
+                  id="sort-select"
+                  value={sortBy}
+                  onChange={e =>
+                    setSortBy(
+                      e.target.value as 'newest' | 'updated' | 'alphabetical'
+                    )
+                  }
+                  className="sort-select-full"
+                  aria-label="楽曲の並び順を選択"
+                >
+                  <option value="newest">新曲順</option>
+                  <option value="updated">更新順</option>
+                  <option value="alphabetical">五十音順</option>
+                </select>
+              </div>
             </div>
 
             <div className="song-list">
-              {filteredSongs.length === 0 ? (
+              {filteredAndSortedSongs.length === 0 ? (
                 <div className="empty-state">
                   <div className="empty-icon">🎵</div>
                   <div className="empty-text">
@@ -479,7 +528,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                       </div>
                     </div>
                   ))}
-                  {displayedSongs.length < filteredSongs.length && (
+                  {displayedSongs.length < filteredAndSortedSongs.length && (
                     <div className="load-more-container">
                       <button
                         onClick={handleLoadMore}
@@ -489,7 +538,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                         <span className="load-more-icon">⬇️</span>
                         <span className="load-more-text">
                           さらに表示 ({displayedSongs.length} /{' '}
-                          {filteredSongs.length})
+                          {filteredAndSortedSongs.length})
                         </span>
                       </button>
                     </div>

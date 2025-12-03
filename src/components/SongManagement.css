@@ -104,29 +104,187 @@
   border-radius: 50%;
 }
 
-.search-container {
-  position: relative;
+/* コンパクトコントロール */
+.compact-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1;
+  margin-bottom: 12px;
+}
+
+/* 1行目: 検索欄と登録ボタン */
+.search-add-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* 2行目: 統計情報（小さめ） */
+.stats-row {
   display: flex;
   align-items: center;
-  z-index: 1;
-  background: linear-gradient(to bottom, #f5f5f5, #ebebeb);
-  padding: 16px;
-  border-radius: 12px;
-  margin-bottom: 8px;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.stats-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-compact {
+  font-size: 12px;
+  color: #888;
+  font-weight: 500;
+}
+
+/* 3行目: 並び替え */
+.sort-row {
+  display: flex;
+  align-items: center;
+}
+
+.sort-select-full {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #dda0dd;
+  border-radius: 8px;
+  background: white;
+  color: #5a5a5a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(221, 160, 221, 0.2);
+}
+
+.sort-select-full:hover {
+  border-color: #ba68c8;
+  box-shadow: 0 2px 6px rgba(221, 160, 221, 0.3);
+}
+
+.sort-select-full:focus {
+  outline: none;
+  border-color: #9c27b0;
+  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
+}
+
+/* 旧スタイル（後方互換性） */
+.search-sort-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.sort-select-compact {
+  padding: 10px 12px;
+  border: 2px solid #dda0dd;
+  border-radius: 8px;
+  background: white;
+  color: #5a5a5a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(221, 160, 221, 0.2);
+  white-space: nowrap;
+  min-width: 110px;
+}
+
+.sort-select-compact:hover {
+  border-color: #ba68c8;
+  box-shadow: 0 2px 6px rgba(221, 160, 221, 0.3);
+}
+
+.sort-select-compact:focus {
+  outline: none;
+  border-color: #9c27b0;
+  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
+}
+
+/* アイコンのみの新規登録ボタン */
+.add-song-button-icon {
+  background: linear-gradient(135deg, #98fb98, #90ee90);
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 10px;
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(152, 251, 152, 0.3);
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+}
+
+.add-song-button-icon:hover {
+  background: linear-gradient(135deg, #90ee90, #7cfc00);
+  transform: translateY(-1px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(152, 251, 152, 0.4);
+}
+
+.add-song-button-icon:active {
+  transform: translateY(0) scale(1);
+}
+
+/* 旧スタイル（後方互換性） */
+.add-song-button-compact {
+  background: linear-gradient(135deg, #98fb98, #90ee90);
+  border: 2px solid white;
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(152, 251, 152, 0.3);
+  white-space: nowrap;
+}
+
+.add-song-button-compact:hover {
+  background: linear-gradient(135deg, #90ee90, #7cfc00);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(152, 251, 152, 0.4);
+}
+
+.add-song-button-compact:active {
+  transform: translateY(0);
+}
+
+.stats-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.search-container {
+  position: relative;
+  flex: 1;
+  min-width: 0;
 }
 
 /* 検索入力欄のスタイル */
 .search-input {
   width: 100%;
-  padding: 14px 44px 14px 16px;
+  padding: 10px 36px 10px 12px;
   border: 2px solid #666;
-  border-radius: 10px;
-  font-size: 16px;
+  border-radius: 8px;
+  font-size: 15px;
   background: #ffffff;
   transition: all 0.2s ease;
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.15),
-    inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   color: #333;
   font-weight: 500;
 }
@@ -140,20 +298,68 @@
   outline: none;
   border-color: #4caf50;
   box-shadow:
-    0 0 0 4px rgba(76, 175, 80, 0.15),
-    0 2px 8px rgba(0, 0, 0, 0.2);
-  background: #fff;
+    0 0 0 3px rgba(76, 175, 80, 0.15),
+    0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* 虫眼鏡アイコン */
 .search-icon {
   position: absolute;
-  right: 30px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: #666;
   pointer-events: none;
-  font-size: 18px;
+  font-size: 16px;
+}
+
+.controls-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 1;
+}
+
+.sort-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  border: 1px solid #ffb6c1;
+}
+
+.sort-label {
+  font-size: 14px;
+  color: #5a5a5a;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.sort-select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid #dda0dd;
+  border-radius: 8px;
+  background: white;
+  color: #5a5a5a;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(221, 160, 221, 0.2);
+}
+
+.sort-select:hover {
+  border-color: #ba68c8;
+  box-shadow: 0 2px 6px rgba(221, 160, 221, 0.3);
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: #9c27b0;
+  box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
 }
 
 .stats-container {
@@ -697,7 +903,133 @@
   }
 }
 
+@media (max-width: 768px) {
+  .compact-controls {
+    gap: 6px;
+  }
+
+  .search-add-row {
+    gap: 6px;
+  }
+
+  .search-input {
+    font-size: 14px;
+    padding: 9px 32px 9px 10px;
+  }
+
+  .sort-select-full {
+    font-size: 13px;
+    padding: 9px 10px;
+  }
+
+  .add-song-button-icon {
+    font-size: 16px;
+    padding: 9px;
+    min-width: 42px;
+    min-height: 42px;
+  }
+
+  .stat-compact {
+    font-size: 11px;
+  }
+
+  .stats-row {
+    padding: 2px 0;
+  }
+
+  .search-sort-row {
+    gap: 6px;
+  }
+
+  .sort-select-compact {
+    font-size: 13px;
+    padding: 9px 10px;
+    min-width: 100px;
+  }
+
+  .add-song-button-compact {
+    font-size: 13px;
+    padding: 7px 14px;
+  }
+
+  .sort-container {
+    padding: 10px 12px;
+  }
+
+  .sort-select {
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+}
+
 @media (max-width: 480px) {
+  .search-add-row {
+    gap: 6px;
+  }
+
+  .search-input {
+    font-size: 14px;
+  }
+
+  .sort-select-full {
+    font-size: 13px;
+    padding: 9px 10px;
+  }
+
+  .add-song-button-icon {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 8px;
+    font-size: 16px;
+  }
+
+  .stat-compact {
+    font-size: 11px;
+  }
+
+  .search-sort-row {
+    gap: 6px;
+  }
+
+  .sort-select-compact {
+    min-width: 90px;
+    font-size: 12px;
+    padding: 9px 8px;
+  }
+
+  .stats-compact {
+    justify-content: center;
+  }
+
+  .stats-action-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .add-song-button-compact {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .controls-container {
+    gap: 8px;
+  }
+
+  .sort-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .sort-label {
+    font-size: 13px;
+  }
+
+  .sort-select {
+    width: 100%;
+  }
+
   .stats-container {
     flex-direction: column;
     gap: 8px;

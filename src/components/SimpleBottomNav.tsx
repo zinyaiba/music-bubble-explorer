@@ -12,21 +12,20 @@ export const SimpleBottomNav: React.FC<SimpleBottomNavProps> = ({
   currentView,
   onRegistrationClick,
   onManagementClick,
-  onTagListClick
+  onTagListClick,
 }) => {
-  
   const handleRegistrationClick = () => {
     console.log('🎵 SimpleBottomNav: Registration button clicked!')
     console.log('Current view:', currentView)
     onRegistrationClick()
   }
-  
+
   const handleManagementClick = () => {
     console.log('📝 SimpleBottomNav: Management button clicked!')
     console.log('Current view:', currentView)
     onManagementClick()
   }
-  
+
   const handleTagListClick = () => {
     console.log('🏷️ SimpleBottomNav: Tag list button clicked!')
     console.log('Current view:', currentView)
@@ -35,23 +34,23 @@ export const SimpleBottomNav: React.FC<SimpleBottomNavProps> = ({
 
   return (
     <BottomNavContainer>
-      <NavButton 
+      <NavButton
         onClick={handleRegistrationClick}
         $isActive={currentView === 'registration'}
       >
         <Icon>➕</Icon>
         <Label>楽曲登録</Label>
       </NavButton>
-      
-      <NavButton 
+
+      <NavButton
         onClick={handleManagementClick}
         $isActive={currentView === 'management'}
       >
         <Icon>📝</Icon>
-        <Label>楽曲管理</Label>
+        <Label>楽曲一覧</Label>
       </NavButton>
-      
-      <NavButton 
+
+      <NavButton
         onClick={handleTagListClick}
         $isActive={currentView === 'tag-list'}
       >
@@ -67,7 +66,11 @@ const BottomNavContainer = styled.div`
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.95), rgba(255, 105, 180, 0.95));
+  background: linear-gradient(
+    135deg,
+    rgba(255, 182, 193, 0.95),
+    rgba(255, 105, 180, 0.95)
+  );
   backdrop-filter: blur(15px);
   border-top: 3px solid rgba(255, 105, 180, 0.5);
   padding: 16px 20px 20px;
@@ -92,8 +95,13 @@ const BottomNavContainer = styled.div`
   }
 
   @keyframes pulse {
-    0%, 100% { opacity: 0.8; }
-    50% { opacity: 1; }
+    0%,
+    100% {
+      opacity: 0.8;
+    }
+    50% {
+      opacity: 1;
+    }
   }
 
   /* iPhone X以降の安全領域対応 */
@@ -103,11 +111,10 @@ const BottomNavContainer = styled.div`
 `
 
 const NavButton = styled.button<{ $isActive: boolean }>`
-  background: ${props => props.$isActive 
-    ? 'rgba(255, 255, 255, 0.95)' 
-    : 'rgba(255, 255, 255, 0.8)'
-  };
-  border: 2px solid ${props => props.$isActive ? '#ff69b4' : 'rgba(255, 255, 255, 0.9)'};
+  background: ${props =>
+    props.$isActive ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 0.8)'};
+  border: 2px solid
+    ${props => (props.$isActive ? '#ff69b4' : 'rgba(255, 255, 255, 0.9)')};
   padding: 12px 8px;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -119,10 +126,10 @@ const NavButton = styled.button<{ $isActive: boolean }>`
   min-width: 60px;
   border-radius: 16px;
   position: relative;
-  box-shadow: ${props => props.$isActive 
-    ? '0 4px 15px rgba(255, 105, 180, 0.4)' 
-    : '0 2px 8px rgba(0, 0, 0, 0.1)'
-  };
+  box-shadow: ${props =>
+    props.$isActive
+      ? '0 4px 15px rgba(255, 105, 180, 0.4)'
+      : '0 2px 8px rgba(0, 0, 0, 0.1)'};
 
   &:hover {
     background: rgba(255, 255, 255, 0.95);
@@ -134,7 +141,9 @@ const NavButton = styled.button<{ $isActive: boolean }>`
     transform: translateY(0);
   }
 
-  ${props => props.$isActive && `
+  ${props =>
+    props.$isActive &&
+    `
     &::after {
       content: '';
       position: absolute;
@@ -157,12 +166,12 @@ const NavButton = styled.button<{ $isActive: boolean }>`
 
 const Icon = styled.span`
   font-size: 24px;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
 `
 
 const Label = styled.span`
   font-size: 11px;
   font-weight: 600;
   color: #555;
-  text-shadow: 0 1px 1px rgba(255,255,255,0.5);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
 `

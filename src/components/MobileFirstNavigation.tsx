@@ -219,7 +219,7 @@ export const MobileFirstNavigation: React.FC<MobileFirstNavigationProps> =
         },
         {
           id: 'song-management',
-          label: '楽曲管理',
+          label: '楽曲一覧',
           icon: '📝',
           view: 'management',
           isActive:
