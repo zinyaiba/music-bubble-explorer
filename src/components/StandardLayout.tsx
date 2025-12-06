@@ -6,6 +6,7 @@ interface StandardLayoutProps {
   isVisible: boolean
   onClose: () => void
   title: string
+  description?: string // ヘッダータイトルの下に表示する説明文
   children: React.ReactNode
   className?: string
   size?: 'compact' | 'standard' | 'large'
@@ -26,6 +27,7 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
   isVisible,
   onClose,
   title,
+  description,
   children,
   className = '',
   size = 'standard',
@@ -228,22 +230,40 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
                       minHeight: '48px',
                     }}
                   >
-                    <h2
-                      id="standard-layout-title"
-                      className="standard-layout-integrated-title"
+                    <div
                       style={{
-                        margin: 0,
-                        fontSize: '18px',
-                        fontWeight: 'bold',
-                        color: '#e06666',
                         flex: '1 1 auto',
                         minWidth: 0,
                         paddingRight: '12px',
-                        lineHeight: '1.2',
                       }}
                     >
-                      {title}
-                    </h2>
+                      <h2
+                        id="standard-layout-title"
+                        className="standard-layout-integrated-title"
+                        style={{
+                          margin: 0,
+                          fontSize: '18px',
+                          fontWeight: 'bold',
+                          color: '#e06666',
+                          lineHeight: '1.2',
+                        }}
+                      >
+                        {title}
+                      </h2>
+                      {description && (
+                        <p
+                          className="standard-layout-integrated-description"
+                          style={{
+                            margin: '4px 0 0 0',
+                            fontSize: '13px',
+                            color: '#666',
+                            lineHeight: '1.4',
+                          }}
+                        >
+                          {description}
+                        </p>
+                      )}
+                    </div>
 
                     {/* ヘッダーアクション */}
                     <div

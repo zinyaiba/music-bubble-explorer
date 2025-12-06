@@ -345,7 +345,8 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     <StandardLayout
       isVisible={isVisible}
       onClose={onClose}
-      title="📝 楽曲編集"
+      title="🎵 楽曲一覧"
+      description="曲をタップすると詳細情報も見れるよ"
       size="large"
       mobileOptimized={true}
       className={showEditForm || showDetailView ? 'hide-header-on-mobile' : ''}
@@ -399,7 +400,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                 <div className="search-container">
                   <input
                     type="text"
-                    placeholder="検索..."
+                    placeholder="検索はこちら（例：サブスク）"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     className="search-input"
