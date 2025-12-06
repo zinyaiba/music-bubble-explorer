@@ -6,6 +6,7 @@ import { SongRegistrationForm } from './SongRegistrationForm'
 import { SongDetailView } from './SongDetailView'
 import { StandardLayout } from './StandardLayout'
 import { UnifiedDialogLayout } from './UnifiedDialogLayout'
+import { sortSongs, SongSortType } from '@/utils/songSorting'
 import './SongManagement.css'
 
 interface SongManagementProps {
@@ -44,9 +45,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [sortBy, setSortBy] = useState<'newest' | 'updated' | 'alphabetical'>(
-    'newest'
-  )
+  const [sortBy, setSortBy] = useState<SongSortType>('newest')
   const [editingSong, setEditingSong] = useState<Song | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
   const [showDetailView, setShowDetailView] = useState(false)
@@ -146,44 +145,8 @@ export const SongManagement: React.FC<SongManagementProps> = ({
       )
     }
 
-    // ソート
-    const sorted = [...filtered]
-    switch (sortBy) {
-      case 'newest':
-        // 新曲順（発売年・月日の降順、発売年がない場合は最後）
-        sorted.sort((a, b) => {
-          const yearA = a.releaseYear ?? 0
-          const yearB = b.releaseYear ?? 0
-
-          // 年が異なる場合は年で比較
-          if (yearA !== yearB) {
-            return yearB - yearA
-          }
-
-          // 年が同じ場合は月日で比較（MMDD形式またはMM-DD形式）
-          const dateA = a.releaseDate || '0000'
-          const dateB = b.releaseDate || '0000'
-          // ハイフンを削除して比較（後方互換性）
-          const normalizedDateA = dateA.replace('-', '')
-          const normalizedDateB = dateB.replace('-', '')
-          return normalizedDateB.localeCompare(normalizedDateA)
-        })
-        break
-      case 'updated':
-        // 更新順（createdAtの降順、updatedAtがないため）
-        sorted.sort((a, b) => {
-          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
-          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0
-          return dateB - dateA
-        })
-        break
-      case 'alphabetical':
-        // アルファベット順（タイトルの昇順）
-        sorted.sort((a, b) => a.title.localeCompare(b.title, 'ja'))
-        break
-    }
-
-    return sorted
+    // 共通の並び替え関数を使用
+    return sortSongs(filtered, sortBy)
   }, [songs, searchQuery, sortBy])
 
   // 表示用の制限されたリスト（パフォーマンス最適化）
@@ -454,11 +417,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                 <select
                   id="sort-select"
                   value={sortBy}
-                  onChange={e =>
-                    setSortBy(
-                      e.target.value as 'newest' | 'updated' | 'alphabetical'
-                    )
-                  }
+                  onChange={e => setSortBy(e.target.value as SongSortType)}
                   className="sort-select-full"
                   aria-label="楽曲の並び順を選択"
                 >

@@ -4,6 +4,7 @@ import { useGlassmorphismTheme } from './GlassmorphismThemeProvider'
 import { Song } from '@/types/music'
 import { MusicDataService } from '@/services/musicDataService'
 import { DataManager } from '@/services/dataManager'
+import { sortSongs, SongSortType } from '@/utils/songSorting'
 import '@/styles/tagRegistrationOptimization.css'
 
 // Animation keyframes
@@ -148,6 +149,45 @@ const SearchStats = styled.div<{
   /* Responsive adjustments */
   @media (max-width: 768px) {
     font-size: 13px;
+  }
+`
+
+const SortSelect = styled.select<{
+  $theme: any
+}>`
+  /* Glassmorphism select styling */
+  background: ${props => props.$theme.colors.glass.light};
+  backdrop-filter: ${props => props.$theme.effects.blur.light};
+  -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
+  border: ${props => props.$theme.effects.borders.glass};
+  border-radius: 12px;
+
+  /* Layout */
+  padding: 10px 16px;
+  width: 100%;
+
+  /* Typography */
+  font-family: ${props => props.$theme.typography.fontFamily};
+  font-size: 14px;
+  font-weight: ${props => props.$theme.typography.fontWeights.medium};
+  color: ${props => props.$theme.colors.text.primary};
+
+  /* Focus styles */
+  &:focus {
+    outline: none;
+    border: 2px solid ${props => props.$theme.colors.accent};
+    background: ${props => props.$theme.colors.glass.medium};
+    box-shadow: ${props => props.$theme.effects.shadows.medium};
+  }
+
+  /* Transitions */
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    padding: 8px 12px;
+    font-size: 14px;
+    border-radius: 10px;
   }
 `
 
@@ -486,6 +526,7 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
   // Local state for songs and search
   const [songs, setSongs] = useState<Song[]>([])
   const [searchTerm, setSearchTerm] = useState(propSearchTerm)
+  const [sortBy, setSortBy] = useState<SongSortType>('newest')
   const [isLoading, setIsLoading] = useState(false)
 
   // 仮想スクロール用のstate
@@ -541,29 +582,32 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
     [onSearchChange]
   )
 
-  // Filter songs based on search term
+  // Filter and sort songs based on search term and sort order
   const filteredSongs = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return songs
+    // フィルタリング
+    let filtered = songs
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase()
+      filtered = songs.filter(
+        song =>
+          song.title.toLowerCase().includes(searchLower) ||
+          song.lyricists.some(lyricist =>
+            lyricist.toLowerCase().includes(searchLower)
+          ) ||
+          song.composers.some(composer =>
+            composer.toLowerCase().includes(searchLower)
+          ) ||
+          song.arrangers.some(arranger =>
+            arranger.toLowerCase().includes(searchLower)
+          ) ||
+          (song.tags &&
+            song.tags.some(tag => tag.toLowerCase().includes(searchLower)))
+      )
     }
 
-    const searchLower = searchTerm.toLowerCase()
-    return songs.filter(
-      song =>
-        song.title.toLowerCase().includes(searchLower) ||
-        song.lyricists.some(lyricist =>
-          lyricist.toLowerCase().includes(searchLower)
-        ) ||
-        song.composers.some(composer =>
-          composer.toLowerCase().includes(searchLower)
-        ) ||
-        song.arrangers.some(arranger =>
-          arranger.toLowerCase().includes(searchLower)
-        ) ||
-        (song.tags &&
-          song.tags.some(tag => tag.toLowerCase().includes(searchLower)))
-    )
-  }, [songs, searchTerm])
+    // 共通の並び替え関数を使用
+    return sortSongs(filtered, sortBy)
+  }, [songs, searchTerm, sortBy])
 
   // 仮想スクロール: 表示する楽曲のみを抽出
   const visibleSongs = useMemo(() => {
@@ -616,13 +660,13 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
     }
   }, [handleScroll])
 
-  // 検索条件が変わったら表示範囲をリセット
+  // 検索条件や並び順が変わったら表示範囲をリセット
   useEffect(() => {
     setVisibleRange({ start: 0, end: 20 })
     if (containerRef.current) {
       containerRef.current.scrollTop = 0
     }
-  }, [searchTerm, songs])
+  }, [searchTerm, sortBy, songs])
 
   // Handle song selection
   const handleSongSelect = useCallback(
@@ -701,6 +745,18 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
           placeholder="楽曲名、アーティスト、タグで検索..."
           aria-label="楽曲を検索"
         />
+
+        {/* Sort Select */}
+        <SortSelect
+          $theme={theme}
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value as SongSortType)}
+          aria-label="楽曲の並び順を選択"
+        >
+          <option value="newest">新曲順</option>
+          <option value="updated">更新順</option>
+          <option value="alphabetical">五十音順</option>
+        </SortSelect>
 
         {/* Search Statistics */}
         <SearchStats $theme={theme}>
