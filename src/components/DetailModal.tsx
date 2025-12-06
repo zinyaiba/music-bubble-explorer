@@ -354,6 +354,7 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
         isVisible={!!selectedBubble}
         onClose={onClose}
         title={title}
+        description="タップすると関連情報を次々に辿れるよ！"
         size="standard"
         mobileOptimized={true}
         className="detail-modal-overlay"
