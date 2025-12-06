@@ -59,6 +59,8 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   const [isDeleting, setIsDeleting] = useState(false)
   const [displayLimit, setDisplayLimit] = useState(50) // 初期表示数を50に制限
   const [isClosingDetail, setIsClosingDetail] = useState(false) // 詳細画面を閉じる処理中
+  const [isClosingEditForm, setIsClosingEditForm] = useState(false) // 編集フォームを閉じる処理中
+  const [isLoadingEditForm, setIsLoadingEditForm] = useState(false) // 編集フォームを開く処理中
 
   const loadSongs = useCallback(async () => {
     setIsLoading(true)
@@ -206,8 +208,18 @@ export const SongManagement: React.FC<SongManagementProps> = ({
         height: window.innerHeight,
       },
     })
+    // ローディング表示を即座に開始
+    setIsLoadingEditForm(true)
     setEditingSong(song)
-    setShowEditForm(true)
+
+    // 次のフレームで編集フォームを表示（ローディングアニメーションが見えるように）
+    requestAnimationFrame(() => {
+      setShowEditForm(true)
+      // 少し遅延してローディングを終了（アニメーションが見えるように）
+      setTimeout(() => {
+        setIsLoadingEditForm(false)
+      }, 100)
+    })
   }, [])
 
   const handleCloseDetailView = useCallback(() => {
@@ -233,10 +245,18 @@ export const SongManagement: React.FC<SongManagementProps> = ({
 
   const handleCloseEditForm = useCallback(() => {
     console.log('🔙 Closing edit form and parent song management')
+    // ローディング表示を開始
+    setIsClosingEditForm(true)
+
     setEditingSong(null)
     setShowEditForm(false)
     // 編集フォームを閉じる時に、楽曲編集画面も閉じてトップ画面に戻る
     onClose()
+
+    // ローディング表示を終了
+    setTimeout(() => {
+      setIsClosingEditForm(false)
+    }, 100)
   }, [onClose])
 
   const handleSongUpdated = useCallback(
@@ -543,11 +563,18 @@ export const SongManagement: React.FC<SongManagementProps> = ({
               />
             )}
 
-            {(isLoadingDetail || isClosingDetail) && (
+            {(isLoadingDetail ||
+              isClosingDetail ||
+              isClosingEditForm ||
+              isLoadingEditForm) && (
               <div className="detail-loading-overlay">
                 <div className="detail-loading-spinner"></div>
                 <p className="detail-loading-text">
-                  {isClosingDetail ? '閉じています...' : '読み込み中...'}
+                  {isClosingDetail || isClosingEditForm
+                    ? '閉じています...'
+                    : isLoadingEditForm
+                      ? '編集画面を開いています...'
+                      : '読み込み中...'}
                 </p>
               </div>
             )}

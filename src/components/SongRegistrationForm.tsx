@@ -465,9 +465,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
       isVisible={isVisible}
       onClose={onClose}
       title={isEditMode ? '✏️ 編集中' : '🎵 楽曲登録'}
-      description={
-        isEditMode ? '分かる範囲で埋めていただけたらと思います' : undefined
-      }
+      description={isEditMode ? '助かります！ありがとうございます' : undefined}
       size="standard"
       mobileOptimized={true}
     >
