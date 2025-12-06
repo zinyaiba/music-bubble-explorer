@@ -58,6 +58,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     })
   const [isDeleting, setIsDeleting] = useState(false)
   const [displayLimit, setDisplayLimit] = useState(50) // 初期表示数を50に制限
+  const [isClosingDetail, setIsClosingDetail] = useState(false) // 詳細画面を閉じる処理中
 
   const loadSongs = useCallback(async () => {
     setIsLoading(true)
@@ -210,6 +211,9 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   }, [])
 
   const handleCloseDetailView = useCallback(() => {
+    // ローディング表示を開始
+    setIsClosingDetail(true)
+
     // 詳細画面を閉じる
     setShowDetailView(false)
     setIsLoadingDetail(false)
@@ -222,6 +226,8 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     // 次のフレームで再度開くリクエストを送る
     requestAnimationFrame(() => {
       onRequestReopen?.()
+      // ローディング表示を終了
+      setIsClosingDetail(false)
     })
   }, [onClose, onRequestReopen])
 
@@ -537,10 +543,12 @@ export const SongManagement: React.FC<SongManagementProps> = ({
               />
             )}
 
-            {isLoadingDetail && (
+            {(isLoadingDetail || isClosingDetail) && (
               <div className="detail-loading-overlay">
                 <div className="detail-loading-spinner"></div>
-                <p className="detail-loading-text">読み込み中...</p>
+                <p className="detail-loading-text">
+                  {isClosingDetail ? '閉じています...' : '読み込み中...'}
+                </p>
               </div>
             )}
 
