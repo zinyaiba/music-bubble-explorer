@@ -92,6 +92,11 @@ export class AnalyticsService {
       category?: string
     }
   ) {
+    // ブラウザの言語設定から地域情報を取得
+    const userLanguage = navigator.language || 'ja-JP'
+    const userTimezone =
+      Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Tokyo'
+
     this.logCustomEvent('楽曲登録', {
       楽曲名: songTitle,
       アーティスト: songData?.artist || '未設定',
@@ -101,6 +106,8 @@ export class AnalyticsService {
       タグ数: songData?.tags?.length || 0,
       タグ一覧: songData?.tags?.join(', ') || 'なし',
       カテゴリ: songData?.category || '未設定',
+      ユーザー言語: userLanguage,
+      タイムゾーン: userTimezone,
     })
   }
 

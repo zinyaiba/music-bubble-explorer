@@ -22,6 +22,8 @@
 - `タグ数`: 登録されたタグの数
 - `タグ一覧`: タグ名のリスト（カンマ区切り）
 - `カテゴリ`: 発売年代（例: "2024年代"）
+- `ユーザー言語`: ユーザーのブラウザ言語設定（例: "ja-JP", "en-US"）
+- `タイムゾーン`: ユーザーのタイムゾーン（例: "Asia/Tokyo", "America/New_York"）
 
 **実装場所**: `src/components/SongRegistrationForm.tsx`
 
@@ -142,6 +144,82 @@ analyticsService.logTagRegistration('バラード', {
    - セッション開始
 
 5. 各イベントをクリックすると、パラメータの詳細が確認できます
+
+## 地域別の楽曲登録データを確認する方法
+
+### 方法1: Firebase Analyticsコンソール（推奨・簡単）
+
+1. **Firebase Console** → あなたのプロジェクト → **Analytics** → **イベント**
+2. 「楽曲登録」イベントをクリック
+3. 画面右上の「ディメンションを追加」をクリック
+4. 以下のディメンションを選択：
+   - **国**: ユーザーの国を表示
+   - **地域**: ユーザーの地域（都道府県レベル）を表示
+   - **市区町村**: より詳細な地域情報
+5. パラメータで「楽曲名」を選択すると、地域別にどの楽曲が登録されたか確認できます
+
+### 方法2: カスタムレポート作成
+
+1. **Analytics** → **探索**（Explorations）
+2. 「空白」テンプレートを選択
+3. ディメンションに以下を追加：
+   - 国
+   - 地域
+   - イベント名
+   - 楽曲名（カスタムパラメータ）
+   - タイムゾーン（カスタムパラメータ）
+4. 指標に「イベント数」を追加
+5. フィルタで「イベント名 = 楽曲登録」を設定
+
+### 方法3: BigQueryで詳細分析（高度）
+
+より詳細な分析が必要な場合、BigQueryにエクスポートして分析できます：
+
+1. **Firebase Console** → **プロジェクト設定** → **統合** → **BigQuery**
+2. 「リンク」をクリックしてBigQueryを有効化
+3. BigQueryコンソールで以下のようなSQLクエリを実行：
+
+```sql
+-- 地域別・楽曲別の登録数を集計
+SELECT
+  geo.country AS 国,
+  geo.region AS 地域,
+  geo.city AS 市区町村,
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = '楽曲名') AS 楽曲名,
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'アーティスト') AS アーティスト,
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'タイムゾーン') AS タイムゾーン,
+  COUNT(*) as 登録回数
+FROM
+  `your-project-id.analytics_XXXXX.events_*`
+WHERE
+  event_name = '楽曲登録'
+  AND _TABLE_SUFFIX BETWEEN '20241201' AND '20241231'
+GROUP BY
+  国, 地域, 市区町村, 楽曲名, アーティスト, タイムゾーン
+ORDER BY
+  登録回数 DESC
+LIMIT 100;
+```
+
+```sql
+-- 国別の人気楽曲トップ10
+SELECT
+  geo.country AS 国,
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = '楽曲名') AS 楽曲名,
+  (SELECT value.string_value FROM UNNEST(event_params) WHERE key = 'アーティスト') AS アーティスト,
+  COUNT(*) as 登録回数
+FROM
+  `your-project-id.analytics_XXXXX.events_*`
+WHERE
+  event_name = '楽曲登録'
+  AND _TABLE_SUFFIX BETWEEN FORMAT_DATE('%Y%m%d', DATE_SUB(CURRENT_DATE(), INTERVAL 30 DAY)) 
+  AND FORMAT_DATE('%Y%m%d', CURRENT_DATE())
+GROUP BY
+  国, 楽曲名, アーティスト
+ORDER BY
+  国, 登録回数 DESC
+LIMIT 10;
+```
 
 ## カスタムレポートの作成
 
