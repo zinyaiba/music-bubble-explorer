@@ -123,8 +123,23 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   }, [])
 
   useEffect(() => {
-    loadSongs()
-  }, [loadSongs])
+    if (isVisible) {
+      loadSongs()
+    }
+  }, [loadSongs, isVisible])
+
+  // コンポーネントがアンマウントされる時に状態をクリーンアップ
+  useEffect(() => {
+    return () => {
+      setEditingSong(null)
+      setShowEditForm(false)
+      setShowDetailView(false)
+      setIsClosingEditForm(false)
+      setIsClosingDetail(false)
+      setIsLoadingEditForm(false)
+      setIsLoadingDetail(false)
+    }
+  }, [])
 
   const filteredAndSortedSongs = useMemo(() => {
     // フィルタリング
@@ -248,14 +263,13 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     // ローディング表示を開始
     setIsClosingEditForm(true)
 
-    setEditingSong(null)
-    setShowEditForm(false)
-
-    // 即座に閉じる（遅延なし）
+    // 即座にTOP画面に戻る（楽曲一覧を再表示しない）
     onClose()
 
-    // 次のフレームでローディングをリセット
+    // 次のフレームで状態をクリーンアップ
     requestAnimationFrame(() => {
+      setEditingSong(null)
+      setShowEditForm(false)
       setIsClosingEditForm(false)
     })
   }, [onClose])
