@@ -18,6 +18,7 @@ export interface Song {
   // 拡張フィールド
   artists?: string[] // アーティスト名（複数対応）
   releaseYear?: number // 発売年（4桁の数値）
+  releaseDate?: string // 発売日（月日、MMDD形式、例: 0315）
   singleName?: string // 収録シングル名
   albumName?: string // 収録アルバム名
   musicServiceEmbed?: string // 音楽サービス埋め込みコード（Spotify、Apple Music、YouTube等のiframe）

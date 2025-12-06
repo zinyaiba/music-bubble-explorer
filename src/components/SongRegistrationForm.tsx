@@ -8,6 +8,7 @@ import { DetailUrlList } from './DetailUrlList'
 import {
   validateTextLength,
   validateReleaseYear,
+  validateReleaseDate,
   validateArtists,
   validateDetailPageUrls,
   parseCommaSeparated,
@@ -33,6 +34,7 @@ interface SongFormData {
   // 拡張フィールド
   artists: string // カンマ区切り文字列
   releaseYear: string // 入力時は文字列、保存時に数値に変換
+  releaseDate: string // 発売日（月日、MMDD形式、例: 0315）
   singleName: string
   albumName: string
   musicServiceEmbed: string // 音楽サービス埋め込みコード（Spotify、Apple Music、YouTube等のiframe）
@@ -47,6 +49,7 @@ interface FormErrors {
   // tags?: string // タグエラーは専用画面で処理
   artists?: string
   releaseYear?: string
+  releaseDate?: string
   singleName?: string
   albumName?: string
   musicServiceEmbed?: string
@@ -74,6 +77,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
     // 拡張フィールド
     artists: '',
     releaseYear: '',
+    releaseDate: '',
     singleName: '',
     albumName: '',
     musicServiceEmbed: '',
@@ -109,6 +113,11 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
           )
         : []
 
+      console.log('📝 Loading song for editing:', {
+        songId: editingSong.id,
+        releaseDate: editingSong.releaseDate,
+      })
+
       setFormData({
         title: editingSong.title,
         lyricists: editingSong.lyricists.join(', '),
@@ -118,10 +127,15 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
         // 拡張フィールド
         artists: formatCommaSeparated(editingSong.artists || []),
         releaseYear: editingSong.releaseYear?.toString() || '',
+        releaseDate: editingSong.releaseDate || '',
         singleName: editingSong.singleName || '',
         albumName: editingSong.albumName || '',
         musicServiceEmbed: editingSong.musicServiceEmbed || '',
         detailPageUrls,
+      })
+
+      console.log('📝 Form data set:', {
+        releaseDate: editingSong.releaseDate || '',
       })
     }
   }, [editingSong])
@@ -225,6 +239,12 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
       newErrors.releaseYear = releaseYearValidation.error
     }
 
+    // 発売日（月日）のバリデーション
+    const releaseDateValidation = validateReleaseDate(formData.releaseDate)
+    if (!releaseDateValidation.isValid) {
+      newErrors.releaseDate = releaseDateValidation.error
+    }
+
     // Requirement 11.3: 収録シングル名の文字数制限
     const singleNameValidation = validateTextLength(formData.singleName, 200)
     if (!singleNameValidation.isValid) {
@@ -309,6 +329,8 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
         const releaseYearNum = formData.releaseYear.trim()
           ? parseInt(formData.releaseYear, 10)
           : undefined
+        // MMDD形式でDB保存（ハイフンなし）
+        const releaseDateStr = formData.releaseDate.trim() || undefined
 
         // 楽曲詳細ページURLから空の値を除外し、undefinedフィールドをクリーンアップ
         const detailPageUrlsFiltered = formData.detailPageUrls
@@ -333,6 +355,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             // 拡張フィールド
             artists: artistsArray.length > 0 ? artistsArray : undefined,
             releaseYear: releaseYearNum,
+            releaseDate: releaseDateStr,
             singleName: formData.singleName.trim() || undefined,
             albumName: formData.albumName.trim() || undefined,
             // 空文字列の場合は明示的にundefinedを設定（Firebaseから削除）
@@ -364,6 +387,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             // 拡張フィールド
             artists: artistsArray.length > 0 ? artistsArray : undefined,
             releaseYear: releaseYearNum,
+            releaseDate: releaseDateStr,
             singleName: formData.singleName.trim() || undefined,
             albumName: formData.albumName.trim() || undefined,
             // 空文字列の場合は明示的にundefinedを設定
@@ -561,6 +585,27 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             {errors.releaseYear && (
               <div className="error-message">{errors.releaseYear}</div>
             )}
+          </div>
+
+          {/* 発売日（月日）入力 */}
+          <div className="form-group">
+            <label htmlFor="releaseDate">発売日（月日）</label>
+            <input
+              id="releaseDate"
+              type="text"
+              value={formData.releaseDate}
+              onChange={e => handleInputChange('releaseDate', e.target.value)}
+              placeholder="例: 0315"
+              className={errors.releaseDate ? 'error' : ''}
+              maxLength={4}
+              inputMode="numeric"
+            />
+            {errors.releaseDate && (
+              <div className="error-message">{errors.releaseDate}</div>
+            )}
+            <div className="help-text">
+              MMDD形式で入力してください（例: 0315は3月15日）
+            </div>
           </div>
 
           {/* Requirement 11.1-11.3: 収録シングル名入力 */}

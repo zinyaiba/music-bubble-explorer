@@ -102,6 +102,12 @@ export const SongManagement: React.FC<SongManagementProps> = ({
         loadedSongs = DataManager.loadSongs()
       }
 
+      console.log('🎵 Loaded songs:', {
+        count: loadedSongs.length,
+        firstSong: loadedSongs[0],
+        songsWithReleaseDate: loadedSongs.filter(s => s.releaseDate).length,
+      })
+
       setSongs(loadedSongs)
     } catch (err) {
       const errorMessage =
@@ -144,11 +150,23 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     const sorted = [...filtered]
     switch (sortBy) {
       case 'newest':
-        // 新曲順（発売年の降順、発売年がない場合は最後）
+        // 新曲順（発売年・月日の降順、発売年がない場合は最後）
         sorted.sort((a, b) => {
           const yearA = a.releaseYear ?? 0
           const yearB = b.releaseYear ?? 0
-          return yearB - yearA
+
+          // 年が異なる場合は年で比較
+          if (yearA !== yearB) {
+            return yearB - yearA
+          }
+
+          // 年が同じ場合は月日で比較（MMDD形式またはMM-DD形式）
+          const dateA = a.releaseDate || '0000'
+          const dateB = b.releaseDate || '0000'
+          // ハイフンを削除して比較（後方互換性）
+          const normalizedDateA = dateA.replace('-', '')
+          const normalizedDateB = dateB.replace('-', '')
+          return normalizedDateB.localeCompare(normalizedDateA)
         })
         break
       case 'updated':
@@ -216,6 +234,9 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     console.log('✏️ Opening edit form for song:', {
       songId: song.id,
       songTitle: song.title,
+      releaseDate: song.releaseDate,
+      releaseYear: song.releaseYear,
+      fullSong: song,
       viewport: {
         width: window.innerWidth,
         height: window.innerHeight,

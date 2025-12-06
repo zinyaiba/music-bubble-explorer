@@ -97,6 +97,48 @@ export function validateReleaseYear(yearStr: string): ValidationResult {
 }
 
 /**
+ * 発売日（月日）のバリデーション
+ * MMDD形式（ハイフンなし）で入力を受け付ける
+ */
+export function validateReleaseDate(dateStr: string): ValidationResult {
+  if (!dateStr || dateStr.trim() === '') {
+    return { isValid: true } // 空の場合は有効（オプショナルフィールド）
+  }
+
+  // MMDD形式のチェック（4桁の数字）
+  const datePattern = /^(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])$/
+  if (!datePattern.test(dateStr)) {
+    return {
+      isValid: false,
+      error: 'MMDD形式で入力してください（例: 0315は3月15日）',
+    }
+  }
+
+  // 月と日を取得
+  const month = parseInt(dateStr.substring(0, 2), 10)
+  const day = parseInt(dateStr.substring(2, 4), 10)
+
+  // 月の妥当性チェック
+  if (month < 1 || month > 12) {
+    return {
+      isValid: false,
+      error: '月は01から12の範囲で入力してください',
+    }
+  }
+
+  // 日の妥当性チェック（簡易版：各月の最大日数）
+  const daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+  if (day < 1 || day > daysInMonth[month - 1]) {
+    return {
+      isValid: false,
+      error: `${month}月は01から${daysInMonth[month - 1]}の範囲で入力してください`,
+    }
+  }
+
+  return { isValid: true }
+}
+
+/**
  * アーティスト名のバリデーション（カンマ区切り対応）
  */
 export function validateArtists(artistsStr: string): ValidationResult {

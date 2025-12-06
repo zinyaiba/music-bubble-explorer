@@ -107,14 +107,37 @@ export const SongDetailView: React.FC<SongDetailViewProps> = ({
   // 発売年の表示
   // Requirement 5.1: 発売年を4桁の数値形式で表示
   const renderReleaseYear = () => {
-    if (!song?.releaseYear) {
+    if (!song?.releaseYear && !song?.releaseDate) {
       return null
+    }
+
+    // 発売日（月日）を日本語形式に変換（MMDD形式から）
+    const formatReleaseDate = (dateStr: string) => {
+      if (!dateStr) return ''
+
+      // MMDD形式の場合（標準）
+      if (dateStr.length === 4 && !dateStr.includes('-')) {
+        const month = parseInt(dateStr.substring(0, 2), 10)
+        const day = parseInt(dateStr.substring(2, 4), 10)
+        return `${month}月${day}日`
+      }
+
+      // MM-DD形式の場合（後方互換性）
+      if (dateStr.includes('-')) {
+        const [month, day] = dateStr.split('-').map(num => parseInt(num, 10))
+        return `${month}月${day}日`
+      }
+
+      return dateStr
     }
 
     return (
       <div className="detail-row">
-        <span className="detail-label">発売年:</span>
-        <span className="detail-value">{song.releaseYear}年</span>
+        <span className="detail-label">発売日:</span>
+        <span className="detail-value">
+          {song.releaseYear && `${song.releaseYear}年`}
+          {song.releaseDate && formatReleaseDate(song.releaseDate)}
+        </span>
       </div>
     )
   }
