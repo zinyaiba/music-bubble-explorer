@@ -67,8 +67,6 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
   isVisible,
   editingSong,
 }) => {
-  const [isClosing, setIsClosing] = useState(false) // 閉じる処理中のフラグ
-
   // Form state
   const [formData, setFormData] = useState<SongFormData>({
     title: '',
@@ -464,261 +462,246 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
 
   // 閉じる処理のラッパー
   const handleClose = useCallback(() => {
-    setIsClosing(true)
-    // 次のフレームでローディング表示をレンダリングしてから閉じる
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        onClose()
-        setIsClosing(false)
-      })
-    })
+    // シンプルに閉じる
+    onClose()
   }, [onClose])
 
   return (
-    <>
-      {isClosing && (
-        <div className="detail-loading-overlay" style={{ zIndex: 10001 }}>
-          <div className="detail-loading-spinner"></div>
-          <p className="detail-loading-text">閉じています...</p>
-        </div>
-      )}
-      <StandardLayout
-        isVisible={isVisible}
-        onClose={handleClose}
-        title={isEditMode ? '✏️ 編集中' : '🎵 楽曲登録'}
-        description={
-          isEditMode ? '助かります！ありがとうございます' : undefined
-        }
-        size="standard"
-        mobileOptimized={true}
-      >
-        {isSuccess ? (
-          <div className="success-message">
-            <div className="success-icon">✨</div>
-            <div className="success-text">
-              楽曲が正常に{isEditMode ? '更新' : '登録'}されました！
-            </div>
-            <div className="success-subtext">シャボン玉に反映されます</div>
+    <StandardLayout
+      isVisible={isVisible}
+      onClose={handleClose}
+      title={isEditMode ? '✏️ 編集中' : '🎵 楽曲登録'}
+      description={isEditMode ? '助かります！ありがとうございます' : undefined}
+      size="standard"
+      mobileOptimized={true}
+    >
+      {isSuccess ? (
+        <div className="success-message">
+          <div className="success-icon">✨</div>
+          <div className="success-text">
+            楽曲が正常に{isEditMode ? '更新' : '登録'}されました！
           </div>
-        ) : (
-          <form
-            ref={formRef}
-            onSubmit={handleSubmit}
-            className={`song-form ${editingSong ? 'song-form--editing' : 'song-form--registration'}`}
-            noValidate
-          >
-            <div className="form-group">
-              <label htmlFor="title" className="required">
-                楽曲名
-              </label>
-              <input
-                ref={titleInputRef}
-                id="title"
-                type="text"
-                value={formData.title}
-                onChange={e => handleInputChange('title', e.target.value)}
-                placeholder="楽曲名を入力してください"
-                className={errors.title ? 'error' : ''}
-                maxLength={100}
-                required
-              />
-              {errors.title && (
-                <div className="error-message">{errors.title}</div>
-              )}
-            </div>
+          <div className="success-subtext">シャボン玉に反映されます</div>
+        </div>
+      ) : (
+        <form
+          ref={formRef}
+          onSubmit={handleSubmit}
+          className={`song-form ${editingSong ? 'song-form--editing' : 'song-form--registration'}`}
+          noValidate
+        >
+          <div className="form-group">
+            <label htmlFor="title" className="required">
+              楽曲名
+            </label>
+            <input
+              ref={titleInputRef}
+              id="title"
+              type="text"
+              value={formData.title}
+              onChange={e => handleInputChange('title', e.target.value)}
+              placeholder="楽曲名を入力してください"
+              className={errors.title ? 'error' : ''}
+              maxLength={100}
+              required
+            />
+            {errors.title && (
+              <div className="error-message">{errors.title}</div>
+            )}
+          </div>
 
-            {/* 拡張フィールド */}
-            {/* Requirement 9.1-9.4: アーティスト名入力 */}
-            <div className="form-group">
-              <label htmlFor="artists">アーティスト</label>
-              <input
-                id="artists"
-                type="text"
-                value={formData.artists}
-                onChange={e => handleInputChange('artists', e.target.value)}
-                placeholder="アーティスト名を入力（複数の場合はカンマ区切り）"
-                className={errors.artists ? 'error' : ''}
-                maxLength={200}
-              />
-              {errors.artists && (
-                <div className="error-message">{errors.artists}</div>
-              )}
-            </div>
+          {/* 拡張フィールド */}
+          {/* Requirement 9.1-9.4: アーティスト名入力 */}
+          <div className="form-group">
+            <label htmlFor="artists">アーティスト</label>
+            <input
+              id="artists"
+              type="text"
+              value={formData.artists}
+              onChange={e => handleInputChange('artists', e.target.value)}
+              placeholder="アーティスト名を入力（複数の場合はカンマ区切り）"
+              className={errors.artists ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.artists && (
+              <div className="error-message">{errors.artists}</div>
+            )}
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="lyricists">作詞家</label>
-              <input
-                id="lyricists"
-                type="text"
-                value={formData.lyricists}
-                onChange={e => handleInputChange('lyricists', e.target.value)}
-                placeholder="作詞家名を入力（複数の場合はカンマ区切り）"
-                className={errors.lyricists ? 'error' : ''}
-                maxLength={200}
-              />
-              {errors.lyricists && (
-                <div className="error-message">{errors.lyricists}</div>
-              )}
-            </div>
+          <div className="form-group">
+            <label htmlFor="lyricists">作詞家</label>
+            <input
+              id="lyricists"
+              type="text"
+              value={formData.lyricists}
+              onChange={e => handleInputChange('lyricists', e.target.value)}
+              placeholder="作詞家名を入力（複数の場合はカンマ区切り）"
+              className={errors.lyricists ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.lyricists && (
+              <div className="error-message">{errors.lyricists}</div>
+            )}
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="composers">作曲</label>
-              <input
-                id="composers"
-                type="text"
-                value={formData.composers}
-                onChange={e => handleInputChange('composers', e.target.value)}
-                placeholder="作曲家名を入力（複数の場合はカンマ区切り）"
-                className={errors.composers ? 'error' : ''}
-                maxLength={200}
-              />
-              {errors.composers && (
-                <div className="error-message">{errors.composers}</div>
-              )}
-            </div>
+          <div className="form-group">
+            <label htmlFor="composers">作曲</label>
+            <input
+              id="composers"
+              type="text"
+              value={formData.composers}
+              onChange={e => handleInputChange('composers', e.target.value)}
+              placeholder="作曲家名を入力（複数の場合はカンマ区切り）"
+              className={errors.composers ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.composers && (
+              <div className="error-message">{errors.composers}</div>
+            )}
+          </div>
 
-            <div className="form-group">
-              <label htmlFor="arrangers">編曲家</label>
-              <input
-                id="arrangers"
-                type="text"
-                value={formData.arrangers}
-                onChange={e => handleInputChange('arrangers', e.target.value)}
-                placeholder="編曲家名を入力（複数の場合はカンマ区切り）"
-                className={errors.arrangers ? 'error' : ''}
-                maxLength={200}
-              />
-              {errors.arrangers && (
-                <div className="error-message">{errors.arrangers}</div>
-              )}
-            </div>
+          <div className="form-group">
+            <label htmlFor="arrangers">編曲家</label>
+            <input
+              id="arrangers"
+              type="text"
+              value={formData.arrangers}
+              onChange={e => handleInputChange('arrangers', e.target.value)}
+              placeholder="編曲家名を入力（複数の場合はカンマ区切り）"
+              className={errors.arrangers ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.arrangers && (
+              <div className="error-message">{errors.arrangers}</div>
+            )}
+          </div>
 
-            {/* Requirement 10.1-10.4: 発売年入力 */}
-            <div className="form-group">
-              <label htmlFor="releaseYear">発売年</label>
-              <input
-                id="releaseYear"
-                type="number"
-                value={formData.releaseYear}
-                onChange={e => handleInputChange('releaseYear', e.target.value)}
-                placeholder="例: 2024"
-                className={errors.releaseYear ? 'error' : ''}
-                min={1000}
-                max={9999}
-              />
-              {errors.releaseYear && (
-                <div className="error-message">{errors.releaseYear}</div>
-              )}
-            </div>
+          {/* Requirement 10.1-10.4: 発売年入力 */}
+          <div className="form-group">
+            <label htmlFor="releaseYear">発売年</label>
+            <input
+              id="releaseYear"
+              type="number"
+              value={formData.releaseYear}
+              onChange={e => handleInputChange('releaseYear', e.target.value)}
+              placeholder="例: 2024"
+              className={errors.releaseYear ? 'error' : ''}
+              min={1000}
+              max={9999}
+            />
+            {errors.releaseYear && (
+              <div className="error-message">{errors.releaseYear}</div>
+            )}
+          </div>
 
-            {/* 発売日（月日）入力 */}
-            <div className="form-group">
-              <label htmlFor="releaseDate">発売日（月日）</label>
-              <input
-                id="releaseDate"
-                type="text"
-                value={formData.releaseDate}
-                onChange={e => handleInputChange('releaseDate', e.target.value)}
-                placeholder="例: 0315"
-                className={errors.releaseDate ? 'error' : ''}
-                maxLength={4}
-                inputMode="numeric"
-              />
-              {errors.releaseDate && (
-                <div className="error-message">{errors.releaseDate}</div>
-              )}
-              {/* <div className="help-text">
+          {/* 発売日（月日）入力 */}
+          <div className="form-group">
+            <label htmlFor="releaseDate">発売日（月日）</label>
+            <input
+              id="releaseDate"
+              type="text"
+              value={formData.releaseDate}
+              onChange={e => handleInputChange('releaseDate', e.target.value)}
+              placeholder="例: 0315"
+              className={errors.releaseDate ? 'error' : ''}
+              maxLength={4}
+              inputMode="numeric"
+            />
+            {errors.releaseDate && (
+              <div className="error-message">{errors.releaseDate}</div>
+            )}
+            {/* <div className="help-text">
               MMDD形式で入力してください（例: 0315は3月15日）
             </div> */}
-            </div>
+          </div>
 
-            {/* Requirement 11.1-11.3: 収録シングル名入力 */}
-            <div className="form-group">
-              <label htmlFor="singleName">収録シングル</label>
-              <input
-                id="singleName"
-                type="text"
-                value={formData.singleName}
-                onChange={e => handleInputChange('singleName', e.target.value)}
-                placeholder="収録シングル名を入力"
-                className={errors.singleName ? 'error' : ''}
-                maxLength={200}
-              />
-              {errors.singleName && (
-                <div className="error-message">{errors.singleName}</div>
-              )}
-            </div>
+          {/* Requirement 11.1-11.3: 収録シングル名入力 */}
+          <div className="form-group">
+            <label htmlFor="singleName">収録シングル</label>
+            <input
+              id="singleName"
+              type="text"
+              value={formData.singleName}
+              onChange={e => handleInputChange('singleName', e.target.value)}
+              placeholder="収録シングル名を入力"
+              className={errors.singleName ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.singleName && (
+              <div className="error-message">{errors.singleName}</div>
+            )}
+          </div>
 
-            {/* Requirement 12.1-12.3: 収録アルバム名入力 */}
-            <div className="form-group">
-              <label htmlFor="albumName">収録アルバム</label>
-              <input
-                id="albumName"
-                type="text"
-                value={formData.albumName}
-                onChange={e => handleInputChange('albumName', e.target.value)}
-                placeholder="収録アルバム名を入力"
-                className={errors.albumName ? 'error' : ''}
-                maxLength={200}
-              />
-              {errors.albumName && (
-                <div className="error-message">{errors.albumName}</div>
-              )}
-            </div>
+          {/* Requirement 12.1-12.3: 収録アルバム名入力 */}
+          <div className="form-group">
+            <label htmlFor="albumName">収録アルバム</label>
+            <input
+              id="albumName"
+              type="text"
+              value={formData.albumName}
+              onChange={e => handleInputChange('albumName', e.target.value)}
+              placeholder="収録アルバム名を入力"
+              className={errors.albumName ? 'error' : ''}
+              maxLength={200}
+            />
+            {errors.albumName && (
+              <div className="error-message">{errors.albumName}</div>
+            )}
+          </div>
 
-            {/* Requirement 14.1-14.7: 関連外部サイトURL入力リスト */}
+          {/* Requirement 14.1-14.7: 関連外部サイトURL入力リスト */}
+          <div
+            className="form-group detail-urls-group"
+            style={{
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              marginTop: '2rem',
+            }}
+          >
+            <label htmlFor="detailPageUrls">関連外部サイトURL</label>
+            <DetailUrlList
+              urls={formData.detailPageUrls}
+              onChange={handleDetailUrlsChange}
+              maxUrls={10}
+              disabled={isSubmitting}
+            />
+            {errors.detailPageUrls && (
+              <div className="error-message">{errors.detailPageUrls}</div>
+            )}
+          </div>
+
+          {/* 音楽サービス埋め込みコード入力（最下部に移動） */}
+          <div className="form-group music-service-embed-group">
+            <label htmlFor="musicServiceEmbed">
+              音楽サービス埋め込みコード
+            </label>
             <div
-              className="form-group detail-urls-group"
-              style={{
-                flexDirection: 'column',
-                alignItems: 'flex-start',
-                marginTop: '2rem',
-              }}
+              className="help-text"
+              style={{ position: 'relative', marginBottom: '8px' }}
             >
-              <label htmlFor="detailPageUrls">関連外部サイトURL</label>
-              <DetailUrlList
-                urls={formData.detailPageUrls}
-                onChange={handleDetailUrlsChange}
-                maxUrls={10}
-                disabled={isSubmitting}
-              />
-              {errors.detailPageUrls && (
-                <div className="error-message">{errors.detailPageUrls}</div>
-              )}
+              サブスクサービスの埋め込みコードを入力してください
+              <br />
+              •「共有」→「埋め込みコード」※PC用サイトのみ
             </div>
+            <textarea
+              id="musicServiceEmbed"
+              value={formData.musicServiceEmbed}
+              onChange={e =>
+                handleInputChange('musicServiceEmbed', e.target.value)
+              }
+              placeholder='Spotify: <iframe src="https://open.spotify.com/embed/track/..." ...></iframe>&#10;Apple Music: <iframe src="https://embed.music.apple.com/..." ...></iframe>&#10;YouTube: <iframe src="https://www.youtube.com/embed/..." ...></iframe>'
+              className={errors.musicServiceEmbed ? 'error' : ''}
+              maxLength={2000}
+              rows={4}
+              style={{ fontFamily: 'monospace', fontSize: '0.9em' }}
+            />
+            {errors.musicServiceEmbed && (
+              <div className="error-message">{errors.musicServiceEmbed}</div>
+            )}
+          </div>
 
-            {/* 音楽サービス埋め込みコード入力（最下部に移動） */}
-            <div className="form-group music-service-embed-group">
-              <label htmlFor="musicServiceEmbed">
-                音楽サービス埋め込みコード
-              </label>
-              <div
-                className="help-text"
-                style={{ position: 'relative', marginBottom: '8px' }}
-              >
-                サブスクサービスの埋め込みコードを入力してください
-                <br />
-                •「共有」→「埋め込みコード」※PC用サイトのみ
-              </div>
-              <textarea
-                id="musicServiceEmbed"
-                value={formData.musicServiceEmbed}
-                onChange={e =>
-                  handleInputChange('musicServiceEmbed', e.target.value)
-                }
-                placeholder='Spotify: <iframe src="https://open.spotify.com/embed/track/..." ...></iframe>&#10;Apple Music: <iframe src="https://embed.music.apple.com/..." ...></iframe>&#10;YouTube: <iframe src="https://www.youtube.com/embed/..." ...></iframe>'
-                className={errors.musicServiceEmbed ? 'error' : ''}
-                maxLength={2000}
-                rows={4}
-                style={{ fontFamily: 'monospace', fontSize: '0.9em' }}
-              />
-              {errors.musicServiceEmbed && (
-                <div className="error-message">{errors.musicServiceEmbed}</div>
-              )}
-            </div>
-
-            {/* タグ入力機能は専用のタグ登録画面からのみ利用可能 */}
-            {/* 
+          {/* タグ入力機能は専用のタグ登録画面からのみ利用可能 */}
+          {/* 
       <div className="form-group">
         <label htmlFor="tags">タグ</label>
         <TagInput
@@ -739,32 +722,31 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
       </div>
       */}
 
-            {errors.general && (
-              <div className="general-error">{errors.general}</div>
-            )}
+          {errors.general && (
+            <div className="general-error">{errors.general}</div>
+          )}
 
-            <div className="button-group">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="primary-button"
-              >
-                {isSubmitting ? (
-                  <>
-                    <span className="loading-spinner"></span>
-                    {isEditMode ? '更新中...' : '登録中...'}
-                  </>
-                ) : isEditMode ? (
-                  '楽曲を更新'
-                ) : (
-                  '楽曲を登録'
-                )}
-              </button>
-            </div>
-          </form>
-        )}
-      </StandardLayout>
-    </>
+          <div className="button-group">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="primary-button"
+            >
+              {isSubmitting ? (
+                <>
+                  <span className="loading-spinner"></span>
+                  {isEditMode ? '更新中...' : '登録中...'}
+                </>
+              ) : isEditMode ? (
+                '楽曲を更新'
+              ) : (
+                '楽曲を登録'
+              )}
+            </button>
+          </div>
+        </form>
+      )}
+    </StandardLayout>
   )
 }
 
