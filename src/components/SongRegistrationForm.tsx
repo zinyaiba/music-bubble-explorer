@@ -464,13 +464,11 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
 
   // 閉じる処理のラッパー
   const handleClose = useCallback(() => {
-    console.log('🔙 SongRegistrationForm: Close button clicked')
     setIsClosing(true)
-    // 即座に閉じる（遅延なし）
+    // 次のフレームでローディング表示をレンダリングしてから閉じる
     requestAnimationFrame(() => {
-      onClose()
-      // 次のフレームでローディングを終了
       requestAnimationFrame(() => {
+        onClose()
         setIsClosing(false)
       })
     })
@@ -479,23 +477,7 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
   return (
     <>
       {isClosing && (
-        <div
-          className="detail-loading-overlay"
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 99999,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'all',
-          }}
-        >
+        <div className="detail-loading-overlay" style={{ zIndex: 10001 }}>
           <div className="detail-loading-spinner"></div>
           <p className="detail-loading-text">閉じています...</p>
         </div>

@@ -59,6 +59,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   const [isDeleting, setIsDeleting] = useState(false)
   const [displayLimit, setDisplayLimit] = useState(50) // 初期表示数を50に制限
   const [isClosingDetail, setIsClosingDetail] = useState(false) // 詳細画面を閉じる処理中
+  const [isClosingEditForm, setIsClosingEditForm] = useState(false) // 編集フォームを閉じる処理中
   const [isLoadingEditForm, setIsLoadingEditForm] = useState(false) // 編集フォームを開く処理中
 
   const loadSongs = useCallback(async () => {
@@ -243,12 +244,21 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   }, [onClose, onRequestReopen])
 
   const handleCloseEditForm = useCallback(() => {
-    console.log('🔙 Closing edit form only (keeping song management open)')
-    // 編集フォームだけを閉じる（楽曲管理画面は開いたまま）
+    console.log('🔙 Closing edit form and parent song management')
+    // ローディング表示を開始
+    setIsClosingEditForm(true)
+
     setEditingSong(null)
     setShowEditForm(false)
-    // ローディング表示は不要（編集フォーム内で処理）
-  }, [])
+
+    // 即座に閉じる（遅延なし）
+    onClose()
+
+    // 次のフレームでローディングをリセット
+    requestAnimationFrame(() => {
+      setIsClosingEditForm(false)
+    })
+  }, [onClose])
 
   const handleSongUpdated = useCallback(
     async (updatedSong: Song) => {
@@ -554,11 +564,14 @@ export const SongManagement: React.FC<SongManagementProps> = ({
               />
             )}
 
-            {(isLoadingDetail || isClosingDetail || isLoadingEditForm) && (
+            {(isLoadingDetail ||
+              isClosingDetail ||
+              isClosingEditForm ||
+              isLoadingEditForm) && (
               <div className="detail-loading-overlay">
                 <div className="detail-loading-spinner"></div>
                 <p className="detail-loading-text">
-                  {isClosingDetail
+                  {isClosingDetail || isClosingEditForm
                     ? '閉じています...'
                     : isLoadingEditForm
                       ? '編集画面を開いています...'
