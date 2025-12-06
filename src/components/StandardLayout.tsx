@@ -96,6 +96,13 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
    */
   useEffect(() => {
     if (isVisible) {
+      // 背景のスクロールを無効化
+      const scrollY = window.scrollY
+      document.body.style.position = 'fixed'
+      document.body.style.top = `-${scrollY}px`
+      document.body.style.width = '100%'
+      document.body.style.overflow = 'hidden'
+
       document.addEventListener('keydown', handleKeyDown)
 
       // スマホ実機のヘッダー固定対応
@@ -140,6 +147,14 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
         document.removeEventListener('keydown', handleKeyDown)
         window.removeEventListener('resize', updatePadding)
         window.removeEventListener('orientationchange', updatePadding)
+
+        // 背景のスクロールを復元
+        const scrollY = document.body.style.top
+        document.body.style.position = ''
+        document.body.style.top = ''
+        document.body.style.width = ''
+        document.body.style.overflow = ''
+        window.scrollTo(0, parseInt(scrollY || '0') * -1)
       }
     }
   }, [isVisible, handleKeyDown])
