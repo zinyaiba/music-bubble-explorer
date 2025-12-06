@@ -250,13 +250,14 @@ export const SongManagement: React.FC<SongManagementProps> = ({
 
     setEditingSong(null)
     setShowEditForm(false)
-    // 編集フォームを閉じる時に、楽曲編集画面も閉じてトップ画面に戻る
-    onClose()
 
-    // ローディング表示を終了
+    // ローディング表示が見えるように少し遅延してから閉じる
     setTimeout(() => {
+      // 編集フォームを閉じる時に、楽曲編集画面も閉じてトップ画面に戻る
+      onClose()
+      // ローディング表示を終了
       setIsClosingEditForm(false)
-    }, 100)
+    }, 300)
   }, [onClose])
 
   const handleSongUpdated = useCallback(
