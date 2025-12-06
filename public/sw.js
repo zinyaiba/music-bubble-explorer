@@ -1,5 +1,5 @@
 // アプリバージョン - package.jsonと同期させること
-const APP_VERSION = '1.0.1';
+const APP_VERSION = '1.0.2';
 const CACHE_NAME = `music-bubble-explorer-v${APP_VERSION}`;
 const BASE_PATH = self.location.pathname.replace(/\/[^\/]*$/, '');
 const STATIC_CACHE_URLS = [
@@ -61,7 +61,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// フェッチイベントの処理（キャッシュファーストストラテジー）
+// フェッチイベントの処理（Network Firstストラテジー - キャッシュバスティング優先）
 self.addEventListener('fetch', (event) => {
   // GET リクエストのみ処理
   if (event.request.method !== 'GET') {
@@ -73,52 +73,76 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        // キャッシュにある場合はそれを返す
-        if (cachedResponse) {
-          console.log('Service Worker: Serving from cache', event.request.url);
-          return cachedResponse;
-        }
+  // HTMLファイルとJSファイルは常にネットワークから取得（キャッシュバスティング）
+  const isNavigationRequest = event.request.mode === 'navigate' || 
+                              event.request.destination === 'document' ||
+                              event.request.url.match(/\.(html|js|css)$/);
 
-        // キャッシュにない場合はネットワークから取得
-        console.log('Service Worker: Fetching from network', event.request.url);
-        return fetch(event.request)
-          .then((response) => {
-            // レスポンスが有効でない場合はそのまま返す
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // レスポンスをクローンしてキャッシュに保存
+  if (isNavigationRequest) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          // レスポンスが有効な場合はキャッシュを更新
+          if (response && response.status === 200) {
             const responseToCache = response.clone();
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                // 静的リソースのみキャッシュ
-                if (event.request.url.match(/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/)) {
-                  cache.put(event.request, responseToCache);
-                }
-              });
-
-            return response;
-          })
-          .catch((error) => {
-            console.error('Service Worker: Fetch failed', error);
-            
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch((error) => {
+          console.error('Service Worker: Network fetch failed, falling back to cache', error);
+          // ネットワークエラー時のみキャッシュから返す
+          return caches.match(event.request).then((cachedResponse) => {
+            if (cachedResponse) {
+              return cachedResponse;
+            }
             // オフライン時のフォールバック
             if (event.request.destination === 'document') {
               return caches.match(BASE_PATH + '/index.html') || caches.match(BASE_PATH + '/');
             }
-            
-            // その他のリソースの場合は空のレスポンスを返す
             return new Response('', {
               status: 408,
               statusText: 'Request Timeout'
             });
           });
-      })
-  );
+        })
+    );
+  } else {
+    // 画像やフォントなどの静的リソースはキャッシュファースト
+    event.respondWith(
+      caches.match(event.request)
+        .then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+
+          return fetch(event.request)
+            .then((response) => {
+              if (!response || response.status !== 200 || response.type !== 'basic') {
+                return response;
+              }
+
+              const responseToCache = response.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                if (event.request.url.match(/\.(png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico)$/)) {
+                  cache.put(event.request, responseToCache);
+                }
+              });
+
+              return response;
+            })
+            .catch((error) => {
+              console.error('Service Worker: Fetch failed', error);
+              return new Response('', {
+                status: 408,
+                statusText: 'Request Timeout'
+              });
+            });
+        })
+    );
+  }
 });
 
 // バックグラウンド同期（将来の拡張用）

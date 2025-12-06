@@ -4,7 +4,19 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'html-transform',
+      transformIndexHtml(html) {
+        // ビルド時にタイムスタンプを挿入してキャッシュバスティング
+        return html.replace(
+          '<%= new Date().getTime() %>',
+          new Date().getTime().toString()
+        )
+      },
+    },
+  ],
   // GitHub Pages base URL - ensure this matches your repository name
   base: process.env.NODE_ENV === 'production' ? '/music-bubble-explorer/' : '/',
   server: {
