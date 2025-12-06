@@ -219,6 +219,7 @@
   justify-content: center;
   flex-shrink: 0;
   touch-action: manipulation;
+  position: relative;
 
   /* パフォーマンス最適化 */
   will-change: transform, background;
@@ -235,6 +236,19 @@
 .standard-layout-close:active {
   transform: translateY(0) translateZ(0);
   transition: all 0.1s ease;
+  color: transparent; /* ×マークを非表示 */
+}
+
+/* 閉じるボタンを押している間だけローディングスピナーを表示 */
+.standard-layout-close:active::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(224, 102, 102, 0.2);
+  border-top-color: rgba(224, 102, 102, 0.8);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
 }
 
 .standard-layout-close:focus {
@@ -678,6 +692,7 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
   justify-content: center;
   flex-shrink: 0;
   touch-action: manipulation;
+  position: relative;
 
   /* パフォーマンス最適化 */
   will-change: transform, background;
@@ -694,6 +709,28 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
 .standard-layout-integrated-close:active {
   transform: translateY(0) translateZ(0);
   transition: all 0.1s ease;
+  color: transparent; /* ×マークを非表示 */
+}
+
+/* 閉じるボタンを押している間だけローディングスピナーを表示 */
+.standard-layout-integrated-close:active::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(224, 102, 102, 0.2);
+  border-top-color: rgba(224, 102, 102, 0.8);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .standard-layout-integrated-close:focus {
