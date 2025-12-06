@@ -464,7 +464,10 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
     <StandardLayout
       isVisible={isVisible}
       onClose={onClose}
-      title={isEditMode ? '編集中' : '🎵 楽曲登録'}
+      title={isEditMode ? '✏️ 編集中' : '🎵 楽曲登録'}
+      description={
+        isEditMode ? '分かる範囲で埋めていただけたらと思います' : undefined
+      }
       size="standard"
       mobileOptimized={true}
     >
@@ -603,9 +606,9 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             {errors.releaseDate && (
               <div className="error-message">{errors.releaseDate}</div>
             )}
-            <div className="help-text">
+            {/* <div className="help-text">
               MMDD形式で入力してください（例: 0315は3月15日）
-            </div>
+            </div> */}
           </div>
 
           {/* Requirement 11.1-11.3: 収録シングル名入力 */}
@@ -642,44 +645,6 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             )}
           </div>
 
-          {/* 音楽サービス埋め込みコード入力とプレビュー */}
-          <div className="form-group">
-            <label htmlFor="musicServiceEmbed">
-              音楽サービス埋め込みコード
-            </label>
-            <textarea
-              id="musicServiceEmbed"
-              value={formData.musicServiceEmbed}
-              onChange={e =>
-                handleInputChange('musicServiceEmbed', e.target.value)
-              }
-              placeholder='Spotify: <iframe src="https://open.spotify.com/embed/track/..." ...></iframe>&#10;Apple Music: <iframe src="https://embed.music.apple.com/..." ...></iframe>&#10;YouTube: <iframe src="https://www.youtube.com/embed/..." ...></iframe>'
-              className={errors.musicServiceEmbed ? 'error' : ''}
-              maxLength={2000}
-              rows={4}
-              style={{ fontFamily: 'monospace', fontSize: '0.9em' }}
-            />
-            {errors.musicServiceEmbed && (
-              <div className="error-message">{errors.musicServiceEmbed}</div>
-            )}
-            <div className="help-text">
-              サブスクサービスの埋め込みコードを入力してください
-              <br />
-              •「共有」→「埋め込みコード」
-            </div>
-          </div>
-
-          {/* 音楽サービス埋め込みプレビュー */}
-          {formData.musicServiceEmbed.trim() && !errors.musicServiceEmbed && (
-            <div className="form-group">
-              <label>プレビュー</label>
-              <div
-                style={{ flex: 1 }}
-                dangerouslySetInnerHTML={{ __html: formData.musicServiceEmbed }}
-              />
-            </div>
-          )}
-
           {/* Requirement 14.1-14.7: 関連外部サイトURL入力リスト */}
           <div
             className="form-group detail-urls-group"
@@ -698,6 +663,36 @@ export const SongRegistrationForm: React.FC<SongRegistrationFormProps> = ({
             />
             {errors.detailPageUrls && (
               <div className="error-message">{errors.detailPageUrls}</div>
+            )}
+          </div>
+
+          {/* 音楽サービス埋め込みコード入力（最下部に移動） */}
+          <div className="form-group music-service-embed-group">
+            <label htmlFor="musicServiceEmbed">
+              音楽サービス埋め込みコード
+            </label>
+            <div
+              className="help-text"
+              style={{ position: 'relative', marginBottom: '8px' }}
+            >
+              サブスクサービスの埋め込みコードを入力してください
+              <br />
+              •「共有」→「埋め込みコード」※PC用サイトのみ
+            </div>
+            <textarea
+              id="musicServiceEmbed"
+              value={formData.musicServiceEmbed}
+              onChange={e =>
+                handleInputChange('musicServiceEmbed', e.target.value)
+              }
+              placeholder='Spotify: <iframe src="https://open.spotify.com/embed/track/..." ...></iframe>&#10;Apple Music: <iframe src="https://embed.music.apple.com/..." ...></iframe>&#10;YouTube: <iframe src="https://www.youtube.com/embed/..." ...></iframe>'
+              className={errors.musicServiceEmbed ? 'error' : ''}
+              maxLength={2000}
+              rows={4}
+              style={{ fontFamily: 'monospace', fontSize: '0.9em' }}
+            />
+            {errors.musicServiceEmbed && (
+              <div className="error-message">{errors.musicServiceEmbed}</div>
             )}
           </div>
 

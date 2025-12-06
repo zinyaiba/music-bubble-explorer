@@ -139,7 +139,7 @@ export const MusicServiceEmbedList: React.FC<MusicServiceEmbedListProps> = ({
           <div className="help-text">
             サブスクサービスの埋め込みコードを入力してください
             <br />
-            •「共有」→「埋め込みコード」
+            •「共有」→「埋め込みコード」※PC用サイトのみ
           </div>
           <button
             type="button"

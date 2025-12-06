@@ -292,7 +292,10 @@ form.song-form.song-form--editing .form-group select:focus {
   display: flex;
   gap: 12px;
   justify-content: center;
-  margin-top: 4px;
+  margin-top: 24px;
+  margin-bottom: 80px; /* フッタに隠れないよう下部に余白を追加 */
+  padding-top: 16px;
+  border-top: 2px solid rgba(255, 182, 193, 0.2);
   position: relative;
   z-index: 1;
 }
@@ -343,10 +346,15 @@ form.song-form.song-form--editing .form-group select:focus {
 }
 
 .primary-button {
-  background: linear-gradient(135deg, #ffb6c1 0%, #98fb98 100%);
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+  border: 3px solid white;
   color: white;
-  box-shadow: 0 4px 15px rgba(255, 182, 193, 0.3);
+  box-shadow:
+    0 6px 20px rgba(255, 20, 147, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 1rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .primary-button::before {
@@ -355,12 +363,18 @@ form.song-form.song-form--editing .form-group select:focus {
 }
 
 .primary-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ff1493 0%, #dc143c 100%);
   transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 8px 25px rgba(255, 182, 193, 0.4);
+  box-shadow:
+    0 10px 30px rgba(255, 20, 147, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .primary-button:active:not(:disabled) {
   transform: translateY(-1px) scale(1.02);
+  box-shadow:
+    0 6px 20px rgba(255, 20, 147, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .loading-spinner {
@@ -483,9 +497,18 @@ form.song-form.song-form--editing .form-group select:focus {
     z-index: 10;
   }
 
+  /* 音楽サービス埋め込みグループのヘルプテキストは例外 */
+  .music-service-embed-group .help-text {
+    position: relative !important;
+    top: auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+  }
+
   .button-group {
     gap: 8px;
     margin-top: 4px;
+    margin-bottom: 100px; /* モバイルでもフッタに隠れないよう余白を追加 */
     justify-content: stretch;
   }
 
@@ -579,6 +602,7 @@ form.song-form.song-form--editing .form-group select:focus {
   .button-group {
     flex-direction: column-reverse;
     gap: 6px;
+    margin-bottom: 120px; /* 小画面でもフッタに隠れないよう余白を追加 */
   }
 
   .button-group button {
@@ -593,6 +617,16 @@ form.song-form.song-form--editing .form-group select:focus {
   margin-bottom: 2rem !important;
   padding-bottom: 1rem !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+.music-service-embed-group .help-text {
+  position: relative !important;
+  left: 0 !important;
+  top: auto !important;
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
 }
 
 .detail-urls-group {
@@ -605,6 +639,17 @@ form.song-form--editing .music-service-embed-group,
 form.song-form.song-form--editing .music-service-embed-group {
   margin-bottom: 2rem !important;
   padding-bottom: 1rem !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+form.song-form--editing .music-service-embed-group .help-text,
+form.song-form.song-form--editing .music-service-embed-group .help-text {
+  position: relative !important;
+  left: 0 !important;
+  top: auto !important;
+  margin-top: 0 !important;
+  margin-bottom: 8px !important;
 }
 
 form.song-form--editing .detail-urls-group,
