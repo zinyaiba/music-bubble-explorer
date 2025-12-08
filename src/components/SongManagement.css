@@ -302,6 +302,38 @@
     0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* クリアボタン */
+.search-clear-button {
+  position: absolute;
+  right: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 105, 180, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #ff69b4;
+  font-size: 12px;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.search-clear-button:hover {
+  background: rgba(255, 105, 180, 0.2);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.search-clear-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
 /* 虫眼鏡アイコン */
 .search-icon {
   position: absolute;

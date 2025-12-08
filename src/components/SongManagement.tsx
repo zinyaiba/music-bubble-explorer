@@ -394,6 +394,16 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                     autoComplete="off"
                     inputMode="search"
                   />
+                  {searchQuery && (
+                    <button
+                      className="search-clear-button"
+                      onClick={() => setSearchQuery('')}
+                      aria-label="検索をクリア"
+                      title="検索をクリア"
+                    >
+                      ✕
+                    </button>
+                  )}
                   <span className="search-icon">🔍</span>
                 </div>
 
