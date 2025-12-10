@@ -72,8 +72,9 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
         {isTouchDevice ? '📱' : '💻️'}🌰
       </p>
       <p className="instructions-item">
-        👀 シャボン玉の凡例はフィルタボタンになっているよ
+        🫧 シャボン玉タップで関連情報がみれるよ
       </p>
+      <p className="instructions-item">👀 凡例はフィルタボタンになっているよ</p>
       <p className="instructions-item">
         ➕「タグ登録」から自由にタグを作ってみよう！
       </p>
@@ -81,10 +82,14 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
         🏷️「タグ一覧」でみんなが登録したタグがみれるよ
       </p>
       <p className="instructions-item">
-        🫧 登録した情報はシャボン玉になって登場するよ
+        🎼「楽曲一覧」で詳細画面も表示できるよ
       </p>
       <p className="instructions-item">
-        ❣️ タグであなたの「推しポイント」を紹介してみよう
+        🎧️ 詳細画面からMV･サブスクが見れちゃうかも!?
+      </p>
+
+      <p className="instructions-item">
+        ❣️ たくさん登録してみな実さんの魅力を広めよう！
       </p>
       <p className="instructions-item">
         💡 これからのアップデートもお楽しみに！
@@ -102,6 +107,11 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
         </a>
         へ
       </p>
+      <p className="instructions-item">
+        ⚠️
+        個人に限ったタグ情報や、非公式な動画・サイトへのリンクはお控えください
+      </p>
+
       <div className="sr-only">
         シャボン玉をクリックまたはタップすると、楽曲の詳細情報や関連する作詞家、作曲家、編曲家の情報を表示できます。
         キーボードでの操作も可能です。Tabキーで要素を移動し、Enterキーで選択してください。
