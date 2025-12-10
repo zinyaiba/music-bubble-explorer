@@ -3,6 +3,7 @@ import styled, { keyframes } from 'styled-components'
 import { useGlassmorphismTheme } from './GlassmorphismThemeProvider'
 import { GlassCard } from './GlassCard'
 import { TagChipGroup } from './TagChipGroup'
+import { ConfirmDialog } from './ConfirmDialog'
 import { Song } from '@/types/music'
 import { TagRegistrationService } from '@/services/tagRegistrationService'
 import { MusicDataService } from '@/services/musicDataService'
@@ -426,6 +427,15 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
     text: string
     type: 'info' | 'success' | 'warning' | 'error'
   } | null>(null)
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean
+    tagToRemove: string
+    indexToRemove: number
+  }>({
+    isOpen: false,
+    tagToRemove: '',
+    indexToRemove: -1,
+  })
 
   // Computed values
 
@@ -477,48 +487,64 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
   )
 
   const handleTagRemove = useCallback(
-    async (index: number) => {
+    (index: number) => {
       const tag = currentTags[index]
-      const newTags = currentTags.filter((_, i) => i !== index)
-
-      // 即座にUIを更新
-      setCurrentTags(newTags)
-      onTagsChange?.(newTags)
-      setIsProcessing(true)
-
-      // Immediate save to DB using TagRegistrationService
-      try {
-        const tagService = TagRegistrationService.getInstance()
-        const result = await tagService.replaceTagsForSong(song.id, newTags)
-
-        if (result.success) {
-          // Also call the parent's onSave for any additional handling
-          onSave(song.id, newTags)
-          setStatusMessage({
-            text: `タグ「${tag}」を削除しました`,
-            type: 'success',
-          })
-        } else {
-          throw new Error(
-            result.errorMessages?.join(', ') || 'タグの削除に失敗しました'
-          )
-        }
-      } catch (error) {
-        console.error('Tag remove error:', error)
-        setStatusMessage({
-          text: `タグ「${tag}」の削除に失敗しました`,
-          type: 'error',
-        })
-        // Revert on error
-        setCurrentTags(currentTags)
-        onTagsChange?.(currentTags)
-      } finally {
-        setIsProcessing(false)
-      }
-      setTimeout(() => setStatusMessage(null), 3000)
+      // Show custom confirmation dialog
+      setConfirmDialog({
+        isOpen: true,
+        tagToRemove: tag,
+        indexToRemove: index,
+      })
     },
-    [currentTags, onTagsChange, onSave, song.id]
+    [currentTags]
   )
+
+  const handleConfirmRemove = useCallback(async () => {
+    const { tagToRemove, indexToRemove } = confirmDialog
+    setConfirmDialog({ isOpen: false, tagToRemove: '', indexToRemove: -1 })
+
+    const newTags = currentTags.filter((_, i) => i !== indexToRemove)
+
+    // 即座にUIを更新
+    setCurrentTags(newTags)
+    onTagsChange?.(newTags)
+    setIsProcessing(true)
+
+    // Immediate save to DB using TagRegistrationService
+    try {
+      const tagService = TagRegistrationService.getInstance()
+      const result = await tagService.replaceTagsForSong(song.id, newTags)
+
+      if (result.success) {
+        // Also call the parent's onSave for any additional handling
+        onSave(song.id, newTags)
+        setStatusMessage({
+          text: `タグ「${tagToRemove}」を削除しました`,
+          type: 'success',
+        })
+      } else {
+        throw new Error(
+          result.errorMessages?.join(', ') || 'タグの削除に失敗しました'
+        )
+      }
+    } catch (error) {
+      console.error('Tag remove error:', error)
+      setStatusMessage({
+        text: `タグ「${tagToRemove}」の削除に失敗しました`,
+        type: 'error',
+      })
+      // Revert on error
+      setCurrentTags(currentTags)
+      onTagsChange?.(currentTags)
+    } finally {
+      setIsProcessing(false)
+    }
+    setTimeout(() => setStatusMessage(null), 3000)
+  }, [confirmDialog, currentTags, onTagsChange, onSave, song.id])
+
+  const handleCancelRemove = useCallback(() => {
+    setConfirmDialog({ isOpen: false, tagToRemove: '', indexToRemove: -1 })
+  }, [])
 
   const handleNewTagAdd = useCallback(() => {
     const tag = newTagInput.trim()
@@ -529,17 +555,11 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
     }
   }, [newTagInput, canAddNewTag, handleTagAdd])
 
-  // Handle tag suggestion selection
-  const handleSuggestionSelect = useCallback(
-    (suggestion: string) => {
-      if (!currentTags.includes(suggestion) && canAddMoreTags) {
-        handleTagAdd(suggestion)
-        setNewTagInput('')
-        setShowSuggestions(false)
-      }
-    },
-    [currentTags, canAddMoreTags, handleTagAdd]
-  )
+  // Handle tag suggestion selection - now just fills the input
+  const handleSuggestionSelect = useCallback((suggestion: string) => {
+    setNewTagInput(suggestion)
+    setShowSuggestions(false)
+  }, [])
 
   // Handle input change and fetch suggestions
   const handleInputChange = useCallback(
@@ -766,95 +786,108 @@ export const TagEditingScreen: React.FC<TagEditingScreenProps> = ({
   }, [])
 
   return (
-    <ScreenContainer $theme={theme} className={className}>
-      {/* Song Information - conditionally shown */}
-      {showHeader && (
-        <SongInfoSection $theme={theme}>
-          <SongTitle $theme={theme}>{song.title}</SongTitle>
-          <SongDetails $theme={theme}>
-            {song.lyricists.length > 0 && (
-              <div>作詞: {song.lyricists.join(', ')}</div>
-            )}
-            {song.composers.length > 0 && (
-              <div>作曲: {song.composers.join(', ')}</div>
-            )}
-            {song.arrangers.length > 0 && (
-              <div>編曲: {song.arrangers.join(', ')}</div>
-            )}
-          </SongDetails>
-        </SongInfoSection>
-      )}
+    <>
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title="タグの削除"
+        message={`タグ「${confirmDialog.tagToRemove}」を削除しますか？`}
+        confirmText="削除"
+        cancelText="キャンセル"
+        onConfirm={handleConfirmRemove}
+        onCancel={handleCancelRemove}
+        variant="danger"
+      />
 
-      {/* Tag Editing */}
-      <TagEditingSection $theme={theme}>
-        <SectionTitle $theme={theme}>
-          タグ編集 ({currentTags.length}/{maxTags})
-        </SectionTitle>
-
-        {/* Status Message */}
-        {statusMessage && (
-          <StatusMessage $theme={theme} $type={statusMessage.type}>
-            {statusMessage.text}
-          </StatusMessage>
+      <ScreenContainer $theme={theme} className={className}>
+        {/* Song Information - conditionally shown */}
+        {showHeader && (
+          <SongInfoSection $theme={theme}>
+            <SongTitle $theme={theme}>{song.title}</SongTitle>
+            <SongDetails $theme={theme}>
+              {song.lyricists.length > 0 && (
+                <div>作詞: {song.lyricists.join(', ')}</div>
+              )}
+              {song.composers.length > 0 && (
+                <div>作曲: {song.composers.join(', ')}</div>
+              )}
+              {song.arrangers.length > 0 && (
+                <div>編曲: {song.arrangers.join(', ')}</div>
+              )}
+            </SongDetails>
+          </SongInfoSection>
         )}
 
-        {/* Processing Indicator */}
-        {isProcessing && (
-          <StatusMessage $theme={theme} $type="info">
-            処理中...
-          </StatusMessage>
-        )}
+        {/* Tag Editing */}
+        <TagEditingSection $theme={theme}>
+          <SectionTitle $theme={theme}>
+            タグ編集 ({currentTags.length}/{maxTags})
+          </SectionTitle>
 
-        {/* Tag Input */}
-        <TagInputContainer $theme={theme}>
-          <TagInput
-            $theme={theme}
-            type="text"
-            value={newTagInput}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            onBlur={handleInputBlur}
-            onFocus={handleInputFocus}
-            placeholder="新しいタグを入力..."
-            disabled={!canAddMoreTags}
-          />
-          <AddTagButton
-            $theme={theme}
-            $disabled={!canAddNewTag}
-            onClick={handleNewTagAdd}
-            disabled={!canAddNewTag}
-          >
-            追加
-          </AddTagButton>
+          {/* Status Message */}
+          {statusMessage && (
+            <StatusMessage $theme={theme} $type={statusMessage.type}>
+              {statusMessage.text}
+            </StatusMessage>
+          )}
 
-          {/* Tag Suggestions Dropdown */}
-          <TagSuggestionsDropdown $theme={theme} $show={showSuggestions}>
-            {tagSuggestions.map((suggestion, index) => (
-              <TagSuggestionItem
-                key={index}
-                $theme={theme}
-                onClick={() => handleSuggestionSelect(suggestion)}
-                title={suggestion}
-              >
-                {suggestion}
-              </TagSuggestionItem>
-            ))}
-          </TagSuggestionsDropdown>
-        </TagInputContainer>
+          {/* Processing Indicator */}
+          {isProcessing && (
+            <StatusMessage $theme={theme} $type="info">
+              処理中...
+            </StatusMessage>
+          )}
 
-        {/* Current Tags */}
-        <TagsContainer>
-          <TagChipGroup
-            tags={currentTags}
-            onTagRemove={isProcessing ? undefined : handleTagRemove}
-            variant="editable"
-            showFullText={true}
-            maxTags={maxTags}
-          />
-        </TagsContainer>
+          {/* Tag Input */}
+          <TagInputContainer $theme={theme}>
+            <TagInput
+              $theme={theme}
+              type="text"
+              value={newTagInput}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              onBlur={handleInputBlur}
+              onFocus={handleInputFocus}
+              placeholder="新しいタグを入力..."
+              disabled={!canAddMoreTags}
+            />
+            <AddTagButton
+              $theme={theme}
+              $disabled={!canAddNewTag}
+              onClick={handleNewTagAdd}
+              disabled={!canAddNewTag}
+            >
+              追加
+            </AddTagButton>
 
-        {/* Action buttons removed - immediate save functionality */}
-      </TagEditingSection>
-    </ScreenContainer>
+            {/* Tag Suggestions Dropdown */}
+            <TagSuggestionsDropdown $theme={theme} $show={showSuggestions}>
+              {tagSuggestions.map((suggestion, index) => (
+                <TagSuggestionItem
+                  key={index}
+                  $theme={theme}
+                  onClick={() => handleSuggestionSelect(suggestion)}
+                  title={suggestion}
+                >
+                  {suggestion}
+                </TagSuggestionItem>
+              ))}
+            </TagSuggestionsDropdown>
+          </TagInputContainer>
+
+          {/* Current Tags */}
+          <TagsContainer>
+            <TagChipGroup
+              tags={currentTags}
+              onTagRemove={isProcessing ? undefined : handleTagRemove}
+              variant="editable"
+              showFullText={true}
+              maxTags={maxTags}
+            />
+          </TagsContainer>
+
+          {/* Action buttons removed - immediate save functionality */}
+        </TagEditingSection>
+      </ScreenContainer>
+    </>
   )
 }
