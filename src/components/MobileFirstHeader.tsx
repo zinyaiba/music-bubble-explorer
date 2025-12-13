@@ -102,7 +102,7 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
                     textShadow: '0 2px 4px rgba(221, 160, 221, 0.3)',
                   }}
                 >
-                  Maron Bubbles
+                  Marron Bubbles
                 </span>
               </MainTitle>
               <SubTitle $theme={theme}>

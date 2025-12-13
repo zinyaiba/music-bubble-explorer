@@ -68,7 +68,7 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
   ({ isTouchDevice }) => (
     <div className="instructions" role="region" aria-label="操作説明">
       <p className="instructions-title">
-        🌰 {isTouchDevice ? '📱' : '💻️'}マロンバブルの使い方{' '}
+        🌰 {isTouchDevice ? '📱' : '💻️'}マロバブの使い方{' '}
         {isTouchDevice ? '📱' : '💻️'}🌰
       </p>
       <p className="instructions-item">
