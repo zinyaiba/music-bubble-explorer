@@ -1482,8 +1482,9 @@ function App() {
           <MobileFirstLayout
             className="App mobile-first-container improved-background"
             header={
-              // iOSのChromeでTOPページ以外の場合はヘッダーを非表示
-              isIOSChrome() && currentView !== 'main' ? null : (
+              // iOSのChromeでTOPページ以外、またはシャボン玉詳細ダイアログ表示中はヘッダーを非表示
+              isIOSChrome() &&
+              (currentView !== 'main' || selectedBubble) ? null : (
                 <MobileFirstHeader>
                   {/* デスクトップではヘッダーにナビゲーションを表示 */}
                   <MobileFirstNavigation
