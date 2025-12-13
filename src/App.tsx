@@ -60,6 +60,7 @@ import './styles/mobilePerformance.css'
 import './styles/mobileFirst.css'
 // Import Safari header fix
 import { initSafariHeaderFix } from './utils/safariHeaderFix'
+import { isIOSChrome } from './utils/browserDetection'
 
 /**
  * パフォーマンス最適化された操作説明コンポーネント
@@ -1481,21 +1482,24 @@ function App() {
           <MobileFirstLayout
             className="App mobile-first-container improved-background"
             header={
-              <MobileFirstHeader>
-                {/* デスクトップではヘッダーにナビゲーションを表示 */}
-                <MobileFirstNavigation
-                  currentView={currentView}
-                  onViewChange={handleViewChange}
-                  showRegistrationForm={showRegistrationForm}
-                  showSongManagement={showSongManagement}
-                  showTagList={showTagList}
-                  showTagRegistration={showTagRegistration}
-                  onToggleRegistrationForm={handleToggleRegistrationForm}
-                  onToggleSongManagement={handleToggleSongManagement}
-                  onToggleTagList={handleToggleTagList}
-                  onToggleTagRegistration={handleToggleTagRegistration}
-                />
-              </MobileFirstHeader>
+              // iOSのChromeでTOPページ以外の場合はヘッダーを非表示
+              isIOSChrome() && currentView !== 'main' ? null : (
+                <MobileFirstHeader>
+                  {/* デスクトップではヘッダーにナビゲーションを表示 */}
+                  <MobileFirstNavigation
+                    currentView={currentView}
+                    onViewChange={handleViewChange}
+                    showRegistrationForm={showRegistrationForm}
+                    showSongManagement={showSongManagement}
+                    showTagList={showTagList}
+                    showTagRegistration={showTagRegistration}
+                    onToggleRegistrationForm={handleToggleRegistrationForm}
+                    onToggleSongManagement={handleToggleSongManagement}
+                    onToggleTagList={handleToggleTagList}
+                    onToggleTagRegistration={handleToggleTagRegistration}
+                  />
+                </MobileFirstHeader>
+              )
             }
             navigation={
               /* モバイルでのみ最下部にナビゲーションを表示 */
