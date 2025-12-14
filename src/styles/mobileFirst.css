@@ -417,11 +417,11 @@ body {
  * 要件: 6.2, 6.3 - env()をサポートしないブラウザ向けのフォールバック
  */
 @supports not (padding-top: env(safe-area-inset-top)) {
-  /* ヘッダーのフォールバック（要件: 6.2） */
+  /* ヘッダーのフォールバック（要件: 6.2, 5.1, 5.2） */
   .mobile-first-header {
-    /* モバイルデバイスで最小20pxのフォールバックパディング */
-    padding-top: 20px !important;
-    min-height: calc(var(--glass-header-height-mobile) + 20px) !important;
+    /* モバイルデバイスで最小24pxのフォールバックパディング（Android Chrome対応） */
+    padding-top: 24px !important;
+    min-height: calc(var(--glass-header-height-mobile) + 24px) !important;
   }
 
   /* モバイル時のヘッダーフォールバック */
@@ -429,8 +429,8 @@ body {
     header[role='banner'],
     .mobile-first-header,
     *[class*='Header'] {
-      padding-top: 20px !important;
-      min-height: calc(50px + 20px) !important;
+      padding-top: 24px !important;
+      min-height: calc(50px + 24px) !important;
     }
   }
 
@@ -445,6 +445,32 @@ body {
     padding-bottom: calc(
       var(--navigation-height-mobile) + var(--spacing-mobile-sm)
     );
+  }
+}
+
+/* ===== Android Chrome URLバー対応 =====
+ * 要件: 5.1, 5.2 - Android ChromeのURLバーを考慮したヘッダー対応
+ * Android Chromeではenv(safe-area-inset-top)が0を返すことが多いため、
+ * 追加のパディングを適用
+ */
+@media (max-width: 900px) {
+  /* Android Chrome向けの追加パディング */
+  .mobile-first-header {
+    /* max()で最小24pxを保証（Android Chrome URLバー対応） */
+    padding-top: max(var(--safe-area-inset-top, 0px), 24px) !important;
+    min-height: calc(
+      var(--glass-header-height-mobile) +
+        max(var(--safe-area-inset-top, 0px), 24px)
+    ) !important;
+  }
+
+  header[role='banner'],
+  *[class*='Header'] {
+    /* max()で最小24pxを保証（Android Chrome URLバー対応） */
+    padding-top: max(var(--safe-area-inset-top, 0px), 24px) !important;
+    min-height: calc(
+      50px + max(var(--safe-area-inset-top, 0px), 24px)
+    ) !important;
   }
 }
 

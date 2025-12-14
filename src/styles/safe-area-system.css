@@ -17,8 +17,9 @@
   /* ===== フォールバック付きセーフエリア変数 =====
    * モバイルデバイスで最小パディングを保証
    * env()がサポートされていない場合のフォールバック値を含む
+   * Android Chrome対応: フォールバック値を24pxに増加（URLバー対応）
    */
-  --safe-area-top-fallback: max(env(safe-area-inset-top, 0px), 20px);
+  --safe-area-top-fallback: max(env(safe-area-inset-top, 0px), 24px);
   --safe-area-bottom-fallback: max(env(safe-area-inset-bottom, 0px), 0px);
   --safe-area-left-fallback: max(env(safe-area-inset-left, 0px), 0px);
   --safe-area-right-fallback: max(env(safe-area-inset-right, 0px), 0px);
@@ -70,8 +71,8 @@
     --safe-area-inset-bottom: 0px;
     --safe-area-inset-left: 0px;
     --safe-area-inset-right: 0px;
-    /* モバイルでは最小パディングを適用 */
-    --safe-area-top-fallback: 20px;
+    /* モバイルでは最小パディングを適用（Android Chrome対応で24pxに増加） */
+    --safe-area-top-fallback: 24px;
     --safe-area-bottom-fallback: 0px;
   }
 }

@@ -16,17 +16,39 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
     const screenSize = useResponsive()
     const theme = useGlassmorphismTheme()
 
-    // Safari専用の対策 - セーフエリア対応強化 (要件 1.1, 1.4, 4.1)
+    // Safari/Android Chrome対策 - セーフエリア対応強化 (要件 1.1, 1.4, 4.1, 5.1, 5.2)
     React.useEffect(() => {
       const userAgent = navigator.userAgent.toLowerCase()
       const isSafari =
         userAgent.includes('safari') && !userAgent.includes('chrome')
       const isIOSSafari =
         /iphone|ipad|ipod/.test(userAgent) && userAgent.includes('safari')
+      const isAndroidChrome =
+        userAgent.includes('android') && userAgent.includes('chrome')
 
-      if ((isSafari || isIOSSafari) && screenSize.isMobile) {
+      // Android Chrome向けの追加パディング計算
+      // Android ChromeではURLバーの高さが約56px程度
+      const getAndroidChromeTopPadding = (): number => {
+        if (!isAndroidChrome) return 24
+
+        // visualViewportを使用してURLバーの影響を検出
+        if (window.visualViewport) {
+          const viewportOffset =
+            window.innerHeight - window.visualViewport.height
+          // URLバーが表示されている場合、その分のパディングを追加
+          if (viewportOffset > 0) {
+            return Math.max(viewportOffset, 24)
+          }
+        }
+
+        // デフォルトのAndroid Chrome用パディング（URLバーの高さを考慮）
+        return 24
+      }
+
+      if ((isSafari || isIOSSafari || isAndroidChrome) && screenSize.isMobile) {
+        const browserType = isAndroidChrome ? '🤖 Android Chrome' : '🍎 Safari'
         console.log(
-          '🍎 Safari header component - applying emergency fixes with safe-area support'
+          `${browserType} header component - applying emergency fixes with safe-area support`
         )
 
         const applyEmergencyFix = () => {
@@ -34,6 +56,8 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
             'header[role="banner"]'
           ) as HTMLElement
           if (headerElement) {
+            const topPadding = getAndroidChromeTopPadding()
+
             headerElement.style.setProperty('display', 'flex', 'important')
             headerElement.style.setProperty('position', 'fixed', 'important')
             headerElement.style.setProperty('top', '0', 'important')
@@ -67,16 +91,16 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
               'important'
             )
             // セーフエリア対応 - min-heightにセーフエリアを含める
-            // CSS変数を使用してセーフエリアを考慮した高さを設定
+            // Android Chrome用に追加パディングを考慮
             headerElement.style.setProperty(
               'min-height',
-              'calc(85px + max(env(safe-area-inset-top, 0px), 20px))',
+              `calc(85px + max(env(safe-area-inset-top, 0px), ${topPadding}px))`,
               'important'
             )
-            // padding-topにセーフエリアを適用
+            // padding-topにセーフエリアを適用（Android Chrome用に増加）
             headerElement.style.setProperty(
               'padding-top',
-              'max(env(safe-area-inset-top, 0px), 20px)',
+              `max(env(safe-area-inset-top, 0px), ${topPadding}px)`,
               'important'
             )
           }
@@ -91,7 +115,21 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
         // 定期的にチェック
         const interval = setInterval(applyEmergencyFix, 3000)
 
-        return () => clearInterval(interval)
+        // Android Chrome: visualViewportの変更を監視（URLバーの表示/非表示）
+        let resizeHandler: (() => void) | null = null
+        if (isAndroidChrome && window.visualViewport) {
+          resizeHandler = () => {
+            applyEmergencyFix()
+          }
+          window.visualViewport.addEventListener('resize', resizeHandler)
+        }
+
+        return () => {
+          clearInterval(interval)
+          if (resizeHandler && window.visualViewport) {
+            window.visualViewport.removeEventListener('resize', resizeHandler)
+          }
+        }
       }
     }, [screenSize.isMobile])
 
@@ -170,7 +208,7 @@ const HeaderContainer = styled.header<{ $theme: any }>`
     backdrop-filter: ${props => props.$theme.effects.blur.light};
     -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
 
-    /* Safari専用の位置固定強化 */
+    /* Safari/Android Chrome用の位置固定強化 */
     position: fixed;
     top: 0;
     left: 0;
@@ -181,13 +219,14 @@ const HeaderContainer = styled.header<{ $theme: any }>`
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
 
-    /* セーフエリア対応 - フォールバック値20pxを設定 (要件 1.1, 1.4) */
+    /* セーフエリア対応 - フォールバック値24pxを設定 (要件 1.1, 1.4, 5.1, 5.2) */
+    /* Android Chrome向けにフォールバック値を増加（URLバー対応） */
     /* フォールバック値（env非サポートブラウザ用） */
-    padding-top: 20px;
-    min-height: calc(85px + 20px);
-    /* env()サポートブラウザ用 - max()で最小20pxを保証 */
-    padding-top: max(env(safe-area-inset-top, 0px), 20px);
-    min-height: calc(85px + max(env(safe-area-inset-top, 0px), 20px));
+    padding-top: 24px;
+    min-height: calc(85px + 24px);
+    /* env()サポートブラウザ用 - max()で最小24pxを保証 */
+    padding-top: max(env(safe-area-inset-top, 0px), 24px);
+    min-height: calc(85px + max(env(safe-area-inset-top, 0px), 24px));
   }
 
   /* Safari専用の追加対応 */
