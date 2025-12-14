@@ -222,7 +222,13 @@ export const TagSelectionView: React.FC<TagSelectionViewProps> = ({
             </h4>
 
             {/* 検索入力 */}
-            <div className="tag-search-container">
+            <form
+              className="tag-search-container"
+              onSubmit={e => {
+                e.preventDefault()
+                // Enterキーでの送信を防止（Android対応）
+              }}
+            >
               <input
                 type="text"
                 value={searchTerm}
@@ -230,6 +236,7 @@ export const TagSelectionView: React.FC<TagSelectionViewProps> = ({
                 placeholder="タグを検索..."
                 className="tag-search-input"
                 disabled={isLoading}
+                inputMode="text"
               />
               {searchTerm && (
                 <button
@@ -241,7 +248,7 @@ export const TagSelectionView: React.FC<TagSelectionViewProps> = ({
                   ×
                 </button>
               )}
-            </div>
+            </form>
           </div>
 
           {displayedAvailableTags.length > 0 ? (

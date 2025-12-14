@@ -744,6 +744,8 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
           onChange={e => handleSearchChange(e.target.value)}
           placeholder="楽曲名、アーティスト、タグで検索..."
           aria-label="楽曲を検索"
+          inputMode="text"
+          enterKeyHint="search"
         />
 
         {/* Sort Select */}

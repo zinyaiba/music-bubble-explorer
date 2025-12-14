@@ -294,15 +294,22 @@ const SongSelectionView: React.FC<SongSelectionViewProps> = ({
 }) => {
   return (
     <div className="song-selection-view">
-      <div className="search-section">
+      <form
+        className="search-section"
+        onSubmit={e => {
+          e.preventDefault()
+          // Enterキーでの送信を防止（Android対応）
+        }}
+      >
         <input
           type="text"
           value={searchTerm}
           onChange={e => onSearchChange(e.target.value)}
           placeholder="楽曲名、アーティスト、タグで検索..."
           className="search-input"
+          inputMode="text"
         />
-      </div>
+      </form>
 
       <div className="songs-list">
         {songs.length === 0 ? (

@@ -383,7 +383,13 @@ export const SongManagement: React.FC<SongManagementProps> = ({
             <div className="compact-controls">
               {/* 1行目: 検索欄と登録ボタン */}
               <div className="search-add-row">
-                <div className="search-container">
+                <form
+                  className="search-container"
+                  onSubmit={e => {
+                    e.preventDefault()
+                    // Enterキーでの送信を防止（Android対応）
+                  }}
+                >
                   <input
                     type="text"
                     placeholder="検索はこちら（例：サブスク）"
@@ -392,10 +398,11 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                     className="search-input"
                     aria-label="楽曲検索"
                     autoComplete="off"
-                    inputMode="search"
+                    inputMode="text"
                   />
                   {searchQuery && (
                     <button
+                      type="button"
                       className="search-clear-button"
                       onClick={() => setSearchQuery('')}
                       aria-label="検索をクリア"
@@ -405,9 +412,10 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                     </button>
                   )}
                   <span className="search-icon">🔍</span>
-                </div>
+                </form>
 
                 <button
+                  type="button"
                   onClick={handleAddNewSong}
                   className="add-song-button-icon"
                   aria-label="新しい楽曲を登録"

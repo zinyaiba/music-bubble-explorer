@@ -236,7 +236,8 @@ export const SongSelectionView: React.FC<SongSelectionViewProps> = ({
             className="search-input"
             disabled={isSearching}
             autoComplete="off"
-            inputMode="search"
+            inputMode="text"
+            enterKeyHint="search"
           />
           <div className="search-icon">{isSearching ? '⏳' : '🔍'}</div>
 

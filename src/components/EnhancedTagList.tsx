@@ -167,7 +167,13 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
           <>
             {/* Search Bar (Requirements: 21.3) - 検索とタグ数を横並び */}
             <div className="tag-search-bar">
-              <div className="search-input-container">
+              <form
+                className="search-input-container"
+                onSubmit={e => {
+                  e.preventDefault()
+                  // Enterキーでの送信を防止（Android対応）
+                }}
+              >
                 <input
                   type="text"
                   placeholder="タグを検索..."
@@ -175,12 +181,14 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                   onChange={handleSearchChange}
                   className="search-input"
                   aria-label="タグ検索"
+                  inputMode="text"
                 />
                 <span className="search-tag-count">
                   {filteredAndSortedTags.length}個のタグ
                 </span>
                 {searchTerm && (
                   <button
+                    type="button"
                     className="clear-search-button"
                     onClick={handleClearSearch}
                     aria-label="検索をクリア"
@@ -188,7 +196,7 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                     ×
                   </button>
                 )}
-              </div>
+              </form>
             </div>
 
             {/* Sort and Layout Controls (Requirements: 21.3) */}
