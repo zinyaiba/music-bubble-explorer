@@ -16,7 +16,7 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
     const screenSize = useResponsive()
     const theme = useGlassmorphismTheme()
 
-    // Safari専用の対策
+    // Safari専用の対策 - セーフエリア対応強化 (要件 1.1, 1.4, 4.1)
     React.useEffect(() => {
       const userAgent = navigator.userAgent.toLowerCase()
       const isSafari =
@@ -25,7 +25,9 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
         /iphone|ipad|ipod/.test(userAgent) && userAgent.includes('safari')
 
       if ((isSafari || isIOSSafari) && screenSize.isMobile) {
-        console.log('🍎 Safari header component - applying emergency fixes')
+        console.log(
+          '🍎 Safari header component - applying emergency fixes with safe-area support'
+        )
 
         const applyEmergencyFix = () => {
           const headerElement = document.querySelector(
@@ -64,7 +66,19 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
               'blur(15px)',
               'important'
             )
-            headerElement.style.setProperty('min-height', '85px', 'important')
+            // セーフエリア対応 - min-heightにセーフエリアを含める
+            // CSS変数を使用してセーフエリアを考慮した高さを設定
+            headerElement.style.setProperty(
+              'min-height',
+              'calc(85px + max(env(safe-area-inset-top, 0px), 20px))',
+              'important'
+            )
+            // padding-topにセーフエリアを適用
+            headerElement.style.setProperty(
+              'padding-top',
+              'max(env(safe-area-inset-top, 0px), 20px)',
+              'important'
+            )
           }
         }
 
@@ -129,6 +143,7 @@ export const MobileFirstHeader: React.FC<MobileFirstHeaderProps> = React.memo(
 )
 
 // ガラスモーフィズム統一ヘッダー
+// 要件: 1.1, 1.2, 1.4, 4.1 - セーフエリア対応ヘッダー
 const HeaderContainer = styled.header<{ $theme: any }>`
   width: 100%;
   height: 100%;
@@ -150,7 +165,7 @@ const HeaderContainer = styled.header<{ $theme: any }>`
   /* スムーズな遷移 */
   transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
-  /* レスポンシブ対応 */
+  /* レスポンシブ対応 - モバイルセーフエリア対応強化 */
   @media (max-width: 900px) {
     backdrop-filter: ${props => props.$theme.effects.blur.light};
     -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
@@ -166,9 +181,13 @@ const HeaderContainer = styled.header<{ $theme: any }>`
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
 
-    /* Safari専用のセーフエリア対応 */
-    padding-top: env(safe-area-inset-top, 0px);
-    min-height: calc(85px + env(safe-area-inset-top, 0px));
+    /* セーフエリア対応 - フォールバック値20pxを設定 (要件 1.1, 1.4) */
+    /* フォールバック値（env非サポートブラウザ用） */
+    padding-top: 20px;
+    min-height: calc(85px + 20px);
+    /* env()サポートブラウザ用 - max()で最小20pxを保証 */
+    padding-top: max(env(safe-area-inset-top, 0px), 20px);
+    min-height: calc(85px + max(env(safe-area-inset-top, 0px), 20px));
   }
 
   /* Safari専用の追加対応 */
@@ -179,9 +198,17 @@ const HeaderContainer = styled.header<{ $theme: any }>`
       user-select: none;
       -webkit-touch-callout: none;
 
-      /* Safari専用のビューポート対応 */
-      height: calc(85px + env(safe-area-inset-top, 0px));
-      min-height: calc(85px + env(safe-area-inset-top, 0px));
+      /* Safari専用のビューポート対応 - セーフエリア込み */
+      height: calc(85px + max(env(safe-area-inset-top, 0px), 20px));
+      min-height: calc(85px + max(env(safe-area-inset-top, 0px), 20px));
+    }
+  }
+
+  /* env()サポート検出によるフォールバック (要件 6.2) */
+  @supports not (padding-top: env(safe-area-inset-top)) {
+    @media (max-width: 900px) {
+      padding-top: 20px;
+      min-height: calc(85px + 20px);
     }
   }
 
@@ -197,6 +224,7 @@ const HeaderContainer = styled.header<{ $theme: any }>`
   }
 `
 
+// 要件: 4.2 - インタラクティブ要素がセーフエリア内に収まるよう調整
 const HeaderContent = styled.div`
   width: 100%;
   height: 100%;
@@ -217,11 +245,28 @@ const HeaderContent = styled.div`
     gap: 1rem;
     /* スマホではロゴを中央寄せ */
     justify-content: center;
+
+    /* セーフエリア対応 - インタラクティブ要素の位置調整 (要件 4.2) */
+    /* コンテンツはセーフエリアパディングの下に配置される */
+    /* HeaderContainerのpadding-topによりセーフエリア外に配置 */
+    position: relative;
+    /* 左右のセーフエリアも考慮 */
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
   }
 
   @media (max-width: 480px) {
     padding: 10px 16px;
     min-height: 45px;
+    /* 小画面でも左右セーフエリアを考慮 */
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  /* 横向き時の左右セーフエリア対応 (要件 3.4) */
+  @media (orientation: landscape) and (max-width: 900px) {
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
   }
 `
 

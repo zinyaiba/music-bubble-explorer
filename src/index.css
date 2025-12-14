@@ -1,3 +1,5 @@
+/* Import safe area system (must be first for CSS variable availability) */
+@import './styles/safe-area-system.css';
 /* Import glassmorphism design system */
 @import './styles/glassmorphism-system.css';
 /* Import color palette and responsive utilities */
@@ -6,22 +8,29 @@
 @import './styles/mobilePerformance.css';
 :root {
   /* ===== GLASSMORPHISM FONT SYSTEM ===== */
-  font-family: var(--font-family-primary, 'M PLUS Rounded 1c', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif);
+  font-family: var(
+    --font-family-primary,
+    'M PLUS Rounded 1c',
+    'Hiragino Sans',
+    'Hiragino Kaku Gothic ProN',
+    'Noto Sans JP',
+    sans-serif
+  );
   line-height: var(--line-height-normal, 1.5);
   font-weight: var(--font-weight-normal, 400);
-  
+
   /* ===== GLASSMORPHISM COLOR SCHEME ===== */
   color-scheme: light;
   color: var(--glass-text-primary);
   background: var(--glass-background);
-  
+
   /* ===== GLASSMORPHISM FONT RENDERING ===== */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
-  
+
   /* ===== GLASSMORPHISM PERFORMANCE ===== */
   font-display: swap;
   font-optical-sizing: auto;

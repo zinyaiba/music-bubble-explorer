@@ -1,0 +1,174 @@
+/* ===== セーフエリアCSS変数システム =====
+ * iOS/Androidの各種ブラウザにおけるセーフエリア問題を解決するための
+ * 集中管理されたCSS変数システム
+ * 
+ * 要件: 2.3, 2.4
+ */
+
+:root {
+  /* ===== セーフエリアインセット変数 =====
+   * env()関数のラッパーとして機能し、全コンポーネントで再利用可能
+   */
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+
+  /* ===== フォールバック付きセーフエリア変数 =====
+   * モバイルデバイスで最小パディングを保証
+   * env()がサポートされていない場合のフォールバック値を含む
+   */
+  --safe-area-top-fallback: max(env(safe-area-inset-top, 0px), 20px);
+  --safe-area-bottom-fallback: max(env(safe-area-inset-bottom, 0px), 0px);
+  --safe-area-left-fallback: max(env(safe-area-inset-left, 0px), 0px);
+  --safe-area-right-fallback: max(env(safe-area-inset-right, 0px), 0px);
+
+  /* ===== ヘッダー高さ変数（セーフエリア込み） =====
+   * 各デバイスサイズに応じたヘッダー高さを定義
+   */
+  --safe-header-height-base-mobile: 65px;
+  --safe-header-height-base-tablet: 75px;
+  --safe-header-height-base-desktop: 95px;
+
+  --safe-header-height-mobile: calc(
+    var(--safe-header-height-base-mobile) + var(--safe-area-inset-top)
+  );
+  --safe-header-height-tablet: calc(
+    var(--safe-header-height-base-tablet) + var(--safe-area-inset-top)
+  );
+  --safe-header-height-desktop: var(--safe-header-height-base-desktop);
+
+  /* ===== ナビゲーション高さ変数（セーフエリア込み） =====
+   * 下部ナビゲーションの高さを定義
+   */
+  --safe-nav-height-base: 60px;
+  --safe-nav-height: calc(
+    var(--safe-nav-height-base) + var(--safe-area-inset-bottom)
+  );
+
+  /* ===== コンテンツ領域計算用変数 =====
+   * メインコンテンツ領域の高さ計算に使用
+   */
+  --safe-content-top-offset: var(--safe-header-height-mobile);
+  --safe-content-bottom-offset: var(--safe-nav-height);
+}
+
+/* ===== env()サポート検出とフォールバック =====
+ * @supportsを使用してenv()のサポートを検出
+ */
+@supports (padding-top: env(safe-area-inset-top)) {
+  :root {
+    --safe-area-supported: 1;
+  }
+}
+
+@supports not (padding-top: env(safe-area-inset-top)) {
+  :root {
+    --safe-area-supported: 0;
+    /* env()非サポート時のフォールバック値 */
+    --safe-area-inset-top: 0px;
+    --safe-area-inset-bottom: 0px;
+    --safe-area-inset-left: 0px;
+    --safe-area-inset-right: 0px;
+    /* モバイルでは最小パディングを適用 */
+    --safe-area-top-fallback: 20px;
+    --safe-area-bottom-fallback: 0px;
+  }
+}
+
+/* ===== dvh単位サポート検出とフォールバック =====
+ * 動的ビューポート高さ単位のサポートを検出
+ */
+@supports (height: 100dvh) {
+  :root {
+    --safe-viewport-height: 100dvh;
+    --safe-viewport-height-small: 100svh;
+    --safe-viewport-height-large: 100lvh;
+  }
+}
+
+@supports not (height: 100dvh) {
+  :root {
+    /* dvh非サポート時はvhにフォールバック */
+    --safe-viewport-height: 100vh;
+    --safe-viewport-height-small: 100vh;
+    --safe-viewport-height-large: 100vh;
+  }
+}
+
+/* ===== タブレット・デスクトップ用の調整 =====
+ * 大画面デバイスではセーフエリアの影響が少ない
+ */
+@media (min-width: 768px) {
+  :root {
+    --safe-content-top-offset: var(--safe-header-height-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --safe-content-top-offset: var(--safe-header-height-desktop);
+    --safe-content-bottom-offset: 0px;
+  }
+}
+
+/* ===== 横向き時の調整 =====
+ * 横向きではセーフエリアの左右も考慮
+ */
+@media (orientation: landscape) {
+  :root {
+    --safe-header-height-base-mobile: 55px;
+  }
+}
+
+/* ===== 開発モード用セーフエリア可視化 =====
+ * デバッグ時にセーフエリア境界を視覚的に表示
+ */
+.debug-safe-area::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--safe-area-inset-top);
+  background: rgba(255, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 99999;
+}
+
+.debug-safe-area::after {
+  content: '';
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--safe-area-inset-bottom);
+  background: rgba(0, 0, 255, 0.2);
+  pointer-events: none;
+  z-index: 99999;
+}
+
+/* ===== セーフエリア左右の可視化（横向き用） ===== */
+.debug-safe-area-horizontal::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--safe-area-inset-left);
+  background: rgba(0, 255, 0, 0.2);
+  pointer-events: none;
+  z-index: 99999;
+}
+
+.debug-safe-area-horizontal::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--safe-area-inset-right);
+  background: rgba(255, 255, 0, 0.2);
+  pointer-events: none;
+  z-index: 99999;
+}

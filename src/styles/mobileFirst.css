@@ -117,6 +117,7 @@ body {
 }
 
 /* Glassmorphism Mobile-First Header Styles - Updated for Scrollable Layout */
+/* 要件: 1.1, 2.3 - セーフエリア対応強化 */
 .mobile-first-header {
   height: var(--glass-header-height-mobile);
   background: var(--glass-strong) !important;
@@ -136,10 +137,10 @@ body {
   box-shadow: var(--glass-shadow-medium) !important;
   border: var(--glass-border-glass) !important;
   border-top: none !important;
-  /* Safari対応：セーフエリア考慮 */
-  padding-top: env(safe-area-inset-top, 0px) !important;
+  /* セーフエリア対応：統一変数を使用（要件: 1.1, 2.3） */
+  padding-top: var(--safe-area-inset-top) !important;
   min-height: calc(
-    var(--glass-header-height-mobile) + env(safe-area-inset-top, 0px)
+    var(--glass-header-height-mobile) + var(--safe-area-inset-top)
   ) !important;
 }
 
@@ -160,6 +161,7 @@ body {
 }
 
 /* Glassmorphism Mobile-First Navigation Styles */
+/* 要件: 3.3 - セーフエリア対応強化 */
 .mobile-first-navigation {
   position: fixed !important;
   bottom: 0 !important;
@@ -173,7 +175,9 @@ body {
   display: flex !important;
   align-items: center !important;
   justify-content: space-around !important;
-  padding: var(--glass-space-4) var(--glass-space-5) var(--glass-space-5) !important;
+  /* セーフエリア対応：統一変数を使用（要件: 3.3） */
+  padding: var(--glass-space-4) var(--glass-space-5)
+    calc(var(--glass-space-5) + var(--safe-area-inset-bottom)) !important;
   z-index: var(--glass-z-fixed) !important;
   box-shadow: var(--glass-shadow-strong) !important;
   /* ガラスモーフィズム強化 */
@@ -391,18 +395,74 @@ body {
 }
 
 /* Safe Area Support for iPhone X and later */
+/* 要件: 3.3 - セーフエリア統一変数を使用 */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .mobile-first-navigation {
+    /* セーフエリア対応：統一変数を使用（要件: 3.3） */
     padding-bottom: calc(
-      var(--spacing-mobile-sm) + env(safe-area-inset-bottom)
+      var(--spacing-mobile-sm) + var(--safe-area-inset-bottom)
     );
   }
 
   .mobile-first-bubble-area {
+    /* セーフエリア対応：統一変数を使用（要件: 3.3） */
     padding-bottom: calc(
       var(--navigation-height-mobile) + var(--spacing-mobile-sm) +
-        env(safe-area-inset-bottom)
+        var(--safe-area-inset-bottom)
     );
+  }
+}
+
+/* ===== env()非サポート時のフォールバックスタイル =====
+ * 要件: 6.2, 6.3 - env()をサポートしないブラウザ向けのフォールバック
+ */
+@supports not (padding-top: env(safe-area-inset-top)) {
+  /* ヘッダーのフォールバック（要件: 6.2） */
+  .mobile-first-header {
+    /* モバイルデバイスで最小20pxのフォールバックパディング */
+    padding-top: 20px !important;
+    min-height: calc(var(--glass-header-height-mobile) + 20px) !important;
+  }
+
+  /* モバイル時のヘッダーフォールバック */
+  @media (max-width: 900px) {
+    header[role='banner'],
+    .mobile-first-header,
+    *[class*='Header'] {
+      padding-top: 20px !important;
+      min-height: calc(50px + 20px) !important;
+    }
+  }
+
+  /* ナビゲーションのフォールバック（要件: 6.2） */
+  .mobile-first-navigation {
+    /* env()非サポート時は追加パディングなし */
+    padding-bottom: var(--glass-space-5) !important;
+  }
+
+  /* バブルエリアのフォールバック */
+  .mobile-first-bubble-area {
+    padding-bottom: calc(
+      var(--navigation-height-mobile) + var(--spacing-mobile-sm)
+    );
+  }
+}
+
+/* ===== dvh非サポート時のフォールバックスタイル =====
+ * 要件: 6.3 - dvh単位をサポートしないブラウザ向けのフォールバック
+ */
+@supports not (height: 100dvh) {
+  html,
+  body {
+    min-height: 100vh !important;
+  }
+
+  #root {
+    min-height: 100vh !important;
+  }
+
+  .mobile-first-container {
+    min-height: 100vh;
   }
 }
 
@@ -689,6 +749,7 @@ body {
 }
 
 /* ヘッダーの強制表示 - Safari対応強化 - Updated for Scrollable Layout */
+/* 要件: 1.1, 2.3 - セーフエリア統一変数を使用 */
 @media (max-width: 900px) {
   /* 全てのヘッダー要素を強制表示（スクロール対象として） */
   header[role='banner'],
@@ -703,9 +764,9 @@ body {
     background: rgba(255, 255, 255, 0.95) !important;
     backdrop-filter: blur(15px) !important;
     min-height: 50px !important;
-    /* Safari対応：セーフエリア考慮 */
-    padding-top: env(safe-area-inset-top, 0px) !important;
-    min-height: calc(50px + env(safe-area-inset-top, 0px)) !important;
+    /* セーフエリア対応：統一変数を使用（要件: 1.1, 2.3） */
+    padding-top: var(--safe-area-inset-top) !important;
+    min-height: calc(50px + var(--safe-area-inset-top)) !important;
     /* Safari専用の追加対応 */
     transform: translateZ(0) !important;
     -webkit-transform: translateZ(0) !important;
@@ -1079,17 +1140,16 @@ body {
 }
 
 /* Safari対応：動的ビューポート高さ変数 */
+/* 注意: セーフエリア変数は safe-area-system.css で集中管理（要件: 2.3, 2.4） */
 :root {
   --vh: 1vh;
   --viewport-height: 100vh;
   --safari-viewport-height: 100vh;
-  --safe-area-inset-top: env(safe-area-inset-top, 0px);
-  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-area-inset-left: env(safe-area-inset-left, 0px);
-  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  /* セーフエリア変数は safe-area-system.css から継承 */
 }
 
 /* Safari専用スタイル - 最強レベルの対策 */
+/* 要件: 1.1, 2.3, 3.3 - セーフエリア統一変数を使用 */
 @supports (-webkit-touch-callout: none) {
   /* Safari検出用のサポートクエリ */
 
@@ -1105,6 +1165,7 @@ body {
     }
 
     /* ヘッダーの動的調整 - Safari専用最強化 - Updated for Scrollable Layout */
+    /* セーフエリア対応：統一変数を使用（要件: 1.1, 2.3） */
     header[role='banner'],
     .mobile-first-header,
     *[class*='Header'] {
@@ -1132,6 +1193,7 @@ body {
     }
 
     /* メインエリアの動的調整 - Safari専用強化 - Updated for Scrollable Layout */
+    /* セーフエリア対応：統一変数を使用（要件: 3.3） */
     main {
       position: fixed !important;
       top: 0 !important;
@@ -1149,6 +1211,7 @@ body {
     }
 
     /* ナビゲーションの動的調整 - Safari専用強化 */
+    /* セーフエリア対応：統一変数を使用（要件: 3.3） */
     .mobile-first-navigation,
     nav[aria-label='メインナビゲーション'] ul:last-child {
       bottom: var(--safe-area-inset-bottom) !important;

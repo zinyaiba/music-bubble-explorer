@@ -610,6 +610,17 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
 .standard-layout-integrated-header {
   /* インラインスタイルで制御するため、最小限のスタイルのみ */
   box-sizing: border-box;
+
+  /* セーフエリア対応 - フォールバック値（env非サポートブラウザ用） */
+  padding-top: 20px;
+}
+
+/* セーフエリア対応 - env()サポートブラウザ用 */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .standard-layout-integrated-header {
+    /* セーフエリアインセットを適用（最小20pxを保証） */
+    padding-top: max(env(safe-area-inset-top, 0px), 20px);
+  }
 }
 
 /* 装飾は削除（モバイルで問題を起こすため） */
@@ -755,20 +766,46 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
 /* コンテンツラッパー */
 .standard-layout-content-wrapper {
   box-sizing: border-box;
+  /* セーフエリア対応 - フォールバック値（env非サポートブラウザ用） */
+  padding-top: 100px;
+}
+
+/* セーフエリア対応 - env()サポートブラウザ用 */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .standard-layout-content-wrapper {
+    /* セーフエリアを含めたpadding-top計算 */
+    padding-top: calc(100px + env(safe-area-inset-top, 0px));
+  }
 }
 
 /* モバイルでのパディング調整 */
 @media screen and (max-width: 768px) {
   .standard-layout-content-wrapper {
     padding: 12px !important;
+    /* セーフエリア対応 - フォールバック値 */
     padding-top: 100px !important;
+  }
+
+  /* env()サポート時のモバイル用padding-top */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    .standard-layout-content-wrapper {
+      padding-top: calc(100px + env(safe-area-inset-top, 0px)) !important;
+    }
   }
 }
 
 @media screen and (max-width: 480px) {
   .standard-layout-content-wrapper {
     padding: 8px !important;
+    /* セーフエリア対応 - フォールバック値 */
     padding-top: 100px !important;
+  }
+
+  /* env()サポート時の小型モバイル用padding-top */
+  @supports (padding-top: env(safe-area-inset-top)) {
+    .standard-layout-content-wrapper {
+      padding-top: calc(100px + env(safe-area-inset-top, 0px)) !important;
+    }
   }
 }
 
@@ -884,4 +921,18 @@ odal専用のz-index設定 - タグ詳細画面を最前面に表示 */
   /* z-index: 30 !important; */
   background: #fef7f7 !important;
   border-bottom: 1px solid rgba(224, 102, 102, 0.2) !important;
+
+  /* セーフエリア対応 - フォールバック値（env非サポートブラウザ用） */
+  padding-top: 20px;
+  min-height: calc(60px + 20px);
+}
+
+/* セーフエリア対応 - env()サポートブラウザ用（sticky版） */
+@supports (padding-top: env(safe-area-inset-top)) {
+  .standard-layout-integrated-header {
+    /* セーフエリアインセットを適用（最小20pxを保証） */
+    padding-top: max(env(safe-area-inset-top, 0px), 20px);
+    /* min-heightにもセーフエリアを含める */
+    min-height: calc(60px + max(env(safe-area-inset-top, 0px), 20px));
+  }
 }
