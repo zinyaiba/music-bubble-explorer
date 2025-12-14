@@ -222,6 +222,7 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                   className="sort-select"
                 >
                   <option value="frequency">登録が多い順</option>
+                  <option value="recent">更新順</option>
                   <option value="alphabetical">アルファベット順</option>
                 </select>
               </div>

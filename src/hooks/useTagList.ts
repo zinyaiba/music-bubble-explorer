@@ -19,7 +19,7 @@ export interface TagListItem {
 /**
  * ソート方法の型定義
  */
-export type TagSortBy = 'alphabetical' | 'frequency'
+export type TagSortBy = 'alphabetical' | 'frequency' | 'recent'
 
 /**
  * タグ一覧管理のカスタムフック
@@ -189,12 +189,24 @@ export const useTagList = () => {
         const totalSongs = songs.length
         const popularity = totalSongs > 0 ? tagSongs.length / totalSongs : 0
 
-        // Find most recent usage
+        // Find most recent usage (updatedAtを優先、なければcreatedAtを使用)
         const songDates = tagSongs
-          .map(song => (song.createdAt ? new Date(song.createdAt) : new Date()))
+          .map(song => {
+            const dateStr = song.updatedAt || song.createdAt
+            // デバッグ: updatedAtの値を確認
+            if (tagSongs.length <= 3) {
+              console.log(
+                `🏷️ Tag "${tag.name}" - Song "${song.title}": updatedAt=${song.updatedAt}, createdAt=${song.createdAt}, using=${dateStr}`
+              )
+            }
+            return dateStr ? new Date(dateStr) : new Date(0)
+          })
           .sort((a, b) => b.getTime() - a.getTime())
 
-        const lastUsed = songDates.length > 0 ? songDates[0] : new Date()
+        const lastUsed = songDates.length > 0 ? songDates[0] : new Date(0)
+
+        // デバッグ: 最終的なlastUsedを確認
+        console.log(`🏷️ Tag "${tag.name}": lastUsed=${lastUsed.toISOString()}`)
 
         return {
           id: tag.id,
@@ -245,6 +257,8 @@ export const useTagList = () => {
             return a.name.localeCompare(b.name, 'ja')
           case 'frequency':
             return b.songCount - a.songCount
+          case 'recent':
+            return b.lastUsed.getTime() - a.lastUsed.getTime()
           default:
             return 0
         }

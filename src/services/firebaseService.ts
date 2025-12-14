@@ -22,7 +22,8 @@ import {
 import { db } from '@/config/firebase'
 import { Song, MusicDatabase } from '@/types/music'
 
-export interface FirebaseSong extends Omit<Song, 'id' | 'createdAt'> {
+export interface FirebaseSong
+  extends Omit<Song, 'id' | 'createdAt' | 'updatedAt'> {
   id?: string
   createdAt?: Timestamp
   updatedAt?: Timestamp
@@ -77,6 +78,9 @@ export class FirebaseService {
       tags: data.tags || [],
       notes: data.notes || '',
       createdAt: this.convertTimestampToString(data.createdAt),
+      updatedAt: data.updatedAt
+        ? this.convertTimestampToString(data.updatedAt)
+        : undefined,
     }
 
     // 拡張フィールド - 値が存在する場合のみ追加

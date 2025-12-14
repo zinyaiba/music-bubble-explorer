@@ -14,6 +14,7 @@ export interface Song {
   tags?: string[]
   notes?: string
   createdAt?: string
+  updatedAt?: string
 
   // 拡張フィールド
   artists?: string[] // アーティスト名（複数対応）
