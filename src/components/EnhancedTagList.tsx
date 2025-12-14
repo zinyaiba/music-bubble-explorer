@@ -179,6 +179,18 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                   placeholder="タグを検索..."
                   value={searchTerm}
                   onChange={handleSearchChange}
+                  onFocus={() => {
+                    // Android対応: キーボード表示時にbodyのfixed解除
+                    if (window.innerWidth <= 768) {
+                      document.body.style.position = ''
+                    }
+                  }}
+                  onBlur={() => {
+                    // Android対応: キーボード非表示時にbodyのfixed復元
+                    if (window.innerWidth <= 768) {
+                      document.body.style.position = 'fixed'
+                    }
+                  }}
                   className="search-input"
                   aria-label="タグ検索"
                   inputMode="text"

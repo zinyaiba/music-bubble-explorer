@@ -305,6 +305,18 @@ const SongSelectionView: React.FC<SongSelectionViewProps> = ({
           type="text"
           value={searchTerm}
           onChange={e => onSearchChange(e.target.value)}
+          onFocus={() => {
+            // Android対応: キーボード表示時にbodyのfixed解除
+            if (window.innerWidth <= 768) {
+              document.body.style.position = ''
+            }
+          }}
+          onBlur={() => {
+            // Android対応: キーボード非表示時にbodyのfixed復元
+            if (window.innerWidth <= 768) {
+              document.body.style.position = 'fixed'
+            }
+          }}
           placeholder="楽曲名、アーティスト、タグで検索..."
           className="search-input"
           inputMode="text"

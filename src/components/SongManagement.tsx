@@ -395,6 +395,18 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                     placeholder="検索はこちら（例：サブスク）"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
+                    onFocus={() => {
+                      // Android対応: キーボード表示時にbodyのfixed解除
+                      if (window.innerWidth <= 768) {
+                        document.body.style.position = ''
+                      }
+                    }}
+                    onBlur={() => {
+                      // Android対応: キーボード非表示時にbodyのfixed復元
+                      if (window.innerWidth <= 768) {
+                        document.body.style.position = 'fixed'
+                      }
+                    }}
                     className="search-input"
                     aria-label="楽曲検索"
                     autoComplete="off"

@@ -595,11 +595,31 @@ function App() {
    * Handle window resize for responsive canvas with mobile-first optimizations
    */
   useEffect(() => {
+    // 前回のビューポートサイズを記録（キーボード表示検知用）
+    let lastViewportHeight = window.innerHeight
+
     const handleResize = () => {
       // テスト環境での安全性チェック
       if (typeof document === 'undefined') {
         return
       }
+
+      // モバイルでキーボード表示によるリサイズを検知してスキップ
+      // キーボード表示時は高さのみが変わり、幅は変わらない
+      const currentHeight = window.innerHeight
+      const heightDiff = Math.abs(currentHeight - lastViewportHeight)
+      const isKeyboardResize =
+        screenSize.isMobile &&
+        heightDiff > 100 &&
+        window.innerWidth === document.documentElement.clientWidth
+
+      if (isKeyboardResize) {
+        // キーボード表示/非表示によるリサイズは無視
+        lastViewportHeight = currentHeight
+        return
+      }
+
+      lastViewportHeight = currentHeight
 
       const container = document.querySelector('.bubble-container')
       if (container) {
