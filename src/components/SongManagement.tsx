@@ -45,6 +45,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchTitleOnly, setSearchTitleOnly] = useState(false) // 楽曲名のみ検索オプション
   const [sortBy, setSortBy] = useState<SongSortType>('newest')
   const [editingSong, setEditingSong] = useState<Song | null>(null)
   const [showEditForm, setShowEditForm] = useState(false)
@@ -130,26 +131,34 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     let filtered = songs
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
-      filtered = songs.filter(
-        song =>
-          song.title.toLowerCase().includes(query) ||
-          song.lyricists.some(lyricist =>
-            lyricist.toLowerCase().includes(query)
-          ) ||
-          song.composers.some(composer =>
-            composer.toLowerCase().includes(query)
-          ) ||
-          song.arrangers.some(arranger =>
-            arranger.toLowerCase().includes(query)
-          ) ||
-          (song.tags &&
-            song.tags.some(tag => tag.toLowerCase().includes(query)))
-      )
+      if (searchTitleOnly) {
+        // 楽曲名のみで検索
+        filtered = songs.filter(song =>
+          song.title.toLowerCase().includes(query)
+        )
+      } else {
+        // 全フィールドで検索（従来の動作）
+        filtered = songs.filter(
+          song =>
+            song.title.toLowerCase().includes(query) ||
+            song.lyricists.some(lyricist =>
+              lyricist.toLowerCase().includes(query)
+            ) ||
+            song.composers.some(composer =>
+              composer.toLowerCase().includes(query)
+            ) ||
+            song.arrangers.some(arranger =>
+              arranger.toLowerCase().includes(query)
+            ) ||
+            (song.tags &&
+              song.tags.some(tag => tag.toLowerCase().includes(query)))
+        )
+      }
     }
 
     // 共通の並び替え関数を使用
     return sortSongs(filtered, sortBy)
-  }, [songs, searchQuery, sortBy])
+  }, [songs, searchQuery, searchTitleOnly, sortBy])
 
   // 表示用の制限されたリスト（パフォーマンス最適化）
   const displayedSongs = useMemo(() => {
@@ -392,7 +401,11 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                 >
                   <input
                     type="text"
-                    placeholder="検索はこちら（例：サブスク）"
+                    placeholder={
+                      searchTitleOnly
+                        ? '楽曲名で検索'
+                        : '検索はこちら（例：サブスク）'
+                    }
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                     onFocus={() => {
@@ -437,11 +450,20 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                 </button>
               </div>
 
-              {/* 2行目: 統計情報 */}
+              {/* 2行目: 統計情報と検索オプション */}
               <div className="stats-row">
                 <span className="stat-compact">
                   全{songs.length}曲 / 表示{filteredAndSortedSongs.length}曲
                 </span>
+                <label className="search-option-toggle-inline">
+                  <input
+                    type="checkbox"
+                    checked={searchTitleOnly}
+                    onChange={e => setSearchTitleOnly(e.target.checked)}
+                  />
+                  <span className="toggle-slider-small"></span>
+                  <span className="toggle-label-small">曲名のみ</span>
+                </label>
               </div>
 
               {/* 3行目: 並び替え */}

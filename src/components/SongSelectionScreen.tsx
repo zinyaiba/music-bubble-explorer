@@ -152,6 +152,93 @@ const SearchStats = styled.div<{
   }
 `
 
+/* インライン検索オプショントグル（統計情報行用） */
+const SearchOptionToggleInline = styled.label<{
+  $theme: any
+}>`
+  /* Layout */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+
+  /* Typography */
+  font-family: ${props => props.$theme.typography.fontFamily};
+  font-size: 11px;
+  color: ${props => props.$theme.colors.text.secondary};
+
+  /* Hide default checkbox */
+  input[type='checkbox'] {
+    display: none;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    font-size: 10px;
+    gap: 4px;
+  }
+`
+
+const ToggleSliderSmall = styled.span<{
+  $theme: any
+  $checked: boolean
+}>`
+  /* Layout */
+  position: relative;
+  width: 28px;
+  height: 16px;
+  flex-shrink: 0;
+
+  /* Styling */
+  background: ${props =>
+    props.$checked
+      ? `linear-gradient(135deg, ${props.$theme.colors.accent}, ${props.$theme.colors.primary[400]})`
+      : props.$theme.colors.neutral[300]};
+  border-radius: 16px;
+  transition: all 0.3s ease;
+
+  /* Slider knob */
+  &::before {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    left: ${props => (props.$checked ? '14px' : '2px')};
+    top: 2px;
+    background: white;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    width: 24px;
+    height: 14px;
+
+    &::before {
+      width: 10px;
+      height: 10px;
+      left: ${props => (props.$checked ? '12px' : '2px')};
+    }
+  }
+`
+
+const ToggleLabelSmall = styled.span<{
+  $theme: any
+}>`
+  /* Typography */
+  font-weight: ${props => props.$theme.typography.fontWeights.medium};
+  white-space: nowrap;
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    font-size: 10px;
+  }
+`
+
 const SortSelect = styled.select<{
   $theme: any
 }>`
@@ -526,6 +613,7 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
   // Local state for songs and search
   const [songs, setSongs] = useState<Song[]>([])
   const [searchTerm, setSearchTerm] = useState(propSearchTerm)
+  const [searchTitleOnly, setSearchTitleOnly] = useState(false) // 楽曲名のみ検索オプション
   const [sortBy, setSortBy] = useState<SongSortType>('newest')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -588,26 +676,34 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
     let filtered = songs
     if (searchTerm.trim()) {
       const searchLower = searchTerm.toLowerCase()
-      filtered = songs.filter(
-        song =>
-          song.title.toLowerCase().includes(searchLower) ||
-          song.lyricists.some(lyricist =>
-            lyricist.toLowerCase().includes(searchLower)
-          ) ||
-          song.composers.some(composer =>
-            composer.toLowerCase().includes(searchLower)
-          ) ||
-          song.arrangers.some(arranger =>
-            arranger.toLowerCase().includes(searchLower)
-          ) ||
-          (song.tags &&
-            song.tags.some(tag => tag.toLowerCase().includes(searchLower)))
-      )
+      if (searchTitleOnly) {
+        // 楽曲名のみで検索
+        filtered = songs.filter(song =>
+          song.title.toLowerCase().includes(searchLower)
+        )
+      } else {
+        // 全フィールドで検索（従来の動作）
+        filtered = songs.filter(
+          song =>
+            song.title.toLowerCase().includes(searchLower) ||
+            song.lyricists.some(lyricist =>
+              lyricist.toLowerCase().includes(searchLower)
+            ) ||
+            song.composers.some(composer =>
+              composer.toLowerCase().includes(searchLower)
+            ) ||
+            song.arrangers.some(arranger =>
+              arranger.toLowerCase().includes(searchLower)
+            ) ||
+            (song.tags &&
+              song.tags.some(tag => tag.toLowerCase().includes(searchLower)))
+        )
+      }
     }
 
     // 共通の並び替え関数を使用
     return sortSongs(filtered, sortBy)
-  }, [songs, searchTerm, sortBy])
+  }, [songs, searchTerm, searchTitleOnly, sortBy])
 
   // 仮想スクロール: 表示する楽曲のみを抽出
   const visibleSongs = useMemo(() => {
@@ -742,7 +838,11 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
           type="text"
           value={searchTerm}
           onChange={e => handleSearchChange(e.target.value)}
-          placeholder="楽曲名、アーティスト、タグで検索..."
+          placeholder={
+            searchTitleOnly
+              ? '楽曲名で検索...'
+              : '楽曲名、アーティスト、タグで検索...'
+          }
           aria-label="楽曲を検索"
           inputMode="text"
           enterKeyHint="search"
@@ -760,28 +860,37 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
           <option value="alphabetical">五十音順</option>
         </SortSelect>
 
-        {/* Search Statistics */}
+        {/* Search Statistics with Search Option Toggle */}
         <SearchStats $theme={theme}>
           <span className="search-count">
             {filteredSongs.length} 件の楽曲
-            {searchTerm && ` (「${searchTerm}」で検索)`}
+            {searchTerm && (
+              <span
+                className="clear-search"
+                onClick={handleClearSearch}
+                role="button"
+                tabIndex={0}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    handleClearSearch()
+                  }
+                }}
+                style={{ marginLeft: '8px' }}
+              >
+                クリア
+              </span>
+            )}
           </span>
-          {searchTerm && (
-            <span
-              className="clear-search"
-              onClick={handleClearSearch}
-              role="button"
-              tabIndex={0}
-              onKeyDown={e => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  handleClearSearch()
-                }
-              }}
-            >
-              検索をクリア
-            </span>
-          )}
+          <SearchOptionToggleInline $theme={theme}>
+            <input
+              type="checkbox"
+              checked={searchTitleOnly}
+              onChange={e => setSearchTitleOnly(e.target.checked)}
+            />
+            <ToggleSliderSmall $theme={theme} $checked={searchTitleOnly} />
+            <ToggleLabelSmall $theme={theme}>曲名のみ</ToggleLabelSmall>
+          </SearchOptionToggleInline>
         </SearchStats>
       </SearchSection>
 
