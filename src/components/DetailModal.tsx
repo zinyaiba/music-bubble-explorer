@@ -559,6 +559,9 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                             songId={item.id}
                             songTitle={item.name}
                             onClick={handleSongDetailClick}
+                            hasMusicEmbed={
+                              !!(item.details as Song)?.musicServiceEmbed
+                            }
                           />
                         </div>
                       </div>
@@ -617,6 +620,9 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                           songId={songId}
                           songTitle={item.name}
                           onClick={handleSongDetailClick}
+                          hasMusicEmbed={
+                            !!(item.details as Song)?.musicServiceEmbed
+                          }
                         />
                       </div>
                     )

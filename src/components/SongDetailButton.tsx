@@ -12,6 +12,8 @@ export interface SongDetailButtonProps {
   songTitle: string
   /** クリック時のコールバック */
   onClick: (songId: string) => void
+  /** 音楽サービス埋め込みコードがあるかどうか */
+  hasMusicEmbed?: boolean
 }
 
 /**
@@ -28,6 +30,7 @@ export const SongDetailButton: React.FC<SongDetailButtonProps> = ({
   songId,
   songTitle,
   onClick,
+  hasMusicEmbed = false,
 }) => {
   /**
    * クリックイベントハンドラ
@@ -61,12 +64,19 @@ export const SongDetailButton: React.FC<SongDetailButtonProps> = ({
   return (
     <button
       type="button"
-      className="song-detail-button"
+      className={`song-detail-button ${hasMusicEmbed ? 'has-music-embed' : ''}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      aria-label="楽曲詳細を表示"
-      title={`${songTitle}の詳細を表示`}
+      aria-label={
+        hasMusicEmbed ? '楽曲詳細を表示（動画あり）' : '楽曲詳細を表示'
+      }
+      title={`${songTitle}の詳細を表示${hasMusicEmbed ? '（動画あり）' : ''}`}
     >
+      {hasMusicEmbed && (
+        <span className="song-detail-button-play-icon" aria-hidden="true">
+          <span className="play-triangle"></span>
+        </span>
+      )}
       <span className="song-detail-button-icon" aria-hidden="true">
         ➡️
       </span>
