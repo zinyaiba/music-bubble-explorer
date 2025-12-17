@@ -476,6 +476,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                   aria-label="楽曲の並び順を選択"
                 >
                   <option value="newest">新曲順</option>
+                  <option value="oldest">古い曲順</option>
                   <option value="updated">更新順</option>
                   <option value="alphabetical">五十音順</option>
                 </select>

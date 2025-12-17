@@ -19,7 +19,7 @@ export interface TagListItem {
 /**
  * ソート方法の型定義
  */
-export type TagSortBy = 'alphabetical' | 'frequency' | 'recent'
+export type TagSortBy = 'alphabetical' | 'frequency' | 'recent' | 'oldest'
 
 /**
  * タグ一覧管理のカスタムフック
@@ -259,6 +259,8 @@ export const useTagList = () => {
             return b.songCount - a.songCount
           case 'recent':
             return b.lastUsed.getTime() - a.lastUsed.getTime()
+          case 'oldest':
+            return a.lastUsed.getTime() - b.lastUsed.getTime()
           default:
             return 0
         }

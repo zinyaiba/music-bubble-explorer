@@ -3,7 +3,7 @@ import { Song } from '@/types/music'
 /**
  * 楽曲の並び替えタイプ
  */
-export type SongSortType = 'newest' | 'updated' | 'alphabetical'
+export type SongSortType = 'newest' | 'oldest' | 'updated' | 'alphabetical'
 
 /**
  * 楽曲を並び替える共通関数
@@ -33,6 +33,27 @@ export function sortSongs(songs: Song[], sortBy: SongSortType): Song[] {
         const normalizedDateA = dateA.replace('-', '')
         const normalizedDateB = dateB.replace('-', '')
         return normalizedDateB.localeCompare(normalizedDateA)
+      })
+      break
+
+    case 'oldest':
+      // 古い曲順（発売年・月日の昇順、発売年がない場合は最後）
+      sorted.sort((a, b) => {
+        const yearA = a.releaseYear ?? 9999
+        const yearB = b.releaseYear ?? 9999
+
+        // 年が異なる場合は年で比較
+        if (yearA !== yearB) {
+          return yearA - yearB
+        }
+
+        // 年が同じ場合は月日で比較（MMDD形式またはMM-DD形式）
+        const dateA = a.releaseDate || '9999'
+        const dateB = b.releaseDate || '9999'
+        // ハイフンを削除して比較（後方互換性）
+        const normalizedDateA = dateA.replace('-', '')
+        const normalizedDateB = dateB.replace('-', '')
+        return normalizedDateA.localeCompare(normalizedDateB)
       })
       break
 
