@@ -1,0 +1,161 @@
+/**
+ * SongDetailButton CSS Styles
+ * 楽曲詳細画面への遷移ボタンのスタイル
+ *
+ * Requirements: 2.3, 3.1, 4.1, 4.2
+ * - 最小44x44pxのタップ領域 (4.1)
+ * - フォーカスインジケーター (3.1)
+ * - タップフィードバック（:active スタイル）(2.3)
+ * - モバイル対応のレスポンシブスタイル (4.2)
+ */
+
+.song-detail-button {
+  /* タップ領域の確保 - 最小44x44px (Requirement 4.1) */
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+
+  /* レイアウト */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  /* 背景とボーダー */
+  background: linear-gradient(
+    135deg,
+    rgba(255, 182, 193, 0.3) 0%,
+    rgba(255, 240, 245, 0.5) 100%
+  );
+  border: 2px solid rgba(255, 182, 193, 0.4);
+  border-radius: 50%;
+
+  /* カーソル */
+  cursor: pointer;
+
+  /* トランジション */
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* シャドウ */
+  box-shadow: 0 2px 6px rgba(255, 182, 193, 0.2);
+
+  /* リセット */
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+/* アイコン */
+.song-detail-button-icon {
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ホバー状態 */
+.song-detail-button:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 182, 193, 0.5) 0%,
+    rgba(255, 240, 245, 0.7) 100%
+  );
+  border-color: rgba(255, 105, 180, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 4px 10px rgba(255, 182, 193, 0.3);
+}
+
+/* フォーカス状態 - アクセシビリティ (Requirement 3.1) */
+.song-detail-button:focus {
+  outline: 3px solid rgba(255, 105, 180, 0.6);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(255, 182, 193, 0.3);
+}
+
+.song-detail-button:focus-visible {
+  outline: 3px solid rgba(255, 105, 180, 0.8);
+  outline-offset: 2px;
+}
+
+/* アクティブ状態 - タップフィードバック (Requirement 2.3) */
+.song-detail-button:active {
+  transform: scale(0.92);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 105, 180, 0.4) 0%,
+    rgba(255, 182, 193, 0.6) 100%
+  );
+  box-shadow: 0 1px 3px rgba(255, 182, 193, 0.2);
+  transition: all 0.1s ease;
+}
+
+/* モバイル対応 (Requirement 4.2) */
+@media (max-width: 768px) {
+  .song-detail-button {
+    /* モバイルでもタップ領域を維持 */
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
+  /* モバイルではホバー効果を無効化 */
+  .song-detail-button:hover {
+    transform: none;
+  }
+
+  /* モバイルでのアクティブ状態を強調 */
+  .song-detail-button:active {
+    transform: scale(0.9);
+    background: linear-gradient(
+      135deg,
+      rgba(255, 105, 180, 0.5) 0%,
+      rgba(255, 182, 193, 0.7) 100%
+    );
+  }
+}
+
+@media (max-width: 480px) {
+  .song-detail-button {
+    /* 小さい画面でも最小タップ領域を確保 */
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .song-detail-button-icon {
+    font-size: 16px;
+  }
+}
+
+/* アクセシビリティ対応 */
+@media (prefers-reduced-motion: reduce) {
+  .song-detail-button {
+    transition: none;
+  }
+
+  .song-detail-button:hover,
+  .song-detail-button:active {
+    transform: none;
+  }
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .song-detail-button {
+    border: 2px solid #000;
+    background: #fff;
+  }
+
+  .song-detail-button:hover,
+  .song-detail-button:focus {
+    border-color: #000;
+    background: #f0f0f0;
+    outline-color: #000;
+  }
+
+  .song-detail-button:active {
+    background: #e0e0e0;
+  }
+}

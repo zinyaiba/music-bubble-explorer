@@ -5,6 +5,8 @@ import { MusicDataService } from '@/services/musicDataService'
 import { StandardLayout } from './StandardLayout'
 import { useAnimationControl } from '@/hooks/useAnimationControl'
 import { AnalyticsService } from '@/services/analyticsService'
+import { SongDetailButton } from './SongDetailButton'
+import { SongDetailView } from './SongDetailView'
 import './DetailModal.css'
 
 interface DetailModalProps {
@@ -34,6 +36,9 @@ interface RelatedData {
 export const DetailModal: React.FC<DetailModalProps> = React.memo(
   ({ selectedBubble, onClose, onSongClick, onTagClick, onPersonClick }) => {
     const [relatedData, setRelatedData] = useState<RelatedData[]>([])
+    const [selectedSongForDetail, setSelectedSongForDetail] = useState<
+      string | null
+    >(null)
     const { setDialogOpen } = useAnimationControl()
 
     const musicService = useMemo(() => MusicDataService.getInstance(), [])
@@ -289,6 +294,23 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
     )
 
     /**
+     * Handle song detail button click
+     * Requirements: 1.1, 1.2 - 楽曲詳細画面への遷移
+     */
+    const handleSongDetailClick = useCallback((songId: string) => {
+      console.log('🎵 DetailModal: Opening song detail view for:', songId)
+      setSelectedSongForDetail(songId)
+    }, [])
+
+    /**
+     * Handle closing the song detail view
+     */
+    const handleSongDetailClose = useCallback(() => {
+      console.log('🎵 DetailModal: Closing song detail view')
+      setSelectedSongForDetail(null)
+    }, [])
+
+    /**
      * Handle item click for navigation
      * Requirements: 2.2, 2.3, 2.4, 2.5
      * Note: Navigation replaces current dialog (no history stack per Requirement 2.4)
@@ -348,6 +370,29 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
     }
 
     const title = `${getTypeIcon(selectedBubble.type)} ${selectedBubble.type === 'tag' ? `#${selectedBubble.name}` : selectedBubble.name}`
+
+    // SongDetailViewが表示されている場合はそちらを表示
+    if (selectedSongForDetail) {
+      // 選択された楽曲のデータを取得
+      const selectedSongData = relatedData.find(item => {
+        const songId =
+          item.id.includes('-lyricist') ||
+          item.id.includes('-composer') ||
+          item.id.includes('-arranger')
+            ? item.id.replace(/-lyricist$|-composer$|-arranger$/, '')
+            : item.id
+        return songId === selectedSongForDetail
+      })
+
+      return (
+        <SongDetailView
+          songId={selectedSongForDetail}
+          song={selectedSongData?.details as Song | undefined}
+          isVisible={true}
+          onClose={handleSongDetailClose}
+        />
+      )
+    }
 
     return (
       <StandardLayout
@@ -460,45 +505,61 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                         }}
                         style={{ cursor: 'pointer' }}
                       >
-                        <div className="song-info">
-                          <div className="item-name">{item.name}</div>
-                          {item.details && (
-                            <div className="song-credits">
-                              {(item.details as Song).lyricists &&
-                                (item.details as Song).lyricists.length > 0 && (
-                                  <div className="credit-line">
-                                    <span className="credit-label">作詞:</span>
-                                    <span className="credit-names">
-                                      {(item.details as Song).lyricists.join(
-                                        ', '
-                                      )}
-                                    </span>
-                                  </div>
-                                )}
-                              {(item.details as Song).composers &&
-                                (item.details as Song).composers.length > 0 && (
-                                  <div className="credit-line">
-                                    <span className="credit-label">作曲:</span>
-                                    <span className="credit-names">
-                                      {(item.details as Song).composers.join(
-                                        ', '
-                                      )}
-                                    </span>
-                                  </div>
-                                )}
-                              {(item.details as Song).arrangers &&
-                                (item.details as Song).arrangers.length > 0 && (
-                                  <div className="credit-line">
-                                    <span className="credit-label">編曲:</span>
-                                    <span className="credit-names">
-                                      {(item.details as Song).arrangers.join(
-                                        ', '
-                                      )}
-                                    </span>
-                                  </div>
-                                )}
-                            </div>
-                          )}
+                        <div className="song-chip-content">
+                          <div className="song-info">
+                            <div className="item-name">{item.name}</div>
+                            {item.details && (
+                              <div className="song-credits">
+                                {(item.details as Song).lyricists &&
+                                  (item.details as Song).lyricists.length >
+                                    0 && (
+                                    <div className="credit-line">
+                                      <span className="credit-label">
+                                        作詞:
+                                      </span>
+                                      <span className="credit-names">
+                                        {(item.details as Song).lyricists.join(
+                                          ', '
+                                        )}
+                                      </span>
+                                    </div>
+                                  )}
+                                {(item.details as Song).composers &&
+                                  (item.details as Song).composers.length >
+                                    0 && (
+                                    <div className="credit-line">
+                                      <span className="credit-label">
+                                        作曲:
+                                      </span>
+                                      <span className="credit-names">
+                                        {(item.details as Song).composers.join(
+                                          ', '
+                                        )}
+                                      </span>
+                                    </div>
+                                  )}
+                                {(item.details as Song).arrangers &&
+                                  (item.details as Song).arrangers.length >
+                                    0 && (
+                                    <div className="credit-line">
+                                      <span className="credit-label">
+                                        編曲:
+                                      </span>
+                                      <span className="credit-names">
+                                        {(item.details as Song).arrangers.join(
+                                          ', '
+                                        )}
+                                      </span>
+                                    </div>
+                                  )}
+                              </div>
+                            )}
+                          </div>
+                          <SongDetailButton
+                            songId={item.id}
+                            songTitle={item.name}
+                            onClick={handleSongDetailClick}
+                          />
                         </div>
                       </div>
                     )
@@ -519,30 +580,47 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                   role="list"
                   aria-label="関連する楽曲一覧"
                 >
-                  {relatedData.map(item => (
-                    <div
-                      key={item.id}
-                      className="related-item clickable"
-                      role="listitem"
-                      tabIndex={0}
-                      onClick={() => handleItemClick(item)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          handleItemClick(item)
-                        }
-                      }}
-                      style={{ cursor: 'pointer' }}
-                    >
-                      <span
-                        className={`role-tag role-${item.role}`}
-                        aria-label={`役割: ${getRoleLabel(item.role!)}`}
+                  {relatedData.map(item => {
+                    // 楽曲IDを取得（role付きIDの場合は元のIDを抽出）
+                    const songId =
+                      item.id.includes('-lyricist') ||
+                      item.id.includes('-composer') ||
+                      item.id.includes('-arranger')
+                        ? item.id.replace(
+                            /-lyricist$|-composer$|-arranger$/,
+                            ''
+                          )
+                        : item.id
+                    return (
+                      <div
+                        key={item.id}
+                        className="related-item person-song-item clickable"
+                        role="listitem"
+                        tabIndex={0}
+                        onClick={() => handleItemClick(item)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            handleItemClick(item)
+                          }
+                        }}
+                        style={{ cursor: 'pointer' }}
                       >
-                        {getRoleLabel(item.role!)}
-                      </span>
-                      <span className="item-name">{item.name}</span>
-                    </div>
-                  ))}
+                        <span
+                          className={`role-tag role-${item.role}`}
+                          aria-label={`役割: ${getRoleLabel(item.role!)}`}
+                        >
+                          {getRoleLabel(item.role!)}
+                        </span>
+                        <span className="item-name">{item.name}</span>
+                        <SongDetailButton
+                          songId={songId}
+                          songTitle={item.name}
+                          onClick={handleSongDetailClick}
+                        />
+                      </div>
+                    )
+                  })}
                 </div>
               ) : (
                 <div className="empty-message" role="status" aria-live="polite">

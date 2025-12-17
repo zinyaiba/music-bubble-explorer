@@ -483,3 +483,75 @@
     margin-top: 4px !important;
   }
 }
+
+/* ========================================
+   SongDetailButton統合用スタイル
+   Requirements: 4.2 - 楽曲チップ内でSongDetailButtonを右端に配置
+   ======================================== */
+
+/* タグ詳細の楽曲チップ - SongDetailButton統合レイアウト */
+.related-item.tag-song-item .song-chip-content {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 12px !important;
+}
+
+.related-item.tag-song-item .song-chip-content .song-info {
+  flex: 1 !important;
+  min-width: 0 !important; /* テキストの省略を有効にする */
+}
+
+.related-item.tag-song-item .song-chip-content .song-detail-button {
+  flex-shrink: 0 !important;
+  align-self: center !important;
+}
+
+/* 人物詳細の楽曲チップ - SongDetailButton統合レイアウト */
+.related-item.person-song-item {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+}
+
+.related-item.person-song-item .role-tag {
+  flex-shrink: 0 !important;
+}
+
+.related-item.person-song-item .item-name {
+  flex: 1 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.related-item.person-song-item .song-detail-button {
+  flex-shrink: 0 !important;
+  margin-left: auto !important;
+}
+
+/* モバイル対応 - SongDetailButton統合 */
+@media (max-width: 768px) {
+  .related-item.tag-song-item .song-chip-content {
+    gap: 10px !important;
+  }
+
+  .related-item.person-song-item {
+    gap: 10px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .related-item.tag-song-item .song-chip-content {
+    gap: 8px !important;
+  }
+
+  .related-item.person-song-item {
+    gap: 8px !important;
+  }
+}
