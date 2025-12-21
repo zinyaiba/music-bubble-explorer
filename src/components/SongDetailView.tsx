@@ -251,6 +251,7 @@ export const SongDetailView: React.FC<SongDetailViewProps> = ({
       title={song?.title || '楽曲詳細'}
       size="large"
       mobileOptimized={true}
+      className="song-detail-view-overlay"
     >
       <div className="song-detail-content">
         {isLoading && (

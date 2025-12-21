@@ -1,5 +1,10 @@
 /* SongDetailView.css */
 
+/* SongDetailViewのオーバーレイ - DetailModalより前面に表示 */
+.standard-layout-overlay.song-detail-view-overlay {
+  z-index: 10002 !important; /* DetailModal(10001)より前面に表示 */
+}
+
 .song-detail-content {
   padding: 1rem;
   max-width: 800px;
