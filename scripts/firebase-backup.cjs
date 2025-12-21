@@ -16,6 +16,212 @@ const args = process.argv.slice(2);
 const outputIndex = args.indexOf('--output');
 const customOutput = outputIndex !== -1 ? args[outputIndex + 1] : null;
 
+// 最新のバックアップファイルを取得
+function getLatestBackupFile(backupDir) {
+  if (!fs.existsSync(backupDir)) {
+    return null;
+  }
+  
+  const files = fs.readdirSync(backupDir)
+    .filter(f => f.startsWith('firebase-backup-') && f.endsWith('.json'))
+    .sort()
+    .reverse();
+  
+  return files.length > 0 ? path.join(backupDir, files[0]) : null;
+}
+
+// 前回のバックアップを読み込み
+function loadPreviousBackup(backupDir) {
+  const latestFile = getLatestBackupFile(backupDir);
+  if (!latestFile) {
+    return null;
+  }
+  
+  try {
+    const content = fs.readFileSync(latestFile, 'utf8');
+    return { data: JSON.parse(content), file: latestFile };
+  } catch (error) {
+    console.warn('⚠️ 前回のバックアップの読み込みに失敗:', error.message);
+    return null;
+  }
+}
+
+// 差分を計算
+function calculateDiff(previousBackup, currentBackup) {
+  const diff = {
+    added: [],
+    updated: [],
+    deleted: []
+  };
+  
+  if (!previousBackup) {
+    return null; // 前回のバックアップがない場合は差分なし
+  }
+  
+  for (const collectionName of Object.keys(currentBackup.collections)) {
+    const prevDocs = previousBackup.collections[collectionName] || [];
+    const currDocs = currentBackup.collections[collectionName] || [];
+    
+    const prevMap = new Map(prevDocs.map(d => [d.id, d]));
+    const currMap = new Map(currDocs.map(d => [d.id, d]));
+    
+    // 追加・更新されたドキュメントを検出
+    for (const [id, currDoc] of currMap) {
+      const prevDoc = prevMap.get(id);
+      if (!prevDoc) {
+        diff.added.push({ collection: collectionName, id, data: currDoc.data });
+      } else if (JSON.stringify(prevDoc.data) !== JSON.stringify(currDoc.data)) {
+        diff.updated.push({ 
+          collection: collectionName, 
+          id, 
+          data: currDoc.data,
+          changes: getFieldChanges(prevDoc.data, currDoc.data)
+        });
+      }
+    }
+    
+    // 削除されたドキュメントを検出
+    for (const [id, prevDoc] of prevMap) {
+      if (!currMap.has(id)) {
+        diff.deleted.push({ collection: collectionName, id, data: prevDoc.data });
+      }
+    }
+  }
+  
+  return diff;
+}
+
+// フィールドの変更を取得
+function getFieldChanges(prevData, currData) {
+  const changes = [];
+  const allKeys = new Set([...Object.keys(prevData), ...Object.keys(currData)]);
+  
+  for (const key of allKeys) {
+    const prevVal = JSON.stringify(prevData[key]);
+    const currVal = JSON.stringify(currData[key]);
+    
+    if (prevVal !== currVal) {
+      changes.push({
+        field: key,
+        from: prevData[key],
+        to: currData[key]
+      });
+    }
+  }
+  
+  return changes;
+}
+
+// 差分を表示
+function displayDiff(diff, previousFile) {
+  if (!diff) {
+    console.log('\n📋 差分情報: 前回のバックアップがないため、差分は表示できません');
+    return;
+  }
+  
+  const hasChanges = diff.added.length > 0 || diff.updated.length > 0 || diff.deleted.length > 0;
+  
+  console.log('\n' + '═'.repeat(60));
+  console.log('📋 前回のバックアップとの差分');
+  console.log('   比較元: ' + path.basename(previousFile));
+  console.log('═'.repeat(60));
+  
+  if (!hasChanges) {
+    console.log('\n✅ 変更なし - 前回のバックアップと同じ内容です');
+    return;
+  }
+  
+  // 追加されたドキュメント
+  if (diff.added.length > 0) {
+    console.log(`\n🆕 追加 (${diff.added.length}件)`);
+    console.log('─'.repeat(40));
+    for (const item of diff.added) {
+      const title = item.data.title || item.id;
+      console.log(`   + [${item.collection}] ${title}`);
+      if (item.data.artists) {
+        console.log(`     アーティスト: ${item.data.artists.join(', ')}`);
+      }
+    }
+  }
+  
+  // 更新されたドキュメント
+  if (diff.updated.length > 0) {
+    console.log(`\n📝 更新 (${diff.updated.length}件)`);
+    console.log('─'.repeat(40));
+    for (const item of diff.updated) {
+      const title = item.data.title || item.id;
+      console.log(`   ~ [${item.collection}] ${title}`);
+      for (const change of item.changes) {
+        if (change.field === 'updatedAt') continue; // updatedAtは省略
+        const formatted = formatChange(change);
+        if (formatted) {
+          console.log(`     ${formatted}`);
+        }
+      }
+    }
+  }
+  
+  // 削除されたドキュメント
+  if (diff.deleted.length > 0) {
+    console.log(`\n🗑️  削除 (${diff.deleted.length}件)`);
+    console.log('─'.repeat(40));
+    for (const item of diff.deleted) {
+      const title = item.data.title || item.id;
+      console.log(`   - [${item.collection}] ${title}`);
+    }
+  }
+  
+  console.log('\n' + '═'.repeat(60));
+  console.log(`📊 サマリー: +${diff.added.length} 追加 / ~${diff.updated.length} 更新 / -${diff.deleted.length} 削除`);
+  console.log('═'.repeat(60));
+}
+
+// 値を表示用にフォーマット
+function formatValue(value) {
+  if (value === undefined) return '(なし)';
+  if (value === null) return 'null';
+  if (Array.isArray(value)) {
+    if (value.length === 0) return '[]';
+    return `[${value.join(', ')}]`;
+  }
+  if (typeof value === 'string' && value.length > 30) {
+    return value.substring(0, 30) + '...';
+  }
+  return String(value);
+}
+
+// 配列の差分を取得（追加・削除のみ）
+function getArrayDiff(from, to) {
+  const fromSet = new Set(from || []);
+  const toSet = new Set(to || []);
+  
+  const added = [...toSet].filter(x => !fromSet.has(x));
+  const removed = [...fromSet].filter(x => !toSet.has(x));
+  
+  return { added, removed };
+}
+
+// 変更内容をフォーマット
+function formatChange(change) {
+  // tagsフィールドは追加・削除のみ表示
+  if (change.field === 'tags') {
+    const diff = getArrayDiff(change.from, change.to);
+    const parts = [];
+    if (diff.added.length > 0) {
+      parts.push(`+[${diff.added.join(', ')}]`);
+    }
+    if (diff.removed.length > 0) {
+      parts.push(`-[${diff.removed.join(', ')}]`);
+    }
+    return parts.length > 0 ? `tags: ${parts.join(' ')}` : null;
+  }
+  
+  // その他のフィールドは従来通り
+  const fromStr = formatValue(change.from);
+  const toStr = formatValue(change.to);
+  return `${change.field}: ${fromStr} → ${toStr}`;
+}
+
 // Firebase Admin SDK初期化
 function initializeFirebase() {
   try {
@@ -159,15 +365,26 @@ async function main() {
   
   // 出力ファイル名を決定
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
-  const defaultOutput = path.join(__dirname, '..', 'backups', `firebase-backup-${timestamp}.json`);
+  const backupDir = path.join(__dirname, '..', 'backups');
+  const defaultOutput = path.join(backupDir, `firebase-backup-${timestamp}.json`);
   const outputPath = customOutput || defaultOutput;
   
   try {
+    // 前回のバックアップを読み込み
+    const previous = loadPreviousBackup(backupDir);
+    if (previous) {
+      console.log(`📂 前回のバックアップ: ${path.basename(previous.file)}`);
+    }
+    
     // Firebase初期化
     const db = initializeFirebase();
     
     // バックアップ実行
     const backup = await backupFirestore(db);
+    
+    // 差分を計算して表示
+    const diff = calculateDiff(previous?.data, backup);
+    displayDiff(diff, previous?.file);
     
     // ファイルに保存
     saveBackup(backup, outputPath);
