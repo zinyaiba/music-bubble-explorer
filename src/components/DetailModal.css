@@ -110,6 +110,8 @@
   -webkit-overflow-scrolling: touch;
   width: 100%;
   min-height: 200px;
+  /* フッターで隠れる領域分の余白を追加 */
+  padding-bottom: 120px;
 }
 
 .related-item {

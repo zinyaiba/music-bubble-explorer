@@ -326,6 +326,8 @@ const SongsList = styled.div<{
   flex-direction: column;
   gap: 12px;
   padding: 4px;
+  /* フッターで隠れる領域分の余白を追加 */
+  padding-bottom: 120px;
 
   /* Responsive adjustments */
   @media (max-width: 768px) {

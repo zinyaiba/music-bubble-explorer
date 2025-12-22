@@ -613,6 +613,8 @@
   overflow-y: auto;
   min-height: 0;
   max-height: calc(100vh - 300px);
+  /* フッターで隠れる領域分の余白を追加 */
+  padding-bottom: 120px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 105, 180, 0.3) transparent;

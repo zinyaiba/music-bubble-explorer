@@ -445,6 +445,8 @@
   flex: 1;
   overflow-y: auto;
   padding: 24px;
+  /* フッターで隠れる領域分の余白を追加 */
+  padding-bottom: 120px;
   background: linear-gradient(135deg, #fafafa 0%, #fff0f5 50%, #f0fff0 100%);
   position: relative;
 }

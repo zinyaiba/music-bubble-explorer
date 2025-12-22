@@ -335,6 +335,8 @@ const TagsContainer = styled.div`
   flex: 1;
   overflow-y: auto;
   padding: 4px 0;
+  /* フッターで隠れる領域分の余白を追加 */
+  padding-bottom: 120px;
   min-height: 200px;
   max-height: 400px;
 
