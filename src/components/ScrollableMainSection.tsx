@@ -103,7 +103,7 @@ const ScrollableContainer = styled.div<{ $isMobile: boolean }>`
     max-height: 100vh;
   `}
 
-  /* モバイル向けスタイル - セーフエリア対応強化 (要件: 1.3, 3.3) */
+  /* モバイル向けスタイル - シンプル化 */
   ${props =>
     props.$isMobile &&
     `
@@ -115,21 +115,10 @@ const ScrollableContainer = styled.div<{ $isMobile: boolean }>`
     max-width: 100%;
     align-items: stretch;
     
-    /* フォールバック値（env非サポートブラウザ用） */
+    /* シンプルな位置計算（safe-area-inset-bottomを削除） */
     top: 0;
-    bottom: 88px;
-    height: calc(100vh - 88px);
-    
-    /* セーフエリア対応 - top位置にセーフエリアを考慮 */
-    top: var(--safe-area-inset-top, 0px);
-    
-    /* bottom位置にナビゲーション高さ+セーフエリアを考慮 */
-    bottom: calc(var(--safe-nav-height, 60px) + var(--safe-area-inset-bottom, 0px));
-    
-    /* 高さ計算 - dvh単位を優先、vhにフォールバック */
-    height: calc(
-      100vh - var(--safe-area-inset-top, 0px) - var(--safe-nav-height, 60px) - var(--safe-area-inset-bottom, 0px)
-    );
+    bottom: 60px;
+    height: calc(100vh - 60px);
     
     /* レイアウト安定化との競合を防ぐ */
     z-index: 1;
@@ -140,19 +129,7 @@ const ScrollableContainer = styled.div<{ $isMobile: boolean }>`
     ${props =>
       props.$isMobile &&
       `
-      height: calc(
-        100dvh - var(--safe-area-inset-top, 0px) - var(--safe-nav-height, 60px) - var(--safe-area-inset-bottom, 0px)
-      );
-    `}
-  }
-
-  /* env()サポート検出による追加スタイル */
-  @supports (padding-top: env(safe-area-inset-top)) {
-    ${props =>
-      props.$isMobile &&
-      `
-      top: env(safe-area-inset-top, 0px);
-      bottom: calc(var(--safe-nav-height, 60px) + env(safe-area-inset-bottom, 0px));
+      height: calc(100dvh - 60px);
     `}
   }
 
@@ -195,19 +172,13 @@ const HeaderWrapper = styled.div<{ $isMobile: boolean }>`
     z-index: 1000;
   `}
 
-  /* モバイル向けスタイル - セーフエリア対応強化 (要件: 1.1, 4.1) */
+  /* モバイル向けスタイル - シンプル化 */
   ${props =>
     props.$isMobile &&
     `
-    /* フォールバック値（env非サポートブラウザ用） */
     height: 85px;
-    min-height: 105px;
+    min-height: 85px;
     padding-top: 20px;
-    
-    /* env()サポートブラウザ用 - セーフエリアを含めた計算 */
-    height: calc(85px + var(--safe-area-inset-top, 0px));
-    min-height: calc(85px + max(var(--safe-area-inset-top, 0px), 20px));
-    padding-top: max(var(--safe-area-inset-top, 0px), 20px);
     
     /* パフォーマンス最適化 */
     transform: translate3d(0, 0, 0);
@@ -224,16 +195,6 @@ const HeaderWrapper = styled.div<{ $isMobile: boolean }>`
       -webkit-user-select: none;
       user-select: none;
       -webkit-touch-callout: none;
-    `}
-  }
-
-  /* env()サポート検出による追加スタイル */
-  @supports (padding-top: env(safe-area-inset-top)) {
-    ${props =>
-      props.$isMobile &&
-      `
-      padding-top: max(env(safe-area-inset-top, 0px), 20px);
-      min-height: calc(85px + max(env(safe-area-inset-top, 0px), 20px));
     `}
   }
 `
