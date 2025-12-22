@@ -19,6 +19,31 @@ initializeGlassmorphismSystem()
 // バージョン管理の初期化
 setStoredVersion(CURRENT_VERSION)
 
+// プルトゥリフレッシュを無効化（モバイルブラウザ対策）
+let lastTouchY = 0
+document.addEventListener(
+  'touchstart',
+  e => {
+    lastTouchY = e.touches[0].clientY
+  },
+  { passive: true }
+)
+
+document.addEventListener(
+  'touchmove',
+  e => {
+    const touchY = e.touches[0].clientY
+    const scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop
+
+    // ページ最上部で下にスワイプした場合のみブロック
+    if (scrollTop <= 0 && touchY > lastTouchY) {
+      e.preventDefault()
+    }
+  },
+  { passive: false }
+)
+
 // Service Workerの登録
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {

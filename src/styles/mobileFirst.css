@@ -76,6 +76,9 @@ body {
   /* Safari対応：動的ビューポート高さ */
   min-height: 100vh !important;
   min-height: 100dvh !important; /* Safari対応 */
+  /* プルトゥリフレッシュを無効化 */
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
 }
 
 /* Root要素の強制表示 - Safari対応強化 */

@@ -52,6 +52,9 @@ body {
   padding: 0;
   height: 100vh;
   height: 100dvh; /* 動的ビューポート高さ */
+  /* プルトゥリフレッシュを無効化 */
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
 }
 
 body {
