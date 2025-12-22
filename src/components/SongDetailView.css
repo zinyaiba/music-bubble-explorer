@@ -7,6 +7,8 @@
 
 .song-detail-content {
   padding: 1rem;
+  /* フッターで隠れる領域分の余白を追加 */
+  padding-bottom: 180px;
   max-width: 800px;
   margin: 0 auto;
 }
@@ -282,6 +284,8 @@
 @media (max-width: 768px) {
   .song-detail-content {
     padding: 0.75rem;
+    /* モバイルではフッター分の余白をさらに追加 */
+    padding-bottom: 200px;
   }
 
   .song-title {
