@@ -84,6 +84,11 @@ const ScrollableContainer = styled.div<{ $isMobile: boolean }>`
   scroll-behavior: smooth;
   overscroll-behavior: contain;
 
+  /* ダイアログ表示時のスクロール抑止 */
+  .dialog-open & {
+    overflow: hidden !important;
+  }
+
   /* PC向けスタイル */
   ${props =>
     !props.$isMobile &&

@@ -96,12 +96,11 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
    */
   useEffect(() => {
     if (isVisible) {
-      // 背景のスクロールを無効化
-      const scrollY = window.scrollY
-      document.body.style.position = 'fixed'
-      document.body.style.top = `-${scrollY}px`
-      document.body.style.width = '100%'
-      document.body.style.overflow = 'hidden'
+      // .App要素にdialog-openクラスを追加してスクロールを抑止
+      const appElement = document.querySelector('.App')
+      if (appElement) {
+        appElement.classList.add('dialog-open')
+      }
 
       document.addEventListener('keydown', handleKeyDown)
 
@@ -148,13 +147,11 @@ export const StandardLayout: React.FC<StandardLayoutProps> = ({
         window.removeEventListener('resize', updatePadding)
         window.removeEventListener('orientationchange', updatePadding)
 
-        // 背景のスクロールを復元
-        const scrollY = document.body.style.top
-        document.body.style.position = ''
-        document.body.style.top = ''
-        document.body.style.width = ''
-        document.body.style.overflow = ''
-        window.scrollTo(0, parseInt(scrollY || '0') * -1)
+        // dialog-openクラスを削除してスクロールを復元
+        const appElement = document.querySelector('.App')
+        if (appElement) {
+          appElement.classList.remove('dialog-open')
+        }
       }
     }
   }, [isVisible, handleKeyDown])

@@ -78,6 +78,8 @@
 
 .App {
   min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   /* ガラスモーフィズム最適化 */
@@ -102,6 +104,11 @@
   /* ガラスモーフィズム用のパフォーマンス最適化 */
   will-change: auto;
   contain: layout style paint;
+}
+
+/* ダイアログ表示時のスクロール抑止 */
+.App.dialog-open {
+  overflow: hidden !important;
 }
 
 /* Safari対応：ヘッダー見切れ防止 */

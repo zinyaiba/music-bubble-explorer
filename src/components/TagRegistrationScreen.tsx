@@ -457,6 +457,22 @@ export const TagRegistrationScreen: React.FC<TagRegistrationScreenProps> = ({
       setSelectedSong(null)
       setIsLoading(false)
       setLoadingMessage('')
+
+      // .App要素にdialog-openクラスを追加してスクロールを抑止
+      const appElement = document.querySelector('.App')
+      if (appElement) {
+        appElement.classList.add('dialog-open')
+      }
+    }
+
+    return () => {
+      // dialog-openクラスを削除してスクロールを復元
+      if (isVisible) {
+        const appElement = document.querySelector('.App')
+        if (appElement) {
+          appElement.classList.remove('dialog-open')
+        }
+      }
     }
   }, [isVisible])
 

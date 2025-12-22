@@ -87,6 +87,27 @@ export const UnifiedDialogLayout: React.FC<UnifiedDialogLayoutProps> = ({
   )
 
   /**
+   * ダイアログ表示時に背景のスクロールを抑止
+   */
+  useEffect(() => {
+    if (isVisible) {
+      // .App要素にdialog-openクラスを追加してスクロールを抑止
+      const appElement = document.querySelector('.App')
+      if (appElement) {
+        appElement.classList.add('dialog-open')
+      }
+
+      return () => {
+        // dialog-openクラスを削除してスクロールを復元
+        const appElement = document.querySelector('.App')
+        if (appElement) {
+          appElement.classList.remove('dialog-open')
+        }
+      }
+    }
+  }, [isVisible])
+
+  /**
    * キーボードイベントリスナーの設定とモバイル位置調整
    */
   useEffect(() => {
