@@ -36,7 +36,7 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
   // State management
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<TagSortBy>('frequency')
-  const [layout, setLayout] = useState<TagLayout>('grid')
+  const [isCompactView, setIsCompactView] = useState(false) // コンパクト表示モード
 
   // タグ一覧が表示される時に最新データを再取得
   React.useEffect(() => {
@@ -110,11 +110,6 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
   // Handle sort change
   const handleSortChange = useCallback((newSort: TagSortBy) => {
     setSortBy(newSort)
-  }, [])
-
-  // Handle layout change
-  const handleLayoutChange = useCallback((newLayout: TagLayout) => {
-    setLayout(newLayout)
   }, [])
 
   // Clear search
@@ -225,30 +220,26 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                   <option value="recent">更新順</option>
                   <option value="alphabetical">アルファベット順</option>
                 </select>
-              </div>
-
-              <div className="layout-controls">
                 <button
-                  className={`layout-button ${layout === 'grid' ? 'active' : ''}`}
-                  onClick={() => handleLayoutChange('grid')}
-                  aria-label="グリッド表示"
-                  title="グリッド表示"
+                  className={`view-toggle-button ${isCompactView ? 'active' : ''}`}
+                  onClick={() => setIsCompactView(!isCompactView)}
+                  aria-label={
+                    isCompactView
+                      ? '詳細表示に切り替え'
+                      : 'コンパクト表示に切り替え'
+                  }
+                  title={isCompactView ? '詳細表示' : 'コンパクト表示'}
+                  type="button"
                 >
-                  ⊞
-                </button>
-                <button
-                  className={`layout-button ${layout === 'list' ? 'active' : ''}`}
-                  onClick={() => handleLayoutChange('list')}
-                  aria-label="リスト表示"
-                  title="リスト表示"
-                >
-                  ☰
+                  {isCompactView ? '☰' : '▤'}
                 </button>
               </div>
             </div>
 
             {/* Tag List (Requirements: 21.1, 21.2, 21.5) */}
-            <div className={`tag-list-content ${layout}`}>
+            <div
+              className={`tag-list-content grid ${isCompactView ? 'compact-view' : ''}`}
+            >
               {filteredAndSortedTags.length === 0 ? (
                 <div className="no-tags-message">
                   <div className="empty-icon">🏷️</div>
@@ -269,11 +260,13 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                   )}
                 </div>
               ) : (
-                <div className={`tag-grid ${layout}`}>
+                <div
+                  className={`tag-grid grid ${isCompactView ? 'compact' : ''}`}
+                >
                   {filteredAndSortedTags.map(tag => (
                     <div
                       key={tag.id}
-                      className="tag-item"
+                      className={`tag-item ${isCompactView ? 'compact' : ''}`}
                       onClick={() => handleTagClick(tag)}
                       role="button"
                       tabIndex={0}
@@ -286,9 +279,11 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                       aria-label={`タグ ${tag.displayName}、${tag.songCount}曲`}
                     >
                       <div className="tag-name">{tag.name}</div>
-                      <div className="tag-info">
-                        <span className="song-count">{tag.songCount}曲</span>
-                      </div>
+                      {!isCompactView && (
+                        <div className="tag-info">
+                          <span className="song-count">{tag.songCount}曲</span>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

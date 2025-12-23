@@ -251,7 +251,7 @@ const SortSelect = styled.select<{
 
   /* Layout */
   padding: 10px 16px;
-  width: 100%;
+  flex: 1;
 
   /* Typography */
   font-family: ${props => props.$theme.typography.fontFamily};
@@ -274,6 +274,73 @@ const SortSelect = styled.select<{
   @media (max-width: 768px) {
     padding: 8px 12px;
     font-size: 14px;
+    border-radius: 10px;
+  }
+`
+
+const SortRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+`
+
+const ViewToggleButton = styled.button<{
+  $theme: any
+  $active: boolean
+}>`
+  /* Glassmorphism button styling */
+  background: ${props =>
+    props.$active
+      ? `linear-gradient(135deg, ${props.$theme.colors.accent}, ${props.$theme.colors.primary[400]})`
+      : props.$theme.colors.glass.light};
+  backdrop-filter: ${props => props.$theme.effects.blur.light};
+  -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
+  border: ${props =>
+    props.$active
+      ? `2px solid ${props.$theme.colors.accent}`
+      : props.$theme.effects.borders.glass};
+  border-radius: 12px;
+
+  /* Layout */
+  padding: 8px 12px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+
+  /* Typography */
+  font-size: 18px;
+  color: ${props =>
+    props.$active ? 'white' : props.$theme.colors.text.primary};
+
+  /* Transitions */
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* Interactive states */
+  &:hover {
+    transform: scale(1.05);
+    box-shadow: ${props => props.$theme.effects.shadows.medium};
+  }
+
+  &:active {
+    transform: scale(1);
+  }
+
+  /* Focus styles */
+  &:focus {
+    outline: 2px solid ${props => props.$theme.colors.accent};
+    outline-offset: 2px;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 6px 10px;
+    font-size: 16px;
     border-radius: 10px;
   }
 `
@@ -320,24 +387,26 @@ const SongsContainer = styled.div<{
 
 const SongsList = styled.div<{
   $theme: any
+  $compact?: boolean
 }>`
   /* Layout */
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: ${props => (props.$compact ? '4px' : '12px')};
   padding: 4px;
   /* フッターで隠れる領域分の余白を追加 */
   padding-bottom: 120px;
 
   /* Responsive adjustments */
   @media (max-width: 768px) {
-    gap: 10px;
+    gap: ${props => (props.$compact ? '4px' : '10px')};
   }
 `
 
 const SongCard = styled.div<{
   $theme: any
   $index: number
+  $compact?: boolean
 }>`
   /* Base glassmorphism styles */
   background: ${props => props.$theme.colors.glass.medium};
@@ -348,7 +417,7 @@ const SongCard = styled.div<{
   box-shadow: ${props => props.$theme.effects.shadows.medium};
 
   /* Layout */
-  padding: 20px;
+  padding: ${props => (props.$compact ? '10px 14px' : '20px')};
   cursor: pointer;
 
   /* パフォーマンス最適化: アニメーションを最初の20個のみに制限 */
@@ -379,7 +448,7 @@ const SongCard = styled.div<{
 
   /* Responsive adjustments */
   @media (max-width: 768px) {
-    padding: 16px;
+    padding: ${props => (props.$compact ? '8px 12px' : '16px')};
 
     &:hover {
       transform: none;
@@ -403,21 +472,29 @@ const SongCard = styled.div<{
 
 const SongTitle = styled.h3<{
   $theme: any
+  $compact?: boolean
 }>`
   /* Typography */
-  margin: 0 0 8px 0;
+  margin: ${props => (props.$compact ? '0' : '0 0 8px 0')};
   font-family: ${props => props.$theme.typography.fontFamily};
-  font-size: 18px;
+  font-size: ${props => (props.$compact ? '14px' : '18px')};
   font-weight: ${props => props.$theme.typography.fontWeights.bold};
   color: ${props => props.$theme.colors.text.primary};
   line-height: 1.4;
 
   /* Text handling */
   word-break: break-word;
+  ${props =>
+    props.$compact &&
+    css`
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    `}
 
   /* Responsive adjustments */
   @media (max-width: 768px) {
-    font-size: 16px;
+    font-size: ${props => (props.$compact ? '13px' : '16px')};
   }
 `
 
@@ -618,6 +695,7 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
   const [searchTitleOnly, setSearchTitleOnly] = useState(false) // 楽曲名のみ検索オプション
   const [sortBy, setSortBy] = useState<SongSortType>('newest')
   const [isLoading, setIsLoading] = useState(false)
+  const [isCompactView, setIsCompactView] = useState(false) // コンパクト表示モード
 
   // 仮想スクロール用のstate
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 20 })
@@ -850,18 +928,32 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
           enterKeyHint="search"
         />
 
-        {/* Sort Select */}
-        <SortSelect
-          $theme={theme}
-          value={sortBy}
-          onChange={e => setSortBy(e.target.value as SongSortType)}
-          aria-label="楽曲の並び順を選択"
-        >
-          <option value="newest">新曲順</option>
-          <option value="oldest">古い曲順</option>
-          <option value="updated">更新順</option>
-          <option value="alphabetical">五十音順</option>
-        </SortSelect>
+        {/* Sort Select with View Toggle */}
+        <SortRow>
+          <SortSelect
+            $theme={theme}
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value as SongSortType)}
+            aria-label="楽曲の並び順を選択"
+          >
+            <option value="newest">新曲順</option>
+            <option value="oldest">古い曲順</option>
+            <option value="updated">更新順</option>
+            <option value="alphabetical">五十音順</option>
+          </SortSelect>
+          <ViewToggleButton
+            $theme={theme}
+            $active={isCompactView}
+            onClick={() => setIsCompactView(!isCompactView)}
+            aria-label={
+              isCompactView ? '詳細表示に切り替え' : 'コンパクト表示に切り替え'
+            }
+            title={isCompactView ? '詳細表示' : 'コンパクト表示'}
+            type="button"
+          >
+            {isCompactView ? '☰' : '▤'}
+          </ViewToggleButton>
+        </SortRow>
 
         {/* Search Statistics with Search Option Toggle */}
         <SearchStats $theme={theme}>
@@ -923,6 +1015,7 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
         ) : (
           <SongsList
             $theme={theme}
+            $compact={isCompactView}
             className="virtual-scroll-spacer"
             style={{
               // 仮想スクロール用のスペーサー
@@ -937,6 +1030,7 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
                   key={song.id}
                   $theme={theme}
                   $index={actualIndex}
+                  $compact={isCompactView}
                   className="song-card"
                   onClick={() => handleSongSelect(song)}
                   onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, song)}
@@ -944,20 +1038,26 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
                   role="button"
                   aria-label={`楽曲「${song.title}」を選択`}
                 >
-                  <SongTitle $theme={theme}>{song.title}</SongTitle>
+                  <SongTitle $theme={theme} $compact={isCompactView}>
+                    {song.title}
+                  </SongTitle>
 
-                  <SongDetails $theme={theme}>
-                    {renderSongCredits(song)}
-                  </SongDetails>
+                  {!isCompactView && (
+                    <>
+                      <SongDetails $theme={theme}>
+                        {renderSongCredits(song)}
+                      </SongDetails>
 
-                  {song.tags && song.tags.length > 0 && (
-                    <SongTags $theme={theme}>
-                      {song.tags.map((tag, tagIndex) => (
-                        <TagChip key={tagIndex} $theme={theme}>
-                          {tag}
-                        </TagChip>
-                      ))}
-                    </SongTags>
+                      {song.tags && song.tags.length > 0 && (
+                        <SongTags $theme={theme}>
+                          {song.tags.map((tag, tagIndex) => (
+                            <TagChip key={tagIndex} $theme={theme}>
+                              {tag}
+                            </TagChip>
+                          ))}
+                        </SongTags>
+                      )}
+                    </>
                   )}
                 </SongCard>
               )

@@ -435,9 +435,41 @@
   box-shadow: 0 0 0 2px rgba(255, 105, 180, 0.2);
 }
 
-/* レイアウトコントロールを除去（グリッド固定） */
+/* レイアウトコントロール - 非表示（view-toggle-buttonに統合） */
 .layout-controls {
   display: none;
+}
+
+/* 表示切替ボタン（並び順の横に配置） */
+.view-toggle-button {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 182, 193, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #374151;
+  flex-shrink: 0;
+}
+
+.view-toggle-button:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(255, 105, 180, 0.5);
+  transform: scale(1.05);
+}
+
+.view-toggle-button.active {
+  background: linear-gradient(135deg, #ffb6c1, #ff69b4);
+  border-color: #ff69b4;
+  color: white;
 }
 
 /* Tag List Content - キュートなデザイン */
@@ -857,5 +889,71 @@
   .tag-item:focus {
     border-color: #000;
     background: #f0f0f0;
+  }
+}
+
+/* ========================================
+   コンパクト表示モード
+   ======================================== */
+
+/* コンパクト表示時のグリッド */
+.tag-grid.compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* コンパクト表示時のタグアイテム */
+.tag-item.compact {
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  min-height: auto;
+}
+
+.tag-item.compact .tag-name {
+  font-size: 0.85rem;
+  margin-bottom: 0;
+  text-align: left;
+}
+
+.tag-item.compact::after {
+  display: none;
+}
+
+.tag-item.compact:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .view-toggle-button {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+
+  .tag-item.compact {
+    padding: 5px 10px;
+  }
+
+  .tag-item.compact .tag-name {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tag-grid.compact {
+    gap: 4px;
+  }
+
+  .tag-item.compact {
+    padding: 4px 8px;
+  }
+
+  .tag-item.compact .tag-name {
+    font-size: 0.75rem;
   }
 }

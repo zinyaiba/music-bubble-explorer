@@ -1458,3 +1458,141 @@
     transform: rotate(360deg);
   }
 }
+
+/* ========================================
+   コンパクト表示モード
+   ======================================== */
+
+/* 表示切替ボタン */
+.view-toggle-button {
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #dda0dd;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  flex-shrink: 0;
+}
+
+.view-toggle-button:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: #ba68c8;
+  transform: scale(1.05);
+}
+
+.view-toggle-button.active {
+  background: linear-gradient(135deg, #dda0dd, #ba68c8);
+  border-color: #9c27b0;
+  color: white;
+}
+
+/* 並び替え行のレイアウト調整 */
+.sort-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-row .sort-select-full {
+  flex: 1;
+}
+
+/* コンパクト表示時のリスト */
+.song-list.compact-view {
+  gap: 4px;
+}
+
+/* コンパクト表示時のアイテム */
+.song-management-content .song-list .song-item.compact {
+  min-height: auto !important;
+  padding: 10px 14px !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.song-item.compact .song-info {
+  max-width: calc(100% - 50px);
+}
+
+.song-item.compact .song-title {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-item.compact .song-actions {
+  align-self: center;
+}
+
+.song-item.compact .edit-button {
+  width: 32px;
+  height: 32px;
+  padding: 6px;
+  font-size: 14px;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .view-toggle-button {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 6px 10px;
+    font-size: 16px;
+  }
+
+  .song-management-content .song-list .song-item.compact {
+    padding: 8px 12px !important;
+  }
+
+  .song-item.compact .song-title {
+    font-size: 13px;
+  }
+
+  .song-item.compact .edit-button {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sort-row {
+    gap: 6px;
+  }
+
+  .view-toggle-button {
+    min-width: 38px;
+    min-height: 38px;
+    padding: 5px 8px;
+    font-size: 15px;
+  }
+
+  .song-management-content .song-list .song-item.compact {
+    padding: 7px 10px !important;
+    gap: 8px !important;
+  }
+
+  .song-item.compact .song-title {
+    font-size: 12px;
+  }
+
+  .song-item.compact .song-info {
+    max-width: calc(100% - 42px);
+  }
+
+  .song-item.compact .edit-button {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+    padding: 5px;
+  }
+}

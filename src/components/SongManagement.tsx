@@ -59,6 +59,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
     })
   const [isDeleting, setIsDeleting] = useState(false)
   const [displayLimit, setDisplayLimit] = useState(50) // 初期表示数を50に制限
+  const [isCompactView, setIsCompactView] = useState(false) // コンパクト表示モード
 
   const loadSongs = useCallback(async () => {
     setIsLoading(true)
@@ -466,7 +467,7 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                 </label>
               </div>
 
-              {/* 3行目: 並び替え */}
+              {/* 3行目: 並び替えと表示切替 */}
               <div className="sort-row">
                 <select
                   id="sort-select"
@@ -480,10 +481,23 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                   <option value="updated">更新順</option>
                   <option value="alphabetical">五十音順</option>
                 </select>
+                <button
+                  type="button"
+                  onClick={() => setIsCompactView(!isCompactView)}
+                  className={`view-toggle-button ${isCompactView ? 'active' : ''}`}
+                  aria-label={
+                    isCompactView
+                      ? '詳細表示に切り替え'
+                      : 'コンパクト表示に切り替え'
+                  }
+                  title={isCompactView ? '詳細表示' : 'コンパクト表示'}
+                >
+                  {isCompactView ? '☰' : '▤'}
+                </button>
               </div>
             </div>
 
-            <div className="song-list">
+            <div className={`song-list ${isCompactView ? 'compact-view' : ''}`}>
               {filteredAndSortedSongs.length === 0 ? (
                 <div className="empty-state">
                   <div className="empty-icon">🎵</div>
@@ -496,7 +510,10 @@ export const SongManagement: React.FC<SongManagementProps> = ({
               ) : (
                 <>
                   {displayedSongs.map(song => (
-                    <div key={song.id} className="song-item">
+                    <div
+                      key={song.id}
+                      className={`song-item ${isCompactView ? 'compact' : ''}`}
+                    >
                       <div
                         className="song-info clickable"
                         onClick={() => handleSongClick(song)}
@@ -511,32 +528,34 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                         aria-label={`${song.title}の詳細を表示`}
                       >
                         <h3 className="song-title">{song.title}</h3>
-                        <div className="song-details">
-                          {song.lyricists.length > 0 && (
-                            <div className="detail-item">
-                              <span className="detail-label">作詞:</span>
-                              <span className="detail-value">
-                                {song.lyricists.join(', ')}
-                              </span>
-                            </div>
-                          )}
-                          {song.composers.length > 0 && (
-                            <div className="detail-item">
-                              <span className="detail-label">作曲:</span>
-                              <span className="detail-value">
-                                {song.composers.join(', ')}
-                              </span>
-                            </div>
-                          )}
-                          {song.arrangers.length > 0 && (
-                            <div className="detail-item">
-                              <span className="detail-label">編曲:</span>
-                              <span className="detail-value">
-                                {song.arrangers.join(', ')}
-                              </span>
-                            </div>
-                          )}
-                        </div>
+                        {!isCompactView && (
+                          <div className="song-details">
+                            {song.lyricists.length > 0 && (
+                              <div className="detail-item">
+                                <span className="detail-label">作詞:</span>
+                                <span className="detail-value">
+                                  {song.lyricists.join(', ')}
+                                </span>
+                              </div>
+                            )}
+                            {song.composers.length > 0 && (
+                              <div className="detail-item">
+                                <span className="detail-label">作曲:</span>
+                                <span className="detail-value">
+                                  {song.composers.join(', ')}
+                                </span>
+                              </div>
+                            )}
+                            {song.arrangers.length > 0 && (
+                              <div className="detail-item">
+                                <span className="detail-label">編曲:</span>
+                                <span className="detail-value">
+                                  {song.arrangers.join(', ')}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <div className="song-actions">
                         <button
@@ -550,17 +569,19 @@ export const SongManagement: React.FC<SongManagementProps> = ({
                         >
                           ✏️
                         </button>
-                        <button
-                          onClick={e => {
-                            e.stopPropagation()
-                            handleDeleteSong(song)
-                          }}
-                          className="delete-button"
-                          aria-label={`${song.title}を削除`}
-                          title="楽曲を削除"
-                        >
-                          🗑️
-                        </button>
+                        {!isCompactView && (
+                          <button
+                            onClick={e => {
+                              e.stopPropagation()
+                              handleDeleteSong(song)
+                            }}
+                            className="delete-button"
+                            aria-label={`${song.title}を削除`}
+                            title="楽曲を削除"
+                          >
+                            🗑️
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
