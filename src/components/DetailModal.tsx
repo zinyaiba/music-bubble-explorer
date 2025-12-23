@@ -469,15 +469,12 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
             </div>
           ) : selectedBubble.type === 'tag' ? (
             <div className="tag-details">
-              <div className="tag-info">
-                {/* <div className="tag-popularity">
-                人気度: {Math.round((selectedBubble.relatedCount || 0) / Math.max(1, musicService.getAllSongs().length) * 100)}%  
-              </div> */}
-                <div className="tag-description">
-                  {selectedBubble.relatedCount || 0}曲で使用されています
-                </div>
-              </div>
-              <h3 className="section-title">このタグが付けられた楽曲</h3>
+              <h3 className="section-title">
+                このタグが付けられた楽曲
+                <span className="tag-song-count">
+                  ({selectedBubble.relatedCount || 0}曲)
+                </span>
+              </h3>
               {relatedData.length > 0 ? (
                 <div
                   className="related-list"
