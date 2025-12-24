@@ -6,6 +6,8 @@
 @import './styles/colors.css';
 @import './styles/responsive.css';
 @import './styles/mobilePerformance.css';
+/* Import Christmas theme (easter egg) */
+@import './styles/christmas-theme.css';
 :root {
   /* ===== GLASSMORPHISM FONT SYSTEM ===== */
   font-family: var(

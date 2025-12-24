@@ -1,0 +1,1001 @@
+/* ===== クリスマステーマ CSS変数定義 ===== */
+/* Requirements: 2.1, 4.1, 4.2 */
+
+/* クリスマスカラーパレット */
+:root {
+  /* クリスマス基本カラー */
+  --christmas-red: #c41e3a;
+  --christmas-red-light: #e74c3c;
+  --christmas-red-dark: #8b0000;
+  --christmas-green: #1a472a;
+  --christmas-green-light: #228b22;
+  --christmas-green-dark: #0d2818;
+  --christmas-gold: #ffd700;
+  --christmas-gold-light: #ffec8b;
+  --christmas-gold-dark: #daa520;
+  --christmas-white: #fffafa;
+  --christmas-snow: #f0f8ff;
+
+  /* クリスマス装飾カラー */
+  --christmas-ornament-red: #ff4444;
+  --christmas-ornament-gold: #ffc107;
+  --christmas-ornament-silver: #c0c0c0;
+  --christmas-holly: #2e8b57;
+  --christmas-berry: #dc143c;
+}
+
+/* クリスマスモード適用時のスタイル */
+:root.christmas-mode {
+  /* 背景グラデーション - 冬の夜空をイメージ */
+  --background-gradient: linear-gradient(
+    135deg,
+    #0f2027 0%,
+    #203a43 50%,
+    #2c5364 100%
+  );
+  --background-light: #1a2a3a;
+  --background-soft: #0f2027;
+
+  /* テキストカラー - 雪のような白を基調 */
+  --text-primary: var(--christmas-white);
+  --text-secondary: #e0e0e0;
+  --text-light: #b0b0b0;
+
+  /* UI要素カラー */
+  --modal-background: rgba(15, 32, 39, 0.95);
+  --modal-overlay: rgba(0, 0, 0, 0.6);
+  --border-light: rgba(255, 215, 0, 0.3);
+  --shadow-soft: rgba(0, 0, 0, 0.3);
+
+  /* ホバー・アクティブ状態 */
+  --hover-overlay: rgba(255, 215, 0, 0.15);
+  --active-overlay: rgba(255, 215, 0, 0.25);
+
+  /* グラスモーフィズム用変数のオーバーライド */
+  --glass-background: linear-gradient(
+    135deg,
+    #0f2027 0%,
+    #203a43 50%,
+    #2c5364 100%
+  );
+  --glass-text-primary: var(--christmas-white);
+  --glass-text-secondary: #e0e0e0;
+  --glass-surface: rgba(26, 71, 42, 0.3);
+  --glass-surface-hover: rgba(26, 71, 42, 0.4);
+  --glass-border-glass: 1px solid rgba(255, 215, 0, 0.2);
+
+  /* シャボン玉カラーのクリスマスバージョン */
+  --bubble-pink: var(--christmas-red);
+  --bubble-blue: var(--christmas-green-light);
+  --bubble-purple: var(--christmas-gold);
+  --bubble-yellow: var(--christmas-gold-light);
+  --bubble-green: var(--christmas-green);
+  --bubble-orange: var(--christmas-red-light);
+  --bubble-lavender: var(--christmas-snow);
+  --bubble-peach: var(--christmas-ornament-gold);
+  --bubble-mint: var(--christmas-white);
+  --bubble-coral: var(--christmas-berry);
+}
+
+/* クリスマスモード時のbody背景 */
+.christmas-mode body,
+:root.christmas-mode body {
+  background: var(--background-gradient) !important;
+}
+
+/* クリスマスモード時のルート要素 */
+.christmas-mode #root,
+:root.christmas-mode #root {
+  background: transparent !important;
+}
+
+/* クリスマスモード時のApp全体 */
+:root.christmas-mode .App,
+.christmas-mode .App {
+  background: linear-gradient(
+    135deg,
+    #0f2027 0%,
+    #203a43 50%,
+    #2c5364 100%
+  ) !important;
+}
+
+/* クリスマスモード時のメインコンテナ */
+:root.christmas-mode .mobile-first-container,
+.christmas-mode .mobile-first-container {
+  background: linear-gradient(
+    135deg,
+    #0f2027 0%,
+    #203a43 50%,
+    #2c5364 100%
+  ) !important;
+}
+
+/* クリスマスモード時のimproved-background（!importantを上書き） */
+:root.christmas-mode .improved-background,
+.christmas-mode .improved-background {
+  background: linear-gradient(
+    135deg,
+    #0f2027 0%,
+    #203a43 50%,
+    #2c5364 100%
+  ) !important;
+}
+
+:root.christmas-mode .improved-background::before,
+.christmas-mode .improved-background::before {
+  background:
+    radial-gradient(
+      circle at 25% 25%,
+      rgba(196, 30, 58, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 75% 75%,
+      rgba(26, 71, 42, 0.15) 0%,
+      transparent 50%
+    ) !important;
+}
+
+/* クリスマスモード時のバブルコンテナ */
+:root.christmas-mode .bubble-container,
+.christmas-mode .bubble-container {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 32, 39, 0.9) 0%,
+    rgba(32, 58, 67, 0.85) 50%,
+    rgba(44, 83, 100, 0.8) 100%
+  ) !important;
+}
+
+/* クリスマスモード時のカード・パネル */
+.christmas-mode .glass-card,
+:root.christmas-mode .glass-card {
+  background: rgba(26, 71, 42, 0.25) !important;
+  border: 1px solid rgba(255, 215, 0, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* クリスマスモード時のダイアログ・モーダル背景 */
+:root.christmas-mode .unified-dialog-layout,
+.christmas-mode .unified-dialog-layout,
+:root.christmas-mode .standard-layout,
+.christmas-mode .standard-layout {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 32, 39, 0.98) 0%,
+    rgba(26, 71, 42, 0.95) 50%,
+    rgba(32, 58, 67, 0.98) 100%
+  ) !important;
+}
+
+/* クリスマスモード時のダイアログコンテンツ */
+:root.christmas-mode .unified-dialog-content,
+.christmas-mode .unified-dialog-content,
+:root.christmas-mode .standard-layout-content,
+.christmas-mode .standard-layout-content {
+  background: rgba(15, 32, 39, 0.6) !important;
+  color: var(--christmas-white) !important;
+}
+
+/* クリスマスモード時のStandardLayoutオーバーレイ */
+:root.christmas-mode .standard-layout-overlay,
+.christmas-mode .standard-layout-overlay {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 32, 39, 0.95) 0%,
+    rgba(26, 71, 42, 0.9) 50%,
+    rgba(32, 58, 67, 0.95) 100%
+  ) !important;
+}
+
+/* クリスマスモード時のStandardLayoutヘッダー */
+:root.christmas-mode .standard-layout-header,
+.christmas-mode .standard-layout-header,
+:root.christmas-mode .standard-layout-integrated-header,
+.christmas-mode .standard-layout-integrated-header {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 71, 42, 0.9) 0%,
+    rgba(15, 32, 39, 0.95) 100%
+  ) !important;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3) !important;
+}
+
+:root.christmas-mode .standard-layout-header::before,
+.christmas-mode .standard-layout-header::before {
+  background: radial-gradient(
+    circle,
+    rgba(255, 215, 0, 0.1) 0%,
+    transparent 70%
+  ) !important;
+}
+
+/* クリスマスモード時のStandardLayoutタイトル */
+:root.christmas-mode .standard-layout-title,
+.christmas-mode .standard-layout-title,
+:root.christmas-mode .standard-layout-integrated-title,
+.christmas-mode .standard-layout-integrated-title {
+  color: var(--christmas-gold) !important;
+}
+
+/* クリスマスモード時のStandardLayoutコンテンツ背景 */
+:root.christmas-mode .standard-layout-content::before,
+.christmas-mode .standard-layout-content::before {
+  background-image:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(196, 30, 58, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(26, 71, 42, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 60%,
+      rgba(255, 215, 0, 0.1) 0%,
+      transparent 50%
+    ) !important;
+}
+
+/* クリスマスモード時のStandardLayout閉じるボタン */
+:root.christmas-mode .standard-layout-close,
+.christmas-mode .standard-layout-close,
+:root.christmas-mode .standard-layout-integrated-close,
+.christmas-mode .standard-layout-integrated-close {
+  background: rgba(26, 71, 42, 0.4) !important;
+  border-color: rgba(255, 215, 0, 0.3) !important;
+  color: var(--christmas-white) !important;
+}
+
+:root.christmas-mode .standard-layout-close:hover,
+.christmas-mode .standard-layout-close:hover,
+:root.christmas-mode .standard-layout-integrated-close:hover,
+.christmas-mode .standard-layout-integrated-close:hover {
+  background: rgba(196, 30, 58, 0.4) !important;
+  border-color: var(--christmas-gold) !important;
+}
+
+/* クリスマスモード時の楽曲管理コンテンツ */
+:root.christmas-mode .song-management-content,
+.christmas-mode .song-management-content {
+  background: transparent !important;
+}
+
+:root.christmas-mode .song-management-content::before,
+.christmas-mode .song-management-content::before {
+  background-image:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(196, 30, 58, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(26, 71, 42, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 60%,
+      rgba(255, 215, 0, 0.1) 0%,
+      transparent 50%
+    ) !important;
+}
+
+/* クリスマスモード時の楽曲アイテム */
+:root.christmas-mode .song-item,
+.christmas-mode .song-item {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 71, 42, 0.4) 0%,
+    rgba(15, 32, 39, 0.5) 100%
+  ) !important;
+  border: 2px solid rgba(255, 215, 0, 0.2) !important;
+}
+
+:root.christmas-mode .song-item:hover,
+.christmas-mode .song-item:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 71, 42, 0.5) 0%,
+    rgba(15, 32, 39, 0.6) 100%
+  ) !important;
+  border-color: rgba(255, 215, 0, 0.4) !important;
+}
+
+:root.christmas-mode .song-item::before,
+.christmas-mode .song-item::before {
+  background: linear-gradient(
+    135deg,
+    var(--christmas-red),
+    var(--christmas-green),
+    var(--christmas-gold)
+  ) !important;
+}
+
+/* クリスマスモード時の楽曲タイトル */
+:root.christmas-mode .song-title,
+.christmas-mode .song-title {
+  color: var(--christmas-white) !important;
+}
+
+/* クリスマスモード時の詳細ラベル・値 */
+:root.christmas-mode .detail-label,
+.christmas-mode .detail-label {
+  color: var(--christmas-gold-light) !important;
+}
+
+:root.christmas-mode .detail-value,
+.christmas-mode .detail-value {
+  color: var(--christmas-white) !important;
+}
+
+/* クリスマスモード時のタグ一覧 */
+:root.christmas-mode .enhanced-tag-list,
+.christmas-mode .enhanced-tag-list {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 32, 39, 0.98) 0%,
+    rgba(26, 71, 42, 0.95) 50%,
+    rgba(32, 58, 67, 0.98) 100%
+  ) !important;
+}
+
+/* クリスマスモード時のタグ一覧オーバーレイ */
+:root.christmas-mode .enhanced-tag-list-overlay,
+.christmas-mode .enhanced-tag-list-overlay {
+  background: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* クリスマスモード時のタグ一覧コンテンツ */
+:root.christmas-mode .enhanced-tag-list-content,
+.christmas-mode .enhanced-tag-list-content,
+:root.christmas-mode .tag-list-content,
+.christmas-mode .tag-list-content {
+  background: transparent !important;
+  color: var(--christmas-white) !important;
+}
+
+:root.christmas-mode .tag-list-content::before,
+.christmas-mode .tag-list-content::before {
+  background-image:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(196, 30, 58, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 80% 80%,
+      rgba(26, 71, 42, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 40% 60%,
+      rgba(255, 215, 0, 0.1) 0%,
+      transparent 50%
+    ) !important;
+}
+
+/* クリスマスモード時のタグアイテム */
+:root.christmas-mode .tag-item,
+.christmas-mode .tag-item {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 71, 42, 0.4) 0%,
+    rgba(15, 32, 39, 0.5) 100%
+  ) !important;
+  border: 2px solid rgba(255, 215, 0, 0.2) !important;
+}
+
+:root.christmas-mode .tag-item:hover,
+.christmas-mode .tag-item:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 71, 42, 0.5) 0%,
+    rgba(15, 32, 39, 0.6) 100%
+  ) !important;
+  border-color: rgba(255, 215, 0, 0.4) !important;
+  box-shadow: 0 8px 20px rgba(26, 71, 42, 0.3) !important;
+}
+
+:root.christmas-mode .tag-item::before,
+.christmas-mode .tag-item::before {
+  background: linear-gradient(
+    135deg,
+    var(--christmas-red),
+    var(--christmas-green),
+    var(--christmas-gold)
+  ) !important;
+}
+
+/* クリスマスモード時のタグ名 */
+:root.christmas-mode .tag-name,
+.christmas-mode .tag-name {
+  color: var(--christmas-white) !important;
+}
+
+/* クリスマスモード時のタグ情報 */
+:root.christmas-mode .tag-info,
+.christmas-mode .tag-info,
+:root.christmas-mode .song-count,
+.christmas-mode .song-count {
+  color: var(--christmas-gold-light) !important;
+}
+
+/* クリスマスモード時のタグ検索バー */
+:root.christmas-mode .tag-search-bar,
+.christmas-mode .tag-search-bar,
+:root.christmas-mode .tag-controls,
+.christmas-mode .tag-controls {
+  background: transparent !important;
+}
+
+:root.christmas-mode .search-tag-count,
+.christmas-mode .search-tag-count {
+  color: var(--christmas-gold-light) !important;
+}
+
+/* クリスマスモード時の詳細モーダル */
+:root.christmas-mode .detail-modal,
+.christmas-mode .detail-modal {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 32, 39, 0.98) 0%,
+    rgba(26, 71, 42, 0.95) 100%
+  ) !important;
+  border: 1px solid rgba(255, 215, 0, 0.3) !important;
+}
+
+/* クリスマスモード時のヘッダータイトル */
+:root.christmas-mode .layout-header h2,
+.christmas-mode .layout-header h2,
+:root.christmas-mode .dialog-title,
+.christmas-mode .dialog-title {
+  color: var(--christmas-gold) !important;
+}
+
+/* クリスマスモード時の説明テキスト */
+:root.christmas-mode .layout-description,
+.christmas-mode .layout-description {
+  color: var(--christmas-snow) !important;
+}
+
+/* クリスマスモード時の統計情報 */
+:root.christmas-mode .stat-compact,
+.christmas-mode .stat-compact {
+  color: var(--christmas-gold-light) !important;
+}
+
+/* クリスマスモード時のボタン */
+.christmas-mode button,
+:root.christmas-mode button {
+  border-color: rgba(255, 215, 0, 0.3) !important;
+  color: var(--christmas-white) !important;
+}
+
+.christmas-mode button:hover,
+:root.christmas-mode button:hover {
+  background: rgba(196, 30, 58, 0.3) !important;
+  border-color: var(--christmas-gold) !important;
+}
+
+/* クリスマスモード時の追加ボタン */
+:root.christmas-mode .add-song-button-icon,
+.christmas-mode .add-song-button-icon {
+  background: linear-gradient(
+    135deg,
+    var(--christmas-green) 0%,
+    var(--christmas-green-light) 100%
+  ) !important;
+  border-color: var(--christmas-gold) !important;
+}
+
+:root.christmas-mode .add-song-button-icon:hover,
+.christmas-mode .add-song-button-icon:hover {
+  background: linear-gradient(
+    135deg,
+    var(--christmas-green-light) 0%,
+    var(--christmas-holly) 100%
+  ) !important;
+}
+
+/* クリスマスモード時の編集・削除ボタン */
+:root.christmas-mode .edit-button,
+.christmas-mode .edit-button,
+:root.christmas-mode .delete-button,
+.christmas-mode .delete-button {
+  background: rgba(26, 71, 42, 0.4) !important;
+  border-color: rgba(255, 215, 0, 0.3) !important;
+}
+
+:root.christmas-mode .edit-button:hover,
+.christmas-mode .edit-button:hover {
+  background: rgba(26, 71, 42, 0.6) !important;
+  border-color: var(--christmas-gold) !important;
+}
+
+:root.christmas-mode .delete-button:hover,
+.christmas-mode .delete-button:hover {
+  background: rgba(196, 30, 58, 0.4) !important;
+  border-color: var(--christmas-red) !important;
+}
+
+/* クリスマスモード時のリンク */
+.christmas-mode a,
+:root.christmas-mode a {
+  color: var(--christmas-gold) !important;
+}
+
+.christmas-mode a:hover,
+:root.christmas-mode a:hover {
+  color: var(--christmas-gold-light) !important;
+}
+
+/* クリスマスモード時の入力フィールド */
+.christmas-mode input,
+.christmas-mode textarea,
+.christmas-mode select,
+:root.christmas-mode input,
+:root.christmas-mode textarea,
+:root.christmas-mode select {
+  background: rgba(15, 32, 39, 0.8) !important;
+  border-color: rgba(255, 215, 0, 0.3) !important;
+  color: var(--christmas-white) !important;
+}
+
+.christmas-mode input:focus,
+.christmas-mode textarea:focus,
+.christmas-mode select:focus,
+:root.christmas-mode input:focus,
+:root.christmas-mode textarea:focus,
+:root.christmas-mode select:focus {
+  border-color: var(--christmas-gold) !important;
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15) !important;
+}
+
+.christmas-mode input::placeholder,
+.christmas-mode textarea::placeholder,
+:root.christmas-mode input::placeholder,
+:root.christmas-mode textarea::placeholder {
+  color: rgba(255, 250, 250, 0.5) !important;
+}
+
+/* クリスマスモード時のセレクトボックス */
+:root.christmas-mode .sort-select-full,
+.christmas-mode .sort-select-full {
+  background: rgba(15, 32, 39, 0.8) !important;
+  border-color: rgba(255, 215, 0, 0.3) !important;
+  color: var(--christmas-white) !important;
+}
+
+/* クリスマスモード時の表示切替ボタン */
+:root.christmas-mode .view-toggle-button,
+.christmas-mode .view-toggle-button {
+  background: rgba(26, 71, 42, 0.4) !important;
+  border-color: rgba(255, 215, 0, 0.3) !important;
+  color: var(--christmas-white) !important;
+}
+
+:root.christmas-mode .view-toggle-button.active,
+.christmas-mode .view-toggle-button.active {
+  background: linear-gradient(
+    135deg,
+    var(--christmas-red) 0%,
+    var(--christmas-green) 100%
+  ) !important;
+  border-color: var(--christmas-gold) !important;
+}
+
+/* クリスマスモード時のモーダル */
+.christmas-mode .modal-overlay,
+:root.christmas-mode .modal-overlay {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.christmas-mode .modal-content,
+:root.christmas-mode .modal-content,
+:root.christmas-mode .form-modal,
+.christmas-mode .form-modal,
+:root.christmas-mode .dialog-container,
+.christmas-mode .dialog-container {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 32, 39, 0.98) 0%,
+    rgba(26, 71, 42, 0.95) 100%
+  ) !important;
+  border: 1px solid rgba(255, 215, 0, 0.3) !important;
+  color: var(--christmas-white) !important;
+}
+
+/* クリスマスモード時のヘッダー */
+.christmas-mode header,
+:root.christmas-mode header,
+:root.christmas-mode .mobile-first-header,
+.christmas-mode .mobile-first-header {
+  background: linear-gradient(
+    135deg,
+    rgba(26, 71, 42, 0.8) 0%,
+    rgba(15, 32, 39, 0.9) 100%
+  ) !important;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.3) !important;
+}
+
+/* クリスマスモード時のナビゲーション */
+.christmas-mode nav,
+:root.christmas-mode nav,
+:root.christmas-mode .mobile-first-navigation,
+.christmas-mode .mobile-first-navigation {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 32, 39, 0.95) 0%,
+    rgba(26, 71, 42, 0.9) 100%
+  ) !important;
+  border-top: 1px solid rgba(255, 215, 0, 0.3) !important;
+}
+
+/* クリスマスモード時のモバイルナビゲーション（mobileFirst.cssの!importantを上書き） */
+:root.christmas-mode nav[aria-label='メインナビゲーション'],
+.christmas-mode nav[aria-label='メインナビゲーション'],
+:root.christmas-mode nav[aria-label='メインナビゲーション'] ul:last-child,
+.christmas-mode nav[aria-label='メインナビゲーション'] ul:last-child {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 32, 39, 0.95) 0%,
+    rgba(26, 71, 42, 0.9) 100%
+  ) !important;
+  border-top: 2px solid rgba(255, 215, 0, 0.4) !important;
+  box-shadow: 0 -8px 30px rgba(26, 71, 42, 0.3) !important;
+}
+
+/* クリスマスモード時のSimpleBottomNav */
+:root.christmas-mode .simple-bottom-nav,
+.christmas-mode .simple-bottom-nav {
+  background: linear-gradient(
+    135deg,
+    rgba(15, 32, 39, 0.95) 0%,
+    rgba(26, 71, 42, 0.9) 100%
+  ) !important;
+  border-top: 2px solid rgba(255, 215, 0, 0.4) !important;
+  box-shadow: 0 -8px 30px rgba(26, 71, 42, 0.3) !important;
+}
+
+/* クリスマスモード時のナビゲーションボタン */
+:root.christmas-mode .nav-button,
+.christmas-mode .nav-button {
+  color: var(--christmas-white) !important;
+}
+
+:root.christmas-mode .nav-button:hover,
+.christmas-mode .nav-button:hover,
+:root.christmas-mode .nav-button.active,
+.christmas-mode .nav-button.active {
+  background: rgba(196, 30, 58, 0.3) !important;
+  color: var(--christmas-gold) !important;
+}
+
+/* クリスマスモード時のタグチップ */
+.christmas-mode .tag-chip,
+:root.christmas-mode .tag-chip {
+  background: rgba(196, 30, 58, 0.3);
+  border-color: rgba(255, 215, 0, 0.3);
+  color: var(--christmas-white);
+}
+
+/* クリスマスモード時のスクロールバー */
+.christmas-mode ::-webkit-scrollbar-track,
+:root.christmas-mode ::-webkit-scrollbar-track {
+  background: rgba(15, 32, 39, 0.5);
+}
+
+.christmas-mode ::-webkit-scrollbar-thumb,
+:root.christmas-mode ::-webkit-scrollbar-thumb {
+  background: rgba(196, 30, 58, 0.5);
+  border-radius: 4px;
+}
+
+.christmas-mode ::-webkit-scrollbar-thumb:hover,
+:root.christmas-mode ::-webkit-scrollbar-thumb:hover {
+  background: rgba(196, 30, 58, 0.7);
+}
+
+/* ===== クリスマス装飾アニメーション ===== */
+/* Requirements: 2.2 */
+
+/* 雪の結晶が降るアニメーション */
+@keyframes snowfall {
+  0% {
+    transform: translateY(-10vh) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0.3;
+  }
+}
+
+/* 雪の結晶がゆらゆら揺れるアニメーション */
+@keyframes snowflake-sway {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  25% {
+    transform: translateX(10px) rotate(90deg);
+  }
+  50% {
+    transform: translateX(-5px) rotate(180deg);
+  }
+  75% {
+    transform: translateX(15px) rotate(270deg);
+  }
+}
+
+/* 星のきらめきアニメーション */
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* 星の回転きらめきアニメーション */
+@keyframes star-sparkle {
+  0% {
+    opacity: 0.5;
+    transform: rotate(0deg) scale(1);
+  }
+  25% {
+    opacity: 1;
+    transform: rotate(90deg) scale(1.1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: rotate(180deg) scale(0.9);
+  }
+  75% {
+    opacity: 1;
+    transform: rotate(270deg) scale(1.1);
+  }
+  100% {
+    opacity: 0.5;
+    transform: rotate(360deg) scale(1);
+  }
+}
+
+/* オーナメントの揺れアニメーション */
+@keyframes ornament-swing {
+  0%,
+  100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+/* ゴールドのきらめきアニメーション */
+@keyframes gold-shimmer {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.3);
+  }
+}
+
+/* フェードイン・アウトアニメーション */
+@keyframes christmas-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* クリスマスモード切替時のトランジション */
+@keyframes christmas-mode-transition {
+  0% {
+    filter: brightness(1) saturate(1);
+  }
+  50% {
+    filter: brightness(1.2) saturate(1.2);
+  }
+  100% {
+    filter: brightness(1) saturate(1);
+  }
+}
+
+/* 雪の結晶装飾クラス */
+.christmas-snowflake {
+  position: fixed;
+  color: var(--christmas-white);
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 9999;
+  animation:
+    snowfall linear infinite,
+    snowflake-sway ease-in-out infinite;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+.christmas-snowflake:nth-child(odd) {
+  animation-duration: 10s, 3s;
+}
+
+.christmas-snowflake:nth-child(even) {
+  animation-duration: 15s, 4s;
+}
+
+/* 星装飾クラス */
+.christmas-star {
+  position: fixed;
+  color: var(--christmas-gold);
+  pointer-events: none;
+  z-index: 9998;
+  animation: star-twinkle ease-in-out infinite;
+  text-shadow: 0 0 10px var(--christmas-gold);
+}
+
+.christmas-star:nth-child(3n) {
+  animation: star-sparkle linear infinite;
+  animation-duration: 4s;
+}
+
+.christmas-star:nth-child(3n + 1) {
+  animation-duration: 2s;
+}
+
+.christmas-star:nth-child(3n + 2) {
+  animation-duration: 3s;
+}
+
+/* オーナメント装飾クラス */
+.christmas-ornament {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9997;
+  animation: ornament-swing ease-in-out infinite;
+  animation-duration: 2s;
+  transform-origin: top center;
+}
+
+/* クリスマスモード有効化時のフラッシュエフェクト */
+.christmas-mode-flash {
+  animation: christmas-mode-transition 0.5s ease-out;
+}
+
+/* クリスマス装飾コンテナ */
+.christmas-decorations {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9996;
+  overflow: hidden;
+  animation: christmas-fade-in 0.5s ease-out;
+}
+
+/* アクセシビリティ: 動きを減らす設定 */
+@media (prefers-reduced-motion: reduce) {
+  .christmas-snowflake,
+  .christmas-star,
+  .christmas-ornament {
+    animation: none !important;
+  }
+
+  .christmas-mode-flash {
+    animation: none !important;
+  }
+
+  .christmas-decorations {
+    animation: none !important;
+  }
+}
+
+/* モバイル最適化: 装飾の数を減らす */
+@media (max-width: 768px) {
+  .christmas-snowflake:nth-child(n + 10),
+  .christmas-star:nth-child(n + 5) {
+    display: none;
+  }
+}
+
+/* 低パフォーマンスデバイス向け最適化 */
+@media (max-width: 480px) {
+  .christmas-snowflake:nth-child(n + 5),
+  .christmas-star:nth-child(n + 3) {
+    display: none;
+  }
+
+  .christmas-snowflake,
+  .christmas-star {
+    animation-duration: 20s !important;
+  }
+}
+
+/* ===== クリスマスモード切替フィードバック ===== */
+/* Requirements: 1.2 */
+
+.christmas-feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10000;
+  animation: christmasFeedbackFadeIn 0.3s ease-out;
+}
+
+.christmas-feedback-content {
+  background: linear-gradient(135deg, #c41e3a 0%, #1a472a 100%);
+  color: white;
+  padding: 24px 48px;
+  border-radius: 16px;
+  font-size: 24px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 60px rgba(196, 30, 58, 0.4),
+    0 0 100px rgba(26, 71, 42, 0.3);
+  animation: christmasFeedbackPulse 0.5s ease-in-out;
+  border: 3px solid rgba(255, 215, 0, 0.6);
+}
+
+@keyframes christmasFeedbackFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes christmasFeedbackPulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .christmas-feedback-content {
+    padding: 20px 32px;
+    font-size: 18px;
+    margin: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .christmas-feedback-content {
+    padding: 16px 24px;
+    font-size: 16px;
+  }
+}

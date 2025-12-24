@@ -4,6 +4,12 @@ import './styles/errorStyles.css'
 
 import { ThemeProvider } from './components/ThemeProvider'
 import { GlassmorphismThemeProvider } from './components/GlassmorphismThemeProvider'
+import {
+  ChristmasThemeProvider,
+  useChristmasTheme,
+} from './contexts/ChristmasThemeContext'
+import { ChristmasDecorations } from './components/ChristmasDecorations'
+import { useTapSequenceDetector } from './hooks/useTapSequenceDetector'
 import { MobileFirstLayout } from './components/MobileFirstLayout'
 import { MobileFirstHeader } from './components/MobileFirstHeader'
 import { MobileFirstNavigation } from './components/MobileFirstNavigation'
@@ -124,12 +130,59 @@ const AppInstructions = React.memo<{ isTouchDevice: boolean }>(
 // 開発環境でのテスト実行は手動で行う
 // 自動実行を無効化してサンプルデータの影響を排除
 
-function App() {
+/**
+ * メインアプリケーションコンテンツ
+ * ChristmasThemeProvider内で使用するため分離
+ */
+function AppContent() {
   // Responsive hook for screen size detection
   const screenSize = useResponsive()
 
   // Animation control hook for performance optimization
   const { shouldAnimate } = useAnimationControl()
+
+  // クリスマステーマ
+  const { isChristmasMode, toggleChristmasMode } = useChristmasTheme()
+
+  // クリスマスモード切替時の視覚的フィードバック状態
+  const [showChristmasFeedback, setShowChristmasFeedback] = useState(false)
+
+  // タップシーケンス検出フック（TOP画面用）
+  // Requirements: 1.1, 1.3, 1.4
+  const { handleTap, tapCount } = useTapSequenceDetector({
+    requiredTaps: 13,
+    timeWindowMs: 3000,
+    onSequenceComplete: () => {
+      console.log('🎄 Christmas mode triggered!')
+      setShowChristmasFeedback(true)
+      toggleChristmasMode()
+      setTimeout(() => {
+        setShowChristmasFeedback(false)
+      }, 1500)
+    },
+  })
+
+  // バブルコンテナのクリックハンドラー
+  const handleBubbleContainerClick = useCallback(
+    (e: React.MouseEvent) => {
+      // バブルやボタンなどのインタラクティブ要素のクリックは無視
+      const target = e.target as HTMLElement
+      const isInteractive =
+        target.closest('button') ||
+        target.closest('input') ||
+        target.closest('select') ||
+        target.closest('a') ||
+        target.closest('.bubble') ||
+        target.closest('.color-legend') ||
+        target.closest('.genre-filter')
+
+      if (!isInteractive) {
+        console.log('🎅 Tap detected on bubble container! Count:', tapCount + 1)
+        handleTap()
+      }
+    },
+    [handleTap, tapCount]
+  )
 
   // State management
   const [bubbles, setBubbles] = useState<BubbleEntity[]>([])
@@ -1421,20 +1474,16 @@ function App() {
 
   if (isLoading) {
     return (
-      <ErrorBoundary>
-        <ThemeProvider>
-          <div className="App">
-            <div className="loading-container">
-              <div className="loading-spinner"></div>
-              <p>
-                {isRecovering
-                  ? 'エラーからの復旧を試行中...'
-                  : '楽曲データを読み込んでいます...'}
-              </p>
-            </div>
-          </div>
-        </ThemeProvider>
-      </ErrorBoundary>
+      <div className="App">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>
+            {isRecovering
+              ? 'エラーからの復旧を試行中...'
+              : '楽曲データを読み込んでいます...'}
+          </p>
+        </div>
+      </div>
     )
   }
 
@@ -1483,171 +1532,191 @@ function App() {
       )
     }
 
-    return (
-      <ErrorBoundary>
-        <ThemeProvider>
-          <GlassmorphismThemeProvider>
-            <div className="App">{fallbackComponent}</div>
-          </GlassmorphismThemeProvider>
-        </ThemeProvider>
-      </ErrorBoundary>
-    )
+    return <div className="App">{fallbackComponent}</div>
   }
 
+  return (
+    <>
+      <UpdateNotification />
+      <MobileFirstLayout
+        className="App mobile-first-container improved-background"
+        header={
+          // iOSのChromeでTOPページ以外、またはシャボン玉詳細ダイアログ表示中はヘッダーを非表示
+          isIOSChrome() && (currentView !== 'main' || selectedBubble) ? null : (
+            <MobileFirstHeader>
+              {/* デスクトップではヘッダーにナビゲーションを表示 */}
+              <MobileFirstNavigation
+                currentView={currentView}
+                onViewChange={handleViewChange}
+                showRegistrationForm={showRegistrationForm}
+                showSongManagement={showSongManagement}
+                showTagList={showTagList}
+                showTagRegistration={showTagRegistration}
+                onToggleRegistrationForm={handleToggleRegistrationForm}
+                onToggleSongManagement={handleToggleSongManagement}
+                onToggleTagList={handleToggleTagList}
+                onToggleTagRegistration={handleToggleTagRegistration}
+              />
+            </MobileFirstHeader>
+          )
+        }
+        navigation={
+          /* モバイルでのみ最下部にナビゲーションを表示 */
+          screenSize.isMobile ? (
+            <MobileFirstNavigation
+              currentView={currentView}
+              onViewChange={handleViewChange}
+              showRegistrationForm={showRegistrationForm}
+              showSongManagement={showSongManagement}
+              showTagList={showTagList}
+              showTagRegistration={showTagRegistration}
+              onToggleRegistrationForm={handleToggleRegistrationForm}
+              onToggleSongManagement={handleToggleSongManagement}
+              onToggleTagList={handleToggleTagList}
+              onToggleTagRegistration={handleToggleTagRegistration}
+            />
+          ) : null
+        }
+      >
+        {/* エラー状態の軽微な警告表示 */}
+        {retryCount > 0 && (
+          <InlineErrorDisplay
+            message={`復旧を${retryCount}回試行しました。問題が続く場合はページを再読み込みしてください。`}
+            onDismiss={handleClearError}
+          />
+        )}
+
+        <DataLoadingErrorBoundary>
+          <div
+            className="bubble-container mobile-first-bubble-area bubble-area-maximized"
+            onClick={handleBubbleContainerClick}
+          >
+            {/* クリスマスモード切替時の視覚的フィードバック */}
+            {showChristmasFeedback && (
+              <div className="christmas-feedback-overlay" aria-live="polite">
+                <div className="christmas-feedback-content">
+                  {isChristmasMode
+                    ? '🎄 クリスマスモード ON! 🎄'
+                    : '✨ 通常モードに戻りました ✨'}
+                </div>
+              </div>
+            )}
+            <BubbleCanvas
+              width={canvasSize.width}
+              height={canvasSize.height}
+              bubbles={bubbles}
+              onBubbleClick={handleBubbleClick}
+              className="main-canvas"
+              enhancedBubbleManager={
+                enhancedBubbleManagerRef.current || undefined
+              }
+              backgroundTheme="chestnut"
+              backgroundIntensity="moderate"
+              performanceMode={screenSize.isMobile}
+              enableGenreFiltering={true}
+              enableCollisionDetection={true} // モバイル・デスクトップ両方で有効
+              // モバイル高さ調整プロパティ（無効化）
+              mobileHeightRatio={1.0} // モバイルでも100%のサイズを使用
+              maxMobileHeight={800} // 最大高さを拡大
+              minMobileHeight={300} // 最小高さを拡大
+            />
+
+            {/* Category Filter Integration (Requirements: 5.1, 5.2, 5.3) */}
+            {(() => {
+              // window.console.log('🔍 [APP] About to render GenreFilterIntegration')
+              // window.console.log('🔍 [APP] showColorLegend:', showColorLegend)
+              // window.console.log('🔍 [APP] bubbles.length:', bubbles.length)
+              // window.console.log('🔍 [APP] isVisible will be:', showColorLegend && bubbles.length > 0)
+              // 最も確実なテスト
+              // window.console.error('🔍 [TEST] This should ALWAYS appear!')
+              return null
+            })()}
+            <GenreFilterIntegration
+              bubbles={bubbles}
+              onSelectedCategoriesChange={handleSelectedCategoriesChange}
+              colorLegendProps={{
+                position: 'bottom-right',
+                isVisible: showColorLegend && bubbles.length > 0,
+              }}
+            />
+          </div>
+
+          <div
+            className="app-info"
+            role="complementary"
+            aria-label="アプリケーション情報"
+          >
+            <AppInstructions isTouchDevice={screenSize.isTouchDevice} />
+          </div>
+        </DataLoadingErrorBoundary>
+
+        <DetailModal
+          selectedBubble={selectedBubble}
+          onClose={handleModalClose}
+          onSongClick={handleSongClickFromDetail}
+          onTagClick={handleTagClickFromDetail}
+          onPersonClick={handlePersonClickFromDetail}
+        />
+
+        <DatabaseDebugger
+          isVisible={showDatabaseDebugger}
+          onClose={handleDatabaseDebuggerClose}
+        />
+
+        <SongRegistrationForm
+          isVisible={showRegistrationForm}
+          onClose={handleRegistrationFormClose}
+          onSongAdded={handleSongAdded}
+        />
+
+        <SongManagement
+          isVisible={showSongManagement}
+          onClose={handleSongManagementClose}
+          onSongUpdated={handleSongUpdated}
+          onSongDeleted={handleSongDeleted}
+          onRequestReopen={handleSongManagementReopen}
+        />
+
+        <EnhancedTagList
+          isVisible={showTagList}
+          onClose={handleTagListClose}
+          onTagDetailOpen={handleBubbleClick}
+        />
+
+        <TagRegistrationScreen
+          isVisible={showTagRegistration}
+          onClose={handleTagRegistrationClose}
+          onTagsRegistered={handleTagsRegistered}
+        />
+
+        {/* PWA Components removed */}
+
+        {/* Live region for screen reader announcements */}
+        <div
+          id="live-region"
+          className="live-region"
+          aria-live="polite"
+          aria-atomic="true"
+        />
+      </MobileFirstLayout>
+    </>
+  )
+}
+
+/**
+ * アプリケーションのルートコンポーネント
+ * プロバイダーをラップ
+ */
+function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider>
         <GlassmorphismThemeProvider>
-          <UpdateNotification />
-          <MobileFirstLayout
-            className="App mobile-first-container improved-background"
-            header={
-              // iOSのChromeでTOPページ以外、またはシャボン玉詳細ダイアログ表示中はヘッダーを非表示
-              isIOSChrome() &&
-              (currentView !== 'main' || selectedBubble) ? null : (
-                <MobileFirstHeader>
-                  {/* デスクトップではヘッダーにナビゲーションを表示 */}
-                  <MobileFirstNavigation
-                    currentView={currentView}
-                    onViewChange={handleViewChange}
-                    showRegistrationForm={showRegistrationForm}
-                    showSongManagement={showSongManagement}
-                    showTagList={showTagList}
-                    showTagRegistration={showTagRegistration}
-                    onToggleRegistrationForm={handleToggleRegistrationForm}
-                    onToggleSongManagement={handleToggleSongManagement}
-                    onToggleTagList={handleToggleTagList}
-                    onToggleTagRegistration={handleToggleTagRegistration}
-                  />
-                </MobileFirstHeader>
-              )
-            }
-            navigation={
-              /* モバイルでのみ最下部にナビゲーションを表示 */
-              screenSize.isMobile ? (
-                <MobileFirstNavigation
-                  currentView={currentView}
-                  onViewChange={handleViewChange}
-                  showRegistrationForm={showRegistrationForm}
-                  showSongManagement={showSongManagement}
-                  showTagList={showTagList}
-                  showTagRegistration={showTagRegistration}
-                  onToggleRegistrationForm={handleToggleRegistrationForm}
-                  onToggleSongManagement={handleToggleSongManagement}
-                  onToggleTagList={handleToggleTagList}
-                  onToggleTagRegistration={handleToggleTagRegistration}
-                />
-              ) : null
-            }
-          >
-            {/* エラー状態の軽微な警告表示 */}
-            {retryCount > 0 && (
-              <InlineErrorDisplay
-                message={`復旧を${retryCount}回試行しました。問題が続く場合はページを再読み込みしてください。`}
-                onDismiss={handleClearError}
-              />
-            )}
-
-            <DataLoadingErrorBoundary>
-              <div className="bubble-container mobile-first-bubble-area bubble-area-maximized">
-                <BubbleCanvas
-                  width={canvasSize.width}
-                  height={canvasSize.height}
-                  bubbles={bubbles}
-                  onBubbleClick={handleBubbleClick}
-                  className="main-canvas"
-                  enhancedBubbleManager={
-                    enhancedBubbleManagerRef.current || undefined
-                  }
-                  backgroundTheme="chestnut"
-                  backgroundIntensity="moderate"
-                  performanceMode={screenSize.isMobile}
-                  enableGenreFiltering={true}
-                  enableCollisionDetection={true} // モバイル・デスクトップ両方で有効
-                  // モバイル高さ調整プロパティ（無効化）
-                  mobileHeightRatio={1.0} // モバイルでも100%のサイズを使用
-                  maxMobileHeight={800} // 最大高さを拡大
-                  minMobileHeight={300} // 最小高さを拡大
-                />
-
-                {/* Category Filter Integration (Requirements: 5.1, 5.2, 5.3) */}
-                {(() => {
-                  // window.console.log('🔍 [APP] About to render GenreFilterIntegration')
-                  // window.console.log('🔍 [APP] showColorLegend:', showColorLegend)
-                  // window.console.log('🔍 [APP] bubbles.length:', bubbles.length)
-                  // window.console.log('🔍 [APP] isVisible will be:', showColorLegend && bubbles.length > 0)
-                  // 最も確実なテスト
-                  // window.console.error('🔍 [TEST] This should ALWAYS appear!')
-                  return null
-                })()}
-                <GenreFilterIntegration
-                  bubbles={bubbles}
-                  onSelectedCategoriesChange={handleSelectedCategoriesChange}
-                  colorLegendProps={{
-                    position: 'bottom-right',
-                    isVisible: showColorLegend && bubbles.length > 0,
-                  }}
-                />
-              </div>
-
-              <div
-                className="app-info"
-                role="complementary"
-                aria-label="アプリケーション情報"
-              >
-                <AppInstructions isTouchDevice={screenSize.isTouchDevice} />
-              </div>
-            </DataLoadingErrorBoundary>
-
-            <DetailModal
-              selectedBubble={selectedBubble}
-              onClose={handleModalClose}
-              onSongClick={handleSongClickFromDetail}
-              onTagClick={handleTagClickFromDetail}
-              onPersonClick={handlePersonClickFromDetail}
-            />
-
-            <DatabaseDebugger
-              isVisible={showDatabaseDebugger}
-              onClose={handleDatabaseDebuggerClose}
-            />
-
-            <SongRegistrationForm
-              isVisible={showRegistrationForm}
-              onClose={handleRegistrationFormClose}
-              onSongAdded={handleSongAdded}
-            />
-
-            <SongManagement
-              isVisible={showSongManagement}
-              onClose={handleSongManagementClose}
-              onSongUpdated={handleSongUpdated}
-              onSongDeleted={handleSongDeleted}
-              onRequestReopen={handleSongManagementReopen}
-            />
-
-            <EnhancedTagList
-              isVisible={showTagList}
-              onClose={handleTagListClose}
-              onTagDetailOpen={handleBubbleClick}
-            />
-
-            <TagRegistrationScreen
-              isVisible={showTagRegistration}
-              onClose={handleTagRegistrationClose}
-              onTagsRegistered={handleTagsRegistered}
-            />
-
-            {/* PWA Components removed */}
-
-            {/* Live region for screen reader announcements */}
-            <div
-              id="live-region"
-              className="live-region"
-              aria-live="polite"
-              aria-atomic="true"
-            />
-          </MobileFirstLayout>
+          <ChristmasThemeProvider>
+            {/* クリスマス装飾オーバーレイ - Requirements: 2.3 */}
+            <ChristmasDecorations />
+            <AppContent />
+          </ChristmasThemeProvider>
         </GlassmorphismThemeProvider>
       </ThemeProvider>
     </ErrorBoundary>

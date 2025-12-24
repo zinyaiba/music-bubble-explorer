@@ -2,6 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { ThemeProvider } from '../ThemeProvider'
+import { ChristmasThemeProvider } from '../../contexts/ChristmasThemeContext'
 import { SongManagement } from '../SongManagement'
 import { DataManager } from '../../services/dataManager'
 import { Song } from '../../types/music'
@@ -14,9 +15,9 @@ const mockDataManager = DataManager as any
 vi.mock('../../services/musicDataService', () => ({
   MusicDataService: {
     getInstance: vi.fn(() => ({
-      clearCache: vi.fn()
-    }))
-  }
+      clearCache: vi.fn(),
+    })),
+  },
 }))
 
 // Sample test data
@@ -27,7 +28,7 @@ const sampleSongs: Song[] = [
     lyricists: ['Test Lyricist 1'],
     composers: ['Test Composer 1'],
     arrangers: ['Test Arranger 1'],
-    tags: ['test', 'song']
+    tags: ['test', 'song'],
   },
   {
     id: 'song-2',
@@ -35,8 +36,8 @@ const sampleSongs: Song[] = [
     lyricists: ['Test Lyricist 2'],
     composers: ['Test Composer 2'],
     arrangers: ['Test Arranger 2'],
-    tags: ['test', 'music']
-  }
+    tags: ['test', 'music'],
+  },
 ]
 
 const renderSongManagement = (props = {}) => {
@@ -45,12 +46,14 @@ const renderSongManagement = (props = {}) => {
     onClose: vi.fn(),
     onSongUpdated: vi.fn(),
     onSongDeleted: vi.fn(),
-    ...props
+    ...props,
   }
 
   return render(
     <ThemeProvider>
-      <SongManagement {...defaultProps} />
+      <ChristmasThemeProvider>
+        <SongManagement {...defaultProps} />
+      </ChristmasThemeProvider>
     </ThemeProvider>
   )
 }
@@ -101,7 +104,9 @@ describe('SongManagement Component', () => {
       expect(screen.getByText('Test Song 1')).toBeInTheDocument()
     })
 
-    const searchInput = screen.getByPlaceholderText('楽曲名、作詞家、作曲家、編曲家、タグで検索...')
+    const searchInput = screen.getByPlaceholderText(
+      '楽曲名、作詞家、作曲家、編曲家、タグで検索...'
+    )
     fireEvent.change(searchInput, { target: { value: 'Song 1' } })
 
     expect(screen.getByText('Test Song 1')).toBeInTheDocument()
@@ -195,10 +200,14 @@ describe('SongManagement Component', () => {
       expect(screen.getByText('Test Song 1')).toBeInTheDocument()
     })
 
-    const searchInput = screen.getByPlaceholderText('楽曲名、作詞家、作曲家、編曲家、タグで検索...')
+    const searchInput = screen.getByPlaceholderText(
+      '楽曲名、作詞家、作曲家、編曲家、タグで検索...'
+    )
     fireEvent.change(searchInput, { target: { value: 'nonexistent' } })
 
-    expect(screen.getByText('検索条件に一致する楽曲が見つかりません')).toBeInTheDocument()
+    expect(
+      screen.getByText('検索条件に一致する楽曲が見つかりません')
+    ).toBeInTheDocument()
   })
 
   it('displays correct statistics', async () => {

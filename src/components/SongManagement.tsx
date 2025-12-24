@@ -7,6 +7,8 @@ import { SongDetailView } from './SongDetailView'
 import { StandardLayout } from './StandardLayout'
 import { UnifiedDialogLayout } from './UnifiedDialogLayout'
 import { sortSongs, SongSortType } from '@/utils/songSorting'
+import { useTapSequenceDetector } from '@/hooks/useTapSequenceDetector'
+import { useChristmasTheme } from '@/contexts/ChristmasThemeContext'
 import './SongManagement.css'
 
 interface SongManagementProps {
@@ -60,6 +62,52 @@ export const SongManagement: React.FC<SongManagementProps> = ({
   const [isDeleting, setIsDeleting] = useState(false)
   const [displayLimit, setDisplayLimit] = useState(50) // 初期表示数を50に制限
   const [isCompactView, setIsCompactView] = useState(false) // コンパクト表示モード
+
+  // クリスマスモード切替時の視覚的フィードバック状態
+  // Requirements: 1.2
+  const [showChristmasFeedback, setShowChristmasFeedback] = useState(false)
+
+  // クリスマステーマコンテキストからモード切替関数を取得
+  // Requirements: 1.1, 1.4
+  const { isChristmasMode, toggleChristmasMode } = useChristmasTheme()
+
+  // タップシーケンス検出フック
+  // Requirements: 1.1, 1.3, 1.4
+  const { handleTap, tapCount } = useTapSequenceDetector({
+    requiredTaps: 13,
+    timeWindowMs: 3000,
+    onSequenceComplete: () => {
+      console.log('🎄 Christmas mode triggered!')
+      // モード切替時の視覚的フィードバックを表示
+      setShowChristmasFeedback(true)
+      toggleChristmasMode()
+
+      // フィードバックを一定時間後に非表示
+      setTimeout(() => {
+        setShowChristmasFeedback(false)
+      }, 1500)
+    },
+  })
+
+  // タップハンドラー（デバッグログ付き）
+  const handleContentClick = useCallback(
+    (e: React.MouseEvent) => {
+      // ボタンや入力欄などのインタラクティブ要素のクリックは無視
+      const target = e.target as HTMLElement
+      const isInteractive =
+        target.closest('button') ||
+        target.closest('input') ||
+        target.closest('select') ||
+        target.closest('a') ||
+        target.closest('.song-item')
+
+      if (!isInteractive) {
+        console.log('🎅 Tap detected! Count:', tapCount + 1)
+        handleTap()
+      }
+    },
+    [handleTap, tapCount]
+  )
 
   const loadSongs = useCallback(async () => {
     setIsLoading(true)
@@ -347,7 +395,23 @@ export const SongManagement: React.FC<SongManagementProps> = ({
       mobileOptimized={true}
       className={showEditForm || showDetailView ? 'hide-header-on-mobile' : ''}
     >
-      <div className="song-management-content">
+      <div
+        className="song-management-content"
+        onClick={handleContentClick}
+        role="region"
+        aria-label="楽曲管理コンテンツエリア"
+      >
+        {/* クリスマスモード切替時の視覚的フィードバック */}
+        {/* Requirements: 1.2 */}
+        {showChristmasFeedback && (
+          <div className="christmas-feedback-overlay" aria-live="polite">
+            <div className="christmas-feedback-content">
+              {isChristmasMode
+                ? '🎄 クリスマスモード ON! 🎄'
+                : '✨ 通常モードに戻りました ✨'}
+            </div>
+          </div>
+        )}
         {isLoading && (
           <div className="song-management-loading">
             <div className="loading-spinner"></div>

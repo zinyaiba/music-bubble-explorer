@@ -4,12 +4,12 @@ export { DataParser } from './dataParser'
 export { RelationshipCalculator } from './relationshipCalculator'
 
 // Environment detection utilities
-export { 
-  EnvironmentDetector, 
-  getEnvironmentConfig, 
-  shouldShowDebugUI, 
-  shouldLogToConsole, 
-  detectEnvironment 
+export {
+  EnvironmentDetector,
+  getEnvironmentConfig,
+  shouldShowDebugUI,
+  shouldLogToConsole,
+  detectEnvironment,
 } from './environmentDetector'
 
 // Bubble registry utilities
@@ -19,7 +19,11 @@ export { BubbleRegistry } from './bubbleRegistry'
 export { ContentTracker } from './contentTracker'
 
 // Visual theme utilities
-export { VisualThemeManager, defaultVisualTheme, ColorPalette } from './visualTheme'
+export {
+  VisualThemeManager,
+  defaultVisualTheme,
+  ColorPalette,
+} from './visualTheme'
 export { BubbleStyleResolver } from './bubbleStyleResolver'
 
 // Icon rendering utilities
@@ -32,61 +36,79 @@ export { ShapeRenderer, shapeRenderer } from './shapeRenderer'
 export { MultiRoleHandler, multiRoleHandler } from './multiRoleHandler'
 
 // Performance optimization utilities
-export { 
-  PerformanceCache, 
+export {
+  PerformanceCache,
   performanceCache,
   type IconCacheKey,
   type GradientCacheKey,
-  type CacheEntry
+  type CacheEntry,
 } from './performanceCache'
-export { 
-  SelectiveRenderer, 
+export {
+  SelectiveRenderer,
   selectiveRenderer,
   type RenderRegion,
-  type BubbleRenderState
+  type BubbleRenderState,
 } from './selectiveRenderer'
-export { 
-  PerformanceMonitor, 
+export {
+  PerformanceMonitor,
   performanceMonitor,
   type PerformanceMetrics,
-  type PerformanceThresholds
+  type PerformanceThresholds,
 } from './performanceMonitor'
 
 // Error handling utilities
-export { 
-  ErrorHandler, 
+export {
+  ErrorHandler,
   errorHandler,
   ErrorType,
   ErrorSeverity,
   DEFAULT_FALLBACK_CONFIG,
   type ErrorInfo,
-  type FallbackConfig
+  type FallbackConfig,
 } from './errorHandler'
 export { SafeIconRenderer, safeIconRenderer } from './safeIconRenderer'
-export { SafeVisualThemeManager, safeVisualThemeManager } from './safeVisualTheme'
-export { SafePersonConsolidator, safePersonConsolidator } from './safePersonConsolidator'
+export {
+  SafeVisualThemeManager,
+  safeVisualThemeManager,
+} from './safeVisualTheme'
+export {
+  SafePersonConsolidator,
+  safePersonConsolidator,
+} from './safePersonConsolidator'
 export { SafeBubbleRegistry, safeBubbleRegistry } from './safeBubbleRegistry'
-export { 
-  ErrorHandlingIntegration, 
+export {
+  ErrorHandlingIntegration,
   errorHandlingIntegration,
   DEFAULT_SYSTEM_ERROR_CONFIG,
   type SystemErrorConfig,
-  type SystemHealth
+  type SystemHealth,
 } from './errorHandlingIntegration'
 
+// Christmas theme utilities
+export { christmasTheme, CHRISTMAS_CSS_VARIABLES } from './christmasTheme'
+
 // Re-export types for convenience
-export type { MusicDatabase, Song, Person, Bubble, RelatedData } from '@/types/music'
-export type { EnvironmentConfig, EnvironmentDetectionResult } from '@/types/environment'
-export type { 
-  ContentItem, 
-  DisplayedBubbleInfo, 
-  ContentPoolStats, 
-  BubbleRegistryConfig 
+export type {
+  MusicDatabase,
+  Song,
+  Person,
+  Bubble,
+  RelatedData,
+} from '@/types/music'
+export type {
+  EnvironmentConfig,
+  EnvironmentDetectionResult,
+} from '@/types/environment'
+export type {
+  ContentItem,
+  DisplayedBubbleInfo,
+  ContentPoolStats,
+  BubbleRegistryConfig,
 } from '@/types/bubbleRegistry'
-export type { 
-  EnhancedBubble, 
-  PersonRole, 
-  BubbleStyle, 
-  VisualTheme 
+export type {
+  EnhancedBubble,
+  PersonRole,
+  BubbleStyle,
+  VisualTheme,
 } from '@/types/enhancedBubble'
 export { IconType, ShapeType } from '@/types/enhancedBubble'

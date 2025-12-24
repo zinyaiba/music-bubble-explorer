@@ -5,6 +5,8 @@
 @import './styles/safariEmergency.css';
 /* Import improved glassmorphism styles */
 @import './styles/improved-glassmorphism.css';
+/* Import Christmas theme styles */
+@import './styles/christmas-theme.css';
 
 /* ===== 今風のガラスモーフィズムスクロールバー（グローバル適用） ===== */
 /* 全てのスクロール可能な要素に統一スタイルを適用 */
