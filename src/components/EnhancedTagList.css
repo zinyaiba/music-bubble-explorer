@@ -966,12 +966,12 @@
 /* 編集ボタン - Requirements: 4.1 - タッチターゲットサイズ（最小44x44ピクセル） */
 .tag-edit-button {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   padding: 0;
   border: none;
   border-radius: 50%;
@@ -982,11 +982,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 12px;
   opacity: 0;
   transform: scale(0.8);
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   z-index: 10;
 }
 
@@ -1000,8 +1000,8 @@
 /* 編集ボタンのホバー状態 */
 .tag-edit-button:hover {
   background: linear-gradient(135deg, #ffb6c1, #ff69b4);
-  transform: scale(1.1);
-  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.3);
 }
 
 .tag-edit-button:focus {
@@ -1091,12 +1091,12 @@
   position: relative;
   top: auto;
   right: auto;
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  min-height: 32px;
-  font-size: 12px;
-  margin-left: 8px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  font-size: 10px;
+  margin-left: 4px;
   opacity: 0;
 }
 
@@ -1115,7 +1115,7 @@
 @media (max-width: 768px) {
   /* モバイルでは常に編集ボタンを表示 */
   .tag-edit-button {
-    opacity: 0.8;
+    opacity: 0.7;
     transform: scale(1);
   }
 
@@ -1123,20 +1123,21 @@
     opacity: 1;
   }
 
-  /* タッチデバイス用の大きめのタッチターゲット */
+  /* モバイルでも小さめのボタン */
   .tag-edit-button {
-    width: 48px;
-    height: 48px;
-    min-width: 48px;
-    min-height: 48px;
-    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    font-size: 13px;
   }
 
   .tag-item.compact .tag-edit-button {
-    width: 40px;
-    height: 40px;
-    min-width: 40px;
-    min-height: 40px;
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    font-size: 11px;
   }
 
   /* 成功通知のモバイル対応 */

@@ -1,14 +1,12 @@
 /**
- * TagMergeDialog コンポーネント
- * タグ統合の確認ダイアログ（コンパクト版）
- * Requirements: 2.1, 2.2, 4.3
+ * TagEditDialog コンポーネント
+ * タグ名編集用のダイアログ
  */
 
-import React from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { useGlassmorphismTheme } from './GlassmorphismThemeProvider'
 
-// Animation keyframes
 const fadeIn = keyframes`
   from { opacity: 0; }
   to { opacity: 1; }
@@ -23,15 +21,13 @@ const spin = keyframes`
   to { transform: rotate(360deg); }
 `
 
-export interface TagMergeDialogProps {
+export interface TagEditDialogProps {
   isOpen: boolean
-  sourceTag: string
-  targetTag: string
-  sourceSongCount: number
-  targetSongCount: number
-  onConfirm: () => void
+  tagName: string
+  onSave: (newName: string) => void
   onCancel: () => void
   isLoading?: boolean
+  error?: string | null
 }
 
 const Overlay = styled.div<{ $isOpen: boolean }>`
@@ -49,7 +45,7 @@ const Overlay = styled.div<{ $isOpen: boolean }>`
 `
 
 const DialogBox = styled.div<{ $theme: any }>`
-  max-width: 340px;
+  max-width: 320px;
   width: 100%;
   padding: 16px;
   border-radius: 14px;
@@ -62,7 +58,7 @@ const DialogBox = styled.div<{ $theme: any }>`
 `
 
 const DialogTitle = styled.h3<{ $theme: any }>`
-  margin: 0 0 8px 0;
+  margin: 0 0 12px 0;
   font-size: 16px;
   font-weight: 600;
   color: ${props => props.$theme.colors?.text?.primary || '#374151'};
@@ -70,67 +66,62 @@ const DialogTitle = styled.h3<{ $theme: any }>`
   align-items: center;
   gap: 6px;
   &::before {
-    content: '🔀';
+    content: '✏️';
     font-size: 16px;
   }
 `
 
-// 横並びの統合情報コンテナ
-const MergeInfoRow = styled.div<{ $theme: any }>`
-  display: flex;
-  align-items: center;
-  gap: 8px;
+const InputContainer = styled.div`
   margin-bottom: 12px;
-  padding: 10px;
+`
+
+const Input = styled.input<{ $theme: any; $hasError: boolean }>`
+  width: 100%;
+  padding: 12px;
+  border: 2px solid
+    ${props => (props.$hasError ? '#dc3545' : 'rgba(255, 182, 193, 0.5)')};
   border-radius: 10px;
-  background: ${props =>
-    props.$theme.colors?.glass?.light || 'rgba(255, 182, 193, 0.1)'};
-  border: 1px solid rgba(255, 182, 193, 0.3);
-`
-
-const TagBox = styled.div<{ $theme: any; $variant: 'source' | 'target' }>`
-  flex: 1;
-  min-width: 0;
-  padding: 8px;
-  border-radius: 8px;
-  background: ${props =>
-    props.$variant === 'source'
-      ? 'rgba(255, 200, 200, 0.4)'
-      : 'rgba(200, 255, 200, 0.4)'};
-  border: 1px solid
-    ${props =>
-      props.$variant === 'source'
-        ? 'rgba(255, 150, 150, 0.5)'
-        : 'rgba(150, 255, 150, 0.5)'};
-`
-
-const TagLabel = styled.div`
-  font-size: 9px;
+  font-size: 15px;
   font-weight: 500;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-bottom: 2px;
-`
-
-const TagName = styled.div<{ $theme: any }>`
-  font-size: 13px;
-  font-weight: 600;
   color: ${props => props.$theme.colors?.text?.primary || '#374151'};
-  word-break: break-word;
-  line-height: 1.2;
+  background: rgba(255, 255, 255, 0.9);
+  outline: none;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: ${props => (props.$hasError ? '#dc3545' : '#ff69b4')};
+    box-shadow: 0 0 0 3px
+      ${props =>
+        props.$hasError
+          ? 'rgba(220, 53, 69, 0.2)'
+          : 'rgba(255, 105, 180, 0.2)'};
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `
 
-const SongCount = styled.span`
-  font-size: 11px;
-  color: #6b7280;
-  margin-left: 4px;
-`
+const ErrorMessage = styled.div`
+  margin-top: 6px;
+  padding: 6px 10px;
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  border-radius: 6px;
+  font-size: 12px;
+  color: #dc3545;
 
-const Arrow = styled.div<{ $theme: any }>`
-  font-size: 16px;
-  color: ${props => props.$theme.colors?.accent || '#ff69b4'};
-  flex-shrink: 0;
+  &::before {
+    content: '⚠️ ';
+  }
 `
 
 const ButtonGroup = styled.div`
@@ -192,32 +183,61 @@ const LoadingSpinner = styled.span`
   animation: ${spin} 0.8s linear infinite;
 `
 
-export const TagMergeDialog: React.FC<TagMergeDialogProps> = ({
+export const TagEditDialog: React.FC<TagEditDialogProps> = ({
   isOpen,
-  sourceTag,
-  targetTag,
-  sourceSongCount,
-  targetSongCount,
-  onConfirm,
+  tagName,
+  onSave,
   onCancel,
   isLoading = false,
+  error = null,
 }) => {
   const theme = useGlassmorphismTheme()
-  const totalSongCount = sourceSongCount + targetSongCount
+  const [editValue, setEditValue] = useState(tagName)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // ダイアログが開いたときに値をリセットしてフォーカス
+  useEffect(() => {
+    if (isOpen) {
+      setEditValue(tagName)
+      setTimeout(() => {
+        inputRef.current?.focus()
+        inputRef.current?.select()
+      }, 100)
+    }
+  }, [isOpen, tagName])
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget && !isLoading) onCancel()
   }
 
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+  const handleSave = () => {
+    const trimmed = editValue.trim()
+    if (!trimmed || trimmed === tagName || isLoading) return
+    onSave(trimmed)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSave()
+    } else if (e.key === 'Escape' && !isLoading) {
+      onCancel()
+    }
+  }
+
+  // ESCキーでキャンセル
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen && !isLoading) onCancel()
     }
     if (isOpen) {
-      document.addEventListener('keydown', handleKeyDown)
-      return () => document.removeEventListener('keydown', handleKeyDown)
+      document.addEventListener('keydown', handleGlobalKeyDown)
+      return () => document.removeEventListener('keydown', handleGlobalKeyDown)
     }
   }, [isOpen, isLoading, onCancel])
+
+  const isSaveDisabled =
+    isLoading || !editValue.trim() || editValue.trim() === tagName
 
   return (
     <Overlay
@@ -225,33 +245,27 @@ export const TagMergeDialog: React.FC<TagMergeDialogProps> = ({
       onClick={handleOverlayClick}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="merge-dialog-title"
+      aria-labelledby="edit-dialog-title"
     >
       <DialogBox $theme={theme}>
-        <DialogTitle $theme={theme} id="merge-dialog-title">
-          タグを統合
+        <DialogTitle $theme={theme} id="edit-dialog-title">
+          タグ名を編集
         </DialogTitle>
 
-        {/* 横並びの統合情報 */}
-        <MergeInfoRow $theme={theme}>
-          <TagBox $theme={theme} $variant="source">
-            <TagLabel>統合元</TagLabel>
-            <TagName $theme={theme}>
-              {sourceTag}
-              <SongCount>({sourceSongCount}曲)</SongCount>
-            </TagName>
-          </TagBox>
-
-          <Arrow $theme={theme}>→</Arrow>
-
-          <TagBox $theme={theme} $variant="target">
-            <TagLabel>統合先</TagLabel>
-            <TagName $theme={theme}>
-              {targetTag}
-              <SongCount>({totalSongCount}曲)</SongCount>
-            </TagName>
-          </TagBox>
-        </MergeInfoRow>
+        <InputContainer>
+          <Input
+            ref={inputRef}
+            $theme={theme}
+            $hasError={!!error}
+            value={editValue}
+            onChange={e => setEditValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="タグ名を入力..."
+            disabled={isLoading}
+            aria-invalid={!!error}
+          />
+          {error && <ErrorMessage>{error}</ErrorMessage>}
+        </InputContainer>
 
         <ButtonGroup>
           <Button
@@ -267,17 +281,17 @@ export const TagMergeDialog: React.FC<TagMergeDialogProps> = ({
             $theme={theme}
             $variant="primary"
             $isLoading={isLoading}
-            onClick={onConfirm}
-            disabled={isLoading}
+            onClick={handleSave}
+            disabled={isSaveDisabled}
             type="button"
           >
             {isLoading ? (
               <>
                 <LoadingSpinner />
-                統合中
+                保存中
               </>
             ) : (
-              '統合する'
+              '保存'
             )}
           </Button>
         </ButtonGroup>
@@ -286,4 +300,4 @@ export const TagMergeDialog: React.FC<TagMergeDialogProps> = ({
   )
 }
 
-export default TagMergeDialog
+export default TagEditDialog
