@@ -1,9 +1,41 @@
+/**
+ * TagInlineEditor コンポーネント
+ * タグ一覧画面でのインライン編集UI
+ * Requirements: 1.1, 3.1, 3.4
+ */
+
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import { useGlassmorphismTheme } from './GlassmorphismThemeProvider'
+import './TagInlineEditor.css'
 
-// Props interface for TagInlineEditor component
+/**
+ * TagInlineEditorのプロパティ（設計ドキュメント準拠）
+ * Requirements: 1.1 - インライン編集フィールドを表示
+ */
 export interface TagInlineEditorProps {
+  /** 現在のタグ名 */
+  tagName: string
+  /** 編集中かどうか */
+  isEditing: boolean
+  /** 保存時のコールバック */
+  onSave: (newName: string) => void
+  /** キャンセル時のコールバック */
+  onCancel: () => void
+  /** ローディング状態 */
+  isLoading?: boolean
+  /** エラーメッセージ */
+  error?: string | null
+  /** クラス名 */
+  className?: string
+  /** aria-label */
+  'aria-label'?: string
+}
+
+/**
+ * 旧インターフェース（TagChip互換）
+ */
+export interface LegacyTagInlineEditorProps {
   value: string
   onSave: (value: string) => void
   onCancel: () => void
@@ -11,7 +43,7 @@ export interface TagInlineEditorProps {
   maxLength?: number
   autoFocus?: boolean
   selectAllOnFocus?: boolean
-  validateInput?: (value: string) => string | null // Returns error message or null
+  validateInput?: (value: string) => string | null
   className?: string
   'aria-label'?: string
 }
@@ -19,153 +51,198 @@ export interface TagInlineEditorProps {
 // Styled components
 const EditorContainer = styled.div<{
   $theme: any
+  $isHighlighted?: boolean
 }>`
   position: relative;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   min-width: 120px;
-  max-width: 300px;
+  max-width: 100%;
+  width: 100%;
+
+  ${props =>
+    props.$isHighlighted &&
+    `
+    background: ${props.$theme.colors.glass?.tinted || 'rgba(255, 182, 193, 0.15)'};
+    border-radius: 12px;
+    padding: 4px;
+    box-shadow: 0 0 0 2px ${props.$theme.colors.accent || '#ff69b4'};
+  `}
 `
 
 const EditorInput = styled.input<{
   $theme: any
   $hasError: boolean
+  $isLoading: boolean
 }>`
-  background: ${props => props.$theme.colors.surface};
+  background: ${props =>
+    props.$theme.colors?.surface || 'rgba(255, 255, 255, 0.95)'};
   border: 2px solid
     ${props =>
       props.$hasError
-        ? props.$theme.colors.primary[400]
-        : props.$theme.colors.accent};
+        ? props.$theme.colors?.error?.main || '#dc3545'
+        : props.$theme.colors?.accent || '#ff69b4'};
   border-radius: 12px;
-  padding: 6px 12px;
-  font-family: ${props => props.$theme.typography.fontFamily};
+  padding: 8px 12px;
+  font-family: ${props => props.$theme.typography?.fontFamily || 'inherit'};
   font-size: 14px;
-  font-weight: ${props => props.$theme.typography.fontWeights.medium};
-  color: ${props => props.$theme.colors.text.onGlass};
+  font-weight: ${props => props.$theme.typography?.fontWeights?.medium || 500};
+  color: ${props => props.$theme.colors?.text?.primary || '#374151'};
   outline: none;
   width: 100%;
   min-width: 80px;
+  min-height: 44px; /* Requirements: 4.1 - タッチターゲットサイズ */
+  box-sizing: border-box;
 
   /* Glassmorphism effect */
-  backdrop-filter: ${props => props.$theme.effects.blur.light};
-  -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
-  box-shadow: ${props => props.$theme.effects.shadows.medium};
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(255, 182, 193, 0.2);
 
   /* Smooth transitions */
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
   &::placeholder {
-    color: ${props => props.$theme.colors.neutral[400]};
+    color: ${props => props.$theme.colors?.text?.light || '#9ca3af'};
   }
 
   &:focus {
-    border-color: ${props => props.$theme.colors.accent};
-    box-shadow: ${props => props.$theme.effects.shadows.strong};
-    transform: scale(1.02);
+    border-color: ${props => props.$theme.colors?.accent || '#ff69b4'};
+    box-shadow:
+      0 0 0 3px rgba(255, 105, 180, 0.2),
+      0 4px 12px rgba(255, 182, 193, 0.3);
   }
 
   /* Error state */
   ${props =>
     props.$hasError &&
     `
-    border-color: ${props.$theme.colors.primary[400]};
-    background: ${props.$theme.colors.primary[50]};
+    border-color: ${props.$theme.colors?.error?.main || '#dc3545'};
+    background: rgba(220, 53, 69, 0.05);
   `}
 
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    font-size: 16px; /* Prevent zoom on iOS */
+  /* Loading state */
+  ${props =>
+    props.$isLoading &&
+    `
+    opacity: 0.7;
+    cursor: wait;
+  `}
 
-    &:focus {
-      transform: none;
-    }
+  /* Disabled state */
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: rgba(240, 240, 240, 0.8);
+  }
+
+  /* Responsive - prevent zoom on iOS */
+  @media (max-width: 768px) {
+    font-size: 16px;
+    padding: 10px 14px;
   }
 `
 
-const ActionButtons = styled.div<{
-  $theme: any
-}>`
+const ActionButtons = styled.div`
   display: flex;
-  gap: 4px;
+  gap: 6px;
   align-items: center;
+  flex-shrink: 0;
 `
 
 const ActionButton = styled.button<{
   $theme: any
   $variant: 'save' | 'cancel'
+  $isLoading?: boolean
 }>`
   background: ${props => {
+    if (props.$isLoading)
+      return props.$theme.colors?.neutral?.[200] || '#e5e7eb'
     switch (props.$variant) {
       case 'save':
-        return props.$theme.colors.glass.tinted
+        return 'linear-gradient(135deg, #98fb98, #90ee90)'
       case 'cancel':
-        return props.$theme.colors.glass.light
+        return props.$theme.colors?.glass?.light || 'rgba(255, 255, 255, 0.8)'
       default:
-        return props.$theme.colors.glass.medium
+        return props.$theme.colors?.glass?.medium || 'rgba(255, 255, 255, 0.6)'
     }
   }};
 
-  border: 1px solid
+  border: 2px solid
     ${props => {
       switch (props.$variant) {
         case 'save':
-          return props.$theme.colors.accent
+          return '#90ee90'
         case 'cancel':
-          return props.$theme.colors.neutral[300]
+          return props.$theme.colors?.neutral?.[300] || '#d1d5db'
         default:
-          return props.$theme.effects.borders.glass
+          return 'transparent'
       }
     }};
 
-  border-radius: 8px;
-  width: 24px;
-  height: 24px;
+  border-radius: 10px;
+  min-width: 44px; /* Requirements: 4.1 - タッチターゲットサイズ */
+  min-height: 44px; /* Requirements: 4.1 - タッチターゲットサイズ */
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  font-size: 12px;
-  color: ${props => props.$theme.colors.text.onGlass};
+  cursor: ${props => (props.$isLoading ? 'wait' : 'pointer')};
+  font-size: 16px;
+  color: ${props => {
+    switch (props.$variant) {
+      case 'save':
+        return '#2d5016'
+      case 'cancel':
+        return props.$theme.colors?.text?.secondary || '#6b7280'
+      default:
+        return props.$theme.colors?.text?.primary || '#374151'
+    }
+  }};
 
   /* Glassmorphism effect */
-  backdrop-filter: ${props => props.$theme.effects.blur.light};
-  -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   /* Smooth transitions */
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 
-  &:hover {
-    transform: scale(1.1);
-    background: ${props => {
-      switch (props.$variant) {
-        case 'save':
-          return props.$theme.colors.glass.strong
-        case 'cancel':
-          return props.$theme.colors.glass.medium
-        default:
-          return props.$theme.colors.glass.strong
-      }
-    }};
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    ${props =>
+      props.$variant === 'save' &&
+      `
+      background: linear-gradient(135deg, #90ee90, #7dd87d);
+    `}
+    ${props =>
+      props.$variant === 'cancel' &&
+      `
+      background: rgba(255, 182, 193, 0.3);
+      border-color: #ffb6c1;
+    `}
   }
 
-  &:active {
-    transform: scale(0.95);
+  &:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   &:focus {
-    outline: 2px solid ${props => props.$theme.colors.accent};
-    outline-offset: 1px;
+    outline: 2px solid ${props => props.$theme.colors?.accent || '#ff69b4'};
+    outline-offset: 2px;
   }
 
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
+  }
 
-    &:hover {
-      transform: none;
-    }
+  @media (max-width: 768px) {
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 18px;
   }
 `
 
@@ -176,20 +253,40 @@ const ErrorMessage = styled.div<{
   top: 100%;
   left: 0;
   right: 0;
-  margin-top: 4px;
-  padding: 4px 8px;
-  background: ${props => props.$theme.colors.primary[100]};
-  border: 1px solid ${props => props.$theme.colors.primary[300]};
-  border-radius: 8px;
-  font-size: 12px;
-  color: ${props => props.$theme.colors.primary[500]};
-  font-family: ${props => props.$theme.typography.fontFamily};
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: rgba(220, 53, 69, 0.1);
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  border-radius: 10px;
+  font-size: 13px;
+  color: #dc3545;
+  font-family: ${props => props.$theme.typography?.fontFamily || 'inherit'};
   z-index: 10;
 
   /* Glassmorphism effect */
-  backdrop-filter: ${props => props.$theme.effects.blur.light};
-  -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
-  box-shadow: ${props => props.$theme.effects.shadows.subtle};
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.15);
+
+  &::before {
+    content: '⚠️ ';
+  }
+`
+
+const LoadingSpinner = styled.span`
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 182, 193, 0.3);
+  border-top-color: #ff69b4;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 `
 
 const KeyboardHints = styled.div<{
@@ -198,38 +295,228 @@ const KeyboardHints = styled.div<{
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 4px;
-  padding: 2px 6px;
-  background: ${props => props.$theme.colors.glass.light};
-  border: 1px solid ${props => props.$theme.colors.neutral[200]};
-  border-radius: 6px;
-  font-size: 10px;
-  color: ${props => props.$theme.colors.text.secondary};
-  font-family: ${props => props.$theme.typography.fontFamily};
+  margin-top: 6px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 182, 193, 0.3);
+  border-radius: 8px;
+  font-size: 11px;
+  color: ${props => props.$theme.colors?.text?.secondary || '#6b7280'};
+  font-family: ${props => props.$theme.typography?.fontFamily || 'inherit'};
   white-space: nowrap;
   z-index: 10;
 
   /* Glassmorphism effect */
-  backdrop-filter: ${props => props.$theme.effects.blur.light};
-  -webkit-backdrop-filter: ${props => props.$theme.effects.blur.light};
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 
   .key {
-    background: ${props => props.$theme.colors.neutral[100]};
-    border: 1px solid ${props => props.$theme.colors.neutral[300]};
-    border-radius: 3px;
-    padding: 1px 3px;
-    margin: 0 1px;
-    font-weight: ${props => props.$theme.typography.fontWeights.medium};
+    background: rgba(255, 182, 193, 0.2);
+    border: 1px solid rgba(255, 182, 193, 0.4);
+    border-radius: 4px;
+    padding: 2px 5px;
+    margin: 0 2px;
+    font-weight: 600;
+    font-size: 10px;
   }
 `
 
 /**
- * TagInlineEditor component
- * Provides inline editing functionality with glassmorphism styling and keyboard shortcuts
+ * TagInlineEditor コンポーネント
+ * タグ一覧画面でのインライン編集UI
  *
- * Requirements: 5.2, 5.3, 5.5
+ * Requirements:
+ * - 1.1: 編集ボタンをクリックした時にインライン編集フィールドを表示
+ * - 3.1: ローディングインジケーターを表示
+ * - 3.4: 編集中のタグ項目をハイライト表示
  */
 export const TagInlineEditor: React.FC<TagInlineEditorProps> = ({
+  tagName,
+  isEditing,
+  onSave,
+  onCancel,
+  isLoading = false,
+  error = null,
+  className,
+  'aria-label': ariaLabel,
+}) => {
+  const theme = useGlassmorphismTheme()
+  const [editValue, setEditValue] = useState(tagName)
+  const [showHints, setShowHints] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // タグ名が変更されたら編集値を更新
+  useEffect(() => {
+    setEditValue(tagName)
+  }, [tagName])
+
+  // 編集開始時にフォーカスと全選択
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.select()
+    }
+  }, [isEditing])
+
+  // 入力値の変更処理
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (isLoading) return
+      setEditValue(e.target.value)
+    },
+    [isLoading]
+  )
+
+  // 保存処理
+  const handleSave = useCallback(() => {
+    if (isLoading) return
+    const trimmedValue = editValue.trim()
+
+    // 空の場合はキャンセル扱い
+    if (!trimmedValue) {
+      onCancel()
+      return
+    }
+
+    // 変更がない場合もキャンセル扱い
+    if (trimmedValue === tagName) {
+      onCancel()
+      return
+    }
+
+    onSave(trimmedValue)
+  }, [editValue, tagName, isLoading, onSave, onCancel])
+
+  // キャンセル処理
+  const handleCancel = useCallback(() => {
+    if (isLoading) return
+    setEditValue(tagName)
+    onCancel()
+  }, [tagName, isLoading, onCancel])
+
+  // キーボードショートカット処理
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (isLoading) return
+
+      switch (e.key) {
+        case 'Enter':
+          e.preventDefault()
+          handleSave()
+          break
+        case 'Escape':
+          e.preventDefault()
+          handleCancel()
+          break
+      }
+    },
+    [isLoading, handleSave, handleCancel]
+  )
+
+  // フォーカス時にヒント表示
+  const handleInputFocus = useCallback(() => {
+    setShowHints(true)
+  }, [])
+
+  // ブラー時の処理
+  const handleInputBlur = useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      // アクションボタンをクリックした場合はブラーを無視
+      const relatedTarget = e.relatedTarget as HTMLElement
+      if (
+        relatedTarget &&
+        relatedTarget.closest('.tag-inline-editor-actions')
+      ) {
+        return
+      }
+      setShowHints(false)
+    },
+    []
+  )
+
+  // 編集中でない場合は何も表示しない
+  if (!isEditing) {
+    return null
+  }
+
+  const isSaveDisabled =
+    isLoading || !editValue.trim() || editValue.trim() === tagName
+
+  return (
+    <EditorContainer
+      $theme={theme}
+      $isHighlighted={true}
+      className={`tag-inline-editor ${className || ''}`}
+    >
+      <EditorInput
+        ref={inputRef}
+        $theme={theme}
+        $hasError={!!error}
+        $isLoading={isLoading}
+        value={editValue}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
+        placeholder="タグ名を入力..."
+        disabled={isLoading}
+        aria-label={ariaLabel || `タグ「${tagName}」を編集`}
+        aria-invalid={!!error}
+        aria-describedby={error ? 'tag-editor-error' : undefined}
+        aria-busy={isLoading}
+      />
+
+      <ActionButtons className="tag-inline-editor-actions">
+        <ActionButton
+          $theme={theme}
+          $variant="save"
+          $isLoading={isLoading}
+          onClick={handleSave}
+          disabled={isSaveDisabled}
+          title="保存 (Enter)"
+          aria-label="保存"
+          type="button"
+        >
+          {isLoading ? <LoadingSpinner /> : '✓'}
+        </ActionButton>
+
+        <ActionButton
+          $theme={theme}
+          $variant="cancel"
+          $isLoading={isLoading}
+          onClick={handleCancel}
+          disabled={isLoading}
+          title="キャンセル (Escape)"
+          aria-label="キャンセル"
+          type="button"
+        >
+          ×
+        </ActionButton>
+      </ActionButtons>
+
+      {/* エラーメッセージ - Requirements: 3.2 */}
+      {error && (
+        <ErrorMessage $theme={theme} id="tag-editor-error" role="alert">
+          {error}
+        </ErrorMessage>
+      )}
+
+      {/* キーボードヒント */}
+      {showHints && !error && !isLoading && (
+        <KeyboardHints $theme={theme}>
+          <span className="key">Enter</span>保存
+          <span className="key">Esc</span>キャンセル
+        </KeyboardHints>
+      )}
+    </EditorContainer>
+  )
+}
+
+/**
+ * LegacyTagInlineEditor コンポーネント
+ * TagChip互換の旧インターフェース
+ */
+export const LegacyTagInlineEditor: React.FC<LegacyTagInlineEditorProps> = ({
   value,
   onSave,
   onCancel,
@@ -240,7 +527,6 @@ export const TagInlineEditor: React.FC<TagInlineEditorProps> = ({
   validateInput,
   className,
   'aria-label': ariaLabel,
-  ...props
 }) => {
   const theme = useGlassmorphismTheme()
   const [editValue, setEditValue] = useState(value)
@@ -320,7 +606,6 @@ export const TagInlineEditor: React.FC<TagInlineEditorProps> = ({
           handleCancel()
           break
         case 'Tab':
-          // Allow tab to save and move to next element
           if (!e.shiftKey) {
             e.preventDefault()
             handleSave()
@@ -331,21 +616,17 @@ export const TagInlineEditor: React.FC<TagInlineEditorProps> = ({
     [handleSave, handleCancel]
   )
 
-  // Handle input focus/blur for hints
   const handleInputFocus = useCallback(() => {
     setShowHints(true)
   }, [])
 
   const handleInputBlur = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
-      // Don't blur if clicking on action buttons
       const relatedTarget = e.relatedTarget as HTMLElement
       if (relatedTarget && relatedTarget.closest('.action-buttons')) {
         return
       }
-
       setShowHints(false)
-      // Auto-save on blur if no error
       if (!error) {
         handleSave()
       }
@@ -353,16 +634,16 @@ export const TagInlineEditor: React.FC<TagInlineEditorProps> = ({
     [error, handleSave]
   )
 
-  // Check if save is disabled
   const isSaveDisabled =
     !!error || !editValue.trim() || editValue.trim() === value
 
   return (
-    <EditorContainer $theme={theme} className={className} {...props}>
+    <EditorContainer $theme={theme} className={className}>
       <EditorInput
         ref={inputRef}
         $theme={theme}
         $hasError={!!error}
+        $isLoading={false}
         value={editValue}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
@@ -375,7 +656,7 @@ export const TagInlineEditor: React.FC<TagInlineEditorProps> = ({
         aria-describedby={error ? 'tag-editor-error' : undefined}
       />
 
-      <ActionButtons $theme={theme} className="action-buttons">
+      <ActionButtons className="action-buttons">
         <ActionButton
           $theme={theme}
           $variant="save"
@@ -400,14 +681,12 @@ export const TagInlineEditor: React.FC<TagInlineEditorProps> = ({
         </ActionButton>
       </ActionButtons>
 
-      {/* Error message */}
       {error && (
         <ErrorMessage $theme={theme} id="tag-editor-error" role="alert">
           {error}
         </ErrorMessage>
       )}
 
-      {/* Keyboard hints */}
       {showHints && !error && (
         <KeyboardHints $theme={theme}>
           <span className="key">Enter</span>保存
@@ -424,19 +703,16 @@ export const useTagInlineEditor = (initialTags: string[] = []) => {
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
   const [isAddingNew, setIsAddingNew] = useState(false)
 
-  // Start editing existing tag
   const startEditing = useCallback((index: number) => {
     setEditingIndex(index)
     setIsAddingNew(false)
   }, [])
 
-  // Start adding new tag
   const startAddingNew = useCallback(() => {
     setIsAddingNew(true)
     setEditingIndex(null)
   }, [])
 
-  // Save edited tag
   const saveTag = useCallback((index: number, newValue: string) => {
     setTags(prev => {
       const newTags = [...prev]
@@ -446,7 +722,6 @@ export const useTagInlineEditor = (initialTags: string[] = []) => {
     setEditingIndex(null)
   }, [])
 
-  // Save new tag
   const saveNewTag = useCallback(
     (newValue: string) => {
       if (newValue.trim() && !tags.includes(newValue.trim())) {
@@ -457,7 +732,6 @@ export const useTagInlineEditor = (initialTags: string[] = []) => {
     [tags]
   )
 
-  // Remove tag
   const removeTag = useCallback(
     (index: number) => {
       setTags(prev => prev.filter((_, i) => i !== index))
@@ -468,13 +742,11 @@ export const useTagInlineEditor = (initialTags: string[] = []) => {
     [editingIndex]
   )
 
-  // Cancel editing
   const cancelEditing = useCallback(() => {
     setEditingIndex(null)
     setIsAddingNew(false)
   }, [])
 
-  // Validation function for tags
   const validateTag = useCallback(
     (value: string): string | null => {
       const trimmed = value.trim()
@@ -530,14 +802,12 @@ export const createKeyboardShortcuts = (
   onEdit?: () => void
 ) => {
   return (e: KeyboardEvent) => {
-    // Check if we're in an input field
     const target = e.target as HTMLElement
     const isInInput =
       target.tagName === 'INPUT' ||
       target.tagName === 'TEXTAREA' ||
       target.isContentEditable
 
-    // Global shortcuts (work outside of inputs)
     if (!isInInput) {
       switch (e.key) {
         case 'e':
@@ -554,7 +824,6 @@ export const createKeyboardShortcuts = (
       }
     }
 
-    // Input-specific shortcuts
     if (isInInput) {
       switch (e.key) {
         case 'Enter':
@@ -571,3 +840,5 @@ export const createKeyboardShortcuts = (
     }
   }
 }
+
+export default TagInlineEditor

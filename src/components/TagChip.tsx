@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import styled from 'styled-components'
 import { useGlassmorphismTheme } from './GlassmorphismThemeProvider'
-import { TagInlineEditor } from './TagInlineEditor'
+import { LegacyTagInlineEditor } from './TagInlineEditor'
 
 // Props interface for TagChip component
 export interface TagChipProps {
@@ -433,7 +433,7 @@ export const TagChip: React.FC<TagChipProps> = ({
   // If editing with advanced inline editor
   if (isInternalEditing && variant === 'editable') {
     return (
-      <TagInlineEditor
+      <LegacyTagInlineEditor
         value={editValue}
         onSave={handleEditComplete}
         onCancel={handleEditCancel}

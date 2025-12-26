@@ -957,3 +957,244 @@
     font-size: 0.75rem;
   }
 }
+
+/* ========================================
+   タグ編集機能のスタイル
+   Requirements: 3.4, 4.1
+   ======================================== */
+
+/* 編集ボタン - Requirements: 4.1 - タッチターゲットサイズ（最小44x44ピクセル） */
+.tag-edit-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+/* ホバー時に編集ボタンを表示 */
+.tag-item:hover .tag-edit-button,
+.tag-item:focus-within .tag-edit-button {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 編集ボタンのホバー状態 */
+.tag-edit-button:hover {
+  background: linear-gradient(135deg, #ffb6c1, #ff69b4);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 105, 180, 0.3);
+}
+
+.tag-edit-button:focus {
+  outline: 2px solid #ff69b4;
+  outline-offset: 2px;
+  opacity: 1;
+  transform: scale(1);
+}
+
+.tag-edit-button:active {
+  transform: scale(0.95);
+}
+
+/* 編集中のタグ項目のハイライト - Requirements: 3.4 */
+.tag-item.editing {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 182, 193, 0.3) 0%,
+    rgba(255, 240, 245, 0.95) 100%
+  );
+  border: 2px solid #ff69b4;
+  box-shadow:
+    0 0 0 4px rgba(255, 105, 180, 0.2),
+    0 8px 20px rgba(255, 182, 193, 0.3);
+  transform: scale(1.02);
+  z-index: 5;
+  padding: 16px;
+}
+
+.tag-item.editing::before {
+  opacity: 1;
+}
+
+.tag-item.editing::after {
+  display: none;
+}
+
+/* 編集中はクリックカーソルを無効化 */
+.tag-item.editing {
+  cursor: default;
+}
+
+/* 成功通知 - Requirements: 3.3 */
+.tag-success-notification {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #98fb98, #90ee90);
+  color: #2d5016;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(152, 251, 152, 0.4);
+  z-index: 10001;
+  animation: slideUpFadeIn 0.3s ease-out;
+}
+
+.tag-success-notification .success-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  font-size: 14px;
+}
+
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* コンパクト表示時の編集ボタン */
+.tag-item.compact .tag-edit-button {
+  position: relative;
+  top: auto;
+  right: auto;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  font-size: 12px;
+  margin-left: 8px;
+  opacity: 0;
+}
+
+.tag-item.compact:hover .tag-edit-button,
+.tag-item.compact:focus-within .tag-edit-button {
+  opacity: 1;
+}
+
+/* コンパクト表示時の編集中スタイル */
+.tag-item.compact.editing {
+  padding: 8px 12px;
+  min-width: 200px;
+}
+
+/* モバイル対応 - Requirements: 4.1 */
+@media (max-width: 768px) {
+  /* モバイルでは常に編集ボタンを表示 */
+  .tag-edit-button {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+
+  .tag-item:hover .tag-edit-button {
+    opacity: 1;
+  }
+
+  /* タッチデバイス用の大きめのタッチターゲット */
+  .tag-edit-button {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
+    font-size: 18px;
+  }
+
+  .tag-item.compact .tag-edit-button {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  /* 成功通知のモバイル対応 */
+  .tag-success-notification {
+    bottom: 80px;
+    left: 16px;
+    right: 16px;
+    transform: none;
+    text-align: center;
+    justify-content: center;
+  }
+
+  @keyframes slideUpFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .tag-edit-button {
+    top: 4px;
+    right: 4px;
+  }
+
+  .tag-item.editing {
+    padding: 12px;
+  }
+}
+
+/* アクセシビリティ: 動きを減らす設定 */
+@media (prefers-reduced-motion: reduce) {
+  .tag-edit-button,
+  .tag-item.editing,
+  .tag-success-notification {
+    animation: none;
+    transition: opacity 0.1s ease;
+  }
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .tag-edit-button {
+    border: 2px solid #000;
+    background: #fff;
+  }
+
+  .tag-item.editing {
+    border: 3px solid #000;
+  }
+
+  .tag-success-notification {
+    border: 2px solid #000;
+    background: #90ee90;
+  }
+}

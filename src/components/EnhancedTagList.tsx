@@ -1,7 +1,10 @@
-import React, { useState, useMemo, useCallback } from 'react'
+import React, { useState, useMemo, useCallback, useEffect } from 'react'
 import { BubbleEntity } from '@/types/bubble'
 import { useTagList, TagListItem, TagSortBy } from '@/hooks/useTagList'
+import { useTagRename } from '@/hooks/useTagRename'
 import { StandardLayout } from './StandardLayout'
+import { TagInlineEditor } from './TagInlineEditor'
+import { TagMergeDialog } from './TagMergeDialog'
 import './EnhancedTagList.css'
 
 /**
@@ -22,6 +25,7 @@ export interface EnhancedTagListProps {
 /**
  * Enhanced Tag List Component
  * Requirements: 21.1, 21.2, 21.3, 21.4, 21.5
+ * Requirements: 1.1, 2.1, 3.2, 3.3 (Tag Rename and Merge)
  * Updated to use StandardLayout template for full-screen consistency
  */
 export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
@@ -31,7 +35,32 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
   onTagDetailOpen,
 }) => {
   // Use custom hook for tag management
-  const { filterAndSortTags, isLoading, error, refreshData } = useTagList()
+  const { filterAndSortTags, isLoading, error, refreshData, songs, tags } =
+    useTagList()
+
+  // Use custom hook for tag rename/merge functionality
+  // Requirements: 1.1, 2.1 - タグ編集機能の統合
+  const {
+    editingTagId,
+    mergeDialogOpen,
+    mergeSourceTag,
+    mergeTargetTag,
+    sourceSongCount,
+    targetSongCount,
+    isLoading: isRenameLoading,
+    error: renameError,
+    successMessage,
+    startEditing,
+    cancelEditing,
+    submitRename,
+    confirmMerge,
+    cancelMerge,
+    clearMessages,
+  } = useTagRename({
+    songs,
+    tags,
+    onSuccess: refreshData,
+  })
 
   // State management
   const [searchTerm, setSearchTerm] = useState('')
@@ -39,12 +68,22 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
   const [isCompactView, setIsCompactView] = useState(false) // コンパクト表示モード
 
   // タグ一覧が表示される時に最新データを再取得
-  React.useEffect(() => {
+  useEffect(() => {
     if (isVisible) {
       console.log('🏷️ EnhancedTagList: Visible - refreshing data')
       refreshData()
     }
   }, [isVisible, refreshData])
+
+  // 成功メッセージを自動的にクリア - Requirements: 3.3
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        clearMessages()
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [successMessage, clearMessages])
 
   // Filter and sort tags based on search and sort criteria
   const filteredAndSortedTags = useMemo(() => {
@@ -54,6 +93,11 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
   // Handle tag click (Requirements: 21.4)
   const handleTagClick = useCallback(
     (tag: TagListItem) => {
+      // 編集中の場合はクリックを無視
+      if (editingTagId === tag.id) {
+        return
+      }
+
       console.log('🏷️ EnhancedTagList: Tag clicked', {
         tagId: tag.id,
         tagName: tag.name,
@@ -94,8 +138,36 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
 
       onTagClick?.(tag)
     },
-    [onTagClick, onTagDetailOpen]
+    [onTagClick, onTagDetailOpen, editingTagId]
   )
+
+  // Handle edit button click - Requirements: 1.1
+  const handleEditClick = useCallback(
+    (e: React.MouseEvent, tag: TagListItem) => {
+      e.stopPropagation() // タグクリックイベントを防止
+      console.log('🏷️ EnhancedTagList: Edit button clicked', {
+        tagId: tag.id,
+        tagName: tag.name,
+      })
+      startEditing(tag.id, tag.name)
+    },
+    [startEditing]
+  )
+
+  // Handle save from inline editor
+  const handleSaveEdit = useCallback(
+    (newName: string) => {
+      console.log('🏷️ EnhancedTagList: Saving edit', { newName })
+      submitRename(newName)
+    },
+    [submitRename]
+  )
+
+  // Handle cancel from inline editor
+  const handleCancelEdit = useCallback(() => {
+    console.log('🏷️ EnhancedTagList: Canceling edit')
+    cancelEditing()
+  }, [cancelEditing])
 
   // Get songs for selected tag - not needed anymore as DetailModal handles this
 
@@ -266,23 +338,52 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                   {filteredAndSortedTags.map(tag => (
                     <div
                       key={tag.id}
-                      className={`tag-item ${isCompactView ? 'compact' : ''}`}
+                      className={`tag-item ${isCompactView ? 'compact' : ''} ${editingTagId === tag.id ? 'editing' : ''}`}
                       onClick={() => handleTagClick(tag)}
                       role="button"
-                      tabIndex={0}
+                      tabIndex={editingTagId === tag.id ? -1 : 0}
                       onKeyDown={e => {
                         if (e.key === 'Enter' || e.key === ' ') {
                           e.preventDefault()
-                          handleTagClick(tag)
+                          if (editingTagId !== tag.id) {
+                            handleTagClick(tag)
+                          }
                         }
                       }}
                       aria-label={`タグ ${tag.displayName}、${tag.songCount}曲`}
                     >
-                      <div className="tag-name">{tag.name}</div>
-                      {!isCompactView && (
-                        <div className="tag-info">
-                          <span className="song-count">{tag.songCount}曲</span>
-                        </div>
+                      {/* 編集中の場合はTagInlineEditorを表示 - Requirements: 1.1 */}
+                      {editingTagId === tag.id ? (
+                        <TagInlineEditor
+                          tagName={tag.name}
+                          isEditing={true}
+                          onSave={handleSaveEdit}
+                          onCancel={handleCancelEdit}
+                          isLoading={isRenameLoading}
+                          error={renameError}
+                          aria-label={`タグ「${tag.name}」を編集`}
+                        />
+                      ) : (
+                        <>
+                          <div className="tag-name">{tag.name}</div>
+                          {!isCompactView && (
+                            <div className="tag-info">
+                              <span className="song-count">
+                                {tag.songCount}曲
+                              </span>
+                            </div>
+                          )}
+                          {/* 編集ボタン - Requirements: 1.1, 4.1 */}
+                          <button
+                            className="tag-edit-button"
+                            onClick={e => handleEditClick(e, tag)}
+                            aria-label={`タグ「${tag.name}」を編集`}
+                            title="タグ名を編集"
+                            type="button"
+                          >
+                            ✏️
+                          </button>
+                        </>
                       )}
                     </div>
                   ))}
@@ -291,6 +392,30 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
             </div>
           </>
         )}
+
+        {/* 成功通知 - Requirements: 3.3 */}
+        {successMessage && (
+          <div
+            className="tag-success-notification"
+            role="status"
+            aria-live="polite"
+          >
+            <span className="success-icon">✓</span>
+            {successMessage}
+          </div>
+        )}
+
+        {/* タグ統合確認ダイアログ - Requirements: 2.1, 2.2 */}
+        <TagMergeDialog
+          isOpen={mergeDialogOpen}
+          sourceTag={mergeSourceTag || ''}
+          targetTag={mergeTargetTag || ''}
+          sourceSongCount={sourceSongCount}
+          targetSongCount={targetSongCount}
+          onConfirm={confirmMerge}
+          onCancel={cancelMerge}
+          isLoading={isRenameLoading}
+        />
       </div>
     </StandardLayout>
   )
