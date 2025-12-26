@@ -444,6 +444,9 @@ export const TagRegistrationScreen: React.FC<TagRegistrationScreenProps> = ({
   // Selected song state
   const [selectedSong, setSelectedSong] = useState<Song | null>(null)
 
+  // Search state - 検索状態を親コンポーネントで管理して戻った時も維持
+  const [searchTerm, setSearchTerm] = useState('')
+
   // Reset state when screen becomes visible
   useEffect(() => {
     if (isVisible) {
@@ -455,6 +458,7 @@ export const TagRegistrationScreen: React.FC<TagRegistrationScreenProps> = ({
         transitionDirection: 'forward',
       })
       setSelectedSong(null)
+      // 検索状態はリセットしない（画面を閉じた時のみリセット）
       setIsLoading(false)
       setLoadingMessage('')
 
@@ -475,6 +479,18 @@ export const TagRegistrationScreen: React.FC<TagRegistrationScreenProps> = ({
       }
     }
   }, [isVisible])
+
+  // 画面が閉じられた時に検索状態をリセット
+  useEffect(() => {
+    if (!isVisible) {
+      setSearchTerm('')
+    }
+  }, [isVisible])
+
+  // Handle search term change
+  const handleSearchChange = useCallback((term: string) => {
+    setSearchTerm(term)
+  }, [])
 
   // Handle screen navigation
   const navigateToScreen = useCallback(
@@ -674,7 +690,11 @@ export const TagRegistrationScreen: React.FC<TagRegistrationScreenProps> = ({
       >
         {/* Content will be rendered by child components */}
         {navigationState.currentScreen === 'song-selection' && (
-          <SongSelectionScreen onSongSelect={handleSongSelect} />
+          <SongSelectionScreen
+            onSongSelect={handleSongSelect}
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+          />
         )}
 
         {navigationState.currentScreen === 'tag-editing' && selectedSong && (

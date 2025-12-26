@@ -39,6 +39,9 @@ export interface SongSelectionScreenProps {
   className?: string
 }
 
+// ローカルストレージのキー
+const SORT_STORAGE_KEY = 'song-selection-sort-preference'
+
 // Styled components
 const ScreenContainer = styled.div<{
   $theme: any
@@ -689,11 +692,27 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
 }) => {
   const theme = useGlassmorphismTheme()
 
+  // ローカルストレージから並び順を復元
+  const getInitialSortBy = (): SongSortType => {
+    try {
+      const stored = localStorage.getItem(SORT_STORAGE_KEY)
+      if (
+        stored &&
+        ['newest', 'oldest', 'updated', 'alphabetical'].includes(stored)
+      ) {
+        return stored as SongSortType
+      }
+    } catch (error) {
+      console.warn('Failed to load sort preference:', error)
+    }
+    return 'newest'
+  }
+
   // Local state for songs and search
   const [songs, setSongs] = useState<Song[]>([])
   const [searchTerm, setSearchTerm] = useState(propSearchTerm)
   const [searchTitleOnly, setSearchTitleOnly] = useState(false) // 楽曲名のみ検索オプション
-  const [sortBy, setSortBy] = useState<SongSortType>('newest')
+  const [sortBy, setSortBy] = useState<SongSortType>(getInitialSortBy)
   const [isLoading, setIsLoading] = useState(false)
   const [isCompactView, setIsCompactView] = useState(false) // コンパクト表示モード
 
@@ -702,6 +721,11 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
   const containerRef = useRef<HTMLDivElement>(null)
   const ITEM_HEIGHT = 150 // 1つの楽曲カードの高さ（概算）
   const BUFFER_SIZE = 5 // 上下に余分に表示する数
+
+  // 親コンポーネントからの検索語の変更を同期
+  useEffect(() => {
+    setSearchTerm(propSearchTerm)
+  }, [propSearchTerm])
 
   // Load songs data if not provided via props
   useEffect(() => {
@@ -749,6 +773,16 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
     },
     [onSearchChange]
   )
+
+  // Handle sort change - ローカルストレージに保存
+  const handleSortChange = useCallback((newSort: SongSortType) => {
+    setSortBy(newSort)
+    try {
+      localStorage.setItem(SORT_STORAGE_KEY, newSort)
+    } catch (error) {
+      console.warn('Failed to save sort preference:', error)
+    }
+  }, [])
 
   // Filter and sort songs based on search term and sort order
   const filteredSongs = useMemo(() => {
@@ -933,7 +967,7 @@ export const SongSelectionScreen: React.FC<SongSelectionScreenProps> = ({
           <SortSelect
             $theme={theme}
             value={sortBy}
-            onChange={e => setSortBy(e.target.value as SongSortType)}
+            onChange={e => handleSortChange(e.target.value as SongSortType)}
             aria-label="楽曲の並び順を選択"
           >
             <option value="newest">新曲順</option>
