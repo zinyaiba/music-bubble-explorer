@@ -77,34 +77,37 @@ const TextareaContainer = styled.div`
 `
 
 const Textarea = styled.textarea<{ $theme: any; $hasError: boolean }>`
-  width: 100%;
-  min-height: 120px;
-  padding: 12px;
-  border: 2px solid
-    ${props => (props.$hasError ? '#dc3545' : 'rgba(29, 161, 242, 0.3)')};
-  border-radius: 10px;
-  font-size: 14px;
+  width: 100% !important;
+  min-height: 120px !important;
+  padding: 12px !important;
+  border: 2px solid ${props => (props.$hasError ? '#dc3545' : '#1da1f2')} !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
   font-weight: 500;
   line-height: 1.5;
-  color: ${props => props.$theme.colors?.text?.primary || '#374151'};
-  background: rgba(255, 255, 255, 0.9);
-  outline: none;
-  box-sizing: border-box;
+  color: ${props => props.$theme.colors?.text?.primary || '#374151'} !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: none !important;
+  outline: none !important;
+  box-sizing: border-box !important;
   resize: vertical;
   font-family: inherit;
   transition:
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease !important;
 
   &:focus {
-    border-color: ${props => (props.$hasError ? '#dc3545' : '#1da1f2')};
+    border-color: ${props =>
+      props.$hasError ? '#dc3545' : '#0d8bd9'} !important;
     box-shadow: 0 0 0 3px
       ${props =>
-        props.$hasError ? 'rgba(220, 53, 69, 0.2)' : 'rgba(29, 161, 242, 0.2)'};
+        props.$hasError
+          ? 'rgba(220, 53, 69, 0.25)'
+          : 'rgba(29, 161, 242, 0.25)'} !important;
   }
 
   &::placeholder {
-    color: #9ca3af;
+    color: #9ca3af !important;
   }
 
   &:disabled {
@@ -226,13 +229,16 @@ const Button = styled.button<{
 `
 
 const LoadingSpinner = styled.span`
-  display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: ${spin} 0.8s linear infinite;
+  display: inline-block !important;
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px;
+  min-height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-top-color: #ffffff !important;
+  border-radius: 50% !important;
+  animation: ${spin} 0.8s linear infinite !important;
+  flex-shrink: 0;
 `
 
 export const TagShareDialog: React.FC<TagShareDialogProps> = ({
