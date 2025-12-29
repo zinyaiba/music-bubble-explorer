@@ -88,6 +88,11 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
     null
   )
 
+  // 共有ボタンのローディング状態
+  const [shareLoadingTagName, setShareLoadingTagName] = useState<string | null>(
+    null
+  )
+
   // タグ一覧が表示される時に最新データを再取得
   useEffect(() => {
     if (isVisible) {
@@ -138,7 +143,12 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
   // 共有ダイアログを開く
   const handleOpenShareDialog = useCallback((tagName: string) => {
     console.log('🔗 EnhancedTagList: Opening share dialog', { tagName })
-    setShareDialogTagName(tagName)
+    setShareLoadingTagName(tagName)
+    // 少し遅延させてローディング表示を見せる
+    setTimeout(() => {
+      setShareDialogTagName(tagName)
+      setShareLoadingTagName(null)
+    }, 100)
   }, [])
 
   // 共有ダイアログを閉じる
@@ -414,7 +424,7 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                       )}
                       {/* 共有ボタン - Requirements: 1.1, 1.3 */}
                       <button
-                        className="tag-share-button"
+                        className={`tag-share-button ${shareLoadingTagName === tag.name ? 'loading' : ''}`}
                         onClick={e => {
                           e.stopPropagation()
                           handleOpenShareDialog(tag.name)
@@ -422,8 +432,9 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                         aria-label={`タグ「${tag.name}」をXで共有`}
                         title="Xで共有"
                         type="button"
+                        disabled={shareLoadingTagName === tag.name}
                       >
-                        🔗
+                        {shareLoadingTagName === tag.name ? '⏳' : '🔗'}
                       </button>
                       {/* 編集ボタン - Requirements: 1.1, 4.1 */}
                       <button

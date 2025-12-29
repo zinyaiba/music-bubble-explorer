@@ -19,6 +19,10 @@ const slideUp = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `
 
+const spin = keyframes`
+  to { transform: rotate(360deg); }
+`
+
 export interface TagShareDialogProps {
   isOpen: boolean
   tagName: string
@@ -194,7 +198,7 @@ const Button = styled.button<{
   user-select: none;
 
   background: ${props => {
-    if (props.$isLoading) return '#e5e7eb'
+    if (props.$isLoading) return 'linear-gradient(135deg, #1da1f2, #0d8bd9)'
     if (props.$isSuccess) return 'linear-gradient(135deg, #4caf50, #45a049)'
     return props.$variant === 'primary'
       ? 'linear-gradient(135deg, #1da1f2, #0d8bd9)'
@@ -219,6 +223,16 @@ const Button = styled.button<{
     opacity: 0.6;
     cursor: not-allowed;
   }
+`
+
+const LoadingSpinner = styled.span`
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: ${spin} 0.8s linear infinite;
 `
 
 export const TagShareDialog: React.FC<TagShareDialogProps> = ({
@@ -361,11 +375,16 @@ export const TagShareDialog: React.FC<TagShareDialogProps> = ({
             disabled={isLoading || !shareText.trim()}
             type="button"
           >
-            {isLoading
-              ? 'コピー中...'
-              : copySuccess
-                ? '✓ コピー完了'
-                : '📋 コピー'}
+            {isLoading ? (
+              <>
+                <LoadingSpinner />
+                コピー中...
+              </>
+            ) : copySuccess ? (
+              '✓ コピー完了'
+            ) : (
+              '📋 コピー'
+            )}
           </Button>
         </ButtonGroup>
       </DialogBox>

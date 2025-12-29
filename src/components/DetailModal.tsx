@@ -47,6 +47,9 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
       null
     )
 
+    // 共有ボタンのローディング状態
+    const [shareLoading, setShareLoading] = useState(false)
+
     // 共有通知の状態管理
     const [shareNotification, setShareNotification] = useState<{
       type: 'success' | 'error'
@@ -327,7 +330,12 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
      */
     const handleOpenShareDialog = useCallback((tagName: string) => {
       console.log('🔗 DetailModal: Opening share dialog', { tagName })
-      setShareDialogTagName(tagName)
+      setShareLoading(true)
+      // 少し遅延させてローディング表示を見せる
+      setTimeout(() => {
+        setShareDialogTagName(tagName)
+        setShareLoading(false)
+      }, 100)
     }, [])
 
     /**
@@ -526,13 +534,14 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                   ({selectedBubble.relatedCount || 0}曲)
                 </span>
                 <button
-                  className="tag-detail-share-button"
+                  className={`tag-detail-share-button ${shareLoading ? 'loading' : ''}`}
                   onClick={() => handleOpenShareDialog(selectedBubble.name)}
                   aria-label={`タグ「${selectedBubble.name}」をXで共有`}
                   title="Xで共有"
                   type="button"
+                  disabled={shareLoading}
                 >
-                  🔗 共有
+                  {shareLoading ? '⏳ 読込中...' : '🔗 共有'}
                 </button>
               </h3>
               {relatedData.length > 0 ? (
