@@ -5,6 +5,7 @@ import { useTagRename } from '@/hooks/useTagRename'
 import { StandardLayout } from './StandardLayout'
 import { TagEditDialog } from './TagEditDialog'
 import { TagMergeDialog } from './TagMergeDialog'
+import { TagShareDialog } from './TagShareDialog'
 import './EnhancedTagList.css'
 
 /**
@@ -75,6 +76,18 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
   const [sortBy, setSortBy] = useState<TagSortBy>('frequency')
   const [isCompactView, setIsCompactView] = useState(false) // コンパクト表示モード
 
+  // 共有通知の状態管理 - Requirements: 3.2, 3.3, 3.4
+  const [shareNotification, setShareNotification] = useState<{
+    type: 'success' | 'error'
+    message: string
+    shareText?: string
+  } | null>(null)
+
+  // 共有ダイアログの状態管理
+  const [shareDialogTagName, setShareDialogTagName] = useState<string | null>(
+    null
+  )
+
   // タグ一覧が表示される時に最新データを再取得
   useEffect(() => {
     if (isVisible) {
@@ -92,6 +105,46 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
       return () => clearTimeout(timer)
     }
   }, [successMessage, clearMessages])
+
+  // 共有通知を自動的にクリア - Requirements: 3.4
+  useEffect(() => {
+    if (shareNotification) {
+      const timer = setTimeout(() => {
+        setShareNotification(null)
+      }, 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [shareNotification])
+
+  // 共有成功ハンドラー - Requirements: 3.2
+  const handleShareSuccess = useCallback((tagName: string) => {
+    console.log('🔗 EnhancedTagList: Share success', { tagName })
+    setShareNotification({
+      type: 'success',
+      message: 'コピーしました！Xに貼り付けてね 🐦',
+    })
+  }, [])
+
+  // 共有エラーハンドラー - Requirements: 3.3
+  const handleShareError = useCallback((error: string, shareText?: string) => {
+    console.log('🔗 EnhancedTagList: Share error', { error })
+    setShareNotification({
+      type: 'error',
+      message: error,
+      shareText,
+    })
+  }, [])
+
+  // 共有ダイアログを開く
+  const handleOpenShareDialog = useCallback((tagName: string) => {
+    console.log('🔗 EnhancedTagList: Opening share dialog', { tagName })
+    setShareDialogTagName(tagName)
+  }, [])
+
+  // 共有ダイアログを閉じる
+  const handleCloseShareDialog = useCallback(() => {
+    setShareDialogTagName(null)
+  }, [])
 
   // Filter and sort tags based on search and sort criteria
   const filteredAndSortedTags = useMemo(() => {
@@ -359,6 +412,19 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
                           <span className="song-count">{tag.songCount}曲</span>
                         </div>
                       )}
+                      {/* 共有ボタン - Requirements: 1.1, 1.3 */}
+                      <button
+                        className="tag-share-button"
+                        onClick={e => {
+                          e.stopPropagation()
+                          handleOpenShareDialog(tag.name)
+                        }}
+                        aria-label={`タグ「${tag.name}」をXで共有`}
+                        title="Xで共有"
+                        type="button"
+                      >
+                        🔗
+                      </button>
                       {/* 編集ボタン - Requirements: 1.1, 4.1 */}
                       <button
                         className="tag-edit-button"
@@ -389,6 +455,34 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
           </div>
         )}
 
+        {/* 共有通知（グローバル）- Requirements: 3.2, 3.3, 3.4 */}
+        {shareNotification && (
+          <div
+            className={`tag-share-notification-global ${shareNotification.type}`}
+            role="status"
+            aria-live="polite"
+          >
+            <span className="notification-icon">
+              {shareNotification.type === 'success' ? '✓' : '⚠️'}
+            </span>
+            <span className="notification-message">
+              {shareNotification.message}
+            </span>
+            {/* エラー時に手動コピー用テキストを表示 - Requirements: 3.3 */}
+            {shareNotification.type === 'error' &&
+              shareNotification.shareText && (
+                <div className="notification-share-text">
+                  <textarea
+                    readOnly
+                    value={shareNotification.shareText}
+                    onClick={e => (e.target as HTMLTextAreaElement).select()}
+                    aria-label="共有テキスト（手動でコピーしてください）"
+                  />
+                </div>
+              )}
+          </div>
+        )}
+
         {/* タグ編集ダイアログ - Requirements: 1.1 */}
         <TagEditDialog
           isOpen={!!editingTagId}
@@ -409,6 +503,15 @@ export const EnhancedTagList: React.FC<EnhancedTagListProps> = ({
           onConfirm={confirmMerge}
           onCancel={cancelMerge}
           isLoading={isRenameLoading}
+        />
+
+        {/* タグ共有ダイアログ */}
+        <TagShareDialog
+          isOpen={!!shareDialogTagName}
+          tagName={shareDialogTagName || ''}
+          onClose={handleCloseShareDialog}
+          onShareSuccess={() => handleShareSuccess(shareDialogTagName || '')}
+          onShareError={handleShareError}
         />
       </div>
     </StandardLayout>

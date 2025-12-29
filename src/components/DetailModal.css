@@ -553,3 +553,73 @@
     gap: 8px !important;
   }
 }
+
+/* ========================================
+   タグ詳細ページの共有ボタン
+   Requirements: 1.1, 1.3 - タグ共有機能
+   ======================================== */
+
+.tag-detail-share-button {
+  background: linear-gradient(135deg, #87ceeb, #1da1f2);
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(29, 161, 242, 0.3);
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tag-detail-share-button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(29, 161, 242, 0.4);
+}
+
+.tag-detail-share-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
+.tag-detail-share-button:focus {
+  outline: 2px solid #1da1f2;
+  outline-offset: 2px;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+  .tag-detail-share-button {
+    padding: 5px 12px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tag-detail-share-button {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+  }
+}
+
+/* アクセシビリティ: 動きを減らす設定 */
+@media (prefers-reduced-motion: reduce) {
+  .tag-detail-share-button {
+    transition: none;
+  }
+
+  .tag-detail-share-button:hover {
+    transform: none;
+  }
+}
+
+/* ハイコントラストモード対応 */
+@media (prefers-contrast: high) {
+  .tag-detail-share-button {
+    border: 2px solid #000;
+    background: #1da1f2;
+  }
+}

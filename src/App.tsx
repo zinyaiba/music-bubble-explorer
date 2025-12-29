@@ -45,6 +45,7 @@ import { TagRegistrationScreen } from './components/TagRegistrationScreen'
 import { EnhancedTagList } from './components/EnhancedTagList'
 
 import { GenreFilterIntegration } from './components/GenreFilterIntegration'
+import { initializeDeepLink, clearTagFromUrl } from './utils/deepLinkHandler'
 // ErrorHandler import removed - using simple error handling
 import {
   announceToScreenReader,
@@ -208,6 +209,8 @@ function AppContent() {
   const [showTagList, setShowTagList] = useState(false)
   const [showTagRegistration, setShowTagRegistration] = useState(false)
   const [showDatabaseDebugger, setShowDatabaseDebugger] = useState(false)
+  const [deepLinkError, setDeepLinkError] = useState<string | null>(null)
+  const deepLinkProcessedRef = useRef(false)
 
   const [debugLogger] = useState(() => DebugLogger.getInstance())
   const [analyticsService] = useState(() => AnalyticsService.getInstance())
@@ -643,6 +646,88 @@ function AppContent() {
 
     initializeApp()
   }, [canvasSize, screenSize, retryCount])
+
+  /**
+   * ディープリンク初期化処理
+   * アプリ起動時にURLパラメータをチェックし、タグが見つかった場合はタグ詳細画面を自動表示
+   * Requirements: 4.2, 4.5
+   */
+  useEffect(() => {
+    // データ読み込み中、またはすでに処理済みの場合はスキップ
+    if (isLoading || deepLinkProcessedRef.current) {
+      return
+    }
+
+    // タグデータがない場合はスキップ
+    if (!musicDatabase.tags || musicDatabase.tags.length === 0) {
+      return
+    }
+
+    // ディープリンク処理済みフラグを設定
+    deepLinkProcessedRef.current = true
+
+    // 利用可能なタグ名の配列を作成
+    const availableTags = musicDatabase.tags.map(tag => tag.name)
+
+    // ディープリンク初期化
+    initializeDeepLink(
+      // タグが見つかった場合のコールバック（Requirements: 4.2, 4.5）
+      (tagName: string) => {
+        console.log('🔗 Deep link: Tag found', { tagName })
+
+        // タグに紐づく楽曲数を取得
+        const taggedSongs = musicDatabase.songs.filter(
+          song => song.tags && song.tags.includes(tagName)
+        )
+
+        // タグ用のBubbleEntityを作成
+        const tagBubble = new BubbleEntity({
+          id: `deeplink-tag-${tagName}`,
+          name: tagName,
+          type: 'tag',
+          x: 0,
+          y: 0,
+          vx: 0,
+          vy: 0,
+          size: 20,
+          color: '#98FB98',
+          opacity: 1,
+          lifespan: 1000,
+          relatedCount: taggedSongs.length,
+        })
+
+        // タグ詳細画面を表示
+        setSelectedBubble(tagBubble)
+
+        // URLからタグパラメータを削除（履歴をクリーンに保つ）
+        clearTagFromUrl()
+
+        // Analytics tracking
+        analyticsService.logTagDetailView(tagName, taggedSongs.length)
+
+        debugLogger.info('Deep link: Opened tag detail', {
+          tagName,
+          relatedCount: taggedSongs.length,
+        })
+      },
+      // エラー発生時のコールバック（Requirements: 4.3）
+      (errorMessage: string) => {
+        console.warn('🔗 Deep link error:', errorMessage)
+        setDeepLinkError(errorMessage)
+
+        // URLからタグパラメータを削除
+        clearTagFromUrl()
+
+        // 3秒後にエラーメッセージを非表示
+        setTimeout(() => {
+          setDeepLinkError(null)
+        }, 3000)
+
+        debugLogger.warn('Deep link error', { errorMessage })
+      },
+      availableTags
+    )
+  }, [isLoading, musicDatabase, analyticsService, debugLogger])
 
   /**
    * Handle window resize for responsive canvas with mobile-first optimizations
@@ -1583,6 +1668,14 @@ function AppContent() {
           <InlineErrorDisplay
             message={`復旧を${retryCount}回試行しました。問題が続く場合はページを再読み込みしてください。`}
             onDismiss={handleClearError}
+          />
+        )}
+
+        {/* ディープリンクエラー表示（Requirements: 4.3） */}
+        {deepLinkError && (
+          <InlineErrorDisplay
+            message={deepLinkError}
+            onDismiss={() => setDeepLinkError(null)}
           />
         )}
 

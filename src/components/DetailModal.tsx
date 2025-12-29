@@ -7,6 +7,7 @@ import { useAnimationControl } from '@/hooks/useAnimationControl'
 import { AnalyticsService } from '@/services/analyticsService'
 import { SongDetailButton } from './SongDetailButton'
 import { SongDetailView } from './SongDetailView'
+import { TagShareDialog } from './TagShareDialog'
 import './DetailModal.css'
 
 interface DetailModalProps {
@@ -40,6 +41,17 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
       string | null
     >(null)
     const { setDialogOpen } = useAnimationControl()
+
+    // 共有ダイアログの状態管理
+    const [shareDialogTagName, setShareDialogTagName] = useState<string | null>(
+      null
+    )
+
+    // 共有通知の状態管理
+    const [shareNotification, setShareNotification] = useState<{
+      type: 'success' | 'error'
+      message: string
+    } | null>(null)
 
     const musicService = useMemo(() => MusicDataService.getInstance(), [])
 
@@ -311,6 +323,45 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
     }, [])
 
     /**
+     * Handle opening share dialog for tag
+     */
+    const handleOpenShareDialog = useCallback((tagName: string) => {
+      console.log('🔗 DetailModal: Opening share dialog', { tagName })
+      setShareDialogTagName(tagName)
+    }, [])
+
+    /**
+     * Handle closing share dialog
+     */
+    const handleCloseShareDialog = useCallback(() => {
+      setShareDialogTagName(null)
+    }, [])
+
+    /**
+     * Handle share success
+     */
+    const handleShareSuccess = useCallback(() => {
+      setShareNotification({
+        type: 'success',
+        message: 'コピーしました！Xに貼り付けてね 🐦',
+      })
+      // 3秒後に通知を消す
+      setTimeout(() => setShareNotification(null), 3000)
+    }, [])
+
+    /**
+     * Handle share error
+     */
+    const handleShareError = useCallback((error: string) => {
+      setShareNotification({
+        type: 'error',
+        message: error,
+      })
+      // 3秒後に通知を消す
+      setTimeout(() => setShareNotification(null), 3000)
+    }, [])
+
+    /**
      * Handle item click for navigation
      * Requirements: 2.2, 2.3, 2.4, 2.5
      * Note: Navigation replaces current dialog (no history stack per Requirement 2.4)
@@ -474,6 +525,15 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
                 <span className="tag-song-count">
                   ({selectedBubble.relatedCount || 0}曲)
                 </span>
+                <button
+                  className="tag-detail-share-button"
+                  onClick={() => handleOpenShareDialog(selectedBubble.name)}
+                  aria-label={`タグ「${selectedBubble.name}」をXで共有`}
+                  title="Xで共有"
+                  type="button"
+                >
+                  🔗 共有
+                </button>
               </h3>
               {relatedData.length > 0 ? (
                 <div
@@ -633,6 +693,31 @@ export const DetailModal: React.FC<DetailModalProps> = React.memo(
             </div>
           )}
         </div>
+
+        {/* 共有通知 */}
+        {shareNotification && (
+          <div
+            className={`tag-share-notification-global ${shareNotification.type}`}
+            role="status"
+            aria-live="polite"
+          >
+            <span className="notification-icon">
+              {shareNotification.type === 'success' ? '✓' : '⚠️'}
+            </span>
+            <span className="notification-message">
+              {shareNotification.message}
+            </span>
+          </div>
+        )}
+
+        {/* タグ共有ダイアログ */}
+        <TagShareDialog
+          isOpen={!!shareDialogTagName}
+          tagName={shareDialogTagName || ''}
+          onClose={handleCloseShareDialog}
+          onShareSuccess={handleShareSuccess}
+          onShareError={handleShareError}
+        />
       </StandardLayout>
     )
   }
