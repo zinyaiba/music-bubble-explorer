@@ -1,9 +1,10 @@
 /**
  * TagShareDialog コンポーネント
  * タグ共有テキスト編集用のダイアログ
+ * TagEditDialogと同じパターンで実装
  */
 
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import styled, { keyframes } from 'styled-components'
 import { useGlassmorphismTheme } from './GlassmorphismThemeProvider'
 import { tagShareService } from '@/services/tagShareService'
@@ -16,10 +17,6 @@ const fadeIn = keyframes`
 const slideUp = keyframes`
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
-`
-
-const spin = keyframes`
-  to { transform: rotate(360deg); }
 `
 
 export interface TagShareDialogProps {
@@ -42,8 +39,6 @@ const Overlay = styled.div<{ $isOpen: boolean }>`
   animation: ${fadeIn} 0.2s ease;
   padding: 12px;
   box-sizing: border-box;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
 `
 
 const DialogBox = styled.div<{ $theme: any }>`
@@ -57,7 +52,6 @@ const DialogBox = styled.div<{ $theme: any }>`
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   animation: ${slideUp} 0.25s ease;
-  touch-action: manipulation;
 `
 
 const DialogTitle = styled.h3<{ $theme: any }>`
@@ -140,7 +134,6 @@ const ResetButton = styled.button`
   transition: all 0.2s ease;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  user-select: none;
 
   &:hover {
     background: rgba(0, 0, 0, 0.1);
@@ -149,7 +142,6 @@ const ResetButton = styled.button`
 
   &:active {
     background: rgba(0, 0, 0, 0.15);
-    transform: scale(0.98);
   }
 `
 
@@ -185,17 +177,17 @@ const Button = styled.button<{
   $isSuccess?: boolean
 }>`
   flex: 1;
-  padding: 10px 12px;
+  padding: 12px;
   border: none;
   border-radius: 10px;
   cursor: ${props => (props.$isLoading ? 'wait' : 'pointer')};
-  min-height: 44px;
+  min-height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 600;
   transition: all 0.2s ease;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
@@ -220,22 +212,13 @@ const Button = styled.button<{
   }
 
   &:active:not(:disabled) {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    transform: translateY(0);
   }
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;
   }
-`
-
-const LoadingSpinner = styled.span`
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: ${spin} 0.8s linear infinite;
 `
 
 export const TagShareDialog: React.FC<TagShareDialogProps> = ({
@@ -249,7 +232,6 @@ export const TagShareDialog: React.FC<TagShareDialogProps> = ({
   const [shareText, setShareText] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // ダイアログが開いたときにテキストを生成
   useEffect(() => {
@@ -257,33 +239,32 @@ export const TagShareDialog: React.FC<TagShareDialogProps> = ({
       const generatedText = tagShareService.generateShareText({ tagName })
       setShareText(generatedText)
       setCopySuccess(false)
-      setTimeout(() => {
-        textareaRef.current?.focus()
-        textareaRef.current?.select()
-      }, 100)
     }
   }, [isOpen, tagName])
 
   // ESCキーでキャンセル
   useEffect(() => {
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen && !isLoading) onClose()
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen && !isLoading) {
+        onClose()
+      }
     }
     if (isOpen) {
-      document.addEventListener('keydown', handleGlobalKeyDown)
-      return () => document.removeEventListener('keydown', handleGlobalKeyDown)
+      document.addEventListener('keydown', handleKeyDown)
+      return () => document.removeEventListener('keydown', handleKeyDown)
     }
   }, [isOpen, isLoading, onClose])
 
   const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget && !isLoading) onClose()
+    if (e.target === e.currentTarget && !isLoading) {
+      onClose()
+    }
   }
 
   const handleReset = useCallback(() => {
     const generatedText = tagShareService.generateShareText({ tagName })
     setShareText(generatedText)
     setCopySuccess(false)
-    textareaRef.current?.focus()
   }, [tagName])
 
   const handleCopy = useCallback(async () => {
@@ -335,7 +316,6 @@ export const TagShareDialog: React.FC<TagShareDialogProps> = ({
 
         <TextareaContainer>
           <Textarea
-            ref={textareaRef}
             $theme={theme}
             $hasError={isOverLimit}
             value={shareText}
@@ -381,16 +361,11 @@ export const TagShareDialog: React.FC<TagShareDialogProps> = ({
             disabled={isLoading || !shareText.trim()}
             type="button"
           >
-            {isLoading ? (
-              <>
-                <LoadingSpinner />
-                コピー中
-              </>
-            ) : copySuccess ? (
-              '✓ コピー完了'
-            ) : (
-              '📋 コピー'
-            )}
+            {isLoading
+              ? 'コピー中...'
+              : copySuccess
+                ? '✓ コピー完了'
+                : '📋 コピー'}
           </Button>
         </ButtonGroup>
       </DialogBox>
