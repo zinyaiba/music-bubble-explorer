@@ -46,6 +46,7 @@ const Overlay = styled.div<{ $isOpen: boolean }>`
 `
 
 const DialogBox = styled.div<{ $theme: any }>`
+  position: relative;
   max-width: 360px;
   width: 100%;
   padding: 16px;
@@ -241,6 +242,27 @@ const LoadingSpinner = styled.span`
   flex-shrink: 0;
 `
 
+const DialogLoadingOverlay = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 14px;
+  z-index: 10;
+`
+
+const DialogLoadingSpinner = styled.span`
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(29, 161, 242, 0.2);
+  border-top-color: #1da1f2;
+  border-radius: 50%;
+  animation: ${spin} 0.8s linear infinite;
+`
+
 export const TagShareDialog: React.FC<TagShareDialogProps> = ({
   isOpen,
   tagName,
@@ -252,13 +274,25 @@ export const TagShareDialog: React.FC<TagShareDialogProps> = ({
   const [shareText, setShareText] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [copySuccess, setCopySuccess] = useState(false)
+  const [isReady, setIsReady] = useState(false)
 
   // ダイアログが開いたときにテキストを生成
   useEffect(() => {
     if (isOpen && tagName) {
-      const generatedText = tagShareService.generateShareText({ tagName })
-      setShareText(generatedText)
+      setIsReady(false)
       setCopySuccess(false)
+
+      // 次のフレームでテキスト生成と準備完了を設定
+      requestAnimationFrame(() => {
+        const generatedText = tagShareService.generateShareText({ tagName })
+        setShareText(generatedText)
+        // UIが安定するまで少し待つ
+        setTimeout(() => {
+          setIsReady(true)
+        }, 100)
+      })
+    } else {
+      setIsReady(false)
     }
   }, [isOpen, tagName])
 
@@ -330,6 +364,11 @@ export const TagShareDialog: React.FC<TagShareDialogProps> = ({
       aria-labelledby="share-dialog-title"
     >
       <DialogBox $theme={theme}>
+        {!isReady && (
+          <DialogLoadingOverlay>
+            <DialogLoadingSpinner />
+          </DialogLoadingOverlay>
+        )}
         <DialogTitle $theme={theme} id="share-dialog-title">
           Xで共有(コピーしてね)
         </DialogTitle>
@@ -344,7 +383,7 @@ export const TagShareDialog: React.FC<TagShareDialogProps> = ({
               setCopySuccess(false)
             }}
             placeholder="共有テキストを入力..."
-            disabled={isLoading}
+            disabled={isLoading || !isReady}
             aria-invalid={isOverLimit}
           />
         </TextareaContainer>
@@ -353,7 +392,7 @@ export const TagShareDialog: React.FC<TagShareDialogProps> = ({
           <CharCount $isOver={isOverLimit}>
             {charCount}/140文字{isOverLimit && ' ⚠️'}
           </CharCount>
-          <ResetButton onClick={handleReset} type="button">
+          <ResetButton onClick={handleReset} type="button" disabled={!isReady}>
             🔄 リセット
           </ResetButton>
         </InfoRow>
@@ -378,7 +417,7 @@ export const TagShareDialog: React.FC<TagShareDialogProps> = ({
             $isLoading={isLoading}
             $isSuccess={copySuccess}
             onClick={handleCopy}
-            disabled={isLoading || !shareText.trim()}
+            disabled={isLoading || !isReady || !shareText.trim()}
             type="button"
           >
             {isLoading ? (
