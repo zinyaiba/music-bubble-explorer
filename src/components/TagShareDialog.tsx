@@ -42,6 +42,8 @@ const Overlay = styled.div<{ $isOpen: boolean }>`
   animation: ${fadeIn} 0.2s ease;
   padding: 12px;
   box-sizing: border-box;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 `
 
 const DialogBox = styled.div<{ $theme: any }>`
@@ -55,6 +57,7 @@ const DialogBox = styled.div<{ $theme: any }>`
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
   animation: ${slideUp} 0.25s ease;
+  touch-action: manipulation;
 `
 
 const DialogTitle = styled.h3<{ $theme: any }>`
@@ -135,10 +138,18 @@ const ResetButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 
   &:hover {
     background: rgba(0, 0, 0, 0.1);
     color: #374151;
+  }
+
+  &:active {
+    background: rgba(0, 0, 0, 0.15);
+    transform: scale(0.98);
   }
 `
 
@@ -178,7 +189,7 @@ const Button = styled.button<{
   border: none;
   border-radius: 10px;
   cursor: ${props => (props.$isLoading ? 'wait' : 'pointer')};
-  min-height: 40px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -186,6 +197,9 @@ const Button = styled.button<{
   font-size: 13px;
   font-weight: 500;
   transition: all 0.2s ease;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 
   background: ${props => {
     if (props.$isLoading) return '#e5e7eb'
@@ -206,7 +220,8 @@ const Button = styled.button<{
   }
 
   &:active:not(:disabled) {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
   }
   &:disabled {
     opacity: 0.6;
