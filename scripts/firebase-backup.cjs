@@ -141,6 +141,12 @@ function displayDiff(diff, previousFile) {
       if (item.data.artists) {
         console.log(`     アーティスト: ${item.data.artists.join(', ')}`);
       }
+      if (item.data.venueName) {
+        console.log(`     会場: ${item.data.venueName}`);
+      }
+      if (item.data.tourLocation) {
+        console.log(`     公演地: ${item.data.tourLocation}`);
+      }
     }
   }
   
@@ -261,7 +267,7 @@ async function backupFirestore(db) {
   try {
     console.log('🔄 バックアップ開始...');
     
-    const collections = ['songs']; // バックアップ対象のコレクション
+    const collections = ['songs', 'lives']; // バックアップ対象のコレクション
     const backup = {
       timestamp: new Date().toISOString(),
       version: '1.0.0',

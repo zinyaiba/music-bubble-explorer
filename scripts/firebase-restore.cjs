@@ -5,6 +5,8 @@
  * 使い方:
  *   node scripts/firebase-restore.cjs backups/firebase-backup-2024-11-29.json
  *   node scripts/firebase-restore.cjs backups/firebase-backup-2024-11-29.json --merge
+ *   node scripts/firebase-restore.cjs backups/firebase-backup-2024-11-29.json --collection songs
+ *   node scripts/firebase-restore.cjs backups/firebase-backup-2024-11-29.json --collection lives --merge
  */
 
 const admin = require('firebase-admin');
@@ -15,11 +17,21 @@ const path = require('path');
 const args = process.argv.slice(2);
 const backupFile = args[0];
 const mergeMode = args.includes('--merge');
+const collectionIndex = args.indexOf('--collection');
+const targetCollection = collectionIndex !== -1 ? args[collectionIndex + 1] : null;
 
 if (!backupFile) {
   console.error('❌ バックアップファイルを指定してください');
-  console.error('使い方: node scripts/firebase-restore.cjs <backup-file>');
-  console.error('例: node scripts/firebase-restore.cjs backups/firebase-backup-2024-11-29.json');
+  console.error('使い方: node scripts/firebase-restore.cjs <backup-file> [options]');
+  console.error('');
+  console.error('オプション:');
+  console.error('  --merge              既存データを保持してマージ');
+  console.error('  --collection <name>  特定のコレクションのみ復元 (songs, lives)');
+  console.error('');
+  console.error('例:');
+  console.error('  node scripts/firebase-restore.cjs backups/firebase-backup-2024-11-29.json');
+  console.error('  node scripts/firebase-restore.cjs backups/firebase-backup-2024-11-29.json --merge');
+  console.error('  node scripts/firebase-restore.cjs backups/firebase-backup-2024-11-29.json --collection lives');
   process.exit(1);
 }
 
@@ -75,6 +87,21 @@ async function restoreFirestore(db, backup) {
   try {
     console.log('🔄 リストア開始...');
     
+    // 復元対象のコレクションを決定
+    let collectionsToRestore = Object.entries(backup.collections);
+    
+    if (targetCollection) {
+      if (!backup.collections[targetCollection]) {
+        console.error(`❌ コレクション "${targetCollection}" はバックアップに含まれていません`);
+        console.error(`   利用可能なコレクション: ${Object.keys(backup.collections).join(', ')}`);
+        process.exit(1);
+      }
+      collectionsToRestore = [[targetCollection, backup.collections[targetCollection]]];
+      console.log(`📦 対象コレクション: ${targetCollection}`);
+    } else {
+      console.log(`📦 対象コレクション: ${Object.keys(backup.collections).join(', ')}`);
+    }
+    
     if (!mergeMode) {
       console.log('⚠️  警告: 既存のデータを削除してから復元します');
       console.log('   マージモードで実行する場合は --merge オプションを使用してください');
@@ -87,7 +114,7 @@ async function restoreFirestore(db, backup) {
     
     let totalRestored = 0;
     
-    for (const [collectionName, documents] of Object.entries(backup.collections)) {
+    for (const [collectionName, documents] of collectionsToRestore) {
       console.log(`\n📦 コレクション "${collectionName}" を復元中...`);
       
       if (!mergeMode) {
@@ -116,7 +143,7 @@ async function restoreFirestore(db, backup) {
         }
       }
       
-      console.log(`\n✅ コレクション "${collectionName}" の復元完了`);
+      console.log(`\n✅ コレクション "${collectionName}" の復元完了 (${documents.length}件)`);
     }
     
     console.log(`\n✅ リストア完了: ${totalRestored}件のドキュメント`);
