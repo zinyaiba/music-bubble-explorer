@@ -37,3 +37,6 @@ firebase-service-account*.json
 # Backups
 backups/
 *.backup.json
+
+# 別リポジトリ（独立管理）
+music-bubble-v2/
